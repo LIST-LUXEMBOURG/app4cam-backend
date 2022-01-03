@@ -1,5 +1,9 @@
 # PolliCAM Backend
 
+## Setup
+
+1. Install dependencies: `npm install`
+
 ## Commands
 
 - Start: `node main.ts`

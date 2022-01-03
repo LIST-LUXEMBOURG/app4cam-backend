@@ -6,6 +6,7 @@
   "scripts": {
     "format": "npx prettier --write .",
     "serve": "nodemon main.ts",
+    "prepare": "husky install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -13,10 +14,15 @@
   },
   "devDependencies": {
     "@types/node": "^17.0.7",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.5",
     "nodemon": "^2.0.15",
     "prettier": "2.5.1",
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
     "typescript": "^4.5.4"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
