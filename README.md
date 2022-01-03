@@ -1,5 +1,8 @@
 # PolliCAM Backend
 
-`node main.ts`
+## Commands
 
-Automatically restart when file changes in the directory are detected: `npm run serve` or `npx ts-node main.ts`
+- Start: `node main.ts`
+- Automatically restart when file changes in the directory are detected: `npm run serve`
+- Format files with Prettier: `npm run format`
+- Check files with Prettier: `npx prettier --check .`
