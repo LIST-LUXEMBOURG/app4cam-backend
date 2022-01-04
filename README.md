@@ -2,11 +2,32 @@
 
 ## Setup
 
-1. Install dependencies: `npm install`
+```bash
+$ npm install
+```
 
-## Commands
+## Running the app
 
-- Start: `node main.ts`
-- Automatically restart when file changes in the directory are detected: `npm run serve`
-- Format files with Prettier: `npm run format`
-- Check files with Prettier: `npx prettier --check .`
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
+
+## Test
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
