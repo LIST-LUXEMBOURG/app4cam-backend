@@ -2,9 +2,9 @@
 
 ## Setup
 
-```bash
-$ npm install
-```
+1. Run: `npm install`
+2. Copy config file `.env.sample` as `.env`.
+3. Edit config file `.env` as needed.
 
 ## Running the app
 

@@ -8,7 +8,6 @@ export class FilesController {
 
   @Get()
   async findAll(): Promise<File[]> {
-    this.filesService.setFileFolderPath('src/files/test')
     return this.filesService.findAll()
   }
 

@@ -2,10 +2,15 @@ import { Injectable } from '@nestjs/common'
 import { File } from './entities/file.entity'
 import { lstat, readdir } from 'fs/promises'
 import path = require('path')
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class FilesService {
   fileFolderPath: string
+
+  constructor(private configService: ConfigService) {
+    this.fileFolderPath = this.configService.get<string>('FILES_FOLDER_PATH')
+  }
 
   setFileFolderPath(fileFolerPath: string) {
     this.fileFolderPath = fileFolerPath

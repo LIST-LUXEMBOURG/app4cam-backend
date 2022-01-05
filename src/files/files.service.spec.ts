@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { FilesService } from './files.service'
 import { readdir, rm, writeFile } from 'fs/promises'
+import { ConfigService } from '@nestjs/config'
 
 const TEST_FOLDER = 'src/files/test'
 
@@ -9,7 +10,7 @@ describe('FilesService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FilesService],
+      providers: [ConfigService, FilesService],
     }).compile()
 
     service = module.get<FilesService>(FilesService)

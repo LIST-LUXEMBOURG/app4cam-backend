@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { FilesController } from './files.controller'
 import { FilesService } from './files.service'
@@ -8,7 +9,7 @@ describe('FilesController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [FilesController],
-      providers: [FilesService],
+      providers: [FilesService, ConfigService],
     }).compile()
 
     controller = module.get<FilesController>(FilesController)
