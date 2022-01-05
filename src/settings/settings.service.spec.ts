@@ -32,6 +32,6 @@ describe('SettingsService', () => {
     const spy = jest.spyOn(SettingsFileProvider, 'writeSettingsToFile')
     await service.setSiteName('a')
     expect(spy).toHaveBeenCalledWith(expect.any(Object), expect.any(String))
-    spy.mockRestore
+    spy.mockRestore()
   })
 })

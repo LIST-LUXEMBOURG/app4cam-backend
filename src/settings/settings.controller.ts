@@ -7,8 +7,11 @@ export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Get('siteName')
-  getSiteName() {
-    return this.settingsService.getSiteName()
+  async getSiteName(): Promise<SetSiteNameDto> {
+    const siteName = await this.settingsService.getSiteName()
+    return {
+      siteName,
+    }
   }
 
   @Patch('siteName')
