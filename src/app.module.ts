@@ -4,14 +4,12 @@ import { AppService } from './app.service'
 import { FilesModule } from './files/files.module'
 import { SettingsModule } from './settings/settings.module'
 import { ConfigModule } from '@nestjs/config'
-import * as Joi from 'joi'
+import { validate } from './env.validation'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      validationSchema: Joi.object({
-        FILES_FOLDER_PATH: Joi.string().required(),
-      }),
+      validate,
     }),
     FilesModule,
     SettingsModule,
