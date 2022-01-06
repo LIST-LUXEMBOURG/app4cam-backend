@@ -22,16 +22,20 @@ describe('SettingsService', () => {
       deviceId: 'd',
       siteName: 's',
     }
-    let spyRead
-    let spyWrite
+    let spyReadSettingsFile
+    let spyWriteSettingsFile
 
     beforeAll(() => {
-      spyRead = jest
+      spyReadSettingsFile = jest
         .spyOn(SettingsFileProvider, 'readSettingsFile')
         .mockImplementation(() => {
           return Promise.resolve(SETTINGS)
         })
-      spyWrite = jest.spyOn(SettingsFileProvider, 'writeSettingsToFile')
+      spyWriteSettingsFile = jest
+        .spyOn(SettingsFileProvider, 'writeSettingsToFile')
+        .mockImplementation(() => {
+          return Promise.resolve()
+        })
     })
 
     it('should get all settings', async () => {
@@ -46,7 +50,7 @@ describe('SettingsService', () => {
 
     it('should set site name', async () => {
       await service.setSiteName('a')
-      expect(spyWrite).toHaveBeenCalledWith(
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expect.any(Object),
         expect.any(String),
       )
@@ -59,14 +63,15 @@ describe('SettingsService', () => {
 
     it('should set device ID', async () => {
       await service.setDeviceId('b')
-      expect(spyWrite).toHaveBeenCalledWith(
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expect.any(Object),
         expect.any(String),
       )
     })
 
     afterAll(() => {
-      spyRead.mockRestore()
+      spyReadSettingsFile.mockRestore()
+      spyWriteSettingsFile.mockRestore()
     })
   })
 })

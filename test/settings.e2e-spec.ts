@@ -2,9 +2,29 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
+import { SettingsFileProvider } from '../src/settings/settings.file.provider'
 
 describe('AppController (e2e)', () => {
+  const SETTINGS = {
+    deviceId: 'd',
+    siteName: 's',
+  }
   let app: INestApplication
+  let spyReadSettingsFile
+  let spyWriteSettingsFile
+
+  beforeAll(() => {
+    spyReadSettingsFile = jest
+      .spyOn(SettingsFileProvider, 'readSettingsFile')
+      .mockImplementation(() => {
+        return Promise.resolve(SETTINGS)
+      })
+    spyWriteSettingsFile = jest
+      .spyOn(SettingsFileProvider, 'writeSettingsToFile')
+      .mockImplementation(() => {
+        return Promise.resolve()
+      })
+  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -17,37 +37,24 @@ describe('AppController (e2e)', () => {
   })
 
   describe('/settings', () => {
-    it('/ (GET)', (done) => {
-      request(app.getHttpServer())
+    it('/ (GET)', () => {
+      const expectedData = Buffer.from(JSON.stringify(SETTINGS))
+      return request(app.getHttpServer())
         .get('/settings')
-        .expect(200)
         .expect('Content-Type', /json/)
         .responseType('application/json')
-        .then((response) => {
-          const data = JSON.parse(response.body)
-          expect(
-            Object.prototype.hasOwnProperty.call(data, 'deviceId'),
-          ).toBeTruthy()
-          expect(
-            Object.prototype.hasOwnProperty.call(data, 'siteName'),
-          ).toBeTruthy()
-          done()
-        })
+        .expect(200, expectedData)
     })
 
-    it('/siteName (GET)', (done) => {
-      request(app.getHttpServer())
+    it('/siteName (GET)', () => {
+      const expectedData = Buffer.from(
+        JSON.stringify({ siteName: SETTINGS.siteName }),
+      )
+      return request(app.getHttpServer())
         .get('/settings/siteName')
-        .expect(200)
         .expect('Content-Type', /json/)
         .responseType('application/json')
-        .then((response) => {
-          const data = JSON.parse(response.body)
-          expect(
-            Object.prototype.hasOwnProperty.call(data, 'siteName'),
-          ).toBeTruthy()
-          done()
-        })
+        .expect(200, expectedData)
     })
 
     it('/siteName (PUT)', () => {
@@ -64,19 +71,15 @@ describe('AppController (e2e)', () => {
         .expect(400)
     })
 
-    it('/deviceId (GET)', (done) => {
-      request(app.getHttpServer())
+    it('/deviceId (GET)', () => {
+      const expectedData = Buffer.from(
+        JSON.stringify({ deviceId: SETTINGS.deviceId }),
+      )
+      return request(app.getHttpServer())
         .get('/settings/deviceId')
-        .expect(200)
         .expect('Content-Type', /json/)
         .responseType('application/json')
-        .then((response) => {
-          const data = JSON.parse(response.body)
-          expect(
-            Object.prototype.hasOwnProperty.call(data, 'deviceId'),
-          ).toBeTruthy()
-          done()
-        })
+        .expect(200, expectedData)
     })
 
     it('/deviceId (PUT)', () => {
@@ -92,5 +95,10 @@ describe('AppController (e2e)', () => {
         .send({ deviceId: '' })
         .expect(400)
     })
+  })
+
+  afterAll(() => {
+    spyReadSettingsFile.mockRestore()
+    spyWriteSettingsFile.mockRestore()
   })
 })
