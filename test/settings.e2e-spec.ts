@@ -17,6 +17,24 @@ describe('AppController (e2e)', () => {
   })
 
   describe('/settings', () => {
+    it('/ (GET)', (done) => {
+      request(app.getHttpServer())
+        .get('/settings')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .responseType('application/json')
+        .then((response) => {
+          const data = JSON.parse(response.body)
+          expect(
+            Object.prototype.hasOwnProperty.call(data, 'deviceId'),
+          ).toBeTruthy()
+          expect(
+            Object.prototype.hasOwnProperty.call(data, 'siteName'),
+          ).toBeTruthy()
+          done()
+        })
+    })
+
     it('/siteName (GET)', (done) => {
       request(app.getHttpServer())
         .get('/settings/siteName')
@@ -32,17 +50,46 @@ describe('AppController (e2e)', () => {
         })
     })
 
-    it('/siteName (PATCH)', () => {
+    it('/siteName (PUT)', () => {
       return request(app.getHttpServer())
-        .patch('/settings/siteName')
+        .put('/settings/siteName')
         .send({ siteName: 'a' })
         .expect(200)
     })
 
-    it('/siteName (PATCH) empty', async () => {
+    it('/siteName (PUT) empty', async () => {
       return request(app.getHttpServer())
-        .patch('/settings/siteName')
+        .put('/settings/siteName')
         .send({ siteName: '' })
+        .expect(400)
+    })
+
+    it('/deviceId (GET)', (done) => {
+      request(app.getHttpServer())
+        .get('/settings/deviceId')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .responseType('application/json')
+        .then((response) => {
+          const data = JSON.parse(response.body)
+          expect(
+            Object.prototype.hasOwnProperty.call(data, 'deviceId'),
+          ).toBeTruthy()
+          done()
+        })
+    })
+
+    it('/deviceId (PUT)', () => {
+      return request(app.getHttpServer())
+        .put('/settings/deviceId')
+        .send({ deviceId: 'a' })
+        .expect(200)
+    })
+
+    it('/deviceId (PUT) empty', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/deviceId')
+        .send({ deviceId: '' })
         .expect(400)
     })
   })

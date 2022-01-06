@@ -38,14 +38,18 @@ describe('SettingsFileProvider', () => {
     const TEMPORARY_FILE_PATH = TEST_FOLDER_PATH + '/' + TEMPORARY_FILE_NAME
 
     it('should write settings object', async () => {
+      const SETTINGS = {
+        deviceId: 'd',
+        siteName: 's',
+      }
       await SettingsFileProvider.writeSettingsToFile(
-        { siteName: 'a' },
+        SETTINGS,
         TEMPORARY_FILE_PATH,
       )
-      const settings = await SettingsFileProvider.readSettingsFile(
+      const settingsRetrieved = await SettingsFileProvider.readSettingsFile(
         TEMPORARY_FILE_PATH,
       )
-      expect(settings).toEqual({ siteName: 'a' })
+      expect(settingsRetrieved).toEqual(SETTINGS)
     })
 
     afterEach(async () => {

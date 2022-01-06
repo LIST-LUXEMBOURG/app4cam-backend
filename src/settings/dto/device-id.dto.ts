@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 
-export class SetSiteNameDto {
+export class DeviceIdDto {
   @IsNotEmpty()
-  siteName: string
+  deviceId: string
 }

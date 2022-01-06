@@ -3,6 +3,10 @@ import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
 
 describe('SettingsController', () => {
+  const SETTINGS = {
+    deviceId: 'd',
+    siteName: 's',
+  }
   let controller: SettingsController
   let service: SettingsService
 
@@ -13,8 +17,11 @@ describe('SettingsController', () => {
         {
           provide: SettingsService,
           useValue: {
-            getSiteName: jest.fn().mockReturnValue('a'),
+            getAllSettings: jest.fn().mockReturnValue(SETTINGS),
+            getSiteName: jest.fn().mockReturnValue(SETTINGS.siteName),
             setSiteName: jest.fn(),
+            getDeviceId: jest.fn().mockReturnValue(SETTINGS.deviceId),
+            setDeviceId: jest.fn(),
           },
         },
       ],
@@ -28,13 +35,28 @@ describe('SettingsController', () => {
     expect(controller).toBeDefined()
   })
 
+  it('should get all settings', async () => {
+    const response = await controller.getAllSettings()
+    expect(response).toEqual(SETTINGS)
+  })
+
   it('should get the site name', async () => {
     const response = await controller.getSiteName()
-    expect(response).toEqual({ siteName: 'a' })
+    expect(response).toEqual({ siteName: 's' })
   })
 
   it('should set the site name', async () => {
     await controller.setSiteName({ siteName: 'b' })
     expect(service.setSiteName).toHaveBeenCalledWith('b')
+  })
+
+  it('should get the device ID', async () => {
+    const response = await controller.getDeviceId()
+    expect(response).toEqual({ deviceId: 'd' })
+  })
+
+  it('should set the device ID', async () => {
+    await controller.setDeviceId({ deviceId: 'c' })
+    expect(service.setDeviceId).toHaveBeenCalledWith('c')
   })
 })
