@@ -43,6 +43,31 @@ describe('SettingsService', () => {
       expect(settings).toBe(SETTINGS)
     })
 
+    it('should update all settings', async () => {
+      const settingsToUpdate = {
+        deviceId: 'dd',
+        siteName: 'ss',
+      }
+      await service.updateSettings(settingsToUpdate)
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        settingsToUpdate,
+        expect.any(String),
+      )
+    })
+
+    it('should update one setting', async () => {
+      const settingsToUpdate = {
+        deviceId: 'dd',
+      }
+      await service.updateSettings(settingsToUpdate)
+      const expectedSettings = JSON.parse(JSON.stringify(SETTINGS)) // deep clone
+      expectedSettings.deviceId = settingsToUpdate.deviceId
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        expectedSettings,
+        expect.any(String),
+      )
+    })
+
     it('should return site name', async () => {
       const siteName = await service.getSiteName()
       expect(siteName).toBe('s')

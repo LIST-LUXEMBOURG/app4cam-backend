@@ -1,15 +1,27 @@
 import { Injectable } from '@nestjs/common'
+import { Settings } from './settings'
 import { SettingsFileProvider } from './settings.file.provider'
 
 const SETTINGS_FILE_PATH = 'settings.json'
 
 @Injectable()
 export class SettingsService {
-  async getAllSettings() {
+  async getAllSettings(): Promise<Settings> {
     const settings = await SettingsFileProvider.readSettingsFile(
       SETTINGS_FILE_PATH,
     )
     return settings
+  }
+
+  async updateSettings(settingsToUpdate: Partial<Settings>): Promise<void> {
+    let settings = await SettingsFileProvider.readSettingsFile(
+      SETTINGS_FILE_PATH,
+    )
+    settings = {
+      ...settings,
+      ...settingsToUpdate,
+    }
+    SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
   }
 
   async getSiteName(): Promise<string> {

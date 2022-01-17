@@ -46,6 +46,13 @@ describe('AppController (e2e)', () => {
         .expect(200, expectedData)
     })
 
+    it('/ (PATCH)', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ deviceId: 'a' })
+        .expect(200)
+    })
+
     it('/siteName (GET)', () => {
       const expectedData = Buffer.from(
         JSON.stringify({ siteName: SETTINGS.siteName }),
