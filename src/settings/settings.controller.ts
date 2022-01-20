@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Put } from '@nestjs/common'
+import { Controller, Get, Body, Put, Patch } from '@nestjs/common'
 import { DeviceIdDto } from './dto/device-id.dto'
 import { SiteNameDto } from './dto/site-name.dto'
 import { Settings } from './settings'
@@ -11,6 +11,11 @@ export class SettingsController {
   @Get()
   getAllSettings(): Promise<Settings> {
     return this.settingsService.getAllSettings()
+  }
+
+  @Patch()
+  updateSettings(@Body() settings: Partial<Settings>): Promise<void> {
+    return this.settingsService.updateSettings(settings)
   }
 
   @Get('siteName')
