@@ -1,6 +1,7 @@
 import { Controller, Get, Body, Put, Patch } from '@nestjs/common'
 import { DeviceIdDto } from './dto/device-id.dto'
 import { SiteNameDto } from './dto/site-name.dto'
+import { SystemTimeDto } from './dto/system-time.dto'
 import { Settings } from './settings'
 import { SettingsService } from './settings.service'
 
@@ -42,5 +43,18 @@ export class SettingsController {
   @Put('deviceId')
   setDeviceId(@Body() body: DeviceIdDto): Promise<void> {
     return this.settingsService.setDeviceId(body.deviceId)
+  }
+
+  @Get('systemTime')
+  async getSystemTime(): Promise<SystemTimeDto> {
+    const systemTime = await this.settingsService.getSystemTime()
+    return {
+      systemTime,
+    }
+  }
+
+  @Put('systemTime')
+  setSystemTime(@Body() body: SystemTimeDto): Promise<void> {
+    return this.settingsService.setSystemTime(body.systemTime)
   }
 }
