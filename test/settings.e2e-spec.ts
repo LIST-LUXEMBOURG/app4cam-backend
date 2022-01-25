@@ -3,27 +3,38 @@ import { INestApplication, ValidationPipe } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
 import { SettingsFileProvider } from '../src/settings/settings.file.provider'
+import { Settings, SettingsFromJsonFile } from 'src/settings/settings'
+import { SystemTimeInteractor } from '../src/settings/system-time-interactor'
 
 describe('AppController (e2e)', () => {
-  const SETTINGS = {
+  const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
+  const FILE_SETTINGS: SettingsFromJsonFile = {
     deviceId: 'd',
     siteName: 's',
+  }
+  const ALL_SETTINGS: Settings = {
+    ...FILE_SETTINGS,
+    systemTime: SYSTEM_TIME,
   }
   let app: INestApplication
   let spyReadSettingsFile
   let spyWriteSettingsFile
+  let spyGetSystemTime
 
   beforeAll(() => {
     spyReadSettingsFile = jest
       .spyOn(SettingsFileProvider, 'readSettingsFile')
       .mockImplementation(() => {
-        return Promise.resolve(SETTINGS)
+        return Promise.resolve(FILE_SETTINGS)
       })
     spyWriteSettingsFile = jest
       .spyOn(SettingsFileProvider, 'writeSettingsToFile')
       .mockImplementation(() => {
         return Promise.resolve()
       })
+    spyGetSystemTime = jest
+      .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
+      .mockImplementation(() => Promise.resolve(SYSTEM_TIME))
   })
 
   beforeEach(async () => {
@@ -38,7 +49,7 @@ describe('AppController (e2e)', () => {
 
   describe('/settings', () => {
     it('/ (GET)', () => {
-      const expectedData = Buffer.from(JSON.stringify(SETTINGS))
+      const expectedData = Buffer.from(JSON.stringify(ALL_SETTINGS))
       return request(app.getHttpServer())
         .get('/settings')
         .expect('Content-Type', /json/)
@@ -55,7 +66,7 @@ describe('AppController (e2e)', () => {
 
     it('/siteName (GET)', () => {
       const expectedData = Buffer.from(
-        JSON.stringify({ siteName: SETTINGS.siteName }),
+        JSON.stringify({ siteName: FILE_SETTINGS.siteName }),
       )
       return request(app.getHttpServer())
         .get('/settings/siteName')
@@ -80,7 +91,7 @@ describe('AppController (e2e)', () => {
 
     it('/deviceId (GET)', () => {
       const expectedData = Buffer.from(
-        JSON.stringify({ deviceId: SETTINGS.deviceId }),
+        JSON.stringify({ deviceId: FILE_SETTINGS.deviceId }),
       )
       return request(app.getHttpServer())
         .get('/settings/deviceId')
@@ -102,10 +113,43 @@ describe('AppController (e2e)', () => {
         .send({ deviceId: '' })
         .expect(400)
     })
+
+    it('/systemTime (GET)', () => {
+      const expectedData = Buffer.from(
+        JSON.stringify({ systemTime: SYSTEM_TIME }),
+      )
+      return request(app.getHttpServer())
+        .get('/settings/systemTime')
+        .expect('Content-Type', /json/)
+        .responseType('application/json')
+        .expect(200, expectedData)
+    })
+
+    it('/systemTime (PUT)', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/systemTime')
+        .send({ systemTime: '2022-01-18T14:48:37+01:00' })
+        .expect(200)
+    })
+
+    it('/systemTime (PUT) empty', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/systemTime')
+        .send({ systemTime: '' })
+        .expect(400)
+    })
+
+    it('/systemTime (PUT) non-empty', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/systemTime')
+        .send({ systemTime: 'a' })
+        .expect(400)
+    })
   })
 
   afterAll(() => {
     spyReadSettingsFile.mockRestore()
     spyWriteSettingsFile.mockRestore()
+    spyGetSystemTime.mockRestore()
   })
 })

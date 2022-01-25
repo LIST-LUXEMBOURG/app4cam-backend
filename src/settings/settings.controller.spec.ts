@@ -1,11 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { Settings } from './settings'
 import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
 
 describe('SettingsController', () => {
-  const SETTINGS = {
+  const SETTINGS: Settings = {
     deviceId: 'd',
     siteName: 's',
+    systemTime: '2022-01-18T14:48:37+01:00',
   }
   let controller: SettingsController
   let service: SettingsService
@@ -23,6 +25,8 @@ describe('SettingsController', () => {
             setSiteName: jest.fn(),
             getDeviceId: jest.fn().mockReturnValue(SETTINGS.deviceId),
             setDeviceId: jest.fn(),
+            getSystemTime: jest.fn().mockReturnValue(SETTINGS.systemTime),
+            setSystemTime: jest.fn(),
           },
         },
       ],
@@ -49,7 +53,7 @@ describe('SettingsController', () => {
 
   it('should get the site name', async () => {
     const response = await controller.getSiteName()
-    expect(response).toEqual({ siteName: 's' })
+    expect(response).toEqual({ siteName: SETTINGS.siteName })
   })
 
   it('should set the site name', async () => {
@@ -59,11 +63,21 @@ describe('SettingsController', () => {
 
   it('should get the device ID', async () => {
     const response = await controller.getDeviceId()
-    expect(response).toEqual({ deviceId: 'd' })
+    expect(response).toEqual({ deviceId: SETTINGS.deviceId })
   })
 
   it('should set the device ID', async () => {
     await controller.setDeviceId({ deviceId: 'c' })
     expect(service.setDeviceId).toHaveBeenCalledWith('c')
+  })
+
+  it('should get the system time', async () => {
+    const response = await controller.getSystemTime()
+    expect(response).toEqual({ systemTime: SETTINGS.systemTime })
+  })
+
+  it('should set the system time', async () => {
+    await controller.setSystemTime({ systemTime: 'd' })
+    expect(service.setSystemTime).toHaveBeenCalledWith('d')
   })
 })
