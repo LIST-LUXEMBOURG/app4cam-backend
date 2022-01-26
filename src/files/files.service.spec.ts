@@ -1,12 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { FilesService } from './files.service'
-import { readdir, rm, writeFile } from 'fs/promises'
+import { mkdir, readdir, rm, rmdir, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 
 const TEST_FOLDER = 'src/files/test'
 
 describe('FilesService', () => {
   let service: FilesService
+
+  beforeAll(() => {
+    mkdir(TEST_FOLDER)
+  })
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -58,5 +62,9 @@ describe('FilesService', () => {
     expect(files[1].creationTime).toEqual(expect.any(Object))
     expect(files[2].name).toEqual('c.txt')
     expect(files[2].creationTime).toEqual(expect.any(Object))
+  })
+
+  afterAll(() => {
+    rmdir(TEST_FOLDER)
   })
 })
