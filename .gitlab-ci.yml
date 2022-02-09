@@ -20,8 +20,6 @@ test:
   script:
     - npm ci
     - npm run test
-    - mkdir tmp
-    - echo "FILES_FOLDER_PATH=tmp/" > .env
     - npm run test:e2e
 
 deploy:
@@ -60,7 +58,7 @@ deploy:
       cd pollicam-backend &&
       npm ci &&
       npm run build &&
-      echo "FILES_FOLDER_PATH = /home/pi/Desktop/Aurinion/2022_02_07_aurinion04" >> .env &&
+      cp config/aurinion.env config/production.env &&
       sudo systemctl start pollicam-backend &&
       exit
       "

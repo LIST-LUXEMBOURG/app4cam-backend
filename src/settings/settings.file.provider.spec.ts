@@ -1,4 +1,5 @@
 import { unlink } from 'fs/promises'
+import { SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings.file.provider'
 
 const TEST_FOLDER_PATH = 'src/settings/fixtures'
@@ -26,10 +27,15 @@ describe('SettingsFileProvider', () => {
       expect(settings).toEqual({ a: 1, b: 'c', d: false })
     })
 
-    it('should throw an exception if file does not exist', () => {
-      expect(
-        SettingsFileProvider.readSettingsFile(TEST_FOLDER_PATH + '/a'),
-      ).rejects.toThrow()
+    it('should return an object with empty properties if file does not exist', async () => {
+      const settings = await SettingsFileProvider.readSettingsFile(
+        TEST_FOLDER_PATH + '/a',
+      )
+      const expected: SettingsFromJsonFile = {
+        deviceId: '',
+        siteName: '',
+      }
+      expect(settings).toEqual(expected)
     })
   })
 

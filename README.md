@@ -5,8 +5,8 @@
 ### Setup
 
 1. Run: `npm install`
-2. Copy config file `.env.sample` as `.env`.
-3. Edit config file `.env` as needed.
+2. Copy config file `/src/config/env/sample.env` to `/src/config/env/development.env`.
+3. Edit the latter config file as needed.
 
 ### Running the app
 

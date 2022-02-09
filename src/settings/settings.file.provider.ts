@@ -7,10 +7,20 @@ export class SettingsFileProvider {
   static async readSettingsFile(
     filePath: string,
   ): Promise<SettingsFromJsonFile> {
-    const buffer = await readFile(filePath)
-    const data = buffer.toString()
-    const settings = JSON.parse(data)
-    return settings
+    try {
+      const buffer = await readFile(filePath)
+      const data = buffer.toString()
+      const settings = JSON.parse(data)
+      return settings
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        throw err
+      }
+      return {
+        deviceId: '',
+        siteName: '',
+      }
+    }
   }
 
   static async writeSettingsToFile(
