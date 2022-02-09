@@ -9,11 +9,11 @@ export class FilesService {
   fileFolderPath: string
 
   constructor(private configService: ConfigService) {
-    this.fileFolderPath = this.configService.get<string>('FILES_FOLDER_PATH')
+    this.fileFolderPath = this.configService.get<string>('filesFolderPath')
   }
 
-  setFileFolderPath(fileFolerPath: string) {
-    this.fileFolderPath = fileFolerPath
+  setFileFolderPath(fileFolderPath: string) {
+    this.fileFolderPath = fileFolderPath
   }
 
   async findAll(): Promise<File[]> {
