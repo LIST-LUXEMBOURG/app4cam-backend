@@ -15,7 +15,7 @@ describe('SettingsService', () => {
     service = module.get<SettingsService>(SettingsService)
   })
 
-  it('should be defined', () => {
+  it('is defined', () => {
     expect(service).toBeDefined()
   })
 
@@ -53,13 +53,13 @@ describe('SettingsService', () => {
         .mockImplementation(() => Promise.resolve())
     })
 
-    it('should get all settings', async () => {
+    it('gets all settings', async () => {
       const settings = await service.getAllSettings()
       expect(spyGetSystemTime).toHaveBeenCalled()
       expect(settings).toStrictEqual(ALL_SETTINGS)
     })
 
-    it('should update all settings', async () => {
+    it('updates all settings', async () => {
       const settingsToUpdateInFile: SettingsFromJsonFile = {
         deviceId: 'dd',
         siteName: 'ss',
@@ -76,7 +76,7 @@ describe('SettingsService', () => {
       )
     })
 
-    it('should update one setting stored in settings file but not system time', async () => {
+    it('updates one setting stored in settings file but not system time', async () => {
       const settingsToUpdate: Partial<Settings> = {
         deviceId: 'dd',
       }
@@ -90,7 +90,7 @@ describe('SettingsService', () => {
       )
     })
 
-    it('should update system time but neither read nor write settings file', async () => {
+    it('updates system time but neither read nor write settings file', async () => {
       const settingsToUpdate: Partial<Settings> = {
         systemTime: 'sy',
       }
@@ -100,12 +100,12 @@ describe('SettingsService', () => {
       expect(spyWriteSettingsFile).not.toHaveBeenCalled()
     })
 
-    it('should return site name', async () => {
+    it('returns site name', async () => {
       const siteName = await service.getSiteName()
       expect(siteName).toBe(FILE_SETTINGS.siteName)
     })
 
-    it('should set site name', async () => {
+    it('sets site name', async () => {
       await service.setSiteName('a')
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expect.any(Object),
@@ -113,12 +113,12 @@ describe('SettingsService', () => {
       )
     })
 
-    it('should return device ID', async () => {
+    it('returns device ID', async () => {
       const deviceId = await service.getDeviceId()
       expect(deviceId).toBe(FILE_SETTINGS.deviceId)
     })
 
-    it('should set device ID', async () => {
+    it('sets device ID', async () => {
       await service.setDeviceId('b')
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expect.any(Object),
@@ -126,12 +126,12 @@ describe('SettingsService', () => {
       )
     })
 
-    it('should return system time', async () => {
+    it('returns system time', async () => {
       const systemTime = await service.getSystemTime()
       expect(systemTime).toBe(ALL_SETTINGS.systemTime)
     })
 
-    it('should set system time', async () => {
+    it('sets system time', async () => {
       const systemTime = 'd'
       await service.setSystemTime(systemTime)
       expect(spySetSystemTime).toHaveBeenCalledWith(systemTime)

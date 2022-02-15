@@ -1,35 +1,36 @@
-import { unlink } from 'fs/promises'
+import { mkdir, rm } from 'fs/promises'
 import { SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings.file.provider'
 
-const TEST_FOLDER_PATH = 'src/settings/fixtures'
+const FIXTURE_FOLDER_PATH = 'src/settings/fixtures'
+const TEST_FOLDER_PATH = 'src/settings/test'
 
 describe('SettingsFileProvider', () => {
   describe('readSettingsFile', () => {
-    it('should return an empty object', async () => {
+    it('returns an empty object', async () => {
       const settings = await SettingsFileProvider.readSettingsFile(
-        TEST_FOLDER_PATH + '/empty-settings.json',
+        FIXTURE_FOLDER_PATH + '/empty-settings.json',
       )
       expect(settings).toEqual({})
     })
 
-    it('should return an object with one element', async () => {
+    it('returns an object with one element', async () => {
       const settings = await SettingsFileProvider.readSettingsFile(
-        TEST_FOLDER_PATH + '/one-element-settings.json',
+        FIXTURE_FOLDER_PATH + '/one-element-settings.json',
       )
       expect(settings).toEqual({ a: 1 })
     })
 
-    it('should return an object with three elements', async () => {
+    it('returns an object with three elements', async () => {
       const settings = await SettingsFileProvider.readSettingsFile(
-        TEST_FOLDER_PATH + '/three-elements-settings.json',
+        FIXTURE_FOLDER_PATH + '/three-elements-settings.json',
       )
       expect(settings).toEqual({ a: 1, b: 'c', d: false })
     })
 
-    it('should return an object with empty properties if file does not exist', async () => {
+    it('returns an object with empty properties if file does not exist', async () => {
       const settings = await SettingsFileProvider.readSettingsFile(
-        TEST_FOLDER_PATH + '/a',
+        FIXTURE_FOLDER_PATH + '/a',
       )
       const expected: SettingsFromJsonFile = {
         deviceId: '',
@@ -43,7 +44,11 @@ describe('SettingsFileProvider', () => {
     const TEMPORARY_FILE_NAME = 'write-settings.json'
     const TEMPORARY_FILE_PATH = TEST_FOLDER_PATH + '/' + TEMPORARY_FILE_NAME
 
-    it('should write settings object', async () => {
+    beforeAll(() => {
+      mkdir(TEST_FOLDER_PATH)
+    })
+
+    it('writes settings object', async () => {
       const SETTINGS = {
         deviceId: 'd',
         siteName: 's',
@@ -58,8 +63,8 @@ describe('SettingsFileProvider', () => {
       expect(settingsRetrieved).toEqual(SETTINGS)
     })
 
-    afterEach(async () => {
-      await unlink(TEMPORARY_FILE_PATH)
+    afterAll(async () => {
+      rm(TEST_FOLDER_PATH, { recursive: true, force: true })
     })
   })
 })
