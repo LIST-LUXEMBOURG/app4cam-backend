@@ -147,6 +147,10 @@ describe('AppController (e2e)', () => {
     })
   })
 
+  afterEach(() => {
+    app.close()
+  })
+
   afterAll(() => {
     spyReadSettingsFile.mockRestore()
     spyWriteSettingsFile.mockRestore()

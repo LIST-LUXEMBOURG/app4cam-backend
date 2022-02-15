@@ -36,47 +36,47 @@ describe('SettingsController', () => {
     service = module.get<SettingsService>(SettingsService)
   })
 
-  it('should be defined', () => {
+  it('is defined', () => {
     expect(controller).toBeDefined()
   })
 
-  it('should get all settings', async () => {
+  it('gets all settings', async () => {
     const response = await controller.getAllSettings()
     expect(response).toEqual(SETTINGS)
   })
 
-  it('should set settings', async () => {
+  it('sets settings', async () => {
     const settings = { deviceId: 'd', siteName: 's' }
     await controller.updateSettings(settings)
     expect(service.updateSettings).toHaveBeenCalledWith(settings)
   })
 
-  it('should get the site name', async () => {
+  it('gets the site name', async () => {
     const response = await controller.getSiteName()
     expect(response).toEqual({ siteName: SETTINGS.siteName })
   })
 
-  it('should set the site name', async () => {
+  it('sets the site name', async () => {
     await controller.setSiteName({ siteName: 'b' })
     expect(service.setSiteName).toHaveBeenCalledWith('b')
   })
 
-  it('should get the device ID', async () => {
+  it('gets the device ID', async () => {
     const response = await controller.getDeviceId()
     expect(response).toEqual({ deviceId: SETTINGS.deviceId })
   })
 
-  it('should set the device ID', async () => {
+  it('sets the device ID', async () => {
     await controller.setDeviceId({ deviceId: 'c' })
     expect(service.setDeviceId).toHaveBeenCalledWith('c')
   })
 
-  it('should get the system time', async () => {
+  it('gets the system time', async () => {
     const response = await controller.getSystemTime()
     expect(response).toEqual({ systemTime: SETTINGS.systemTime })
   })
 
-  it('should set the system time', async () => {
+  it('sets the system time', async () => {
     await controller.setSystemTime({ systemTime: 'd' })
     expect(service.setSystemTime).toHaveBeenCalledWith('d')
   })
