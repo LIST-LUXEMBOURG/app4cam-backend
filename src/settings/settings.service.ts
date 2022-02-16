@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Settings } from './settings'
-import { SettingsFileProvider } from './settings.file.provider'
+import { SettingsFileProvider } from './settings-file-provider'
 import { SystemTimeInteractor } from './system-time-interactor'
 
 const SETTINGS_FILE_PATH = 'settings.json'

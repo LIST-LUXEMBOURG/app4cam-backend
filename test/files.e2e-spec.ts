@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
-import { SettingsFileProvider } from '../src/settings/settings.file.provider'
+import { SettingsFileProvider } from '../src/settings/settings-file-provider'
 import { SettingsFromJsonFile } from '../src/settings/settings'
 
 describe('FilesController (e2e)', () => {
