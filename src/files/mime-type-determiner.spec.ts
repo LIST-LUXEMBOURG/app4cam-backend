@@ -17,5 +17,9 @@ describe('MimeTypeDeterminer', () => {
     it('returns content type for jpg', () => {
       expect(MimeTypeDeterminer.getContentType('jpg')).toEqual('image/jpeg')
     })
+
+    it('returns content type for mp4', () => {
+      expect(MimeTypeDeterminer.getContentType('mp4')).toEqual('video/mp4')
+    })
   })
 })
