@@ -1,4 +1,3 @@
-import md5 = require('md5')
 import AdmZip = require('adm-zip')
 import { lstat, readdir, rm } from 'fs/promises'
 import path = require('path')
@@ -6,12 +5,17 @@ import path = require('path')
 const TIME_TO_LIVE_MILLISECONDS = 3600000 // 1 hour
 
 export class ArchiveFileManager {
-  static sortAndConcatStrings(strings: string[]): string {
-    return strings.sort().join('')
+  static createArchiveFilename(
+    date: Date,
+    deviceId: string,
+    siteName: string,
+  ): string {
+    const time = this.stripHyphensColonsDots(date.toISOString())
+    return siteName + '_' + deviceId + '_' + time + '.zip'
   }
 
-  static createUniqueFilename(filenames: string[]): string {
-    return md5(this.sortAndConcatStrings(filenames))
+  static stripHyphensColonsDots(input: string) {
+    return input.replaceAll('-', '').replaceAll(':', '').replaceAll('.', '')
   }
 
   static createArchive(archiveFilePath: string, filePaths: string[]): void {

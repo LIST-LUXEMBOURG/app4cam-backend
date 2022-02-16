@@ -3,13 +3,16 @@ import { FilesService } from './files.service'
 import { mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 import { FileHandler } from './file-handler'
+import { SettingsService } from '../settings/settings.service'
+import { SettingsModule } from '../settings/settings.module'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 
 describe('FilesService', () => {
   it('is defined', async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ConfigService, FilesService],
+      providers: [ConfigService, FilesService, SettingsService],
+      imports: [SettingsModule],
     }).compile()
 
     const service = module.get<FilesService>(FilesService)
@@ -37,6 +40,7 @@ describe('FilesService', () => {
           },
           FilesService,
         ],
+        imports: [SettingsModule],
       }).compile()
 
       service = module.get<FilesService>(FilesService)
@@ -100,6 +104,7 @@ describe('FilesService', () => {
           },
           FilesService,
         ],
+        imports: [SettingsModule],
       }).compile()
 
       service = module.get<FilesService>(FilesService)

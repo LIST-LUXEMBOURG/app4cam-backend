@@ -2,9 +2,24 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
+import { SettingsFileProvider } from '../src/settings/settings.file.provider'
+import { SettingsFromJsonFile } from '../src/settings/settings'
 
 describe('FilesController (e2e)', () => {
+  const FILE_SETTINGS: SettingsFromJsonFile = {
+    deviceId: 'd',
+    siteName: 's',
+  }
   let app: INestApplication
+  let spyReadSettingsFile
+
+  beforeAll(() => {
+    spyReadSettingsFile = jest
+      .spyOn(SettingsFileProvider, 'readSettingsFile')
+      .mockImplementation(() => {
+        return Promise.resolve(FILE_SETTINGS)
+      })
+  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -30,7 +45,7 @@ describe('FilesController (e2e)', () => {
       .expect(200)
       .expect('Content-Type', /text\/plain/)
       .expect('Content-Disposition', `attachment; filename="${filename}"`)
-      .responseType('binary')
+      .responseType('blob')
   })
 
   it('/files/download (POST)', () => {
@@ -40,8 +55,11 @@ describe('FilesController (e2e)', () => {
       .send({ filenames })
       .expect(201)
       .expect('Content-Type', /application\/zip/)
-      .expect('Content-Disposition', /attachment; filename="[a-z0-9]+.zip"/)
-      .responseType('binary')
+      .expect(
+        'Content-Disposition',
+        /attachment; filename="[A-Za-z0-9]+_[A-Za-z0-9]+_[TZ0-9]+.zip"/,
+      )
+      .responseType('blob')
   })
 
   it('/files/download (POST)', () => {
@@ -62,5 +80,9 @@ describe('FilesController (e2e)', () => {
 
   afterEach(() => {
     app.close()
+  })
+
+  afterAll(() => {
+    spyReadSettingsFile.mockRestore()
   })
 })

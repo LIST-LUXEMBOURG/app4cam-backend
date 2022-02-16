@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config'
 import { ArchiveFileManager } from './archive-file-manager'
 import { FileHandler } from './file-handler'
 import { Cron } from '@nestjs/schedule'
+import { SettingsService } from '../settings/settings.service'
 
 const ARCHIVE_FOLDER_PATH = 'temp'
 
@@ -14,7 +15,10 @@ export class FilesService {
   private readonly fileFolderPath: string
   private readonly logger = new Logger(FilesService.name)
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly settingsService: SettingsService,
+  ) {
     this.fileFolderPath = this.configService.get<string>('filesFolderPath')
   }
 
@@ -45,20 +49,18 @@ export class FilesService {
   }
 
   async getStreamableFiles(filenames: string[]) {
-    const archiveFilename =
-      ArchiveFileManager.createUniqueFilename(filenames) + '.zip'
+    const now = new Date()
+    const settings = await this.settingsService.getAllSettings()
+    const archiveFilename = ArchiveFileManager.createArchiveFilename(
+      now,
+      settings.deviceId,
+      settings.siteName,
+    )
     const archiveFilePath = path.join(ARCHIVE_FOLDER_PATH, archiveFilename)
-    if (!(await FileHandler.exists(archiveFilePath))) {
-      this.logger.log(
-        `${archiveFilePath} does not exist yet, so it will be created.`,
-      )
-      const filePaths = filenames.map((filename) =>
-        path.join(this.fileFolderPath, filename),
-      )
-      ArchiveFileManager.createArchive(archiveFilePath, filePaths)
-    } else {
-      this.logger.log(`${archiveFilePath} exists already.`)
-    }
+    const filePaths = filenames.map((filename) =>
+      path.join(this.fileFolderPath, filename),
+    )
+    ArchiveFileManager.createArchive(archiveFilePath, filePaths)
     const streamableFile =
       FileHandler.createStreamWithContentType(archiveFilePath)
     return {

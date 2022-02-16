@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { SettingsService } from '../settings/settings.service'
 import { PassThrough } from 'stream'
 import { FilesController } from './files.controller'
 import { FilesService } from './files.service'
@@ -28,6 +29,7 @@ describe('FilesController', () => {
             })),
           },
         },
+        SettingsService,
       ],
     }).compile()
 
