@@ -1,6 +1,6 @@
 import { mkdir, rm } from 'fs/promises'
 import { SettingsFromJsonFile } from './settings'
-import { SettingsFileProvider } from './settings.file.provider'
+import { SettingsFileProvider } from './settings-file-provider'
 
 const FIXTURE_FOLDER_PATH = 'src/settings/fixtures'
 const TEST_FOLDER_PATH = 'src/settings/test'
