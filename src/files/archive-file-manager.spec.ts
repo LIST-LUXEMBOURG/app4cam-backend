@@ -4,20 +4,23 @@ import { writeFile, mkdir, rm } from 'fs/promises'
 import AdmZip = require('adm-zip')
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
+const SYSTEM_TIME_ISO = '2022-01-18T13:48:37.000Z'
+const SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS = '20220118T134837000Z'
 
 describe('ArchiveFileCreator', () => {
-  describe('sortAndConcatStrings', () => {
-    it('returns correct concatenation of three strings', () => {
-      expect(ArchiveFileManager.sortAndConcatStrings(['b', 'a', 'c'])).toBe(
-        'abc',
+  describe('stripHyphensColonsDots', () => {
+    it('removes all characters', async () => {
+      expect(ArchiveFileManager.stripHyphensColonsDots(SYSTEM_TIME_ISO)).toBe(
+        SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS,
       )
     })
   })
 
-  describe('createUniqueFilename', () => {
+  describe('createArchiveFilename', () => {
     it('returns hash', () => {
-      expect(ArchiveFileManager.createUniqueFilename(['a', 'b'])).toHaveLength(
-        32,
+      const dateTime = new Date(SYSTEM_TIME_ISO)
+      expect(ArchiveFileManager.createArchiveFilename(dateTime, 'd', 's')).toBe(
+        's_d_' + SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS + '.zip',
       )
     })
   })
