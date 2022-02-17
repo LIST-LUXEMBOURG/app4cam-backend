@@ -1,5 +1,6 @@
 import { Controller, Get, Body, Put, Patch } from '@nestjs/common'
 import { DeviceIdDto } from './dto/device-id.dto'
+import { SettingsDto } from './dto/settings.dto'
 import { SiteNameDto } from './dto/site-name.dto'
 import { SystemTimeDto } from './dto/system-time.dto'
 import { Settings } from './settings'
@@ -15,7 +16,7 @@ export class SettingsController {
   }
 
   @Patch()
-  updateSettings(@Body() settings: Partial<Settings>): Promise<void> {
+  updateSettings(@Body() settings: SettingsDto): Promise<void> {
     return this.settingsService.updateSettings(settings)
   }
 

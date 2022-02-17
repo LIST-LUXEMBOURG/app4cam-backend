@@ -64,6 +64,20 @@ describe('AppController (e2e)', () => {
         .expect(200)
     })
 
+    it('/ (PATCH) invalid space in device ID', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ deviceId: 'a ' })
+        .expect(400)
+    })
+
+    it('/ (PATCH) invalid space in site name', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ deviceId: 'a ' })
+        .expect(400)
+    })
+
     it('/siteName (GET)', () => {
       const expectedData = Buffer.from(
         JSON.stringify({ siteName: FILE_SETTINGS.siteName }),
@@ -80,6 +94,13 @@ describe('AppController (e2e)', () => {
         .put('/settings/siteName')
         .send({ siteName: 'a' })
         .expect(200)
+    })
+
+    it('/siteName (PUT) invalid space', () => {
+      return request(app.getHttpServer())
+        .put('/settings/siteName')
+        .send({ siteName: 'a ' })
+        .expect(400)
     })
 
     it('/siteName (PUT) empty', async () => {
@@ -105,6 +126,13 @@ describe('AppController (e2e)', () => {
         .put('/settings/deviceId')
         .send({ deviceId: 'a' })
         .expect(200)
+    })
+
+    it('/deviceId (PUT) invalid space', () => {
+      return request(app.getHttpServer())
+        .put('/settings/deviceId')
+        .send({ deviceId: 'a ' })
+        .expect(400)
     })
 
     it('/deviceId (PUT) empty', async () => {
