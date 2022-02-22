@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { MotionClient } from './motion-client'
 import { Settings } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SystemTimeInteractor } from './system-time-interactor'
@@ -40,6 +41,8 @@ export class SettingsService {
       ...settingsToUpdateInFile,
     }
     SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    // even if just one settings changes we need to re-write them
+    MotionClient.setFilename(settings.siteName, settings.deviceId)
   }
 
   async getSiteName(): Promise<string> {
@@ -55,6 +58,7 @@ export class SettingsService {
     )
     settings.siteName = siteName
     SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    MotionClient.setFilename(siteName, settings.deviceId)
   }
 
   async getDeviceId(): Promise<string> {
@@ -70,6 +74,7 @@ export class SettingsService {
     )
     settings.deviceId = deviceId
     SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    MotionClient.setFilename(settings.siteName, deviceId)
   }
 
   async getSystemTime(): Promise<string> {
