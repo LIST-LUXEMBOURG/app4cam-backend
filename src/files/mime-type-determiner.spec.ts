@@ -21,5 +21,11 @@ describe('MimeTypeDeterminer', () => {
     it('returns content type for mp4', () => {
       expect(MimeTypeDeterminer.getContentType('mp4')).toEqual('video/mp4')
     })
+
+    it('returns content type for mkv', () => {
+      expect(MimeTypeDeterminer.getContentType('mkv')).toEqual(
+        'video/x-matroska',
+      )
+    })
   })
 })

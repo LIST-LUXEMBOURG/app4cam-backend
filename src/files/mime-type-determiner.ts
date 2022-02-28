@@ -7,6 +7,8 @@ export class MimeTypeDeterminer {
       case 'jpeg':
       case 'jpg':
         return 'image/jpeg'
+      case 'mkv':
+        return 'video/x-matroska'
       case 'mp4':
         return 'video/mp4'
       case 'txt':
