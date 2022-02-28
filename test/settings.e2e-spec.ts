@@ -74,7 +74,7 @@ describe('AppController (e2e)', () => {
     it('/ (PATCH) invalid space in site name', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ deviceId: 'a ' })
+        .send({ siteName: 'a ' })
         .expect(400)
     })
 
@@ -92,7 +92,7 @@ describe('AppController (e2e)', () => {
     it('/siteName (PUT)', () => {
       return request(app.getHttpServer())
         .put('/settings/siteName')
-        .send({ siteName: 'a' })
+        .send({ siteName: 'a-0A' })
         .expect(200)
     })
 
@@ -100,6 +100,13 @@ describe('AppController (e2e)', () => {
       return request(app.getHttpServer())
         .put('/settings/siteName')
         .send({ siteName: 'a ' })
+        .expect(400)
+    })
+
+    it('/siteName (PUT) invalid underscore', () => {
+      return request(app.getHttpServer())
+        .put('/settings/siteName')
+        .send({ siteName: 'a_' })
         .expect(400)
     })
 
@@ -124,7 +131,7 @@ describe('AppController (e2e)', () => {
     it('/deviceId (PUT)', () => {
       return request(app.getHttpServer())
         .put('/settings/deviceId')
-        .send({ deviceId: 'a' })
+        .send({ deviceId: 'a-0A' })
         .expect(200)
     })
 
@@ -132,6 +139,13 @@ describe('AppController (e2e)', () => {
       return request(app.getHttpServer())
         .put('/settings/deviceId')
         .send({ deviceId: 'a ' })
+        .expect(400)
+    })
+
+    it('/deviceId (PUT) invalid underscore', () => {
+      return request(app.getHttpServer())
+        .put('/settings/deviceId')
+        .send({ deviceId: 'a_' })
         .expect(400)
     })
 
