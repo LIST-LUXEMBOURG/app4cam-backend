@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   NotFoundException,
@@ -12,27 +13,13 @@ import {
 import { FilesService } from './files.service'
 import { File } from './entities/file.entity'
 import { FilesDto } from './dto/files.dto'
+import { FileDeletionResponse } from './entities/file-deletion-response.entity'
 
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
-  @Get()
-  async findAll(): Promise<File[]> {
-    return this.filesService.findAll()
-  }
-
-  @Get(':id')
-  downloadFile(@Param('id') filename: string, @Res({ passthrough: true }) res) {
-    const file = this.filesService.getStreamableFile(filename)
-    res.set({
-      'Content-Type': file.contentType,
-      'Content-Disposition': 'attachment; filename="' + filename + '"',
-    })
-    return new StreamableFile(file.stream)
-  }
-
-  @Post('download')
+  @Post()
   async downloadFiles(
     @Body() filesDto: FilesDto,
     @Res({ passthrough: true }) res,
@@ -57,8 +44,31 @@ export class FilesController {
     return new StreamableFile(archive.stream)
   }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.filesService.remove(+id)
-  // }
+  @Get()
+  async findAll(): Promise<File[]> {
+    return this.filesService.findAll()
+  }
+
+  @Delete()
+  async deleteFiles(@Body() filesDto: FilesDto): Promise<FileDeletionResponse> {
+    if (filesDto.filenames.some((filename) => filename.includes('../'))) {
+      throw new ForbiddenException()
+    }
+    return await this.filesService.removeFiles(filesDto.filenames)
+  }
+
+  @Get(':id')
+  downloadFile(@Param('id') filename: string, @Res({ passthrough: true }) res) {
+    const file = this.filesService.getStreamableFile(filename)
+    res.set({
+      'Content-Type': file.contentType,
+      'Content-Disposition': 'attachment; filename="' + filename + '"',
+    })
+    return new StreamableFile(file.stream)
+  }
+
+  @Delete(':id')
+  async deleteFile(@Param('id') filename: string): Promise<void> {
+    await this.filesService.removeFile(filename)
+  }
 }

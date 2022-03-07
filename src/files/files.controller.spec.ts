@@ -27,6 +27,8 @@ describe('FilesController', () => {
               filename: 'f',
               stream: new PassThrough(),
             })),
+            removeFile: jest.fn(),
+            removeFiles: jest.fn(() => ({ a: true, b: true })),
           },
         },
         SettingsService,
@@ -45,6 +47,27 @@ describe('FilesController', () => {
     it('asks for all files', () => {
       controller.findAll()
       expect(service.findAll).toHaveBeenCalled()
+    })
+  })
+
+  describe('deleteFile', () => {
+    it('asks for removing the file', async () => {
+      const filename = 'a'
+      await controller.deleteFile(filename)
+      expect(service.removeFile).toHaveBeenCalledWith(filename)
+    })
+  })
+
+  describe('deleteFiles', () => {
+    it('asks for removing the files', async () => {
+      const filenames = ['a', 'b']
+      const result = await controller.deleteFiles({ filenames })
+      expect(service.removeFiles).toHaveBeenCalledWith(filenames)
+      const expectedResult = Object.assign(
+        {},
+        ...filenames.map((filename) => ({ [filename]: true })),
+      )
+      expect(result).toEqual(expectedResult)
     })
   })
 
