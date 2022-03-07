@@ -6,6 +6,12 @@ import { SettingsFileProvider } from '../src/settings/settings-file-provider'
 import { Settings, SettingsFromJsonFile } from 'src/settings/settings'
 import { SystemTimeInteractor } from '../src/settings/system-time-interactor'
 
+jest.mock('../src/settings/motion-client', () => ({
+  MotionClient: {
+    setFilename: () => jest.fn(),
+  },
+}))
+
 describe('AppController (e2e)', () => {
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
   const FILE_SETTINGS: SettingsFromJsonFile = {

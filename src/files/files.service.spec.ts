@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config'
 import { FileHandler } from './file-handler'
 import { SettingsService } from '../settings/settings.service'
 import { SettingsModule } from '../settings/settings.module'
+import { existsSync } from 'fs'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 
@@ -115,6 +116,83 @@ describe('FilesService', () => {
       const spy = jest.spyOn(FileHandler, 'createStreamWithContentType')
       service.getStreamableFile(filename)
       expect(spy).toHaveBeenCalled()
+    })
+  })
+
+  describe('removeFile(s)', () => {
+    let service: FilesService
+    const testFolder = 'src/files/test-delete-file'
+
+    beforeAll(() => {
+      mkdir(testFolder)
+    })
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          {
+            provide: ConfigService,
+            useValue: {
+              get(): string {
+                return testFolder
+              },
+            },
+          },
+          FilesService,
+        ],
+        imports: [SettingsModule],
+      }).compile()
+
+      service = module.get<FilesService>(FilesService)
+    })
+
+    it('removes the file', async () => {
+      const filename = 'a.txt'
+      const filePath = testFolder + '/' + filename
+      await writeFile(filePath, 'b')
+      await service.removeFile(filename)
+      expect(existsSync(filePath)).toBeFalsy()
+    })
+
+    it('throws an error if the file does not exist', async () => {
+      try {
+        await service.removeFile('b.txt')
+      } catch (error) {
+        expect(error.code).toBe('ENOENT')
+      }
+    })
+
+    it('removes two files', async () => {
+      const filenames = ['c.txt', 'd.txt']
+      const filePaths = filenames.map((filename) => testFolder + '/' + filename)
+      for (const filePath of filePaths) {
+        await writeFile(filePath, 'b')
+      }
+      const result = await service.removeFiles(filenames)
+      const expectedResult = Object.assign(
+        {},
+        ...filenames.map((filename) => ({ [filename]: true })),
+      )
+      expect(result).toEqual(expectedResult)
+      for (const filePath of filePaths) {
+        expect(existsSync(filePath)).toBeFalsy()
+      }
+    })
+
+    it('swallows non-existing file', async () => {
+      const filenames = ['c.txt', 'd.txt']
+      const filePaths = filenames.map((filename) => testFolder + '/' + filename)
+      await writeFile(filePaths[1], 'b')
+      const result = await service.removeFiles(filenames)
+      const expectedResult = {
+        [filenames[0]]: false,
+        [filenames[1]]: true,
+      }
+      expect(result).toEqual(expectedResult)
+    })
+
+    afterAll(() => {
+      rm(testFolder, { recursive: true, force: true })
     })
   })
 })

@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { File } from './entities/file.entity'
-import { lstat, readdir } from 'fs/promises'
+import { lstat, readdir, rm } from 'fs/promises'
 import path = require('path')
 import { ConfigService } from '@nestjs/config'
 import { ArchiveFileManager } from './archive-file-manager'
 import { FileHandler } from './file-handler'
 import { Cron } from '@nestjs/schedule'
 import { SettingsService } from '../settings/settings.service'
+import { FileDeletionResponse } from './entities/file-deletion-response.entity'
 
 const ARCHIVE_FOLDER_PATH = 'temp'
 
@@ -69,13 +70,27 @@ export class FilesService {
     }
   }
 
+  async removeFile(filename: string): Promise<void> {
+    const filePath = path.join(this.fileFolderPath, filename)
+    await rm(filePath)
+  }
+
+  async removeFiles(filenames: string[]): Promise<FileDeletionResponse> {
+    const result: FileDeletionResponse = {}
+    for (const filename of filenames) {
+      try {
+        await this.removeFile(filename)
+        result[filename] = true
+      } catch {
+        result[filename] = false
+      }
+    }
+    return result
+  }
+
   @Cron('*/5 * * * *') // every 5 minutes
   removeOldArchives() {
     this.logger.log('Cron job to delete old archives triggered...')
     ArchiveFileManager.removeOldFiles(ARCHIVE_FOLDER_PATH)
   }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} file`
-  // }
 }
