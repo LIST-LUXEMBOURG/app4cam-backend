@@ -8,5 +8,6 @@ import { SettingsModule } from '../settings/settings.module'
   controllers: [FilesController],
   providers: [ConfigService, FilesService],
   imports: [ConfigModule, SettingsModule],
+  exports: [FilesService],
 })
 export class FilesModule {}

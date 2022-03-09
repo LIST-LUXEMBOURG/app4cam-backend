@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { MotionClient } from './motion-client'
+import { MotionClient } from '../motion-client'
 import { Settings, SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SystemTimeInteractor } from './system-time-interactor'

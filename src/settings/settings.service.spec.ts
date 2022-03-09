@@ -4,7 +4,7 @@ import { SettingsFileProvider } from './settings-file-provider'
 import { SettingsService } from './settings.service'
 import { SystemTimeInteractor } from './system-time-interactor'
 
-jest.mock('./motion-client', () => ({
+jest.mock('../motion-client', () => ({
   MotionClient: {
     setFilename: () => jest.fn(),
   },
