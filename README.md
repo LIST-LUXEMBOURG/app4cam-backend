@@ -38,10 +38,10 @@ $ npm run test:cov
 
 This software requires the following tools to be installed:
 
-- Motion is a configurable software that monitors video signals from differen types of cameras and create videos and/or saves pictures of the activity.
-- Witty Pi is a realtime clock (RTC) and power management board added to the Raspberry Pi. It also allows to define ON/OFF sequences.
+- **Motion** is a configurable software that monitors video signals from differen types of cameras and create videos and/or saves pictures of the activity.
+- **Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
 
-### Installing Motion
+### 1.1 Installing Motion
 
 Motion is installed from the release deb files which provided a more recent version than the one available via apt.
 The version installed is the 4.3.2-1.
@@ -61,9 +61,10 @@ sudo apt-get install gdebi-core
 sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
 ```
 
-### Configuring Motion
+### 1.2 Configuring Motion
 
-After successfull installation, we need to configure motion according to our specifications. This configuration assumes a public folder available at Pi's Desktop, which is typically named as the project. The default configuration file should be located at:
+After successfull installation, we need to configure motion according to our specifications. This configuration assumes a local folder available at Pi's Desktop, which is typically named as the project. It is referenced on the configuration as `{project_folder}`.  
+The default configuration file should be located at:
 
 > /etc/motion/motion.conf
 
@@ -73,11 +74,17 @@ In order of appearence the parameters which are configured differently are:
 # Start in daemon (background) mode and release terminal.
 daemon on
 
+# Start in Setup-Mode, daemon disabled.
+setup_mode off
+
 # File to write logs messages into.  If not defined stderr and syslog is used.
 log_file /home/pi/Desktop/{project_folder}/motion.log
 
+# Level of log messages [1..9] (EMG, ALR, CRT, ERR, WRN, NTC, INF, DBG, ALL).
+log_level 4
+
 # Target directory for pictures, snapshots and movies
-target_dir /home/pi/Desktop/{project_folder}
+target_dir /home/pi/Desktop/{project_folder}/data/
 
 # Name of mmal camera (e.g. vc.ril.camera for pi camera).
 mmalcam_name vc.ril.camera
@@ -103,7 +110,7 @@ pre_capture 5
 picture_output best
 
 # File name(without extension) for pictures relative to target directory
-picture_filename %Y_%m_%d_{device_name}/%Y%m%d%H%M%S-%q
+picture_filename _%Y%m%dT%H%M%S000Z-%q
 
 # Create movies of motion events.
 movie_output on
@@ -112,12 +119,41 @@ movie_output on
 movie_max_time 60
 
 # File name(without extension) for movies relative to target directory
-movie_filename %Y_%m_%{device_name}/%t-%v-%Y%m%d%H%M%S
+movie_filename _%Y%m%dT%H%M%S000Z-%t-%v
+
+# Restrict webcontrol connections to the localhost.
+webcontrol_localhost off
+
+# Type of configuration options to allow via the webcontrol.
+webcontrol_parms 1
+
+# Restrict stream connections to the localhost.
+stream_localhost off
 ```
 
 A more described configuration can be found at https://motion-project.github.io/motion_config.html.
 
-### Installing Witty Pi 3
+### 1.3 Creating local folder
+
+In order for Motion to run successfully the `{project_folder}` configured before must exist on the device, and to have the right permissions.
+
+First thing is to just create at `/home/pi/Desktop` a new folder and name it after the project. Then you should allow motion ("motion user" created by the service)
+to change it's content.  
+This can be done by right clicking on the folder and going to tab permissions. Then set to `Anyone` view and change permissions.
+
+### 1.4 Running Motion as service
+
+Motion should be set up to run as a service, which means that it will start automatically whenever the raspberry is started.
+This should be done only after all the standard configuration has been completed.
+As a service Motion uses the systemctl and option daemon must be set to `on`
+
+Next enable motion by entering the following at the command line: `sudo systemctl enable motion`  
+The following commands now control the Motion service.
+
+- Start the Motion `sudo service motion start`
+- Stop the Motion `sudo service motion stop`
+
+### 2.1 Installing Witty Pi 3
 
 Run these two commands on your Raspberry Pi:
 
