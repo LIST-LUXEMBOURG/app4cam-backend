@@ -65,7 +65,7 @@ describe('SettingsService', () => {
       expect(settings).toStrictEqual(ALL_SETTINGS)
     })
 
-    it('updates all settings', async () => {
+    it('updates all optional settings', async () => {
       const settingsToUpdateInFile: SettingsFromJsonFile = {
         deviceId: 'dd',
         siteName: 'ss',
@@ -104,6 +104,18 @@ describe('SettingsService', () => {
       expect(spySetSystemTime).toHaveBeenCalledWith(settingsToUpdate.systemTime)
       expect(spyReadSettingsFile).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).not.toHaveBeenCalled()
+    })
+
+    it('updates all settings', async () => {
+      const settings: SettingsFromJsonFile = {
+        deviceId: 'dd',
+        siteName: 'ss',
+      }
+      await service.updateAllSettings(settings)
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        settings,
+        expect.any(String),
+      )
     })
 
     it('returns site name', async () => {
