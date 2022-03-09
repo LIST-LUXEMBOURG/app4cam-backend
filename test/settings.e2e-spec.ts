@@ -84,6 +84,20 @@ describe('AppController (e2e)', () => {
         .expect(400)
     })
 
+    it('/ (PUT)', () => {
+      return request(app.getHttpServer())
+        .put('/settings')
+        .send(FILE_SETTINGS)
+        .expect(200)
+    })
+
+    it('/ (PUT) incomplete', () => {
+      return request(app.getHttpServer())
+        .put('/settings')
+        .send({ siteName: 's' })
+        .expect(400)
+    })
+
     it('/siteName (GET)', () => {
       const expectedData = Buffer.from(
         JSON.stringify({ siteName: FILE_SETTINGS.siteName }),

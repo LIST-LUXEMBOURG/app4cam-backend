@@ -1,6 +1,6 @@
-import { IsDateString, IsOptional, Matches } from 'class-validator'
+import { IsDateString, IsNotEmpty, IsOptional, Matches } from 'class-validator'
 
-export class SettingsDto {
+export class SettingsPatchDto {
   @IsOptional()
   @Matches(/^[a-zA-Z0-9-]+$/)
   deviceId?: string
@@ -12,4 +12,14 @@ export class SettingsDto {
   @IsOptional()
   @IsDateString()
   systemTime?: string
+}
+
+export class SettingsPutDto {
+  @IsNotEmpty()
+  @Matches(/^[a-zA-Z0-9-]+$/)
+  deviceId: string
+
+  @IsNotEmpty()
+  @Matches(/^[a-zA-Z0-9-]+$/)
+  siteName: string
 }

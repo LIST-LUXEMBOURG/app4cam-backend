@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { MotionClient } from './motion-client'
-import { Settings } from './settings'
+import { Settings, SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SystemTimeInteractor } from './system-time-interactor'
 
@@ -40,9 +40,13 @@ export class SettingsService {
       ...settings,
       ...settingsToUpdateInFile,
     }
-    SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    // even if just one settings changes we need to re-write them
-    MotionClient.setFilename(settings.siteName, settings.deviceId)
+    await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    await MotionClient.setFilename(settings.siteName, settings.deviceId)
+  }
+
+  async updateAllSettings(settings: SettingsFromJsonFile): Promise<void> {
+    await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    await MotionClient.setFilename(settings.siteName, settings.deviceId)
   }
 
   async getSiteName(): Promise<string> {
@@ -57,8 +61,8 @@ export class SettingsService {
       SETTINGS_FILE_PATH,
     )
     settings.siteName = siteName
-    SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    MotionClient.setFilename(siteName, settings.deviceId)
+    await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    await MotionClient.setFilename(siteName, settings.deviceId)
   }
 
   async getDeviceId(): Promise<string> {
@@ -73,8 +77,8 @@ export class SettingsService {
       SETTINGS_FILE_PATH,
     )
     settings.deviceId = deviceId
-    SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    MotionClient.setFilename(settings.siteName, deviceId)
+    await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    await MotionClient.setFilename(settings.siteName, deviceId)
   }
 
   async getSystemTime(): Promise<string> {

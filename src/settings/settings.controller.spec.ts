@@ -21,6 +21,7 @@ describe('SettingsController', () => {
           useValue: {
             getAllSettings: jest.fn().mockReturnValue(SETTINGS),
             updateSettings: jest.fn(),
+            updateAllSettings: jest.fn(),
             getSiteName: jest.fn().mockReturnValue(SETTINGS.siteName),
             setSiteName: jest.fn(),
             getDeviceId: jest.fn().mockReturnValue(SETTINGS.deviceId),
@@ -49,6 +50,12 @@ describe('SettingsController', () => {
     const settings = { deviceId: 'd', siteName: 's' }
     await controller.updateSettings(settings)
     expect(service.updateSettings).toHaveBeenCalledWith(settings)
+  })
+
+  it('sets all settings', async () => {
+    const settings = { deviceId: 'd', siteName: 's' }
+    await controller.updateAllSettings(settings)
+    expect(service.updateAllSettings).toHaveBeenCalledWith(settings)
   })
 
   it('gets the site name', async () => {
