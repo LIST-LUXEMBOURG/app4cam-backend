@@ -54,7 +54,20 @@ export class FilesController {
     if (filesDto.filenames.some((filename) => filename.includes('../'))) {
       throw new ForbiddenException()
     }
-    return await this.filesService.removeFiles(filesDto.filenames)
+    const filesWithDeletedState = await this.filesService.removeFiles(
+      filesDto.filenames,
+    )
+    let isNoFileAtAllDeleted = true
+    for (const item in filesWithDeletedState) {
+      if (filesWithDeletedState[item]) {
+        isNoFileAtAllDeleted = false
+        break
+      }
+    }
+    if (isNoFileAtAllDeleted) {
+      throw new NotFoundException()
+    }
+    return filesWithDeletedState
   }
 
   @Get(':id')
@@ -69,6 +82,13 @@ export class FilesController {
 
   @Delete(':id')
   async deleteFile(@Param('id') filename: string): Promise<void> {
-    await this.filesService.removeFile(filename)
+    try {
+      await this.filesService.removeFile(filename)
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error
+      }
+      throw new NotFoundException()
+    }
   }
 }

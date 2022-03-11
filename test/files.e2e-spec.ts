@@ -88,7 +88,32 @@ describe('FilesController (e2e)', () => {
       )
   })
 
-  it('/files (DELETE)', async () => {
+  it('/files (DELETE) first one does not exist', async () => {
+    const filenames = ['non-existing.txt', 'existing.txt']
+    const filePath = process.env.FILES_FOLDER_PATH + filenames[1]
+    await writeFile(filePath, 'bla')
+    return request(app.getHttpServer())
+      .delete('/files')
+      .send({ filenames })
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .responseType('application/json')
+      .expect(
+        Buffer.from(
+          JSON.stringify({ 'non-existing.txt': false, 'existing.txt': true }),
+        ),
+      )
+  })
+
+  it('/files (DELETE) non-existing', async () => {
+    const filenames = ['non-existing-1.txt', 'non-existing-2.txt']
+    return request(app.getHttpServer())
+      .delete('/files')
+      .send({ filenames })
+      .expect(404)
+  })
+
+  it('/files (DELETE) different folder', async () => {
     const filenames = ['../whatever-file-in-different-folder.txt']
     return request(app.getHttpServer())
       .delete('/files')
@@ -113,6 +138,13 @@ describe('FilesController (e2e)', () => {
     return request(app.getHttpServer())
       .delete('/files/' + filename)
       .expect(200)
+  })
+
+  it('/files/:id (DELETE) non-existing', async () => {
+    const filename = 'non-existing.txt'
+    return request(app.getHttpServer())
+      .delete('/files/' + filename)
+      .expect(404)
   })
 
   afterEach(() => {
