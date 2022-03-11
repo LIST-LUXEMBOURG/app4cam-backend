@@ -153,6 +153,13 @@ The following commands now control the Motion service.
 - Start the Motion `sudo service motion start`
 - Stop the Motion `sudo service motion stop`
 
+Make sure to start the Motion service.
+
+### 1.5 Adapting permissions
+
+1. Change the ownership of the target folder to pi: `sudo chown pi /home/pi/Desktop/{project_folder}/data`
+2. Give write permissions to motion group: `sudo chmod 775 /home/pi/Desktop/{project_folder}/data`
+
 ### 2.1 Installing Witty Pi 3
 
 Run these two commands on your Raspberry Pi:
