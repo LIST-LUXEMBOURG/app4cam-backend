@@ -1,16 +1,7 @@
-import { exec } from 'child_process'
-import { Readable } from 'stream'
+import { exec as execSync } from 'child_process'
+import { promisify } from 'util'
 
-function convertReadableToString(stream: Readable): Promise<string> {
-  const chunks = []
-  return new Promise((resolve, reject) => {
-    stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
-    stream.on('error', (err) => reject(err))
-    stream.on('end', () =>
-      resolve(Buffer.concat(chunks).toString('utf8').trim()),
-    )
-  })
-}
+const exec = promisify(execSync)
 
 export class SystemTimeInteractor {
   static async getSystemTimeInIso8601Format(): Promise<string> {
@@ -19,9 +10,11 @@ export class SystemTimeInteractor {
       // /bin/date command does not exist on Windows machines.
       return Promise.resolve('')
     }
-    const { stdout } = await exec('/bin/date --iso-8601=seconds')
-    const time = convertReadableToString(stdout)
-    return time
+    const { stdout, stderr } = await exec('/bin/date --iso-8601=seconds')
+    if (stderr) {
+      throw new Error(stderr)
+    }
+    return stdout
   }
 
   static async setSystemTimeInIso8601Format(systemTime: string): Promise<void> {
@@ -30,9 +23,12 @@ export class SystemTimeInteractor {
       // /bin/date command does not exist on Windows machines.
       return Promise.resolve()
     }
-    await exec(
+    const { stderr } = await exec(
       `sudo /bin/date --set="${systemTime}" | ${__dirname}/system_to_rtc.sh`,
     )
+    if (stderr) {
+      throw new Error(stderr)
+    }
     return
   }
 }

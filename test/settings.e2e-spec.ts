@@ -12,7 +12,7 @@ jest.mock('../src/motion-client', () => ({
   },
 }))
 
-describe('AppController (e2e)', () => {
+describe('SettingsController (e2e)', () => {
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
   const FILE_SETTINGS: SettingsFromJsonFile = {
     deviceId: 'd',
@@ -26,21 +26,21 @@ describe('AppController (e2e)', () => {
   let spyReadSettingsFile
   let spyWriteSettingsFile
   let spyGetSystemTime
+  let spySetSystemTime
 
   beforeAll(() => {
     spyReadSettingsFile = jest
       .spyOn(SettingsFileProvider, 'readSettingsFile')
-      .mockImplementation(() => {
-        return Promise.resolve(FILE_SETTINGS)
-      })
+      .mockImplementation(() => Promise.resolve(FILE_SETTINGS))
     spyWriteSettingsFile = jest
       .spyOn(SettingsFileProvider, 'writeSettingsToFile')
-      .mockImplementation(() => {
-        return Promise.resolve()
-      })
+      .mockImplementation(() => Promise.resolve())
     spyGetSystemTime = jest
       .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
       .mockImplementation(() => Promise.resolve(SYSTEM_TIME))
+    spySetSystemTime = jest
+      .spyOn(SystemTimeInteractor, 'setSystemTimeInIso8601Format')
+      .mockImplementation(() => Promise.resolve())
   })
 
   beforeEach(async () => {
@@ -217,5 +217,6 @@ describe('AppController (e2e)', () => {
     spyReadSettingsFile.mockRestore()
     spyWriteSettingsFile.mockRestore()
     spyGetSystemTime.mockRestore()
+    spySetSystemTime.mockRestore()
   })
 })
