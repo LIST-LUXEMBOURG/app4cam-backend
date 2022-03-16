@@ -11,6 +11,7 @@ import { AccessControlAllowOriginInterceptor } from './access-control-allow-orig
 import { LoggerMiddleware } from './logger.middleware'
 import { ScheduleModule } from '@nestjs/schedule'
 import { SnapshotsModule } from './snapshots/snapshots.module'
+import { StorageModule } from './storage/storage.module'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { SnapshotsModule } from './snapshots/snapshots.module'
     SettingsModule,
     ScheduleModule.forRoot(),
     SnapshotsModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [
