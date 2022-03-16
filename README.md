@@ -141,7 +141,13 @@ First thing is to just create at `/home/pi/Desktop` a new folder and name it aft
 to change it's content.  
 This can be done by right clicking on the folder and going to tab permissions. Then set to `Anyone` view and change permissions.
 
-### 1.4 Running Motion as service
+### 1.4 Adapting permissions
+
+1. Change the ownership of the target folder to pi: `sudo chown pi /home/pi/Desktop/{project_folder}/data`
+2. Give write permissions to motion group: `sudo chmod 775 /home/pi/Desktop/{project_folder}/data`
+3. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
+
+### 1.5 Running Motion as service
 
 Motion should be set up to run as a service, which means that it will start automatically whenever the raspberry is started.
 This should be done only after all the standard configuration has been completed.
@@ -154,11 +160,6 @@ The following commands now control the Motion service.
 - Stop the Motion `sudo service motion stop`
 
 Make sure to start the Motion service.
-
-### 1.5 Adapting permissions
-
-1. Change the ownership of the target folder to pi: `sudo chown pi /home/pi/Desktop/{project_folder}/data`
-2. Give write permissions to motion group: `sudo chmod 775 /home/pi/Desktop/{project_folder}/data`
 
 ### 2.1 Installing Witty Pi 3
 
