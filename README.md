@@ -141,7 +141,13 @@ First thing is to just create at `/home/pi/Desktop` a new folder and name it aft
 to change it's content.  
 This can be done by right clicking on the folder and going to tab permissions. Then set to `Anyone` view and change permissions.
 
-### 1.4 Running Motion as service
+### 1.4 Adapting permissions
+
+1. Change the ownership of the target folder to pi: `sudo chown pi /home/pi/Desktop/{project_folder}/data`
+2. Give write permissions to motion group: `sudo chmod 775 /home/pi/Desktop/{project_folder}/data`
+3. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
+
+### 1.5 Running Motion as service
 
 Motion should be set up to run as a service, which means that it will start automatically whenever the raspberry is started.
 This should be done only after all the standard configuration has been completed.
@@ -153,6 +159,8 @@ The following commands now control the Motion service.
 - Start the Motion `sudo service motion start`
 - Stop the Motion `sudo service motion stop`
 
+Make sure to start the Motion service.
+
 ### 2.1 Installing Witty Pi 3
 
 Run these two commands on your Raspberry Pi:
@@ -163,6 +171,45 @@ sudo sh install.sh
 ```
 
 A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
+
+### 2.1 Setting up RPi network behavior
+
+We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
+For this we just need to run with root privileges the script `scripts/autohotspot-setup.sh`. On a new terminal:
+
+```bash
+# navigate to the scripts folder
+cd scripts
+
+# Run the script with root privileges
+sudo ./autohotspot-setup.sh
+```
+
+You will presented with a menu with these options:
+
+```bash
+ 1 = Install Autohotspot with eth0 access for Connected Devices
+ 2 = Install Autohotspot with No eth0 for connected devices
+ 3 = Install a Permanent Access Point with eth0 access for connected devices
+ 4 = Uninstall Autohotspot or permanent access point
+ 5 = Add a new wifi network to the Pi (SSID) or update the password for an existing one.
+ 6 = Autohotspot: Force to an access point or connect to WiFi network if a known SSID is in range
+ 7 = Change the access points SSID and password
+ 8 = Exit
+```
+
+We should go for **Option 2: Install Autohotspot with No eth0 for connected devices.**
+
+Once installed and after a reboot the Raspberry Pi will connect to a router that has previously been connected to and is listed in `/etc/wpa_supplicant/wpa_supplicant.conf`. If no router is in range then it will generate a WiFi access point. The Pi can use the eth0 connection and also be accessed from a device on the etho network.  
+This will have an SSID of **App4Cam** and password of **0123456789**.
+Once a connection to the access point has been made you can access the Raspberry Pi via ssh & VNC.
+
+```bash
+ssh pi@10.0.0.5
+vnc: 10.0.0.5::5900
+```
+
+If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
 
 ### Creating a service
 
