@@ -172,6 +172,45 @@ sudo sh install.sh
 
 A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
 
+### 2.1 Setting up RPi network behavior
+
+We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
+For this we just need to run with root privileges the script `scripts/autohotspot-setup.sh`. On a new terminal:
+
+```bash
+# navigate to the scripts folder
+cd scripts
+
+# Run the script with root privileges
+sudo ./autohotspot-setup.sh
+```
+
+You will presented with a menu with these options:
+
+```bash
+ 1 = Install Autohotspot with eth0 access for Connected Devices
+ 2 = Install Autohotspot with No eth0 for connected devices
+ 3 = Install a Permanent Access Point with eth0 access for connected devices
+ 4 = Uninstall Autohotspot or permanent access point
+ 5 = Add a new wifi network to the Pi (SSID) or update the password for an existing one.
+ 6 = Autohotspot: Force to an access point or connect to WiFi network if a known SSID is in range
+ 7 = Change the access points SSID and password
+ 8 = Exit
+```
+
+We should go for **Option 2: Install Autohotspot with No eth0 for connected devices.**
+
+Once installed and after a reboot the Raspberry Pi will connect to a router that has previously been connected to and is listed in `/etc/wpa_supplicant/wpa_supplicant.conf`. If no router is in range then it will generate a WiFi access point. The Pi can use the eth0 connection and also be accessed from a device on the etho network.  
+This will have an SSID of **App4Cam** and password of **0123456789**.
+Once a connection to the access point has been made you can access the Raspberry Pi via ssh & VNC.
+
+```bash
+ssh pi@10.0.0.5
+vnc: 10.0.0.5::5900
+```
+
+If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
+
 ### Creating a service
 
 1. Create the pollicam-backend service by creating the following file: `/etc/systemd/system/pollicam-backend.service`
