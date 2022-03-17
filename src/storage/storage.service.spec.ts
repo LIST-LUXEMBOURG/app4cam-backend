@@ -7,10 +7,10 @@ import { StorageService } from './storage.service'
 
 const DISK_USAGE: DiskSpaceUsage = {
   capacityKb: 1,
-  usedPercentage: '2',
+  usedPercentage: 2,
 }
 
-describe('StorageService', () => {
+describe(StorageService.name, () => {
   let service: StorageService
 
   beforeEach(async () => {

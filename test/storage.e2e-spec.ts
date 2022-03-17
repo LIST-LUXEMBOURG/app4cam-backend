@@ -9,8 +9,8 @@ import {
 
 describe('StorageController (e2e)', () => {
   const USAGE: DiskSpaceUsage = {
-    capacityKb: 0,
-    usedPercentage: '0.00',
+    capacityKb: 1,
+    usedPercentage: 2,
   }
   let app: INestApplication
   let spyGetDiskSpaceUsage

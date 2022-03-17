@@ -1,11 +1,12 @@
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
+import { NumberUtils } from './number-utils'
 
 const exec = promisify(execSync)
 
 export interface DiskSpaceUsage {
   capacityKb: number
-  usedPercentage: string
+  usedPercentage: number
 }
 
 export class DiskSpaceUsageInteractor {
@@ -15,7 +16,7 @@ export class DiskSpaceUsageInteractor {
       // df command does not exist on Windows machines.
       return Promise.resolve({
         capacityKb: 0,
-        usedPercentage: '0.00',
+        usedPercentage: 0,
       })
     }
     const { stdout, stderr } = await exec('df -Pkl | grep /dev/root')
@@ -26,7 +27,10 @@ export class DiskSpaceUsageInteractor {
     const usedKb = parseInt(parts[2])
     const availableKb = parseInt(parts[3])
     const capacityKb = usedKb + availableKb
-    const usedPercentage = ((usedKb / capacityKb) * 100).toFixed(2)
+    const usedPercentage = NumberUtils.roundNumberByDigits(
+      (usedKb / capacityKb) * 100,
+      2,
+    )
     return {
       capacityKb,
       usedPercentage,
