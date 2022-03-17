@@ -159,7 +159,7 @@ The following commands now control the Motion service.
 - Start the Motion `sudo service motion start`
 - Stop the Motion `sudo service motion stop`
 
-Make sure to start the Motion service.
+**Make sure to start the Motion service.**
 
 ### 2.1 Installing Witty Pi 3
 
@@ -172,7 +172,7 @@ sudo sh install.sh
 
 A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
 
-### 2.1 Setting up RPi network behavior
+### 3.1 Setting up RPi network behavior
 
 We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
 For this we just need to run with root privileges the script `scripts/autohotspot-setup.sh`. On a new terminal:
