@@ -110,7 +110,7 @@ pre_capture 5
 picture_output best
 
 # File name(without extension) for pictures relative to target directory
-picture_filename _%Y%m%dT%H%M%S000Z-%q
+picture_filename _%Y%m%dT%H%M%S-%q
 
 # Create movies of motion events.
 movie_output on
@@ -119,7 +119,7 @@ movie_output on
 movie_max_time 60
 
 # File name(without extension) for movies relative to target directory
-movie_filename _%Y%m%dT%H%M%S000Z-%t-%v
+movie_filename _%Y%m%dT%H%M%S
 
 # Restrict webcontrol connections to the localhost.
 webcontrol_localhost off
