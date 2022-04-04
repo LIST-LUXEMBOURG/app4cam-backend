@@ -14,7 +14,8 @@ export class SystemTimeInteractor {
     if (stderr) {
       throw new Error(stderr)
     }
-    return stdout
+    const time = stdout.trimEnd()
+    return time
   }
 
   static async setSystemTimeInIso8601Format(systemTime: string): Promise<void> {
@@ -29,6 +30,5 @@ export class SystemTimeInteractor {
     if (stderr) {
       throw new Error(stderr)
     }
-    return
   }
 }
