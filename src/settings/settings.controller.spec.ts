@@ -4,10 +4,12 @@ import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
 
 describe('SettingsController', () => {
+  const AVAILABLE_TIMEZONES = ['a', 'b']
   const SETTINGS: Settings = {
     deviceId: 'd',
     siteName: 's',
     systemTime: '2022-01-18T14:48:37+01:00',
+    timeZone: 't',
   }
   let controller: SettingsController
   let service: SettingsService
@@ -28,6 +30,11 @@ describe('SettingsController', () => {
             setDeviceId: jest.fn(),
             getSystemTime: jest.fn().mockReturnValue(SETTINGS.systemTime),
             setSystemTime: jest.fn(),
+            getAvailableTimeZones: jest
+              .fn()
+              .mockReturnValue(AVAILABLE_TIMEZONES),
+            getTimeZone: jest.fn().mockReturnValue(SETTINGS.timeZone),
+            setTimeZone: jest.fn(),
           },
         },
       ],
@@ -53,7 +60,7 @@ describe('SettingsController', () => {
   })
 
   it('sets all settings', async () => {
-    const settings = { deviceId: 'd', siteName: 's' }
+    const settings = { deviceId: 'd', siteName: 's', timeZone: 't' }
     await controller.updateAllSettings(settings)
     expect(service.updateAllSettings).toHaveBeenCalledWith(settings)
   })
@@ -86,5 +93,21 @@ describe('SettingsController', () => {
   it('sets the system time', async () => {
     await controller.setSystemTime({ systemTime: 'd' })
     expect(service.setSystemTime).toHaveBeenCalledWith('d')
+  })
+
+  it('gets the available time zones', async () => {
+    const response = await controller.getAvailableTimeZones()
+    expect(response).toEqual({ timeZones: AVAILABLE_TIMEZONES })
+  })
+
+  it('gets the time zone', async () => {
+    const response = await controller.getTimeZone()
+    expect(response).toEqual({ timeZone: SETTINGS.timeZone })
+  })
+
+  it('sets the time zone', async () => {
+    const timeZone = 'a'
+    await controller.setTimeZone({ timeZone })
+    expect(service.setTimeZone).toHaveBeenCalledWith(timeZone)
   })
 })

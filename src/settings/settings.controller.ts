@@ -3,6 +3,8 @@ import { DeviceIdDto } from './dto/device-id.dto'
 import { SettingsPatchDto, SettingsPutDto } from './dto/settings.dto'
 import { SiteNameDto } from './dto/site-name.dto'
 import { SystemTimeDto } from './dto/system-time.dto'
+import { TimeZoneDto } from './dto/time-zone.dto'
+import { TimeZonesDto } from './dto/time-zones.dto'
 import { Settings } from './settings'
 import { SettingsService } from './settings.service'
 
@@ -62,5 +64,26 @@ export class SettingsController {
   @Put('systemTime')
   setSystemTime(@Body() body: SystemTimeDto): Promise<void> {
     return this.settingsService.setSystemTime(body.systemTime)
+  }
+
+  @Get('timeZones')
+  async getAvailableTimeZones(): Promise<TimeZonesDto> {
+    const timeZones = await this.settingsService.getAvailableTimeZones()
+    return {
+      timeZones,
+    }
+  }
+
+  @Get('timeZone')
+  async getTimeZone(): Promise<TimeZoneDto> {
+    const timeZone = await this.settingsService.getTimeZone()
+    return {
+      timeZone,
+    }
+  }
+
+  @Put('timeZone')
+  setTimeZone(@Body() body: TimeZoneDto): Promise<void> {
+    return this.settingsService.setTimeZone(body.timeZone)
   }
 }

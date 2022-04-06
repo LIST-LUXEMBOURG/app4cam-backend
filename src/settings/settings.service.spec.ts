@@ -26,10 +26,12 @@ describe('SettingsService', () => {
   })
 
   describe('with mocked SettingsFileProvider', () => {
+    const AVAILABLE_TIMEZONES = ['t1', 't2']
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
     const FILE_SETTINGS: SettingsFromJsonFile = {
       deviceId: 'd',
       siteName: 's',
+      timeZone: 't',
     }
     const ALL_SETTINGS: Settings = {
       ...FILE_SETTINGS,
@@ -39,6 +41,9 @@ describe('SettingsService', () => {
     let spyWriteSettingsFile
     let spyGetSystemTime
     let spySetSystemTime
+    let spyGetAvailableTimeZones
+    let spyGetTimeZone
+    let spySetTimeZone
 
     beforeAll(() => {
       spyReadSettingsFile = jest
@@ -57,6 +62,15 @@ describe('SettingsService', () => {
       spySetSystemTime = jest
         .spyOn(SystemTimeInteractor, 'setSystemTimeInIso8601Format')
         .mockImplementation(() => Promise.resolve())
+      spyGetAvailableTimeZones = jest
+        .spyOn(SystemTimeInteractor, 'getAvailableTimeZones')
+        .mockImplementation(() => Promise.resolve(AVAILABLE_TIMEZONES))
+      spyGetTimeZone = jest
+        .spyOn(SystemTimeInteractor, 'getTimeZone')
+        .mockImplementation(() => Promise.resolve(FILE_SETTINGS.timeZone))
+      spySetTimeZone = jest
+        .spyOn(SystemTimeInteractor, 'setTimeZone')
+        .mockImplementation(() => Promise.resolve())
     })
 
     it('gets all settings', async () => {
@@ -69,6 +83,7 @@ describe('SettingsService', () => {
       const settingsToUpdateInFile: SettingsFromJsonFile = {
         deviceId: 'dd',
         siteName: 'ss',
+        timeZone: 't1',
       }
       const allSettings: Settings = {
         ...settingsToUpdateInFile,
@@ -80,9 +95,12 @@ describe('SettingsService', () => {
         settingsToUpdateInFile,
         expect.any(String),
       )
+      expect(spySetTimeZone).toHaveBeenCalledWith(
+        settingsToUpdateInFile.timeZone,
+      )
     })
 
-    it('updates one setting stored in settings file but not system time', async () => {
+    it('updates one setting stored in settings file but neither system time nor time zone', async () => {
       const settingsToUpdate: Partial<Settings> = {
         deviceId: 'dd',
       }
@@ -94,6 +112,7 @@ describe('SettingsService', () => {
         expectedSettings,
         expect.any(String),
       )
+      expect(spySetTimeZone).not.toHaveBeenCalled()
     })
 
     it('updates system time but neither read nor write settings file', async () => {
@@ -104,18 +123,21 @@ describe('SettingsService', () => {
       expect(spySetSystemTime).toHaveBeenCalledWith(settingsToUpdate.systemTime)
       expect(spyReadSettingsFile).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).not.toHaveBeenCalled()
+      expect(spySetTimeZone).not.toHaveBeenCalled()
     })
 
     it('updates all settings', async () => {
       const settings: SettingsFromJsonFile = {
         deviceId: 'dd',
         siteName: 'ss',
+        timeZone: 't1',
       }
       await service.updateAllSettings(settings)
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         settings,
         expect.any(String),
       )
+      expect(spySetTimeZone).toHaveBeenCalledWith(settings.timeZone)
     })
 
     it('returns site name', async () => {
@@ -155,10 +177,36 @@ describe('SettingsService', () => {
       expect(spySetSystemTime).toHaveBeenCalledWith(systemTime)
     })
 
+    it('returns available time zones', async () => {
+      const timeZones = await service.getAvailableTimeZones()
+      expect(timeZones).toBe(AVAILABLE_TIMEZONES)
+    })
+
+    it('returns time zone', async () => {
+      const timeZone = await service.getTimeZone()
+      expect(timeZone).toBe(ALL_SETTINGS.timeZone)
+    })
+
+    it('sets time zone', async () => {
+      const timeZone = 't1'
+      await service.setTimeZone(timeZone)
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.any(String),
+      )
+      expect(spySetTimeZone).toHaveBeenCalledWith(timeZone)
+    })
+
+    it('throws an error when the time zone given is not supported', async () => {
+      const timeZone = 'c'
+      await expect(service.setTimeZone(timeZone)).rejects.toThrow()
+    })
+
     afterEach(() => {
       spyReadSettingsFile.mockClear()
       spyWriteSettingsFile.mockClear()
       spySetSystemTime.mockClear()
+      spySetTimeZone.mockClear()
     })
 
     afterAll(() => {
@@ -166,6 +214,9 @@ describe('SettingsService', () => {
       spyWriteSettingsFile.mockRestore()
       spyGetSystemTime.mockRestore()
       spySetSystemTime.mockRestore()
+      spyGetAvailableTimeZones.mockRestore()
+      spyGetTimeZone.mockRestore()
+      spySetTimeZone.mockRestore()
     })
   })
 })
