@@ -35,6 +35,7 @@ describe('SettingsFileProvider', () => {
       const expected: SettingsFromJsonFile = {
         deviceId: '',
         siteName: '',
+        timeZone: '',
       }
       expect(settings).toEqual(expected)
     })
@@ -52,6 +53,7 @@ describe('SettingsFileProvider', () => {
       const SETTINGS = {
         deviceId: 'd',
         siteName: 's',
+        timeZone: 't',
       }
       await SettingsFileProvider.writeSettingsToFile(
         SETTINGS,

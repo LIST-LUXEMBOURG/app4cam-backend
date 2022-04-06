@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { MotionClient } from '../motion-client'
 import { Settings, SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
@@ -21,6 +21,14 @@ export class SettingsService {
   }
 
   async updateSettings(settingsToUpdate: Partial<Settings>): Promise<void> {
+    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
+      const supportedTimeZones = await this.getAvailableTimeZones()
+      if (!supportedTimeZones.includes(settingsToUpdate.timeZone)) {
+        throw new BadRequestException(
+          `The time zone '${settingsToUpdate.timeZone}' is not supported.`,
+        )
+      }
+    }
     const settingsToUpdateInFile = JSON.parse(JSON.stringify(settingsToUpdate)) // deep clone
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'systemTime')) {
       await SystemTimeInteractor.setSystemTimeInIso8601Format(
@@ -42,11 +50,21 @@ export class SettingsService {
     }
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
     await MotionClient.setFilename(settings.siteName, settings.deviceId)
+    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
+      await SystemTimeInteractor.setTimeZone(settings.timeZone)
+    }
   }
 
   async updateAllSettings(settings: SettingsFromJsonFile): Promise<void> {
+    const supportedTimeZones = await this.getAvailableTimeZones()
+    if (!supportedTimeZones.includes(settings.timeZone)) {
+      throw new BadRequestException(
+        `The time zone '${settings.timeZone}' is not supported.`,
+      )
+    }
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
     await MotionClient.setFilename(settings.siteName, settings.deviceId)
+    await SystemTimeInteractor.setTimeZone(settings.timeZone)
   }
 
   async getSiteName(): Promise<string> {
@@ -88,5 +106,39 @@ export class SettingsService {
 
   async setSystemTime(systemTime: string): Promise<void> {
     await SystemTimeInteractor.setSystemTimeInIso8601Format(systemTime)
+  }
+
+  async getAvailableTimeZones(): Promise<string[]> {
+    const timeZones = await SystemTimeInteractor.getAvailableTimeZones()
+    return timeZones
+  }
+
+  async getTimeZone(): Promise<string> {
+    const settings = await SettingsFileProvider.readSettingsFile(
+      SETTINGS_FILE_PATH,
+    )
+    const settingsFileTimeZone = settings.timeZone
+    const systemTimeZone = await SystemTimeInteractor.getTimeZone()
+    if (settingsFileTimeZone !== systemTimeZone) {
+      throw new Error(
+        `There is a mismatch between the system time zone '${systemTimeZone}' and the time zone stored in the settings file '${settingsFileTimeZone}'.`,
+      )
+    }
+    return settingsFileTimeZone
+  }
+
+  async setTimeZone(timeZone: string): Promise<void> {
+    const supportedTimeZones = await this.getAvailableTimeZones()
+    if (!supportedTimeZones.includes(timeZone)) {
+      throw new BadRequestException(
+        `The time zone '${timeZone}' is not supported.`,
+      )
+    }
+    const settings = await SettingsFileProvider.readSettingsFile(
+      SETTINGS_FILE_PATH,
+    )
+    settings.timeZone = timeZone
+    await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    await SystemTimeInteractor.setTimeZone(timeZone)
   }
 }

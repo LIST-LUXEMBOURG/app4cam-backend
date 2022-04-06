@@ -13,10 +13,12 @@ jest.mock('../src/motion-client', () => ({
 }))
 
 describe('SettingsController (e2e)', () => {
+  const AVAILABLE_TIMEZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
   const FILE_SETTINGS: SettingsFromJsonFile = {
     deviceId: 'd',
     siteName: 's',
+    timeZone: AVAILABLE_TIMEZONES[0],
   }
   const ALL_SETTINGS: Settings = {
     ...FILE_SETTINGS,
@@ -27,6 +29,9 @@ describe('SettingsController (e2e)', () => {
   let spyWriteSettingsFile
   let spyGetSystemTime
   let spySetSystemTime
+  let spyGetAvailableTimeZones
+  let spyGetTimeZone
+  let spySetTimeZone
 
   beforeAll(() => {
     spyReadSettingsFile = jest
@@ -40,6 +45,15 @@ describe('SettingsController (e2e)', () => {
       .mockImplementation(() => Promise.resolve(SYSTEM_TIME))
     spySetSystemTime = jest
       .spyOn(SystemTimeInteractor, 'setSystemTimeInIso8601Format')
+      .mockImplementation(() => Promise.resolve())
+    spyGetAvailableTimeZones = jest
+      .spyOn(SystemTimeInteractor, 'getAvailableTimeZones')
+      .mockImplementation(() => Promise.resolve(AVAILABLE_TIMEZONES))
+    spyGetTimeZone = jest
+      .spyOn(SystemTimeInteractor, 'getTimeZone')
+      .mockImplementation(() => Promise.resolve(FILE_SETTINGS.timeZone))
+    spySetTimeZone = jest
+      .spyOn(SystemTimeInteractor, 'setTimeZone')
       .mockImplementation(() => Promise.resolve())
   })
 
@@ -207,6 +221,49 @@ describe('SettingsController (e2e)', () => {
         .send({ systemTime: 'a' })
         .expect(400)
     })
+
+    it('/timeZones (GET)', () => {
+      const expectedData = Buffer.from(
+        JSON.stringify({ timeZones: AVAILABLE_TIMEZONES }),
+      )
+      return request(app.getHttpServer())
+        .get('/settings/timeZones')
+        .expect('Content-Type', /json/)
+        .responseType('application/json')
+        .expect(200, expectedData)
+    })
+
+    it('/timeZone (GET)', () => {
+      const expectedData = Buffer.from(
+        JSON.stringify({ timeZone: FILE_SETTINGS.timeZone }),
+      )
+      return request(app.getHttpServer())
+        .get('/settings/timeZone')
+        .expect('Content-Type', /json/)
+        .responseType('application/json')
+        .expect(200, expectedData)
+    })
+
+    it('/timeZone (PUT)', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/timeZone')
+        .send({ timeZone: 'Europe/Luxembourg' })
+        .expect(200)
+    })
+
+    it('/timeZone (PUT) empty', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/timeZone')
+        .send({ timeZone: '' })
+        .expect(400)
+    })
+
+    it('/timeZone (PUT) non-supported', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/timeZone')
+        .send({ timeZone: 'a' })
+        .expect(400)
+    })
   })
 
   afterEach(() => {
@@ -218,5 +275,8 @@ describe('SettingsController (e2e)', () => {
     spyWriteSettingsFile.mockRestore()
     spyGetSystemTime.mockRestore()
     spySetSystemTime.mockRestore()
+    spyGetAvailableTimeZones.mockRestore()
+    spyGetTimeZone.mockRestore()
+    spySetTimeZone.mockRestore()
   })
 })

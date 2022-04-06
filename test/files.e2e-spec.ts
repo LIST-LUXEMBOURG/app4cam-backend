@@ -2,30 +2,26 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
-import { SettingsFileProvider } from '../src/settings/settings-file-provider'
-import { SettingsFromJsonFile } from '../src/settings/settings'
 import { writeFile } from 'fs/promises'
+import { SettingsService } from '../src/settings/settings.service'
 
 describe('FilesController (e2e)', () => {
-  const FILE_SETTINGS: SettingsFromJsonFile = {
-    deviceId: 'd',
-    siteName: 's',
-  }
   let app: INestApplication
-  let spyReadSettingsFile
-
-  beforeAll(() => {
-    spyReadSettingsFile = jest
-      .spyOn(SettingsFileProvider, 'readSettingsFile')
-      .mockImplementation(() => {
-        return Promise.resolve(FILE_SETTINGS)
-      })
-  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile()
+    })
+      .overrideProvider(SettingsService)
+      .useValue({
+        getAllSettings: jest.fn(() =>
+          Promise.resolve({
+            deviceId: 'd',
+            siteName: 's',
+          }),
+        ),
+      })
+      .compile()
 
     app = moduleFixture.createNestApplication()
     await app.init()
@@ -149,9 +145,5 @@ describe('FilesController (e2e)', () => {
 
   afterEach(() => {
     app.close()
-  })
-
-  afterAll(() => {
-    spyReadSettingsFile.mockRestore()
   })
 })
