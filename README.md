@@ -1,5 +1,10 @@
 # PolliCAM Backend
 
+## Prerequisites
+
+- Git
+- \>= Node.js 14.x
+
 ## Development
 
 ### Setup
@@ -178,11 +183,11 @@ We want to configure the Raspberry Pi in a way that it will **connect to a previ
 For this we just need to run with root privileges the script `scripts/autohotspot-setup.sh`. On a new terminal:
 
 ```bash
-# navigate to the scripts folder
-cd scripts
+# Mark the script as executable.
+sudo chmod +x scripts/autohotspot-setup.sh
 
-# Run the script with root privileges
-sudo ./autohotspot-setup.sh
+# Run the script with root privileges.
+sudo scripts/autohotspot-setup.sh
 ```
 
 You will presented with a menu with these options:
