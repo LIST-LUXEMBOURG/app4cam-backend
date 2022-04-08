@@ -83,13 +83,13 @@ daemon on
 setup_mode off
 
 # File to write logs messages into.  If not defined stderr and syslog is used.
-log_file /home/pi/Desktop/{project_folder}/motion.log
+log_file /home/pi/Desktop/App4Cam/motion.log
 
 # Level of log messages [1..9] (EMG, ALR, CRT, ERR, WRN, NTC, INF, DBG, ALL).
 log_level 4
 
 # Target directory for pictures, snapshots and movies
-target_dir /home/pi/Desktop/{project_folder}/data/
+target_dir /home/pi/Desktop/App4Cam/data/
 
 # Name of mmal camera (e.g. vc.ril.camera for pi camera).
 mmalcam_name vc.ril.camera
@@ -115,7 +115,7 @@ pre_capture 5
 picture_output best
 
 # File name(without extension) for pictures relative to target directory
-picture_filename _%Y%m%dT%H%M%S-%q
+picture_filename _%Y%m%dT%H%M%SZ-%q
 
 # Create movies of motion events.
 movie_output on
@@ -124,7 +124,7 @@ movie_output on
 movie_max_time 60
 
 # File name(without extension) for movies relative to target directory
-movie_filename _%Y%m%dT%H%M%S
+movie_filename _%Y%m%dT%H%M%SZ
 
 # Restrict webcontrol connections to the localhost.
 webcontrol_localhost off
@@ -140,11 +140,14 @@ A more described configuration can be found at https://motion-project.github.io/
 
 ### 1.3 Creating local folder
 
-In order for Motion to run successfully the `{project_folder}` configured before must exist on the device, and to have the right permissions.
-
-First thing is to just create at `/home/pi/Desktop` a new folder and name it after the project. Then you should allow motion ("motion user" created by the service)
-to change it's content.  
-This can be done by right clicking on the folder and going to tab permissions. Then set to `Anyone` view and change permissions.
+In order for Motion to run successfully the folder `App4Cam` configured before must exist on the device, and to have the right permissions.
+First thing is to create the folders:
+```bash
+mkdir /home/pi/Desktop/App4Cam
+mkdir /home/pi/Desktop/App4Cam/data
+```
+Then you should allow motion ("motion user" created by the service) to change it's content. This can be done by right clicking on the folder and going to properties > permissions.  
+Set to `Anyone` view and change permissions.
 
 ### 1.4 Adapting permissions
 
