@@ -1,4 +1,4 @@
-# PolliCAM Backend
+# App4Cam Backend
 
 ## Prerequisites
 
@@ -218,11 +218,11 @@ If no error messages was presented, just exit the script and reboot your device.
 
 ### Creating a service
 
-1. Create the pollicam-backend service by creating the following file: `/etc/systemd/system/pollicam-backend.service`
+1. Create the app4cam-backend service by creating the following file: `/etc/systemd/system/app4cam-backend.service`
 
 ```
 [Unit]
-Description=Service that keeps running pollicam-backend from startup
+Description=Service that keeps running app4cam-backend from startup
 After=network.target
 
 [Install]
@@ -231,7 +231,7 @@ WantedBy=multi-user.target
 [Service]
 Type=simple
 ExecStart=npm run start:prod
-WorkingDirectory=/home/pi/pollicam-backend
+WorkingDirectory=/home/pi/app4cam-backend
 Restart=always
 RestartSec=5
 StandardOutput=syslog
@@ -240,6 +240,7 @@ SyslogIdentifier=%n
 ```
 
 2. Run: `sudo systemctl daemon-reload`
+3. Run: `sudo systemctl enable app4cam-backend`
 
 ### Final steps
 

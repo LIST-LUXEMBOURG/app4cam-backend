@@ -51,16 +51,16 @@ deploy:
     - ssh-keyscan 10.131.10.28 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
-    # Make sure you have created the pollicam-backend service.
+    # Make sure you have created the backend service.
     # Make sure you have executed once the following command: ssh-keyscan -t ed25519 git.list.lu >> ~/.ssh/known_hosts
     - ssh pi@10.131.10.28 "
-      sudo systemctl stop pollicam-backend &&
-      rm --recursive --force pollicam-backend || true &&
-      git clone --single-branch --branch $CI_COMMIT_BRANCH git@git.list.lu:host/mechatronics/pollicam-backend.git &&
-      cd pollicam-backend &&
+      sudo systemctl stop $CI_PROJECT_NAME &&
+      rm --recursive --force $CI_PROJECT_NAME || true &&
+      git clone --single-branch --branch $CI_COMMIT_BRANCH $CI_REPOSITORY_URL &&
+      cd $CI_PROJECT_NAME &&
       npm ci &&
       npm run build &&
       cp config/aurinion.env config/production.env &&
-      sudo systemctl start pollicam-backend &&
+      sudo systemctl start $CI_PROJECT_NAME &&
       exit
       "
