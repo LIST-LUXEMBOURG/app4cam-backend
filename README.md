@@ -142,10 +142,12 @@ A more described configuration can be found at https://motion-project.github.io/
 
 In order for Motion to run successfully the folder `App4Cam` configured before must exist on the device, and to have the right permissions.
 First thing is to create the folders:
+
 ```bash
 mkdir /home/pi/Desktop/App4Cam
 mkdir /home/pi/Desktop/App4Cam/data
 ```
+
 Then you should allow motion ("motion user" created by the service) to change it's content. This can be done by right clicking on the folder and going to properties > permissions.  
 Set to `Anyone` view and change permissions.
 
@@ -183,14 +185,14 @@ A more extensive tutorial can be found at https://www.uugear.com/product/witty-p
 ### 3.1 Setting up RPi network behavior
 
 We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
-For this we just need to run with root privileges the script `scripts/autohotspot-setup.sh`. On a new terminal:
+For this we just need to run with root privileges the script `scripts/autohotspot/autohotspot-setup.sh`. On a new terminal:
 
 ```bash
 # Mark the script as executable.
-sudo chmod +x scripts/autohotspot-setup.sh
+sudo chmod +x scripts/autohotspot/autohotspot-setup.sh
 
 # Run the script with root privileges.
-sudo scripts/autohotspot-setup.sh
+sudo scripts/autohotspot/autohotspot-setup.sh
 ```
 
 You will presented with a menu with these options:
@@ -247,5 +249,5 @@ SyslogIdentifier=%n
 
 ### Final steps
 
-1. If you want to deploy via Gitlab automtically in the future, execute once the following command: `ssh-keyscan -t ed25519 git.list.lu >> ~/.ssh/known_hosts`
+1. If you want to deploy via Gitlab automatically in the future, execute once the following command: `ssh-keyscan -t ed25519 git.list.lu >> ~/.ssh/known_hosts`
 2. See final necessary commands sent via SSH to server in `.gitlab-ci.yml`.

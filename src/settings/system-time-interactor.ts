@@ -27,7 +27,7 @@ export class SystemTimeInteractor {
       return Promise.resolve()
     }
     const { stderr } = await exec(
-      `sudo /bin/date --set="${systemTime}" | ${__dirname}/system_to_rtc.sh`,
+      `sudo /bin/date --set="${systemTime}" | ${__dirname}/scripts/system_to_rtc.sh`,
     )
     if (stderr) {
       throw new Error(stderr)
