@@ -153,8 +153,8 @@ Set to `Anyone` view and change permissions.
 
 ### 1.4 Adapting permissions
 
-1. Change the ownership of the target folder to pi: `sudo chown pi /home/pi/Desktop/{project_folder}/data`
-2. Give write permissions to motion group: `sudo chmod 775 /home/pi/Desktop/{project_folder}/data`
+1. Change the ownership of the target folder to pi: `sudo chown pi /home/pi/Desktop/App4Cam/data`
+2. Give write permissions to motion group: `sudo chmod 775 /home/pi/Desktop/App4Cam/data`
 3. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
 
 ### 1.5 Running Motion as service
