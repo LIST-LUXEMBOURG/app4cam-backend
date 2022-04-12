@@ -188,9 +188,6 @@ We want to configure the Raspberry Pi in a way that it will **connect to a previ
 For this we just need to run with root privileges the script `scripts/autohotspot/autohotspot-setup.sh`. On a new terminal:
 
 ```bash
-# Mark the script as executable.
-sudo chmod +x scripts/autohotspot/autohotspot-setup.sh
-
 # Run the script with root privileges.
 sudo scripts/autohotspot/autohotspot-setup.sh
 ```
