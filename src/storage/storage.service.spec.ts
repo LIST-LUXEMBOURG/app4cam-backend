@@ -1,11 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import {
-  DiskSpaceUsage,
-  DiskSpaceUsageInteractor,
-} from './disk-space-usage-interactor'
+import { DiskSpaceUsageInteractor } from './disk-space-usage-interactor'
+import { DiskSpaceUsageDto } from './disk-space-usage.dto'
 import { StorageService } from './storage.service'
 
-const DISK_USAGE: DiskSpaceUsage = {
+const DISK_USAGE: DiskSpaceUsageDto = {
   capacityKb: 1,
   usedPercentage: 2,
 }

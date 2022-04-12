@@ -1,17 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication, ValidationPipe } from '@nestjs/common'
+import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
-import {
-  DiskSpaceUsage,
-  DiskSpaceUsageInteractor,
-} from '../src/storage/disk-space-usage-interactor'
+import { DiskSpaceUsageInteractor } from '../src/storage/disk-space-usage-interactor'
+import { DiskSpaceUsageDto } from 'src/storage/disk-space-usage.dto'
 
 describe('StorageController (e2e)', () => {
-  const USAGE: DiskSpaceUsage = {
+  const USAGE: DiskSpaceUsageDto = {
     capacityKb: 1,
     usedPercentage: 2,
   }
+
   let app: INestApplication
   let spyGetDiskSpaceUsage
 
@@ -27,18 +26,15 @@ describe('StorageController (e2e)', () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.useGlobalPipes(new ValidationPipe())
     await app.init()
   })
 
   describe('/storage', () => {
     it('/ (GET)', () => {
-      const expectedData = Buffer.from(JSON.stringify(USAGE))
       return request(app.getHttpServer())
         .get('/storage')
         .expect('Content-Type', /json/)
-        .responseType('application/json')
-        .expect(200, expectedData)
+        .expect(200, USAGE)
     })
   })
 
