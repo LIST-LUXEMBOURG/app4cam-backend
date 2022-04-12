@@ -69,12 +69,10 @@ describe('SettingsController (e2e)', () => {
 
   describe('/settings', () => {
     it('/ (GET)', () => {
-      const expectedData = Buffer.from(JSON.stringify(ALL_SETTINGS))
       return request(app.getHttpServer())
         .get('/settings')
         .expect('Content-Type', /json/)
-        .responseType('application/json')
-        .expect(200, expectedData)
+        .expect(200, ALL_SETTINGS)
     })
 
     it('/ (PATCH)', () => {
@@ -113,14 +111,10 @@ describe('SettingsController (e2e)', () => {
     })
 
     it('/siteName (GET)', () => {
-      const expectedData = Buffer.from(
-        JSON.stringify({ siteName: FILE_SETTINGS.siteName }),
-      )
       return request(app.getHttpServer())
         .get('/settings/siteName')
         .expect('Content-Type', /json/)
-        .responseType('application/json')
-        .expect(200, expectedData)
+        .expect(200, { siteName: FILE_SETTINGS.siteName })
     })
 
     it('/siteName (PUT)', () => {
@@ -152,14 +146,10 @@ describe('SettingsController (e2e)', () => {
     })
 
     it('/deviceId (GET)', () => {
-      const expectedData = Buffer.from(
-        JSON.stringify({ deviceId: FILE_SETTINGS.deviceId }),
-      )
       return request(app.getHttpServer())
         .get('/settings/deviceId')
         .expect('Content-Type', /json/)
-        .responseType('application/json')
-        .expect(200, expectedData)
+        .expect(200, { deviceId: FILE_SETTINGS.deviceId })
     })
 
     it('/deviceId (PUT)', () => {
@@ -191,14 +181,10 @@ describe('SettingsController (e2e)', () => {
     })
 
     it('/systemTime (GET)', () => {
-      const expectedData = Buffer.from(
-        JSON.stringify({ systemTime: SYSTEM_TIME }),
-      )
       return request(app.getHttpServer())
         .get('/settings/systemTime')
         .expect('Content-Type', /json/)
-        .responseType('application/json')
-        .expect(200, expectedData)
+        .expect(200, { systemTime: SYSTEM_TIME })
     })
 
     it('/systemTime (PUT)', async () => {
@@ -223,25 +209,17 @@ describe('SettingsController (e2e)', () => {
     })
 
     it('/timeZones (GET)', () => {
-      const expectedData = Buffer.from(
-        JSON.stringify({ timeZones: AVAILABLE_TIMEZONES }),
-      )
       return request(app.getHttpServer())
         .get('/settings/timeZones')
         .expect('Content-Type', /json/)
-        .responseType('application/json')
-        .expect(200, expectedData)
+        .expect(200, { timeZones: AVAILABLE_TIMEZONES })
     })
 
     it('/timeZone (GET)', () => {
-      const expectedData = Buffer.from(
-        JSON.stringify({ timeZone: FILE_SETTINGS.timeZone }),
-      )
       return request(app.getHttpServer())
         .get('/settings/timeZone')
         .expect('Content-Type', /json/)
-        .responseType('application/json')
-        .expect(200, expectedData)
+        .expect(200, { timeZone: FILE_SETTINGS.timeZone })
     })
 
     it('/timeZone (PUT)', async () => {

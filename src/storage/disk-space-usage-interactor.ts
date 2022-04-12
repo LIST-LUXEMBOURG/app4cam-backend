@@ -1,16 +1,12 @@
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
+import { DiskSpaceUsageDto } from './disk-space-usage.dto'
 import { NumberUtils } from './number-utils'
 
 const exec = promisify(execSync)
 
-export interface DiskSpaceUsage {
-  capacityKb: number
-  usedPercentage: number
-}
-
 export class DiskSpaceUsageInteractor {
-  static async getDiskSpaceUsage(): Promise<DiskSpaceUsage> {
+  static async getDiskSpaceUsage(): Promise<DiskSpaceUsageDto> {
     const isWindows = process.platform === 'win32'
     if (isWindows) {
       // df command does not exist on Windows machines.

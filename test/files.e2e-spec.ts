@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication } from '@nestjs/common'
+import { INestApplication, ValidationPipe } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
 import { writeFile } from 'fs/promises'
@@ -24,6 +24,7 @@ describe('FilesController (e2e)', () => {
       .compile()
 
     app = moduleFixture.createNestApplication()
+    app.useGlobalPipes(new ValidationPipe())
     await app.init()
   })
 
@@ -62,7 +63,6 @@ describe('FilesController (e2e)', () => {
       .get('/files')
       .expect(200)
       .expect('Content-Type', /json/)
-      .responseType('application/json')
   })
 
   it('/files (DELETE)', async () => {
@@ -76,12 +76,7 @@ describe('FilesController (e2e)', () => {
       .send({ filenames })
       .expect(200)
       .expect('Content-Type', /json/)
-      .responseType('application/json')
-      .expect(
-        Buffer.from(
-          JSON.stringify({ 'to-delete-1.txt': true, 'to-delete-2.txt': true }),
-        ),
-      )
+      .expect({ 'to-delete-1.txt': true, 'to-delete-2.txt': true })
   })
 
   it('/files (DELETE) first one does not exist', async () => {
@@ -93,12 +88,7 @@ describe('FilesController (e2e)', () => {
       .send({ filenames })
       .expect(200)
       .expect('Content-Type', /json/)
-      .responseType('application/json')
-      .expect(
-        Buffer.from(
-          JSON.stringify({ 'non-existing.txt': false, 'existing.txt': true }),
-        ),
-      )
+      .expect({ 'non-existing.txt': false, 'existing.txt': true })
   })
 
   it('/files (DELETE) non-existing', async () => {
