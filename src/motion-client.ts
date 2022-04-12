@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = 'http://10.131.10.28:8080/0/'
+const BASE_URL = 'http://localhost:8080/0/'
 const ACTION_URL = BASE_URL + 'action/'
 const CONFIG_URL = BASE_URL + 'config/'
 const DATE_TIME_FILENAME_PART = '%Y%m%dT%H%M%SZ'
