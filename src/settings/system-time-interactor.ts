@@ -26,8 +26,9 @@ export class SystemTimeInteractor {
       // /bin/date command does not exist on Windows machines.
       return Promise.resolve()
     }
+    const currentWorkingDirectory = process.cwd()
     const { stderr } = await exec(
-      `sudo /bin/date --set="${systemTime}" | ${__dirname}/system_to_rtc.sh`,
+      `sudo /bin/date --set="${systemTime}" | sudo ${currentWorkingDirectory}/scripts/system_to_rtc.sh`,
     )
     if (stderr) {
       throw new Error(stderr)
