@@ -1,8 +1,10 @@
 import axios from 'axios'
 
-const BASE_URL = 'http://localhost:8080/0/'
-const ACTION_URL = BASE_URL + 'action/'
-const CONFIG_URL = BASE_URL + 'config/'
+const BASE_URL = 'http://localhost:8080/'
+const ACTION_URL = BASE_URL + '0/action/'
+const CONFIG_URL = BASE_URL + '0/config/'
+const WRITE_URL = BASE_URL + 'action/config/write'
+
 const DATE_TIME_FILENAME_PART = '%Y%m%dT%H%M%SZ'
 const POST_PICTURE_FILENAME = '_%q'
 const POST_SNAPSHOT_FILENAME = '_snapshot'
@@ -16,6 +18,7 @@ export class MotionClient {
     await axios.get(CONFIG_URL + 'set?movie_filename=' + moveFilename)
     await axios.get(CONFIG_URL + 'set?picture_filename=' + pictureFilename)
     await axios.get(CONFIG_URL + 'set?snapshot_filename=' + snapshotFilename)
+    await axios.get(WRITE_URL)
   }
 
   static async takeSnapshot(): Promise<void> {
