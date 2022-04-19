@@ -115,7 +115,7 @@ pre_capture 5
 picture_output best
 
 # File name(without extension) for pictures relative to target directory
-picture_filename _%Y%m%dT%H%M%SZ-%q
+picture_filename %Y%m%dT%H%M%S_%q
 
 # Create movies of motion events.
 movie_output on
@@ -124,7 +124,7 @@ movie_output on
 movie_max_time 60
 
 # File name(without extension) for movies relative to target directory
-movie_filename _%Y%m%dT%H%M%SZ
+movie_filename %Y%m%dT%H%M%S
 
 # Restrict webcontrol connections to the localhost.
 webcontrol_localhost off
@@ -134,6 +134,9 @@ webcontrol_parms 1
 
 # Restrict stream connections to the localhost.
 stream_localhost off
+
+# File name(without extension) for snapshots relative to target directory
+snapshot_filename %Y%m%dT%H%M%S_snapshot
 ```
 
 A more described configuration can be found at https://motion-project.github.io/motion_config.html.

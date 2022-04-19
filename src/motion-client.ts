@@ -5,7 +5,7 @@ const ACTION_URL = BASE_URL + '0/action/'
 const CONFIG_URL = BASE_URL + '0/config/'
 const WRITE_URL = BASE_URL + 'action/config/write'
 
-const DATE_TIME_FILENAME_PART = '%Y%m%dT%H%M%SZ'
+const DATE_TIME_FILENAME_PART = '%Y%m%dT%H%M%S'
 const POST_PICTURE_FILENAME = '_%q'
 const POST_SNAPSHOT_FILENAME = '_snapshot'
 
