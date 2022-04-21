@@ -49,7 +49,11 @@ export class SettingsService {
       ...settingsToUpdateInFile,
     }
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await MotionClient.setFilename(settings.siteName, settings.deviceId)
+    await MotionClient.setFilename(
+      settings.siteName,
+      settings.deviceId,
+      settings.timeZone,
+    )
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
       await SystemTimeInteractor.setTimeZone(settings.timeZone)
     }
@@ -63,7 +67,11 @@ export class SettingsService {
       )
     }
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await MotionClient.setFilename(settings.siteName, settings.deviceId)
+    await MotionClient.setFilename(
+      settings.siteName,
+      settings.deviceId,
+      settings.timeZone,
+    )
     await SystemTimeInteractor.setTimeZone(settings.timeZone)
   }
 
@@ -80,7 +88,11 @@ export class SettingsService {
     )
     settings.siteName = siteName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await MotionClient.setFilename(siteName, settings.deviceId)
+    await MotionClient.setFilename(
+      siteName,
+      settings.deviceId,
+      settings.timeZone,
+    )
   }
 
   async getDeviceId(): Promise<string> {
@@ -96,7 +108,11 @@ export class SettingsService {
     )
     settings.deviceId = deviceId
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await MotionClient.setFilename(settings.siteName, deviceId)
+    await MotionClient.setFilename(
+      settings.siteName,
+      deviceId,
+      settings.timeZone,
+    )
   }
 
   async getSystemTime(): Promise<string> {
