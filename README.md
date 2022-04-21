@@ -240,8 +240,9 @@ chroot_local_user=YES
 user_sub_token=$USER
 local_root=/home/pi/Desktop/App4Cam
 allow_writeable_chroot=YES
-add or uncomment
 ```
+
+3. Restart the server: `sudo systemctl restart vsftpd`
 
 Now, you can connect via an FTP client with the PI's IP address, port 21, its username `pi` and the corresponding password.
 
