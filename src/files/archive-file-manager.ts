@@ -1,7 +1,10 @@
-import AdmZip = require('adm-zip')
 import { lstat, readdir, rm } from 'fs/promises'
 import path = require('path')
+import archiver = require('archiver')
+import { createWriteStream } from 'fs'
+import { LoggerService } from '@nestjs/common'
 
+const COMPRESSION_LEVEL = 1 // 0 (no compression) to 9 (best compression), or -1 (default compression)
 const TIME_TO_LIVE_MILLISECONDS = 3600000 // 1 hour
 
 export class ArchiveFileManager {
@@ -18,12 +21,44 @@ export class ArchiveFileManager {
     return input.replaceAll('-', '').replaceAll(':', '').replaceAll('.', '')
   }
 
-  static createArchive(archiveFilePath: string, filePaths: string[]): void {
-    const zip = new AdmZip()
+  static async createArchive(
+    archiveFilePath: string,
+    filePaths: string[],
+    logger: LoggerService,
+  ): Promise<void> {
+    const archive = archiver('zip', {
+      zlib: { level: COMPRESSION_LEVEL },
+    })
+    archive.on('warning', function (error) {
+      if (error.code === 'ENOENT') {
+        logger.warn(error.message)
+      } else {
+        throw error
+      }
+    })
+    archive.on('error', function (error) {
+      throw error
+    })
+
+    const output = createWriteStream(archiveFilePath)
+    output.on('close', function () {
+      logger.log(
+        `The archive has been finalized with ${archive.pointer()} total bytes and the output file descriptor has closed.`,
+      )
+    })
+    output.on('end', function () {
+      logger.log('The data of the archive has been drained.')
+    })
+    archive.pipe(output)
+
     for (const filePath of filePaths) {
-      zip.addLocalFile(filePath)
+      const name = filePath.substring(filePath.lastIndexOf('/') + 1)
+      archive.file(filePath, {
+        name,
+      })
     }
-    zip.writeZip(archiveFilePath)
+
+    await archive.finalize()
   }
 
   static async removeOldFiles(
