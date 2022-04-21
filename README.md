@@ -46,7 +46,9 @@ This software requires the following tools to be installed:
 - **Motion** is a configurable software that monitors video signals from differen types of cameras and create videos and/or saves pictures of the activity.
 - **Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
 
-### 1.1 Installing Motion
+### 1. Setting up Motion
+
+#### 1.1. Installing Motion
 
 Motion is installed from the release deb files which provided a more recent version than the one available via apt.
 The version installed is the 4.3.2-1.
@@ -66,7 +68,7 @@ sudo apt-get install gdebi-core
 sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
 ```
 
-### 1.2 Configuring Motion
+#### 1.2. Configuring Motion
 
 After successfull installation, we need to configure motion according to our specifications. This configuration assumes a local folder available at Pi's Desktop, which is typically named as the project. It is referenced on the configuration as `{project_folder}`.  
 The default configuration file should be located at:
@@ -141,7 +143,7 @@ snapshot_filename %Y%m%dT%H%M%S_snapshot
 
 A more described configuration can be found at https://motion-project.github.io/motion_config.html.
 
-### 1.3 Creating local folder
+#### 1.3. Creating local folder
 
 In order for Motion to run successfully the folder `App4Cam` configured before must exist on the device, and to have the right permissions.
 First thing is to create the folders:
@@ -154,13 +156,13 @@ mkdir /home/pi/Desktop/App4Cam/data
 Then you should allow motion ("motion user" created by the service) to change it's content. This can be done by right clicking on the folder and going to properties > permissions.  
 Set to `Anyone` view and change permissions.
 
-### 1.4 Adapting permissions
+#### 1.4. Adapting permissions
 
 1. Change the ownership of the target folder to pi: `sudo chown pi /home/pi/Desktop/App4Cam/data`
 2. Give write permissions to motion group: `sudo chmod 775 /home/pi/Desktop/App4Cam/data`
 3. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
 
-### 1.5 Running Motion as service
+#### 1.5. Running Motion as service
 
 Motion should be set up to run as a service, which means that it will start automatically whenever the raspberry is started.
 This should be done only after all the standard configuration has been completed.
@@ -174,7 +176,7 @@ The following commands now control the Motion service.
 
 **Make sure to start the Motion service.**
 
-### 2.1 Installing Witty Pi 3
+### 2. Installing Witty Pi 3
 
 Run these two commands on your Raspberry Pi:
 
@@ -185,7 +187,7 @@ sudo sh install.sh
 
 A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
 
-### 3.1 Setting up RPi network behavior
+### 3. Setting up RPi network behavior
 
 We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
 For this we just need to run with root privileges the script `scripts/autohotspot/autohotspot-setup.sh`. On a new terminal:
@@ -221,7 +223,29 @@ vnc: 10.0.0.5::5900
 
 If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
 
-### Creating a service
+### 4. Add FTP access
+
+The FTP access can be used as an alternative way to download multiple files without the need to archive files.
+
+1. Install FTP server: `sudo apt install vsftpd`
+2. Modify the configuration: `sudo nano /etc/vsftpd.conf`
+
+Make sure the following settings are present, i.e. uncommented or added:
+
+```
+anonymous_enable=NO
+local_enable=YES
+local_umask=022
+chroot_local_user=YES
+user_sub_token=$USER
+local_root=/home/pi/Desktop/App4Cam
+allow_writeable_chroot=YES
+add or uncomment
+```
+
+Now, you can connect via an FTP client with the PI's IP address, port 21, its username `pi` and the corresponding password.
+
+### 5. Creating a service
 
 1. Create the app4cam-backend service by creating the following file: `/etc/systemd/system/app4cam-backend.service`
 
@@ -247,7 +271,7 @@ SyslogIdentifier=%n
 2. Run: `sudo systemctl daemon-reload`
 3. Run: `sudo systemctl enable app4cam-backend`
 
-### Final steps
+### 6. Final steps
 
-1. If you want to deploy via Gitlab automatically in the future, execute once the following command: `ssh-keyscan -t ed25519 git.list.lu >> ~/.ssh/known_hosts`
+1. If you want to deploy via Continuous Deployment (CD) automatically in the future, execute once the following command: `ssh-keyscan -t ed25519 git.list.lu >> ~/.ssh/known_hosts`
 2. See final necessary commands sent via SSH to server in `.gitlab-ci.yml`.
