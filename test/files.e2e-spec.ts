@@ -47,7 +47,7 @@ describe('FilesController (e2e)', () => {
     return request(app.getHttpServer())
       .post('/files')
       .send({ filenames })
-      .expect(404)
+      .expect(201)
   })
 
   it('/files (POST) illegal path', () => {

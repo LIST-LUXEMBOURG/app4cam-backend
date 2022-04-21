@@ -61,7 +61,8 @@ export class FilesService {
     const filePaths = filenames.map((filename) =>
       path.join(this.fileFolderPath, filename),
     )
-    ArchiveFileManager.createArchive(archiveFilePath, filePaths)
+    const logger = new Logger(ArchiveFileManager.name)
+    await ArchiveFileManager.createArchive(archiveFilePath, filePaths, logger)
     const streamableFile =
       FileHandler.createStreamWithContentType(archiveFilePath)
     return {

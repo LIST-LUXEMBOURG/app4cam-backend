@@ -1,7 +1,7 @@
 import { ArchiveFileManager } from './archive-file-manager'
 import { existsSync } from 'fs'
 import { writeFile, mkdir, rm } from 'fs/promises'
-import AdmZip = require('adm-zip')
+import { LoggerService } from '@nestjs/common'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 const SYSTEM_TIME_ISO = '2022-01-18T13:48:37.000Z'
@@ -28,6 +28,18 @@ describe('ArchiveFileCreator', () => {
   describe('createArchive', () => {
     const testFolderPath = 'src/files/test-archive-file-creation'
 
+    class MockupLogger implements LoggerService {
+      error() {
+        // Do nothing.
+      }
+      log() {
+        // Do nothing.
+      }
+      warn() {
+        // Do nothing.
+      }
+    }
+
     it('creates an archive with two files', async () => {
       await mkdir(testFolderPath)
       const filenames = ['a.txt', 'b.txt']
@@ -35,10 +47,9 @@ describe('ArchiveFileCreator', () => {
         (filename) => FIXTURE_FOLDER_PATH + '/' + filename,
       )
       const archiveFilePath = testFolderPath + '/c.zip'
-      ArchiveFileManager.createArchive(archiveFilePath, filePaths)
+      const logger = new MockupLogger()
+      await ArchiveFileManager.createArchive(archiveFilePath, filePaths, logger)
       expect(existsSync(archiveFilePath)).toBeTruthy()
-      const zip = new AdmZip(archiveFilePath)
-      expect(zip.getEntries().map((entry) => entry.name)).toEqual(filenames)
       await rm(testFolderPath, { recursive: true, force: true })
     })
   })
