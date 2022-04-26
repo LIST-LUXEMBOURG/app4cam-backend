@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- Ignore tags for CI/CD
+
 ### Security
 
 ## Sprint 4 - version 1.0.0
