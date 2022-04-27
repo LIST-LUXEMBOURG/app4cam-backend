@@ -7,6 +7,7 @@ import { SystemTimeInteractor } from './system-time-interactor'
 jest.mock('../motion-client', () => ({
   MotionClient: {
     setFilename: () => jest.fn(),
+    setLeftTextOnImage: () => jest.fn(),
   },
 }))
 

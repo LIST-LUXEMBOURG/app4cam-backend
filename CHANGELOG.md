@@ -8,6 +8,8 @@
 
 ### Changed
 
+- Use device ID as left text on image
+
 ### Deprecated
 
 ### Removed
