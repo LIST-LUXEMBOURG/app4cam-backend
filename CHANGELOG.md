@@ -9,6 +9,7 @@
 ### Changed
 
 - Use device ID as left text on image
+- Rename config file `aurinion.env` to `app4cam.env`
 
 ### Deprecated
 
