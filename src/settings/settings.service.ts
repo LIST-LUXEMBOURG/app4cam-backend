@@ -54,6 +54,9 @@ export class SettingsService {
       settings.deviceId,
       settings.timeZone,
     )
+    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'deviceId')) {
+      await MotionClient.setLeftTextOnImage(settings.deviceId)
+    }
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
       await SystemTimeInteractor.setTimeZone(settings.timeZone)
     }
@@ -72,6 +75,7 @@ export class SettingsService {
       settings.deviceId,
       settings.timeZone,
     )
+    await MotionClient.setLeftTextOnImage(settings.deviceId)
     await SystemTimeInteractor.setTimeZone(settings.timeZone)
   }
 
@@ -113,6 +117,7 @@ export class SettingsService {
       deviceId,
       settings.timeZone,
     )
+    await MotionClient.setLeftTextOnImage(deviceId)
   }
 
   async getSystemTime(): Promise<string> {

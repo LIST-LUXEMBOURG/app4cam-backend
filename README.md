@@ -141,6 +141,8 @@ stream_localhost off
 snapshot_filename %Y%m%dT%H%M%S_snapshot
 ```
 
+Comment out the `text_left` property with a semicolon.
+
 A more described configuration can be found at https://motion-project.github.io/motion_config.html.
 
 #### 1.3. Creating local folder
