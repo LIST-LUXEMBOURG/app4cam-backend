@@ -64,7 +64,7 @@ deploy:
       cd $CI_PROJECT_NAME &&
       npm ci &&
       npm run build &&
-      cp config/aurinion.env config/production.env &&
+      cp config/app4cam.env config/production.env &&
       sudo systemctl start $CI_PROJECT_NAME &&
       exit
       "
