@@ -14,6 +14,11 @@ cache:
   paths:
     - node_modules/
 
+stages:
+  - test
+  - analyse
+  - deploy
+
 test:
   except:
     - tags
@@ -24,6 +29,15 @@ test:
     - npm ci
     - npm run test
     - npm run test:e2e
+
+sast:
+  when: manual
+  tags:
+    - hdce_docker
+  stage: analyse
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
 
 deploy:
   except:
