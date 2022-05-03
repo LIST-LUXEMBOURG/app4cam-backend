@@ -11,6 +11,7 @@
 
 - Use device ID as left text on image
 - Rename config file `aurinion.env` to `app4cam.env`
+- Prepend site name to device ID for left text on image
 
 ### Deprecated
 
@@ -19,6 +20,7 @@
 ### Fixed
 
 - Ignore tags for CI/CD
+- Remove unnecessary underscores in filenames
 
 ### Security
 
