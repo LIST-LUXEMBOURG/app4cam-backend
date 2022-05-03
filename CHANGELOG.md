@@ -5,6 +5,7 @@
 ### Added
 
 - Start changelog
+- Add Static Application Security Testing (SAST) as manual job to gitlab CI/CD
 
 ### Changed
 
