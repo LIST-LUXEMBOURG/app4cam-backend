@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { MotionClient } from '../motion-client'
+import { MotionTextAssembler } from './motion-text-assembler'
 import { Settings, SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SystemTimeInteractor } from './system-time-interactor'
@@ -49,13 +50,21 @@ export class SettingsService {
       ...settingsToUpdateInFile,
     }
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await MotionClient.setFilename(
+    const filename = MotionTextAssembler.createFilename(
       settings.siteName,
       settings.deviceId,
       settings.timeZone,
     )
-    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'deviceId')) {
-      await MotionClient.setLeftTextOnImage(settings.deviceId)
+    await MotionClient.setFilename(filename)
+    if (
+      Object.prototype.hasOwnProperty.call(settingsToUpdate, 'deviceId') ||
+      Object.prototype.hasOwnProperty.call(settingsToUpdate, 'siteName')
+    ) {
+      const imageText = MotionTextAssembler.createImageText(
+        settings.siteName,
+        settings.deviceId,
+      )
+      await MotionClient.setLeftTextOnImage(imageText)
     }
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
       await SystemTimeInteractor.setTimeZone(settings.timeZone)
@@ -70,12 +79,17 @@ export class SettingsService {
       )
     }
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await MotionClient.setFilename(
+    const filename = MotionTextAssembler.createFilename(
       settings.siteName,
       settings.deviceId,
       settings.timeZone,
     )
-    await MotionClient.setLeftTextOnImage(settings.deviceId)
+    await MotionClient.setFilename(filename)
+    const imageText = MotionTextAssembler.createImageText(
+      settings.siteName,
+      settings.deviceId,
+    )
+    await MotionClient.setLeftTextOnImage(imageText)
     await SystemTimeInteractor.setTimeZone(settings.timeZone)
   }
 
@@ -92,11 +106,17 @@ export class SettingsService {
     )
     settings.siteName = siteName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await MotionClient.setFilename(
+    const filename = MotionTextAssembler.createFilename(
       siteName,
       settings.deviceId,
       settings.timeZone,
     )
+    await MotionClient.setFilename(filename)
+    const imageText = MotionTextAssembler.createImageText(
+      siteName,
+      settings.deviceId,
+    )
+    await MotionClient.setLeftTextOnImage(imageText)
   }
 
   async getDeviceId(): Promise<string> {
@@ -112,12 +132,17 @@ export class SettingsService {
     )
     settings.deviceId = deviceId
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await MotionClient.setFilename(
+    const filename = MotionTextAssembler.createFilename(
       settings.siteName,
       deviceId,
       settings.timeZone,
     )
-    await MotionClient.setLeftTextOnImage(deviceId)
+    await MotionClient.setFilename(filename)
+    const imageText = MotionTextAssembler.createImageText(
+      settings.siteName,
+      deviceId,
+    )
+    await MotionClient.setLeftTextOnImage(imageText)
   }
 
   async getSystemTime(): Promise<string> {
@@ -161,5 +186,11 @@ export class SettingsService {
     settings.timeZone = timeZone
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
     await SystemTimeInteractor.setTimeZone(timeZone)
+    const filename = MotionTextAssembler.createFilename(
+      settings.siteName,
+      settings.deviceId,
+      timeZone,
+    )
+    await MotionClient.setFilename(filename)
   }
 }
