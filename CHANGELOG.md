@@ -1,6 +1,20 @@
 # Changelog
 
-## Sprint 5 - upcoming version
+## Upcoming version
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## Sprint 5 - version 1.1.0
 
 ### Added
 
@@ -13,16 +27,11 @@
 - Rename config file `aurinion.env` to `app4cam.env`
 - Prepend site name to device ID for left text on image
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 
 - Ignore tags for CI/CD
 - Remove unnecessary underscores in filenames
-
-### Security
+- Workaround loading previous snapshot instead of the one when taking a snapshot by waiting 1/3s
 
 ## Sprint 4 - version 1.0.0
 
