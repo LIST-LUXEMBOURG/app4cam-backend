@@ -15,6 +15,7 @@
 ### Fixed
 
 - Require Node.js 16 or later
+- Increase waiting time from 1/3 to 1/2 s of workaround to load latest snapshot for Raspberry Pi 3
 
 ### Security
 
