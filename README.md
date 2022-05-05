@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Git
-- \>= Node.js 14.x
+- \>= Node.js 16.x
 
 ## Development
 

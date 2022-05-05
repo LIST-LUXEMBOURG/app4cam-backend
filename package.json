@@ -65,5 +65,8 @@
   "lint-staged": {
     "src/**/*.ts": "eslint",
     "**/*": "prettier --write --ignore-unknown"
+  },
+  "engines": {
+    "node": ">=16"
   }
 }
