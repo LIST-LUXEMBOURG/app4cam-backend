@@ -12,7 +12,7 @@ export class SnapshotsService {
 
   async takeSnapshot() {
     await MotionClient.takeSnapshot()
-    await new Promise((resolve) => setTimeout(resolve, 333)) // Workaround for not opening previous snapshot
+    await new Promise((resolve) => setTimeout(resolve, 500)) // Workaround for not opening previous snapshot
     return this.filesService.getStreamableFile(LATEST_SNAPSHOT_SYMBOLIC_LINK)
   }
 }
