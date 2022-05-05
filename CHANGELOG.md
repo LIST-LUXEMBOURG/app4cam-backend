@@ -6,11 +6,15 @@
 
 ### Changed
 
+- Let npm fail if the required Node.js version is not met
+
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- Require Node.js 16 or later
 
 ### Security
 
