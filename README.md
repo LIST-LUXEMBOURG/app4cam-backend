@@ -170,7 +170,9 @@ Motion should be set up to run as a service, which means that it will start auto
 This should be done only after all the standard configuration has been completed.
 As a service Motion uses the systemctl and option daemon must be set to `on`
 
-Next enable motion by entering the following at the command line: `sudo systemctl enable motion`  
+Next enable motion by entering the following at the command line: `sudo systemctl enable motion`   
+Then change `start_motion_daemon` to `yes` on the file `/etc/default/motion` 
+
 The following commands now control the Motion service.
 
 - Start the Motion `sudo service motion start`
