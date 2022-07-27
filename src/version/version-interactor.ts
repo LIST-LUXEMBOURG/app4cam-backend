@@ -1,16 +1,12 @@
-import { exec as execSync } from 'child_process'
-import { promisify } from 'util'
+import { readFile } from 'fs/promises'
 import { VersionDto } from './version.dto'
 
-const exec = promisify(execSync)
+const COMMIT_HASH_FILE = 'commit-hash.txt'
 
 export class VersionInteractor {
   static async getVersion(): Promise<VersionDto> {
-    const { stdout, stderr } = await exec('git rev-parse --short HEAD')
-    if (stderr) {
-      throw new Error(stderr)
-    }
-    const commitHash = stdout.trimEnd()
+    const buffer = await readFile(COMMIT_HASH_FILE)
+    const commitHash = buffer.toString()
     const version = process.env.npm_package_version
     return {
       commitHash,

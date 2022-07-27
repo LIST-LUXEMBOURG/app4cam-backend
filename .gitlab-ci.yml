@@ -6,7 +6,7 @@
 
 # Official framework image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/node/tags/
-image: node:latest
+image: node:lts-alpine
 
 # This folder is cached between builds
 # https://docs.gitlab.com/ee/ci/yaml/index.html#cache
@@ -17,38 +17,60 @@ cache:
 stages:
   - test
   - analyse
+  - build
   - deploy
 
 test:
+  stage: test
   except:
     - tags
   tags:
     - hdce_docker
-  stage: test
   script:
     - npm ci
     - npm run test
     - npm run test:e2e
 
 sast:
+  stage: analyse
   when: manual
   tags:
     - hdce_docker
-  stage: analyse
 
 include:
   - template: Security/SAST.gitlab-ci.yml
 
-deploy:
+build:
+  stage: build
   except:
     - tags
   tags:
     - hdce_docker
+  script:
+    - apk add git
+    - npm run build
+    - cp config/app4cam.env config/production.env
+  artifacts:
+    paths:
+      - config/
+      - dist/
+      - scripts/
+      - temp/
+      - commit-hash.txt
+      - package.json
+      - package-lock.json
+
+deploy:
   stage: deploy
+  except:
+    - tags
+  tags:
+    - hdce_docker
+  environment:
+    name: testing
   script:
     ## Install ssh-agent if not already installed, it is required by Docker.
-    ## (change apt-get to yum if you use an RPM-based image)
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+    - 'which ssh-agent || ( apk update && apk add openssh-client )'
 
     ## Run ssh-agent (inside the build environment).
     - eval $(ssh-agent -s)
@@ -63,22 +85,21 @@ deploy:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
 
-    ## Use ssh-keyscan to scan the keys of your private server. Replace gitlab.com
-    ## with your own domain name. You can copy and repeat that command if you have
-    ## more than one server to connect to.
-    - ssh-keyscan 10.131.10.28 >> ~/.ssh/known_hosts
+    ## Use ssh-keyscan to scan the keys of your private server.
+    - ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
-    # Make sure you have created the backend service.
-    # Make sure you have executed once the following command: ssh-keyscan -t ed25519 git.list.lu >> ~/.ssh/known_hosts
-    - ssh pi@10.131.10.28 "
+    # Deploy.
+    - ssh pi@$SERVER_HOST "
       sudo systemctl stop $CI_PROJECT_NAME &&
       rm --recursive --force $CI_PROJECT_NAME || true &&
-      git clone --single-branch --branch $CI_COMMIT_BRANCH $CI_REPOSITORY_URL &&
+      exit
+      "
+    - apk add rsync
+    - rsync --recursive config dist scripts temp commit-hash.txt package.json package-lock.json pi@$SERVER_HOST:./$CI_PROJECT_NAME
+    - ssh pi@$SERVER_HOST "
       cd $CI_PROJECT_NAME &&
-      npm ci &&
-      npm run build &&
-      cp config/app4cam.env config/production.env &&
+      npm ci --production --ignore-scripts &&
       sudo systemctl start $CI_PROJECT_NAME &&
       exit
       "

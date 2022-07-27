@@ -1,10 +1,24 @@
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { VersionInteractor } from '../src/version/version-interactor'
+import { VersionDto } from '../src/version/version.dto'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
 
 describe('VersionController (e2e)', () => {
+  const USAGE: VersionDto = {
+    commitHash: 'abcd',
+    version: '1.0.0',
+  }
+
   let app: INestApplication
+  let spyGetVersion
+
+  beforeAll(() => {
+    spyGetVersion = jest
+      .spyOn(VersionInteractor, 'getVersion')
+      .mockImplementation(() => Promise.resolve(USAGE))
+  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -29,5 +43,9 @@ describe('VersionController (e2e)', () => {
 
   afterEach(() => {
     app.close()
+  })
+
+  afterAll(() => {
+    spyGetVersion.mockRestore()
   })
 })
