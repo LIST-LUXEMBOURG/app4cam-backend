@@ -264,7 +264,8 @@ WantedBy=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=npm run start:prod
+Environment="NODE_ENV=production"
+ExecStart=node dist/main
 WorkingDirectory=/home/pi/app4cam-backend
 Restart=always
 RestartSec=5
@@ -279,4 +280,19 @@ SyslogIdentifier=%n
 ### 6. Final steps
 
 1. If you want to deploy via Continuous Deployment (CD) automatically in the future, execute once the following command: `ssh-keyscan -t ed25519 git.list.lu >> ~/.ssh/known_hosts`
-2. See final necessary commands sent via SSH to server in `.gitlab-ci.yml`.
+2. Get the application.
+
+- Option 1: Download the artifact archive from Gitlab.
+  1. Download and extract the archive into the home folder.
+  2. Change into the directory: `cd app4cam-backend`
+  3. Install the production dependencies: `npm ci --production --ignore-scripts`
+- Option 2: Build it yourself:
+  1. Clone this repository into the home folder: `git clone --single-branch --branch main https://git.list.lu/host/mechatronics/app4cam-backend.git`
+  2. Change into the directory: `cd app4cam-backend`
+  3. Install dependencies: `npm ci`
+  4. Build: `npm run build`
+  5. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
+
+3. Adapt the configuration file if needed: `nano config/production.env`
+4. Start the service: `sudo systemctl start app4cam-backend`
+5. Verify the service is running: `sudo systemctl status app4cam-backend`

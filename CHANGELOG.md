@@ -6,6 +6,9 @@
 
 ### Changed
 
+- Move code build from Pi to CI/CD runner
+- Extract commit hash to file `commit-hash.txt` upon build from where it is read
+
 ### Deprecated
 
 ### Removed
