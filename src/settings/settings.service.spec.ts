@@ -30,7 +30,7 @@ describe('SettingsService', () => {
     const AVAILABLE_TIMEZONES = ['t1', 't2']
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
     const FILE_SETTINGS: SettingsFromJsonFile = {
-      deviceId: 'd',
+      deviceName: 'd',
       siteName: 's',
       timeZone: 't',
     }
@@ -38,6 +38,7 @@ describe('SettingsService', () => {
       ...FILE_SETTINGS,
       systemTime: SYSTEM_TIME,
     }
+
     let spyReadSettingsFile
     let spyWriteSettingsFile
     let spyGetSystemTime
@@ -82,7 +83,7 @@ describe('SettingsService', () => {
 
     it('updates all optional settings', async () => {
       const settingsToUpdateInFile: SettingsFromJsonFile = {
-        deviceId: 'dd',
+        deviceName: 'dd',
         siteName: 'ss',
         timeZone: 't1',
       }
@@ -103,11 +104,11 @@ describe('SettingsService', () => {
 
     it('updates one setting stored in settings file but neither system time nor time zone', async () => {
       const settingsToUpdate: Partial<Settings> = {
-        deviceId: 'dd',
+        deviceName: 'dd',
       }
       await service.updateSettings(settingsToUpdate)
       const expectedSettings = JSON.parse(JSON.stringify(FILE_SETTINGS)) // deep clone
-      expectedSettings.deviceId = settingsToUpdate.deviceId
+      expectedSettings.deviceName = settingsToUpdate.deviceName
       expect(spySetSystemTime).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expectedSettings,
@@ -129,7 +130,7 @@ describe('SettingsService', () => {
 
     it('updates all settings', async () => {
       const settings: SettingsFromJsonFile = {
-        deviceId: 'dd',
+        deviceName: 'dd',
         siteName: 'ss',
         timeZone: 't1',
       }
@@ -154,13 +155,13 @@ describe('SettingsService', () => {
       )
     })
 
-    it('returns device ID', async () => {
-      const deviceId = await service.getDeviceId()
-      expect(deviceId).toBe(FILE_SETTINGS.deviceId)
+    it('returns device name', async () => {
+      const deviceName = await service.getDeviceName()
+      expect(deviceName).toBe(FILE_SETTINGS.deviceName)
     })
 
-    it('sets device ID', async () => {
-      await service.setDeviceId('b')
+    it('sets device name', async () => {
+      await service.setDeviceName('b')
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expect.any(Object),
         expect.any(String),

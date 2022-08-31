@@ -1,5 +1,5 @@
 export class SettingsFromJsonFile {
-  deviceId: string
+  deviceName: string
   siteName: string
   timeZone: string
 }

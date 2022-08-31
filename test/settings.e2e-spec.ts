@@ -17,7 +17,7 @@ describe('SettingsController (e2e)', () => {
   const AVAILABLE_TIMEZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
   const FILE_SETTINGS: SettingsFromJsonFile = {
-    deviceId: 'd',
+    deviceName: 'd',
     siteName: 's',
     timeZone: AVAILABLE_TIMEZONES[0],
   }
@@ -25,6 +25,7 @@ describe('SettingsController (e2e)', () => {
     ...FILE_SETTINGS,
     systemTime: SYSTEM_TIME,
   }
+
   let app: INestApplication
   let spyReadSettingsFile
   let spyWriteSettingsFile
@@ -79,14 +80,14 @@ describe('SettingsController (e2e)', () => {
     it('/ (PATCH)', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ deviceId: 'a' })
+        .send({ deviceName: 'a' })
         .expect(200)
     })
 
     it('/ (PATCH) invalid space in device ID', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ deviceId: 'a ' })
+        .send({ deviceName: 'a ' })
         .expect(400)
     })
 
@@ -146,38 +147,38 @@ describe('SettingsController (e2e)', () => {
         .expect(400)
     })
 
-    it('/deviceId (GET)', () => {
+    it('/deviceName (GET)', () => {
       return request(app.getHttpServer())
-        .get('/settings/deviceId')
+        .get('/settings/deviceName')
         .expect('Content-Type', /json/)
-        .expect(200, { deviceId: FILE_SETTINGS.deviceId })
+        .expect(200, { deviceName: FILE_SETTINGS.deviceName })
     })
 
-    it('/deviceId (PUT)', () => {
+    it('/deviceName (PUT)', () => {
       return request(app.getHttpServer())
-        .put('/settings/deviceId')
-        .send({ deviceId: 'a-0A' })
+        .put('/settings/deviceName')
+        .send({ deviceName: 'a-0A' })
         .expect(200)
     })
 
-    it('/deviceId (PUT) invalid space', () => {
+    it('/deviceName (PUT) invalid space', () => {
       return request(app.getHttpServer())
-        .put('/settings/deviceId')
-        .send({ deviceId: 'a ' })
+        .put('/settings/deviceName')
+        .send({ deviceName: 'a ' })
         .expect(400)
     })
 
-    it('/deviceId (PUT) invalid underscore', () => {
+    it('/deviceName (PUT) invalid underscore', () => {
       return request(app.getHttpServer())
-        .put('/settings/deviceId')
-        .send({ deviceId: 'a_' })
+        .put('/settings/deviceName')
+        .send({ deviceName: 'a_' })
         .expect(400)
     })
 
-    it('/deviceId (PUT) empty', async () => {
+    it('/deviceName (PUT) empty', async () => {
       return request(app.getHttpServer())
-        .put('/settings/deviceId')
-        .send({ deviceId: '' })
+        .put('/settings/deviceName')
+        .send({ deviceName: '' })
         .expect(400)
     })
 

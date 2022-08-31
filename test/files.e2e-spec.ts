@@ -16,7 +16,7 @@ describe('FilesController (e2e)', () => {
       .useValue({
         getAllSettings: jest.fn(() =>
           Promise.resolve({
-            deviceId: 'd',
+            deviceName: 'd',
             siteName: 's',
           }),
         ),

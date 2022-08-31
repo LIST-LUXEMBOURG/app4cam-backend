@@ -12,7 +12,7 @@ import { LoggerMiddleware } from './logger.middleware'
 import { ScheduleModule } from '@nestjs/schedule'
 import { SnapshotsModule } from './snapshots/snapshots.module'
 import { StorageModule } from './storage/storage.module'
-import { VersionModule } from './version/version.module'
+import { PropertiesModule } from './properties/properties.module'
 
 @Module({
   imports: [
@@ -22,11 +22,11 @@ import { VersionModule } from './version/version.module'
       validate,
     }),
     FilesModule,
+    PropertiesModule,
     SettingsModule,
     ScheduleModule.forRoot(),
     SnapshotsModule,
     StorageModule,
-    VersionModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,5 +1,5 @@
 import { readFile } from 'fs/promises'
-import { VersionDto } from './version.dto'
+import { VersionDto } from '../dto/version.dto'
 
 const COMMIT_HASH_FILE = 'commit-hash.txt'
 

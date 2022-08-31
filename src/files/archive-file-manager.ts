@@ -10,11 +10,11 @@ const TIME_TO_LIVE_MILLISECONDS = 3600000 // 1 hour
 export class ArchiveFileManager {
   static createArchiveFilename(
     date: Date,
-    deviceId: string,
+    deviceName: string,
     siteName: string,
   ): string {
     const time = this.stripHyphensColonsDots(date.toISOString())
-    return siteName + '_' + deviceId + '_' + time + '.zip'
+    return siteName + '_' + deviceName + '_' + time + '.zip'
   }
 
   static stripHyphensColonsDots(input: string) {

@@ -6,7 +6,7 @@ import { SettingsService } from './settings.service'
 describe('SettingsController', () => {
   const AVAILABLE_TIMEZONES = ['a', 'b']
   const SETTINGS: Settings = {
-    deviceId: 'd',
+    deviceName: 'd',
     siteName: 's',
     systemTime: '2022-01-18T14:48:37+01:00',
     timeZone: 't',
@@ -26,8 +26,8 @@ describe('SettingsController', () => {
             updateAllSettings: jest.fn(),
             getSiteName: jest.fn().mockReturnValue(SETTINGS.siteName),
             setSiteName: jest.fn(),
-            getDeviceId: jest.fn().mockReturnValue(SETTINGS.deviceId),
-            setDeviceId: jest.fn(),
+            getDeviceName: jest.fn().mockReturnValue(SETTINGS.deviceName),
+            setDeviceName: jest.fn(),
             getSystemTime: jest.fn().mockReturnValue(SETTINGS.systemTime),
             setSystemTime: jest.fn(),
             getAvailableTimeZones: jest
@@ -54,13 +54,13 @@ describe('SettingsController', () => {
   })
 
   it('sets settings', async () => {
-    const settings = { deviceId: 'd', siteName: 's' }
+    const settings = { deviceName: 'd', siteName: 's' }
     await controller.updateSettings(settings)
     expect(service.updateSettings).toHaveBeenCalledWith(settings)
   })
 
   it('sets all settings', async () => {
-    const settings = { deviceId: 'd', siteName: 's', timeZone: 't' }
+    const settings = { deviceName: 'd', siteName: 's', timeZone: 't' }
     await controller.updateAllSettings(settings)
     expect(service.updateAllSettings).toHaveBeenCalledWith(settings)
   })
@@ -75,14 +75,14 @@ describe('SettingsController', () => {
     expect(service.setSiteName).toHaveBeenCalledWith('b')
   })
 
-  it('gets the device ID', async () => {
-    const response = await controller.getDeviceId()
-    expect(response).toEqual({ deviceId: SETTINGS.deviceId })
+  it('gets the device name', async () => {
+    const response = await controller.getDeviceName()
+    expect(response).toEqual({ deviceName: SETTINGS.deviceName })
   })
 
-  it('sets the device ID', async () => {
-    await controller.setDeviceId({ deviceId: 'c' })
-    expect(service.setDeviceId).toHaveBeenCalledWith('c')
+  it('sets the device name', async () => {
+    await controller.setDeviceName({ deviceName: 'c' })
+    expect(service.setDeviceName).toHaveBeenCalledWith('c')
   })
 
   it('gets the system time', async () => {
