@@ -4,10 +4,14 @@
 
 ### Added
 
+- Reintroduce `device ID` as property returning first MAC address
+
 ### Changed
 
 - Move code build from Pi to CI/CD runner
 - Extract commit hash to file `commit-hash.txt` upon build from where it is read
+- Rename `device ID` to `device name`
+- Rename `version` to `properties/version` endpoint
 
 ### Deprecated
 

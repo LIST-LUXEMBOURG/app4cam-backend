@@ -1,20 +1,26 @@
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { VersionInteractor } from '../src/version/version-interactor'
-import { VersionDto } from '../src/version/version.dto'
+import { VersionInteractor } from '../src/properties/interactors/version-interactor'
+import { VersionDto } from '../src/properties/dto/version.dto'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
+import { MacAddressInteractor } from '../src/properties/interactors/mac-address-interactor'
 
-describe('VersionController (e2e)', () => {
+describe('PropertiesController (e2e)', () => {
+  const DEVICE_ID = 'a'
   const USAGE: VersionDto = {
     commitHash: 'abcd',
     version: '1.0.0',
   }
 
   let app: INestApplication
+  let spyGetFirstMacAddress
   let spyGetVersion
 
   beforeAll(() => {
+    spyGetFirstMacAddress = jest
+      .spyOn(MacAddressInteractor, 'getFirstMacAddress')
+      .mockResolvedValue(DEVICE_ID)
     spyGetVersion = jest
       .spyOn(VersionInteractor, 'getVersion')
       .mockImplementation(() => Promise.resolve(USAGE))
@@ -29,9 +35,18 @@ describe('VersionController (e2e)', () => {
     await app.init()
   })
 
-  describe('/version', () => {
-    it('/ (GET)', async () => {
-      const response = await request(app.getHttpServer()).get('/version')
+  describe('/properties', () => {
+    it('/deviceId (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/properties/deviceId')
+        .expect('Content-Type', /json/)
+        .expect(200, { deviceId: DEVICE_ID })
+    })
+
+    it('/version (GET)', async () => {
+      const response = await request(app.getHttpServer()).get(
+        '/properties/version',
+      )
       expect(response.headers['content-type']).toMatch(/json/)
       expect(response.status).toEqual(200)
       expect(response.body).toHaveProperty('commitHash')
@@ -46,6 +61,7 @@ describe('VersionController (e2e)', () => {
   })
 
   afterAll(() => {
+    spyGetFirstMacAddress.mockRestore()
     spyGetVersion.mockRestore()
   })
 })

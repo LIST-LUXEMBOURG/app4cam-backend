@@ -9,7 +9,7 @@ import {
 export class SettingsPatchDto {
   @IsOptional()
   @Matches(/^[a-zA-Z0-9-]+$/)
-  deviceId?: string
+  deviceName?: string
 
   @IsOptional()
   @Matches(/^[a-zA-Z0-9-]+$/)
@@ -27,7 +27,7 @@ export class SettingsPatchDto {
 export class SettingsPutDto {
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9-]+$/)
-  deviceId: string
+  deviceName: string
 
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9-]+$/)

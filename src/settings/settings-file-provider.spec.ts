@@ -33,7 +33,7 @@ describe('SettingsFileProvider', () => {
         FIXTURE_FOLDER_PATH + '/a',
       )
       const expected: SettingsFromJsonFile = {
-        deviceId: '',
+        deviceName: '',
         siteName: '',
         timeZone: '',
       }
@@ -51,7 +51,7 @@ describe('SettingsFileProvider', () => {
 
     it('writes settings object', async () => {
       const SETTINGS = {
-        deviceId: 'd',
+        deviceName: 'd',
         siteName: 's',
         timeZone: 't',
       }

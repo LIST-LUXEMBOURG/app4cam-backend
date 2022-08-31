@@ -17,7 +17,7 @@ export class SettingsFileProvider {
         throw err
       }
       return {
-        deviceId: '',
+        deviceName: '',
         siteName: '',
         timeZone: '',
       }
