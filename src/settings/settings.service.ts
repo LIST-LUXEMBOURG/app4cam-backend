@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { MotionClient } from '../motion-client'
 import { MotionTextAssembler } from './motion-text-assembler'
 import { PatchableSettings, Settings, UpdatableSettings } from './settings'
@@ -9,19 +9,28 @@ const SETTINGS_FILE_PATH = 'settings.json'
 
 @Injectable()
 export class SettingsService {
+  private readonly logger = new Logger(SettingsService.name)
+
   async getAllSettings(): Promise<Settings> {
     const settings = await SettingsFileProvider.readSettingsFile(
       SETTINGS_FILE_PATH,
     )
     const time = await SystemTimeInteractor.getSystemTimeInIso8601Format()
     const shotTypes = []
-    const pictureOutput = await MotionClient.getPictureOutput()
-    if (pictureOutput === 'on') {
-      shotTypes.push('pictures')
-    }
-    const movieOutput = await MotionClient.getMovieOutput()
-    if (movieOutput === 'on') {
-      shotTypes.push('videos')
+    try {
+      const pictureOutput = await MotionClient.getPictureOutput()
+      if (pictureOutput === 'on') {
+        shotTypes.push('pictures')
+      }
+      const movieOutput = await MotionClient.getMovieOutput()
+      if (movieOutput === 'on') {
+        shotTypes.push('videos')
+      }
+    } catch (error) {
+      this.logger.warn(`Could not connect to ${error.config.url}`)
+      if (error.code !== 'ECONNREFUSED') {
+        throw error
+      }
     }
     const settingsToReturn = {
       ...settings,
@@ -56,15 +65,22 @@ export class SettingsService {
     }
 
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'shotTypes')) {
-      if (settingsToUpdate.shotTypes.includes('pictures')) {
-        await MotionClient.setPictureOutput('on')
-      } else {
-        await MotionClient.setPictureOutput('off')
-      }
-      if (settingsToUpdate.shotTypes.includes('videos')) {
-        await MotionClient.setMovieOutput('on')
-      } else {
-        await MotionClient.setMovieOutput('off')
+      try {
+        if (settingsToUpdate.shotTypes.includes('pictures')) {
+          await MotionClient.setPictureOutput('on')
+        } else {
+          await MotionClient.setPictureOutput('off')
+        }
+        if (settingsToUpdate.shotTypes.includes('videos')) {
+          await MotionClient.setMovieOutput('on')
+        } else {
+          await MotionClient.setMovieOutput('off')
+        }
+      } catch (error) {
+        this.logger.warn(`Could not connect to ${error.config.url}`)
+        if (error.code !== 'ECONNREFUSED') {
+          throw error
+        }
       }
       // Remove this property as it should not be written to the settings file.
       delete settingsToUpdateInFile.shotTypes
@@ -109,7 +125,36 @@ export class SettingsService {
       )
     }
 
-    await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    const settingsToUpdateInFile = JSON.parse(JSON.stringify(settings)) // deep clone
+
+    if (
+      Object.prototype.hasOwnProperty.call(settingsToUpdateInFile, 'shotTypes')
+    ) {
+      try {
+        if (settingsToUpdateInFile.shotTypes.includes('pictures')) {
+          await MotionClient.setPictureOutput('on')
+        } else {
+          await MotionClient.setPictureOutput('off')
+        }
+        if (settingsToUpdateInFile.shotTypes.includes('videos')) {
+          await MotionClient.setMovieOutput('on')
+        } else {
+          await MotionClient.setMovieOutput('off')
+        }
+      } catch (error) {
+        this.logger.warn(`Could not connect to ${error.config.url}`)
+        if (error.code !== 'ECONNREFUSED') {
+          throw error
+        }
+      }
+      // Remove this property as it should not be written to the settings file.
+      delete settingsToUpdateInFile.shotTypes
+    }
+
+    await SettingsFileProvider.writeSettingsToFile(
+      settingsToUpdateInFile,
+      SETTINGS_FILE_PATH,
+    )
 
     const filename = MotionTextAssembler.createFilename(
       settings.siteName,

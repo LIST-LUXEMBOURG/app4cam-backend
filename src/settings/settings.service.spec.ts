@@ -136,13 +136,12 @@ describe('SettingsService', () => {
     })
 
     it('updates all settings', async () => {
-      const settings: UpdatableSettings = {
+      const settings: SettingsFromJsonFile = {
         deviceName: 'dd',
         siteName: 'ss',
-        shotTypes: SHOT_TYPES,
         timeZone: 't1',
       }
-      await service.updateAllSettings(settings)
+      await service.updateAllSettings({ ...settings, shotTypes: SHOT_TYPES })
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         settings,
         expect.any(String),
