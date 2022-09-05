@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Settings, SettingsFromJsonFile, UpdatableSettings } from './settings'
+import { Settings, SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SettingsService } from './settings.service'
 import { SystemTimeInteractor } from './system-time-interactor'
