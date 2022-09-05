@@ -1,10 +1,10 @@
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { VersionInteractor } from '../src/properties/interactors/version-interactor'
-import { VersionDto } from '../src/properties/dto/version.dto'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
+import { VersionDto } from '../src/properties/dto/version.dto'
 import { MacAddressInteractor } from '../src/properties/interactors/mac-address-interactor'
+import { VersionInteractor } from '../src/properties/interactors/version-interactor'
 
 describe('PropertiesController (e2e)', () => {
   const DEVICE_ID = 'a'

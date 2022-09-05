@@ -1,10 +1,10 @@
+import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { SettingsService } from '../settings/settings.service'
 import { FilesService } from '../files/files.service'
+import { SettingsService } from '../settings/settings.service'
 import { SnapshotsController } from './snapshots.controller'
 import { SnapshotsService } from './snapshots.service'
-import { PassThrough } from 'stream'
 
 describe(SnapshotsController.name, () => {
   const mockSnapshotContentType = 'a'

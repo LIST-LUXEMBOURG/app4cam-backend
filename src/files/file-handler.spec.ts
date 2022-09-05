@@ -1,5 +1,5 @@
-import { FileHandler } from './file-handler'
 import { ReadStream } from 'fs'
+import { FileHandler } from './file-handler'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 

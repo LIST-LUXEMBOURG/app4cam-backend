@@ -10,10 +10,10 @@ import {
   Res,
   StreamableFile,
 } from '@nestjs/common'
-import { FilesService } from './files.service'
-import { File } from './entities/file.entity'
 import { FilesDto } from './dto/files.dto'
 import { FileDeletionResponse } from './entities/file-deletion-response.entity'
+import { File } from './entities/file.entity'
+import { FilesService } from './files.service'
 
 @Controller('files')
 export class FilesController {

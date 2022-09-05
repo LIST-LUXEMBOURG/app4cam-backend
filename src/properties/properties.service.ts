@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import { VersionInteractor } from './interactors/version-interactor'
-import { VersionDto } from './dto/version.dto'
 import { DeviceIdDto } from './dto/device-id.dto'
+import { VersionDto } from './dto/version.dto'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
+import { VersionInteractor } from './interactors/version-interactor'
 
 @Injectable()
 export class PropertiesService {

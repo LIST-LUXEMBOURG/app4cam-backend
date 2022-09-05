@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { VersionInteractor } from './interactors/version-interactor'
 import { VersionDto } from './dto/version.dto'
-import { PropertiesService } from './properties.service'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
+import { VersionInteractor } from './interactors/version-interactor'
+import { PropertiesService } from './properties.service'
 
 const DEVICE_ID = 'a'
 

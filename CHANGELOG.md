@@ -6,6 +6,7 @@
 
 - Reintroduce `device ID` as property returning first MAC address
 - Introduce setting `shot types` to indicate whether pictures or videos should be taken
+- Enforce alphabetical order of imports
 
 ### Changed
 
@@ -14,6 +15,7 @@
 - Rename `device ID` to `device name`
 - Rename `version` to `properties/version` endpoint
 - Update dependencies
+- Set body parser's `urlencoded` option `extended` to `false`
 
 ### Deprecated
 

@@ -5,13 +5,20 @@ extends:
   - eslint:recommended
   - plugin:@typescript-eslint/recommended
   - prettier
+  - plugin:import/recommended
+  - plugin:import/typescript
 parser: '@typescript-eslint/parser'
 parserOptions:
   project: tsconfig.json
   sourceType: module
 plugins:
   - '@typescript-eslint'
+  - 'import'
 root: true
+settings:
+  import/resolver:
+    typescript: true
+    node: true
 rules:
   '@typescript-eslint/interface-name-prefix': off
   '@typescript-eslint/explicit-function-return-type': off
@@ -19,3 +26,5 @@ rules:
   '@typescript-eslint/no-explicit-any': off
   no-trailing-spaces:
     - error
+  import/order:
+    ['error', { alphabetize: { order: 'asc', caseInsensitive: true } }]

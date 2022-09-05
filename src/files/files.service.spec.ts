@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { FilesService } from './files.service'
+import { existsSync } from 'fs'
 import { mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
-import { FileHandler } from './file-handler'
-import { SettingsService } from '../settings/settings.service'
+import { Test, TestingModule } from '@nestjs/testing'
 import { SettingsModule } from '../settings/settings.module'
-import { existsSync } from 'fs'
+import { SettingsService } from '../settings/settings.service'
+import { FileHandler } from './file-handler'
+import { FilesService } from './files.service'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 

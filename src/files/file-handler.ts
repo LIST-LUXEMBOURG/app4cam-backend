@@ -1,6 +1,6 @@
 import { createReadStream } from 'fs'
-import { MimeTypeDeterminer } from './mime-type-determiner'
 import path = require('path')
+import { MimeTypeDeterminer } from './mime-type-determiner'
 
 export class FileHandler {
   static createStreamWithContentType(filePath: string) {

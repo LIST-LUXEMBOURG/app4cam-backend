@@ -1,7 +1,7 @@
-import { ArchiveFileManager } from './archive-file-manager'
 import { existsSync } from 'fs'
 import { writeFile, mkdir, rm } from 'fs/promises'
 import { LoggerService } from '@nestjs/common'
+import { ArchiveFileManager } from './archive-file-manager'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 const SYSTEM_TIME_ISO = '2022-01-18T13:48:37.000Z'

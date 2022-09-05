@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { MotionClient } from '../motion-client'
 import { FilesService } from '../files/files.service'
+import { MotionClient } from '../motion-client'
 import { SnapshotsService } from './snapshots.service'
 
 const mockFileService = {

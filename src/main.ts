@@ -1,8 +1,8 @@
 import { ValidationPipe } from '@nestjs/common'
-import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
-import * as bodyParser from 'body-parser'
+import { NestFactory } from '@nestjs/core'
+import { json, urlencoded } from 'body-parser'
+import { AppModule } from './app.module'
 
 const PAYLOAD_LIMIT = '1mb'
 
@@ -16,8 +16,8 @@ async function bootstrap() {
   app.getHttpAdapter().getInstance().disable('x-powered-by')
   const configService = app.get(ConfigService)
   const port = configService.get<number>('port')
-  app.use(bodyParser.json({ limit: PAYLOAD_LIMIT }))
-  app.use(bodyParser.urlencoded({ limit: PAYLOAD_LIMIT }))
+  app.use(json({ limit: PAYLOAD_LIMIT }))
+  app.use(urlencoded({ extended: false, limit: PAYLOAD_LIMIT }))
   await app.listen(port)
 }
 bootstrap()

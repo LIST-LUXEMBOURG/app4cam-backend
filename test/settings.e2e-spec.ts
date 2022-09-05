@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
+import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
-import { AppModule } from './../src/app.module'
 import { SettingsFileProvider } from '../src/settings/settings-file-provider'
-import { Settings, SettingsFromJsonFile } from 'src/settings/settings'
 import { SystemTimeInteractor } from '../src/settings/system-time-interactor'
+import { AppModule } from './../src/app.module'
+import { Settings, SettingsFromJsonFile } from 'src/settings/settings'
 
 jest.mock('../src/motion-client', () => ({
   MotionClient: {

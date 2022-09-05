@@ -4,9 +4,9 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common'
-import { Observable } from 'rxjs'
-import { Response } from 'express'
 import { ConfigService } from '@nestjs/config'
+import { Response } from 'express'
+import { Observable } from 'rxjs'
 
 @Injectable()
 export class AccessControlAllowOriginInterceptor implements NestInterceptor {

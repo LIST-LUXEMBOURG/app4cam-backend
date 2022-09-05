@@ -1,13 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common'
-import { File } from './entities/file.entity'
 import { lstat, readdir, rm } from 'fs/promises'
 import path = require('path')
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ArchiveFileManager } from './archive-file-manager'
-import { FileHandler } from './file-handler'
 import { Cron } from '@nestjs/schedule'
 import { SettingsService } from '../settings/settings.service'
+import { ArchiveFileManager } from './archive-file-manager'
 import { FileDeletionResponse } from './entities/file-deletion-response.entity'
+import { File } from './entities/file.entity'
+import { FileHandler } from './file-handler'
 
 const ARCHIVE_FOLDER_PATH = 'temp'
 

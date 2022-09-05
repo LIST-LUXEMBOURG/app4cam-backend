@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { PropertiesController } from './properties.controller'
-import { VersionDto } from './dto/version.dto'
-import { PropertiesService } from './properties.service'
 import { DeviceIdDto } from './dto/device-id.dto'
+import { VersionDto } from './dto/version.dto'
+import { PropertiesController } from './properties.controller'
+import { PropertiesService } from './properties.service'
 
 const DEVICE_ID: DeviceIdDto = {
   deviceId: 'a',

@@ -1,8 +1,8 @@
+import { createWriteStream } from 'fs'
 import { lstat, readdir, rm } from 'fs/promises'
 import path = require('path')
-import archiver = require('archiver')
-import { createWriteStream } from 'fs'
 import { LoggerService } from '@nestjs/common'
+import archiver = require('archiver')
 
 const COMPRESSION_LEVEL = 1 // 0 (no compression) to 9 (best compression), or -1 (default compression)
 const TIME_TO_LIVE_MILLISECONDS = 3600000 // 1 hour
