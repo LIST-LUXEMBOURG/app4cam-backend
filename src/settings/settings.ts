@@ -4,6 +4,13 @@ export class SettingsFromJsonFile {
   timeZone: string
 }
 
+type ShotType = 'pictures' | 'videos'
+
 export class Settings extends SettingsFromJsonFile {
+  shotTypes: ShotType[]
   systemTime: string
 }
+
+export type PatchableSettings = Partial<Settings>
+
+export type UpdatableSettings = Omit<Settings, 'systemTime'>

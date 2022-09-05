@@ -1,13 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Settings, SettingsFromJsonFile } from './settings'
+import { Settings, SettingsFromJsonFile, UpdatableSettings } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SettingsService } from './settings.service'
 import { SystemTimeInteractor } from './system-time-interactor'
 
 jest.mock('../motion-client', () => ({
   MotionClient: {
-    setFilename: () => jest.fn(),
-    setLeftTextOnImage: () => jest.fn(),
+    setFilename: jest.fn(),
+    setLeftTextOnImage: jest.fn(),
+    getMovieOutput: () => 'on',
+    setMovieOutput: jest.fn(),
+    getPictureOutput: () => 'on',
+    setPictureOutput: jest.fn(),
   },
 }))
 
@@ -28,6 +32,7 @@ describe('SettingsService', () => {
 
   describe('with mocked SettingsFileProvider', () => {
     const AVAILABLE_TIMEZONES = ['t1', 't2']
+    const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
     const FILE_SETTINGS: SettingsFromJsonFile = {
       deviceName: 'd',
@@ -36,6 +41,7 @@ describe('SettingsService', () => {
     }
     const ALL_SETTINGS: Settings = {
       ...FILE_SETTINGS,
+      shotTypes: SHOT_TYPES,
       systemTime: SYSTEM_TIME,
     }
 
@@ -89,6 +95,7 @@ describe('SettingsService', () => {
       }
       const allSettings: Settings = {
         ...settingsToUpdateInFile,
+        shotTypes: ['pictures', 'videos'],
         systemTime: 'sy',
       }
       await service.updateSettings(allSettings)
@@ -129,9 +136,10 @@ describe('SettingsService', () => {
     })
 
     it('updates all settings', async () => {
-      const settings: SettingsFromJsonFile = {
+      const settings: UpdatableSettings = {
         deviceName: 'dd',
         siteName: 'ss',
+        shotTypes: SHOT_TYPES,
         timeZone: 't1',
       }
       await service.updateAllSettings(settings)
@@ -170,7 +178,7 @@ describe('SettingsService', () => {
 
     it('returns system time', async () => {
       const systemTime = await service.getSystemTime()
-      expect(systemTime).toBe(ALL_SETTINGS.systemTime)
+      expect(systemTime).toBe(SYSTEM_TIME)
     })
 
     it('sets system time', async () => {
