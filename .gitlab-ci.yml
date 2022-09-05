@@ -56,9 +56,9 @@ build:
       - dist/
       - scripts/
       - temp/
-      - commit-hash.txt
       - package.json
       - package-lock.json
+      - version.txt
 
 deploy:
   stage: deploy
@@ -96,7 +96,7 @@ deploy:
       exit
       "
     - apk add rsync
-    - rsync --recursive config dist scripts temp commit-hash.txt package.json package-lock.json pi@$SERVER_HOST:./$CI_PROJECT_NAME
+    - rsync --recursive config dist scripts temp package.json package-lock.json version.txt pi@$SERVER_HOST:./$CI_PROJECT_NAME
     - ssh pi@$SERVER_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --production --ignore-scripts &&

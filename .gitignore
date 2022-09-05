@@ -35,6 +35,6 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # Application specific
-/commit-hash.txt
 /config/development.env
 /settings.json
+/version.txt

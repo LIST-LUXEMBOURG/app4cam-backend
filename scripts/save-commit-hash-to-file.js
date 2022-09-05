@@ -3,7 +3,7 @@ const { exec } = require('child_process')
 const fs = require('fs')
 
 const COMMAND = 'git rev-parse --short HEAD'
-const FILENAME = 'commit-hash.txt'
+const FILENAME = 'version.txt'
 
 exec(COMMAND, (error, stdout, stderr) => {
   if (error) {
@@ -15,9 +15,14 @@ exec(COMMAND, (error, stdout, stderr) => {
     process.exit(1)
   }
   const hash = stdout.trim()
-  console.log(`stdout: ${hash}`)
+  console.log(`latest commit hash: ${hash}`)
 
-  fs.writeFile(FILENAME, hash, (err) => {
+  const version = process.env.npm_package_version
+  console.log(`latest version: ${version}`)
+
+  const data = `${version}:${hash}`
+
+  fs.writeFile(FILENAME, data, (err) => {
     if (err) {
       console.log(err)
       process.exit(1)

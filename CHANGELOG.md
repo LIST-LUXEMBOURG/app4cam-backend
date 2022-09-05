@@ -11,7 +11,7 @@
 ### Changed
 
 - Move code build from Pi to CI/CD runner
-- Extract commit hash to file `commit-hash.txt` upon build from where it is read
+- Extract version number and commit hash to file `version.txt` upon build from where they are read
 - Rename `device ID` to `device name`
 - Rename `version` to `properties/version` endpoint
 - Update dependencies
