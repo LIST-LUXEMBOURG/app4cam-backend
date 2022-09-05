@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { MotionClient } from '../motion-client'
 import { MotionTextAssembler } from './motion-text-assembler'
-import { Settings, SettingsFromJsonFile } from './settings'
+import { PatchableSettings, Settings, UpdatableSettings } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SystemTimeInteractor } from './system-time-interactor'
 
@@ -14,14 +14,24 @@ export class SettingsService {
       SETTINGS_FILE_PATH,
     )
     const time = await SystemTimeInteractor.getSystemTimeInIso8601Format()
+    const shotTypes = []
+    const pictureOutput = await MotionClient.getPictureOutput()
+    if (pictureOutput === 'on') {
+      shotTypes.push('pictures')
+    }
+    const movieOutput = await MotionClient.getMovieOutput()
+    if (movieOutput === 'on') {
+      shotTypes.push('videos')
+    }
     const settingsToReturn = {
       ...settings,
+      shotTypes,
       systemTime: time,
     }
     return settingsToReturn
   }
 
-  async updateSettings(settingsToUpdate: Partial<Settings>): Promise<void> {
+  async updateSettings(settingsToUpdate: PatchableSettings): Promise<void> {
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
       const supportedTimeZones = await this.getAvailableTimeZones()
       if (!supportedTimeZones.includes(settingsToUpdate.timeZone)) {
@@ -30,7 +40,9 @@ export class SettingsService {
         )
       }
     }
+
     const settingsToUpdateInFile = JSON.parse(JSON.stringify(settingsToUpdate)) // deep clone
+
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'systemTime')) {
       await SystemTimeInteractor.setSystemTimeInIso8601Format(
         settingsToUpdate.systemTime,
@@ -42,6 +54,22 @@ export class SettingsService {
       // Remove this property as it should not be written to the settings file.
       delete settingsToUpdateInFile.systemTime
     }
+
+    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'shotTypes')) {
+      if (settingsToUpdate.shotTypes.includes('pictures')) {
+        await MotionClient.setPictureOutput('on')
+      } else {
+        await MotionClient.setPictureOutput('off')
+      }
+      if (settingsToUpdate.shotTypes.includes('videos')) {
+        await MotionClient.setMovieOutput('on')
+      } else {
+        await MotionClient.setMovieOutput('off')
+      }
+      // Remove this property as it should not be written to the settings file.
+      delete settingsToUpdateInFile.shotTypes
+    }
+
     let settings = await SettingsFileProvider.readSettingsFile(
       SETTINGS_FILE_PATH,
     )
@@ -50,6 +78,7 @@ export class SettingsService {
       ...settingsToUpdateInFile,
     }
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+
     const filename = MotionTextAssembler.createFilename(
       settings.siteName,
       settings.deviceName,
@@ -66,30 +95,35 @@ export class SettingsService {
       )
       await MotionClient.setLeftTextOnImage(imageText)
     }
+
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
-      await SystemTimeInteractor.setTimeZone(settings.timeZone)
+      await SystemTimeInteractor.setTimeZone(settingsToUpdate.timeZone)
     }
   }
 
-  async updateAllSettings(settings: SettingsFromJsonFile): Promise<void> {
+  async updateAllSettings(settings: UpdatableSettings): Promise<void> {
     const supportedTimeZones = await this.getAvailableTimeZones()
     if (!supportedTimeZones.includes(settings.timeZone)) {
       throw new BadRequestException(
         `The time zone '${settings.timeZone}' is not supported.`,
       )
     }
+
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+
     const filename = MotionTextAssembler.createFilename(
       settings.siteName,
       settings.deviceName,
       settings.timeZone,
     )
     await MotionClient.setFilename(filename)
+
     const imageText = MotionTextAssembler.createImageText(
       settings.siteName,
       settings.deviceName,
     )
     await MotionClient.setLeftTextOnImage(imageText)
+
     await SystemTimeInteractor.setTimeZone(settings.timeZone)
   }
 

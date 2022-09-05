@@ -8,6 +8,7 @@ describe('SettingsController', () => {
   const SETTINGS: Settings = {
     deviceName: 'd',
     siteName: 's',
+    shotTypes: ['pictures', 'videos'],
     systemTime: '2022-01-18T14:48:37+01:00',
     timeZone: 't',
   }
@@ -60,7 +61,12 @@ describe('SettingsController', () => {
   })
 
   it('sets all settings', async () => {
-    const settings = { deviceName: 'd', siteName: 's', timeZone: 't' }
+    const settings = {
+      deviceName: 'd',
+      siteName: 's',
+      shotTypes: ['pictures' as const, 'videos' as const],
+      timeZone: 't',
+    }
     await controller.updateAllSettings(settings)
     expect(service.updateAllSettings).toHaveBeenCalledWith(settings)
   })

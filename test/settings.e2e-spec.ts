@@ -8,13 +8,18 @@ import { SystemTimeInteractor } from '../src/settings/system-time-interactor'
 
 jest.mock('../src/motion-client', () => ({
   MotionClient: {
-    setFilename: () => jest.fn(),
-    setLeftTextOnImage: () => jest.fn(),
+    setFilename: jest.fn(),
+    setLeftTextOnImage: jest.fn(),
+    getMovieOutput: () => 'on',
+    setMovieOutput: jest.fn(),
+    getPictureOutput: () => 'on',
+    setPictureOutput: jest.fn(),
   },
 }))
 
 describe('SettingsController (e2e)', () => {
   const AVAILABLE_TIMEZONES = ['Europe/Luxembourg', 'Europe/Paris']
+  const SHOT_TYPES = ['pictures' as const, 'videos' as const]
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
   const FILE_SETTINGS: SettingsFromJsonFile = {
     deviceName: 'd',
@@ -23,6 +28,7 @@ describe('SettingsController (e2e)', () => {
   }
   const ALL_SETTINGS: Settings = {
     ...FILE_SETTINGS,
+    shotTypes: SHOT_TYPES,
     systemTime: SYSTEM_TIME,
   }
 
@@ -98,10 +104,17 @@ describe('SettingsController (e2e)', () => {
         .expect(400)
     })
 
+    it('/ (PATCH) invalid option in shot types', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ shotTypes: ['a'] })
+        .expect(400)
+    })
+
     it('/ (PUT)', () => {
       return request(app.getHttpServer())
         .put('/settings')
-        .send(FILE_SETTINGS)
+        .send({ ...FILE_SETTINGS, shotTypes: SHOT_TYPES })
         .expect(200)
     })
 
@@ -109,6 +122,20 @@ describe('SettingsController (e2e)', () => {
       return request(app.getHttpServer())
         .put('/settings')
         .send({ siteName: 's' })
+        .expect(400)
+    })
+
+    it('/ (PUT) empty option in shot types', () => {
+      return request(app.getHttpServer())
+        .put('/settings')
+        .send({ ...FILE_SETTINGS, shotTypes: [''] })
+        .expect(400)
+    })
+
+    it('/ (PUT) invalid option in shot types', () => {
+      return request(app.getHttpServer())
+        .put('/settings')
+        .send({ ...FILE_SETTINGS, shotTypes: ['a'] })
         .expect(400)
     })
 
