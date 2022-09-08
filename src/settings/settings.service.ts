@@ -27,7 +27,9 @@ export class SettingsService {
         shotTypes.push('videos')
       }
     } catch (error) {
-      this.logger.warn(`Could not connect to ${error.config.url}`)
+      if (error.config && error.config.url) {
+        this.logger.error(`Could not connect to ${error.config.url}`)
+      }
       if (error.code !== 'ECONNREFUSED') {
         throw error
       }
@@ -77,7 +79,9 @@ export class SettingsService {
           await MotionClient.setMovieOutput('off')
         }
       } catch (error) {
-        this.logger.warn(`Could not connect to ${error.config.url}`)
+        if (error.config && error.config.url) {
+          this.logger.error(`Could not connect to ${error.config.url}`)
+        }
         if (error.code !== 'ECONNREFUSED') {
           throw error
         }
@@ -142,7 +146,9 @@ export class SettingsService {
           await MotionClient.setMovieOutput('off')
         }
       } catch (error) {
-        this.logger.warn(`Could not connect to ${error.config.url}`)
+        if (error.config && error.config.url) {
+          this.logger.error(`Could not connect to ${error.config.url}`)
+        }
         if (error.code !== 'ECONNREFUSED') {
           throw error
         }
