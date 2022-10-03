@@ -68,115 +68,98 @@ sudo apt-get install gdebi-core
 sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
 ```
 
-#### 1.2. Configuring Motion
+#### 1.2. Creating data folder
 
-After successfull installation, we need to configure motion according to our specifications. This configuration assumes a local folder available at Pi's Desktop, which is typically named as the project. It is referenced on the configuration as `{project_folder}`.  
-The default configuration file should be located at:
+1. If you have not already during frontend setup, create a new user, `app4cam` e.g., with a password you remember: `sudo adduser <user>`
+2. Add `motion` user to `<user>` group: `sudo usermod -a -G <user> motion`
+3. Log in as user: `su - <user>`
+4. Create directories: `mkdir -p app4cam/data`
+5. Give `<user>` group write access to folder: `chmod -R 775 /home/app4cam/app4cam`
+6. Logout: `exit`
 
-> /etc/motion/motion.conf
+#### 1.3. Configuring Motion
 
-In order of appearence the parameters which are configured differently are:
+1. Open Motion config file: `sudo nano /etc/motion/motion.conf`
+2. In order of appearance, the following parameters which are configured differently:
 
-```bash
-# Start in daemon (background) mode and release terminal.
-daemon on
+   On Raspberry PI:
 
-# Start in Setup-Mode, daemon disabled.
-setup_mode off
+   ```bash
+   daemon on
 
-# File to write logs messages into.  If not defined stderr and syslog is used.
-log_file /home/pi/Desktop/App4Cam/motion.log
+   mmalcam_name vc.ril.camera
 
-# Level of log messages [1..9] (EMG, ALR, CRT, ERR, WRN, NTC, INF, DBG, ALL).
-log_level 4
+   mmalcam_control_params -ex auto
 
-# Target directory for pictures, snapshots and movies
-target_dir /home/pi/Desktop/App4Cam/data/
+   locate_motion_mode on
 
-# Name of mmal camera (e.g. vc.ril.camera for pi camera).
-mmalcam_name vc.ril.camera
+   locate_motion_style redbox
+   ```
 
-# Camera control parameters (see raspivid/raspistill tool documentation)
-mmalcam_control_params -ex auto
-locate_motion_mode on
-locate_motion_style redbox
+   On Variscite:
 
-# Image width in pixels.
-width 1920
+   ```bash
+   daemon on
+   ```
 
-# Image height in pixels.
-height 1080
+   On both:
 
-# Gap in seconds of no motion detected that triggers the end of an event.
-event_gap 2
+   ```bash
+   setup_mode off
 
-# The number of pre-captured (buffered) pictures from before motion.
-pre_capture 5
+   log_file /home/<user>/app4cam/motion.log
 
-# Output pictures when motion is detected
-picture_output best
+   log_level 4
 
-# File name(without extension) for pictures relative to target directory
-picture_filename %Y%m%dT%H%M%S_%q
+   target_dir /home/<user>/app4cam/data/
 
-# Create movies of motion events.
-movie_output on
+   width 1920
 
-# Maximum length of movie in seconds.
-movie_max_time 60
+   height 1080
 
-# File name(without extension) for movies relative to target directory
-movie_filename %Y%m%dT%H%M%S
+   event_gap 2
 
-# Restrict webcontrol connections to the localhost.
-webcontrol_localhost off
+   pre_capture 5
 
-# Type of configuration options to allow via the webcontrol.
-webcontrol_parms 1
+   picture_output best
 
-# Restrict stream connections to the localhost.
-stream_localhost off
+   picture_filename %Y%m%dT%H%M%S_%q
 
-# File name(without extension) for snapshots relative to target directory
-snapshot_filename %Y%m%dT%H%M%S_snapshot
-```
+   movie_output on
 
-Comment out the `text_left` property with a semicolon.
+   movie_max_time 60
+
+   movie_filename %Y%m%dT%H%M%S
+
+   webcontrol_localhost on
+
+   webcontrol_parms 1
+
+   stream_localhost on
+
+   snapshot_filename %Y%m%dT%H%M%S_snapshot
+   ```
+
+3. Comment out the `text_left` property with a semicolon.
+4. Save the config file.
+5. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
+6. On Raspberry Pi, make sure `start_motion_daemon = yes` is set in `/etc/default/motion` file.
 
 A more described configuration can be found at https://motion-project.github.io/motion_config.html.
 
-#### 1.3. Creating local folder
+#### 1.4. Running Motion as service
 
-In order for Motion to run successfully the folder `App4Cam` configured before must exist on the device, and to have the right permissions.
-First thing is to create the folders:
-
-```bash
-mkdir /home/pi/Desktop/App4Cam
-mkdir /home/pi/Desktop/App4Cam/data
-```
-
-Then you should allow motion ("motion user" created by the service) to change it's content. This can be done by right clicking on the folder and going to properties > permissions.  
-Set to `Anyone` view and change permissions.
-
-#### 1.4. Adapting permissions
-
-1. Change the ownership of the target folder to pi: `sudo chown pi /home/pi/Desktop/App4Cam/data`
-2. Give write permissions to motion group: `sudo chmod 775 /home/pi/Desktop/App4Cam/data`
-3. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
-
-#### 1.5. Running Motion as service
-
-Motion should be set up to run as a service, which means that it will start automatically whenever the raspberry is started.
+Motion should be set up to run as a service, which means that it will start automatically whenever the device is started.
 This should be done only after all the standard configuration has been completed.
 As a service Motion uses the systemctl and option daemon must be set to `on`
 
-Next enable motion by entering the following at the command line: `sudo systemctl enable motion`   
-Then change `start_motion_daemon` to `yes` on the file `/etc/default/motion` 
+Next enable motion by entering the following at the command line: `sudo systemctl enable motion`  
+Then set `start_motion_daemon=yes` in the file `/etc/default/motion`
 
 The following commands now control the Motion service.
 
-- Start the Motion `sudo service motion start`
-- Stop the Motion `sudo service motion stop`
+- Start the Motion `sudo systemctl start motion`
+- Stop the Motion `sudo systemctl stop motion`
 
 **Make sure to start the Motion service.**
 
@@ -227,72 +210,107 @@ vnc: 10.0.0.5::5900
 
 If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
 
-### 4. Add FTP access
+### 4. Creating a user service
+
+1. Open `journald` config file: `sudo nano /etc/systemd/journald.conf`
+2. Enable user service logging by setting `Storage=persistent`, and save file.
+3. Restart `journald` service: `sudo systemctl restart systemd-journald`
+4. Log in as user: `su - <user>`
+5. Enable user lingering: `loginctl enable-linger <user>`
+6. Create directories: `mkdir -p ~/.config/systemd/user/`
+7. Create user service with the following content: `nano ~/.config/systemd/user/app4cam-backend.service`
+
+   ```
+   [Unit]
+   Description=Service that keeps running app4cam-backend from startup
+   After=network.target
+
+   [Install]
+   WantedBy=multi-user.target
+
+   [Service]
+   Type=simple
+   Environment="NODE_ENV=production"
+   ExecStart=node dist/main
+   WorkingDirectory=/home/<user>/app4cam-backend
+   Restart=always
+   RestartSec=5
+   ```
+
+8. Reload systemctl: `systemctl --user daemon-reload`
+9. Enable service: `systemctl --user enable app4cam-backend`
+
+If the last two commands result in `Failed to connect to bus: No such file or directory`, check as user: `printenv XDG_RUNTIME_DIR`. If it is empty, set the environment variable in front of them: `XDG_RUNTIME_DIR=/run/user/1001`
+
+### 5. Deploying the application
+
+First, log in as user: `su - <user>`
+
+#### Option 1: Download the artifact archive from Gitlab:
+
+1. Download and extract the archive into the home folder.
+2. Change into the directory: `cd app4cam-backend`
+3. Install the production dependencies: `npm ci --omit=dev --ignore-scripts`
+
+#### Option 2: Build it yourself:
+
+1. Clone this repository into the home folder: `git clone --single-branch --branch main https://git.list.lu/host/mechatronics/app4cam-backend.git`
+2. Change into the directory: `cd app4cam-backend`
+3. Install dependencies: `npm ci`
+4. Build: `npm run build`
+5. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
+
+#### Final steps
+
+1. Adapt the configuration file if needed: `nano config/production.env`
+2. Start service: `systemctl --user start app4cam-backend`
+3. Verify the service is running: `systemctl --user status app4cam-backend`
+
+### 6. For continuous deployment (CD) only
+
+If you have set up the frontend already, you just need to do step 4.
+
+1. Log in as user: `su - <user>`
+2. Generate a public/private key pair without passphrase: `ssh-keygen -t ed25519`
+3. Copy public key to `.ssh/authorized_keys` file.
+4. Define the following variables in Gitlab:
+
+   - `RASPBERRY_PI_HOST`: IP address of Raspberry Pi
+   - `RASPBERRY_PI_PRIVATE_KEY`: private key of Raspberry Pi user
+   - `RASPBERRY_PI_USER`: user of Raspberry Pi
+   - `VARISCITE_HOST`: IP address of Variscite
+   - `VARISCITE_PRIVATE_KEY`: private key of Variscite user
+   - `VARISCITE_USER`: user of Variscite
+
+5. Delete private key file: `rm .ssh/id_ed25519`
+6. Remove all "group" and "other" permissions for the `.ssh` directory: `chmod -R go= ~/.ssh`
+7. Logout: `exit`
+8. Open SSH config file: `sudo nano /etc/ssh/sshd_config`
+9. Disable password authentication by setting `PasswordAuthentication no`, and save file.
+10. Prepend the following line: `Match User <user>`
+11. Append the following line: `Match all`
+12. Restart `sshd` service: `sudo systemctl restart ssh`
+13. Install rsync: `sudo apt install rsync -y`
+
+### 7. Adding FTP access
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 
 1. Install FTP server: `sudo apt install vsftpd`
 2. Modify the configuration: `sudo nano /etc/vsftpd.conf`
 
-Make sure the following settings are present, i.e. uncommented or added:
+   Make sure the following settings are present, i.e. uncommented or added:
 
-```
-anonymous_enable=NO
-local_enable=YES
-local_umask=022
-chroot_local_user=YES
-user_sub_token=$USER
-local_root=/home/pi/Desktop/App4Cam
-allow_writeable_chroot=YES
-```
+   ```
+   anonymous_enable=NO
+   local_enable=YES
+   local_umask=022
+   chroot_local_user=YES
+   user_sub_token=$USER
+   local_root=/home/app4cam/app4cam
+   allow_writeable_chroot=YES
+   ```
 
 3. Restart the server: `sudo systemctl restart vsftpd`
 
-Now, you can connect via an FTP client with the PI's IP address, port 21, its username `pi` and the corresponding password.
-
-### 5. Creating a service
-
-1. Create the app4cam-backend service by creating the following file: `/etc/systemd/system/app4cam-backend.service`
-
-```
-[Unit]
-Description=Service that keeps running app4cam-backend from startup
-After=network.target
-
-[Install]
-WantedBy=multi-user.target
-
-[Service]
-Type=simple
-Environment="NODE_ENV=production"
-ExecStart=node dist/main
-WorkingDirectory=/home/pi/app4cam-backend
-Restart=always
-RestartSec=5
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=%n
-```
-
-2. Run: `sudo systemctl daemon-reload`
-3. Run: `sudo systemctl enable app4cam-backend`
-
-### 6. Final steps
-
-1. If you want to deploy via Continuous Deployment (CD) automatically in the future, execute once the following command: `ssh-keyscan -t ed25519 git.list.lu >> ~/.ssh/known_hosts`
-2. Get the application.
-
-- Option 1: Download the artifact archive from Gitlab.
-  1. Download and extract the archive into the home folder.
-  2. Change into the directory: `cd app4cam-backend`
-  3. Install the production dependencies: `npm ci --production --ignore-scripts`
-- Option 2: Build it yourself:
-  1. Clone this repository into the home folder: `git clone --single-branch --branch main https://git.list.lu/host/mechatronics/app4cam-backend.git`
-  2. Change into the directory: `cd app4cam-backend`
-  3. Install dependencies: `npm ci`
-  4. Build: `npm run build`
-  5. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
-
-3. Adapt the configuration file if needed: `nano config/production.env`
-4. Start the service: `sudo systemctl start app4cam-backend`
-5. Verify the service is running: `sudo systemctl status app4cam-backend`
+Now, you can connect via an FTP client with the device's IP address, port 21, the username created and the corresponding password.
