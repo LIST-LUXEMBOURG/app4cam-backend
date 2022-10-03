@@ -7,6 +7,7 @@
 - Reintroduce `device ID` as property returning first MAC address
 - Introduce setting `shot types` to indicate whether pictures or videos should be taken
 - Enforce alphabetical order of imports
+- Automatically deploy to Variscite test device
 
 ### Changed
 
