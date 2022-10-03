@@ -69,7 +69,7 @@ export class SettingsService {
     if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'shotTypes')) {
       try {
         if (settingsToUpdate.shotTypes.includes('pictures')) {
-          await MotionClient.setPictureOutput('on')
+          await MotionClient.setPictureOutput('best')
         } else {
           await MotionClient.setPictureOutput('off')
         }
@@ -136,7 +136,7 @@ export class SettingsService {
     ) {
       try {
         if (settingsToUpdateInFile.shotTypes.includes('pictures')) {
-          await MotionClient.setPictureOutput('on')
+          await MotionClient.setPictureOutput('best')
         } else {
           await MotionClient.setPictureOutput('off')
         }
