@@ -17,6 +17,7 @@
 - Rename `version` to `properties/version` endpoint
 - Update dependencies
 - Set body parser's `urlencoded` option `extended` to `false`
+- Allow `site name` to be empty
 
 ### Deprecated
 
