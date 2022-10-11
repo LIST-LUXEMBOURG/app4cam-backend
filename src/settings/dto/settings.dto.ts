@@ -15,7 +15,7 @@ export class SettingsPatchDto {
   deviceName?: string
 
   @IsOptional()
-  @Matches(/^[a-zA-Z0-9-]+$/)
+  @Matches(/^[a-zA-Z0-9-]*$/)
   siteName?: string
 
   @IsArray()
@@ -41,8 +41,7 @@ export class SettingsPutDto {
   @Matches(/^(pictures|videos)$/, { each: true })
   shotTypes: ShotType[]
 
-  @IsNotEmpty()
-  @Matches(/^[a-zA-Z0-9-]+$/)
+  @Matches(/^[a-zA-Z0-9-]*$/)
   siteName: string
 
   @IsNotEmpty()

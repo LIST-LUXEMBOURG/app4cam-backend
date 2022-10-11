@@ -97,6 +97,13 @@ describe('SettingsController (e2e)', () => {
         .expect(400)
     })
 
+    it('/ (PATCH) empty site name', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ siteName: '' })
+        .expect(200)
+    })
+
     it('/ (PATCH) invalid space in site name', () => {
       return request(app.getHttpServer())
         .patch('/settings')
@@ -115,6 +122,13 @@ describe('SettingsController (e2e)', () => {
       return request(app.getHttpServer())
         .put('/settings')
         .send({ ...FILE_SETTINGS, shotTypes: SHOT_TYPES })
+        .expect(200)
+    })
+
+    it('/ (PUT) empty site name', () => {
+      return request(app.getHttpServer())
+        .put('/settings')
+        .send({ ...FILE_SETTINGS, shotTypes: SHOT_TYPES, siteName: '' })
         .expect(200)
     })
 
@@ -171,7 +185,7 @@ describe('SettingsController (e2e)', () => {
       return request(app.getHttpServer())
         .put('/settings/siteName')
         .send({ siteName: '' })
-        .expect(400)
+        .expect(200)
     })
 
     it('/deviceName (GET)', () => {
