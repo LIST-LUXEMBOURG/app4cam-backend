@@ -15,7 +15,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe())
   app.getHttpAdapter().getInstance().disable('x-powered-by')
   const configService = app.get(ConfigService)
-  const port = configService.get<number>('port')
+  const port = configService.get('port')
   app.use(json({ limit: PAYLOAD_LIMIT }))
   app.use(urlencoded({ extended: false, limit: PAYLOAD_LIMIT }))
   await app.listen(port)
