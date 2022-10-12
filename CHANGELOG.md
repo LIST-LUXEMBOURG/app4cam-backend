@@ -18,6 +18,7 @@
 - Update dependencies
 - Set body parser's `urlencoded` option `extended` to `false`
 - Allow `site name` to be empty
+- Upgrade NestJS to version 9.x
 
 ### Deprecated
 
