@@ -54,8 +54,8 @@ export class FilesService {
     const settings = await this.settingsService.getAllSettings()
     const archiveFilename = ArchiveFileManager.createArchiveFilename(
       now,
-      settings.deviceName,
-      settings.siteName,
+      settings.general.deviceName,
+      settings.general.siteName,
     )
     const archiveFilePath = path.join(ARCHIVE_FOLDER_PATH, archiveFilename)
     const filePaths = filenames.map((filename) =>

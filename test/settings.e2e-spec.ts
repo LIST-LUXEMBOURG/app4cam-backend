@@ -8,12 +8,16 @@ import { Settings, SettingsFromJsonFile } from 'src/settings/settings'
 
 jest.mock('../src/motion-client', () => ({
   MotionClient: {
+    getHeight: () => 10,
+    getWidth: () => 10,
     setFilename: jest.fn(),
     setLeftTextOnImage: jest.fn(),
     getMovieOutput: () => 'on',
     setMovieOutput: jest.fn(),
-    getPictureOutput: () => 'on',
+    getPictureOutput: () => 'best',
     setPictureOutput: jest.fn(),
+    getThreshold: () => 1,
+    setThreshold: jest.fn(),
   },
 }))
 
@@ -26,10 +30,18 @@ describe('SettingsController (e2e)', () => {
     siteName: 's',
     timeZone: AVAILABLE_TIMEZONES[0],
   }
+  const TRIGGER_SENSITIVITY = 1
   const ALL_SETTINGS: Settings = {
-    ...FILE_SETTINGS,
-    shotTypes: SHOT_TYPES,
-    systemTime: SYSTEM_TIME,
+    camera: {
+      shotTypes: SHOT_TYPES,
+    },
+    general: {
+      ...FILE_SETTINGS,
+      systemTime: SYSTEM_TIME,
+    },
+    triggering: {
+      sensitivity: TRIGGER_SENSITIVITY,
+    },
   }
 
   let app: INestApplication
@@ -83,73 +95,167 @@ describe('SettingsController (e2e)', () => {
         .expect(200, ALL_SETTINGS)
     })
 
-    it('/ (PATCH)', () => {
+    it('/ (PATCH) invalid option in shot types', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ deviceName: 'a' })
+        .send({ camera: { shotTypes: ['a'] } })
+        .expect(400)
+    })
+
+    it('/ (PATCH) device name', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ general: { deviceName: 'a' } })
         .expect(200)
     })
 
     it('/ (PATCH) invalid space in device ID', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ deviceName: 'a ' })
+        .send({ general: { deviceName: 'a ' } })
         .expect(400)
+    })
+
+    it('/ (PATCH) site name', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ general: { siteName: 'a' } })
+        .expect(200)
     })
 
     it('/ (PATCH) empty site name', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ siteName: '' })
+        .send({ general: { siteName: '' } })
         .expect(200)
     })
 
     it('/ (PATCH) invalid space in site name', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ siteName: 'a ' })
+        .send({ general: { siteName: 'a ' } })
         .expect(400)
     })
 
-    it('/ (PATCH) invalid option in shot types', () => {
+    it('/ (PATCH) system time', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ shotTypes: ['a'] })
+        .send({ general: { systemTime: new Date().toISOString() } })
+        .expect(200)
+    })
+
+    it('/ (PATCH) time zone', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ general: { timeZone: AVAILABLE_TIMEZONES[0] } })
+        .expect(200)
+    })
+
+    it('/ (PATCH) trigger sensitivity', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ triggering: { sensitivity: 1.01 } })
+        .expect(200)
+    })
+
+    it('/ (PATCH) too low trigger sensitivity', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ triggering: { sensitivity: 0 } })
+        .expect(400)
+    })
+
+    it('/ (PATCH) too high trigger sensitivity', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ triggering: { sensitivity: 10.01 } })
+        .expect(400)
+    })
+
+    it('/ (PATCH) trigger sensitivity with too many decimals', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({ triggering: { sensitivity: 1.001 } })
         .expect(400)
     })
 
     it('/ (PUT)', () => {
       return request(app.getHttpServer())
         .put('/settings')
-        .send({ ...FILE_SETTINGS, shotTypes: SHOT_TYPES })
+        .send({
+          camera: {
+            shotTypes: SHOT_TYPES,
+          },
+          general: {
+            ...FILE_SETTINGS,
+            systemTime: new Date().toISOString(),
+          },
+          triggering: {
+            sensitivity: TRIGGER_SENSITIVITY,
+          },
+        })
         .expect(200)
     })
 
     it('/ (PUT) empty site name', () => {
       return request(app.getHttpServer())
         .put('/settings')
-        .send({ ...FILE_SETTINGS, shotTypes: SHOT_TYPES, siteName: '' })
+        .send({
+          camera: {
+            shotTypes: SHOT_TYPES,
+          },
+          general: {
+            ...FILE_SETTINGS,
+            siteName: '',
+            systemTime: new Date().toISOString(),
+          },
+          triggering: {
+            sensitivity: TRIGGER_SENSITIVITY,
+          },
+        })
         .expect(200)
     })
 
     it('/ (PUT) incomplete', () => {
       return request(app.getHttpServer())
         .put('/settings')
-        .send({ siteName: 's' })
+        .send({ general: { siteName: 's' } })
         .expect(400)
     })
 
     it('/ (PUT) empty option in shot types', () => {
       return request(app.getHttpServer())
         .put('/settings')
-        .send({ ...FILE_SETTINGS, shotTypes: [''] })
+        .send({
+          camera: {
+            shotTypes: [''],
+          },
+          general: {
+            ...FILE_SETTINGS,
+            systemTime: new Date().toISOString(),
+          },
+          triggering: {
+            sensitivity: TRIGGER_SENSITIVITY,
+          },
+        })
         .expect(400)
     })
 
     it('/ (PUT) invalid option in shot types', () => {
       return request(app.getHttpServer())
         .put('/settings')
-        .send({ ...FILE_SETTINGS, shotTypes: ['a'] })
+        .send({
+          camera: {
+            shotTypes: ['a'],
+          },
+          general: {
+            ...FILE_SETTINGS,
+            systemTime: new Date().toISOString(),
+          },
+          triggering: {
+            sensitivity: TRIGGER_SENSITIVITY,
+          },
+        })
         .expect(400)
     })
 
@@ -268,7 +374,7 @@ describe('SettingsController (e2e)', () => {
     it('/timeZone (PUT)', async () => {
       return request(app.getHttpServer())
         .put('/settings/timeZone')
-        .send({ timeZone: 'Europe/Luxembourg' })
+        .send({ timeZone: AVAILABLE_TIMEZONES[0] })
         .expect(200)
     })
 

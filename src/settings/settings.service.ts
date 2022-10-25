@@ -1,7 +1,12 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { MotionClient } from '../motion-client'
 import { MotionTextAssembler } from './motion-text-assembler'
-import { PatchableSettings, Settings, UpdatableSettings } from './settings'
+import {
+  PatchableSettings,
+  Settings,
+  SettingsFromJsonFile,
+  UpdatableSettings,
+} from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SystemTimeInteractor } from './system-time-interactor'
 
@@ -17,15 +22,24 @@ export class SettingsService {
     )
     const time = await SystemTimeInteractor.getSystemTimeInIso8601Format()
     const shotTypes = []
+    let triggerSensitivity = 0
     try {
       const pictureOutput = await MotionClient.getPictureOutput()
-      if (pictureOutput === 'on') {
+      if (pictureOutput === 'best') {
         shotTypes.push('pictures')
       }
       const movieOutput = await MotionClient.getMovieOutput()
       if (movieOutput === 'on') {
         shotTypes.push('videos')
       }
+
+      const height = await MotionClient.getHeight()
+      const width = await MotionClient.getWidth()
+      const threshold = await MotionClient.getThreshold()
+      triggerSensitivity = (100 * threshold) / (height * width)
+      this.logger.debug(
+        `Calculated trigger sensitivity ${triggerSensitivity} from threshold ${threshold}, height ${height} and width ${width}`,
+      )
     } catch (error) {
       if (error.config && error.config.url) {
         this.logger.error(`Could not connect to ${error.config.url}`)
@@ -35,112 +49,160 @@ export class SettingsService {
       }
     }
     const settingsToReturn = {
-      ...settings,
-      shotTypes,
-      systemTime: time,
+      camera: {
+        shotTypes,
+      },
+      general: {
+        ...settings,
+        systemTime: time,
+      },
+      triggering: {
+        sensitivity: triggerSensitivity,
+      },
     }
     return settingsToReturn
   }
 
-  async updateSettings(settingsToUpdate: PatchableSettings): Promise<void> {
-    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
+  async updateSettings(settings: PatchableSettings): Promise<void> {
+    if (
+      Object.prototype.hasOwnProperty.call(settings, 'general') &&
+      Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')
+    ) {
       const supportedTimeZones = await this.getAvailableTimeZones()
-      if (!supportedTimeZones.includes(settingsToUpdate.timeZone)) {
+      if (!supportedTimeZones.includes(settings.general.timeZone)) {
         throw new BadRequestException(
-          `The time zone '${settingsToUpdate.timeZone}' is not supported.`,
+          `The time zone '${settings.general.timeZone}' is not supported.`,
         )
       }
     }
 
-    const settingsToUpdateInFile = JSON.parse(JSON.stringify(settingsToUpdate)) // deep clone
-
-    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'systemTime')) {
-      await SystemTimeInteractor.setSystemTimeInIso8601Format(
-        settingsToUpdate.systemTime,
-      )
-      if (Object.keys(settingsToUpdate).length === 1) {
-        // If there is only this one object property, refrain from reading and writing for nothing.
-        return
-      }
-      // Remove this property as it should not be written to the settings file.
-      delete settingsToUpdateInFile.systemTime
-    }
-
-    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'shotTypes')) {
-      try {
-        if (settingsToUpdate.shotTypes.includes('pictures')) {
-          await MotionClient.setPictureOutput('best')
-        } else {
-          await MotionClient.setPictureOutput('off')
-        }
-        if (settingsToUpdate.shotTypes.includes('videos')) {
-          await MotionClient.setMovieOutput('on')
-        } else {
-          await MotionClient.setMovieOutput('off')
-        }
-      } catch (error) {
-        if (error.config && error.config.url) {
-          this.logger.error(`Could not connect to ${error.config.url}`)
-        }
-        if (error.code !== 'ECONNREFUSED') {
-          throw error
+    if (Object.prototype.hasOwnProperty.call(settings, 'camera')) {
+      if (Object.prototype.hasOwnProperty.call(settings.camera, 'shotTypes')) {
+        try {
+          if (settings.camera.shotTypes.includes('pictures')) {
+            await MotionClient.setPictureOutput('best')
+          } else {
+            await MotionClient.setPictureOutput('off')
+          }
+          if (settings.camera.shotTypes.includes('videos')) {
+            await MotionClient.setMovieOutput('on')
+          } else {
+            await MotionClient.setMovieOutput('off')
+          }
+        } catch (error) {
+          if (error.config && error.config.url) {
+            this.logger.error(`Could not connect to ${error.config.url}`)
+          }
+          if (error.code !== 'ECONNREFUSED') {
+            throw error
+          }
         }
       }
-      // Remove this property as it should not be written to the settings file.
-      delete settingsToUpdateInFile.shotTypes
     }
 
-    let settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
-    settings = {
-      ...settings,
-      ...settingsToUpdateInFile,
-    }
-    await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    if (Object.prototype.hasOwnProperty.call(settings, 'general')) {
+      if (
+        Object.prototype.hasOwnProperty.call(settings.general, 'systemTime')
+      ) {
+        await SystemTimeInteractor.setSystemTimeInIso8601Format(
+          settings.general.systemTime,
+        )
+        if (Object.keys(settings).length === 1) {
+          // If there is only this one object property, refrain from reading and writing for nothing.
+          return
+        }
+      }
 
-    const filename = MotionTextAssembler.createFilename(
-      settings.siteName,
-      settings.deviceName,
-      settings.timeZone,
-    )
-    await MotionClient.setFilename(filename)
-    if (
-      Object.prototype.hasOwnProperty.call(settingsToUpdate, 'deviceName') ||
-      Object.prototype.hasOwnProperty.call(settingsToUpdate, 'siteName')
-    ) {
-      const imageText = MotionTextAssembler.createImageText(
-        settings.siteName,
-        settings.deviceName,
+      const settingsToUpdateInFile: Partial<SettingsFromJsonFile> = {}
+
+      if (
+        Object.prototype.hasOwnProperty.call(settings.general, 'deviceName')
+      ) {
+        settingsToUpdateInFile.deviceName = settings.general.deviceName
+      }
+
+      if (Object.prototype.hasOwnProperty.call(settings.general, 'siteName')) {
+        settingsToUpdateInFile.siteName = settings.general.siteName
+      }
+
+      if (Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')) {
+        settingsToUpdateInFile.timeZone = settings.general.timeZone
+
+        await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
+      }
+
+      const settingsReadFromFile = await SettingsFileProvider.readSettingsFile(
+        SETTINGS_FILE_PATH,
       )
-      await MotionClient.setLeftTextOnImage(imageText)
+      const settingsMerged = {
+        ...settingsReadFromFile,
+        ...settingsToUpdateInFile,
+      }
+      await SettingsFileProvider.writeSettingsToFile(
+        settingsMerged,
+        SETTINGS_FILE_PATH,
+      )
+
+      const filename = MotionTextAssembler.createFilename(
+        settingsMerged.siteName,
+        settingsMerged.deviceName,
+        settingsMerged.timeZone,
+      )
+      await MotionClient.setFilename(filename)
+      if (
+        Object.prototype.hasOwnProperty.call(settings.general, 'deviceName') ||
+        Object.prototype.hasOwnProperty.call(settings.general, 'siteName')
+      ) {
+        const imageText = MotionTextAssembler.createImageText(
+          settingsMerged.siteName,
+          settingsMerged.deviceName,
+        )
+        await MotionClient.setLeftTextOnImage(imageText)
+      }
     }
 
-    if (Object.prototype.hasOwnProperty.call(settingsToUpdate, 'timeZone')) {
-      await SystemTimeInteractor.setTimeZone(settingsToUpdate.timeZone)
+    if (Object.prototype.hasOwnProperty.call(settings, 'triggering')) {
+      if (
+        Object.prototype.hasOwnProperty.call(settings.triggering, 'sensitivity')
+      ) {
+        try {
+          const height = await MotionClient.getHeight()
+          const width = await MotionClient.getWidth()
+          const threshold = Math.round(
+            (settings.triggering.sensitivity * height * width) / 100,
+          )
+          this.logger.debug(
+            `Calculated threshold ${threshold} from trigger sensitivity ${settings.triggering.sensitivity}, height ${height} and width ${width}`,
+          )
+          await MotionClient.setThreshold(threshold)
+        } catch (error) {
+          if (error.config && error.config.url) {
+            this.logger.error(`Could not connect to ${error.config.url}`)
+          }
+          if (error.code !== 'ECONNREFUSED') {
+            throw error
+          }
+        }
+      }
     }
   }
 
   async updateAllSettings(settings: UpdatableSettings): Promise<void> {
     const supportedTimeZones = await this.getAvailableTimeZones()
-    if (!supportedTimeZones.includes(settings.timeZone)) {
+    if (!supportedTimeZones.includes(settings.general.timeZone)) {
       throw new BadRequestException(
-        `The time zone '${settings.timeZone}' is not supported.`,
+        `The time zone '${settings.general.timeZone}' is not supported.`,
       )
     }
 
-    const settingsToUpdateInFile = JSON.parse(JSON.stringify(settings)) // deep clone
-
-    if (
-      Object.prototype.hasOwnProperty.call(settingsToUpdateInFile, 'shotTypes')
-    ) {
+    if (Object.prototype.hasOwnProperty.call(settings.camera, 'shotTypes')) {
       try {
-        if (settingsToUpdateInFile.shotTypes.includes('pictures')) {
+        if (settings.camera.shotTypes.includes('pictures')) {
           await MotionClient.setPictureOutput('best')
         } else {
           await MotionClient.setPictureOutput('off')
         }
-        if (settingsToUpdateInFile.shotTypes.includes('videos')) {
+        if (settings.camera.shotTypes.includes('videos')) {
           await MotionClient.setMovieOutput('on')
         } else {
           await MotionClient.setMovieOutput('off')
@@ -153,29 +215,52 @@ export class SettingsService {
           throw error
         }
       }
-      // Remove this property as it should not be written to the settings file.
-      delete settingsToUpdateInFile.shotTypes
+    }
+
+    try {
+      const height = await MotionClient.getHeight()
+      const width = await MotionClient.getWidth()
+      const threshold = Math.round(
+        (settings.triggering.sensitivity * height * width) / 100,
+      )
+      this.logger.debug(
+        `Calculated threshold ${threshold} from trigger sensitivity ${settings.triggering.sensitivity}, height ${height} and width ${width}`,
+      )
+      await MotionClient.setThreshold(threshold)
+    } catch (error) {
+      if (error.config && error.config.url) {
+        this.logger.error(`Could not connect to ${error.config.url}`)
+      }
+      if (error.code !== 'ECONNREFUSED') {
+        throw error
+      }
+    }
+
+    const settingsToWriteFile: SettingsFromJsonFile = {
+      deviceName: settings.general.deviceName,
+      siteName: settings.general.siteName,
+      timeZone: settings.general.timeZone,
     }
 
     await SettingsFileProvider.writeSettingsToFile(
-      settingsToUpdateInFile,
+      settingsToWriteFile,
       SETTINGS_FILE_PATH,
     )
 
     const filename = MotionTextAssembler.createFilename(
-      settings.siteName,
-      settings.deviceName,
-      settings.timeZone,
+      settings.general.siteName,
+      settings.general.deviceName,
+      settings.general.timeZone,
     )
     await MotionClient.setFilename(filename)
 
     const imageText = MotionTextAssembler.createImageText(
-      settings.siteName,
-      settings.deviceName,
+      settings.general.siteName,
+      settings.general.deviceName,
     )
     await MotionClient.setLeftTextOnImage(imageText)
 
-    await SystemTimeInteractor.setTimeZone(settings.timeZone)
+    await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
   }
 
   async getSiteName(): Promise<string> {

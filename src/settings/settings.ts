@@ -6,11 +6,28 @@ export class SettingsFromJsonFile {
 
 type ShotType = 'pictures' | 'videos'
 
-export class Settings extends SettingsFromJsonFile {
-  shotTypes: ShotType[]
+export class GeneralSettings extends SettingsFromJsonFile {
   systemTime: string
 }
 
-export type PatchableSettings = Partial<Settings>
+export interface Settings {
+  camera: {
+    shotTypes: ShotType[]
+  }
+  general: GeneralSettings
+  triggering: {
+    sensitivity: number
+  }
+}
 
-export type UpdatableSettings = Omit<Settings, 'systemTime'>
+export type PatchableSettings = DeepPartial<Settings>
+
+export interface UpdatableSettings {
+  camera: {
+    shotTypes: ShotType[]
+  }
+  general: SettingsFromJsonFile
+  triggering: {
+    sensitivity: number
+  }
+}
