@@ -72,7 +72,7 @@ describe('ArchiveFileCreator', () => {
     it('ignores a young archive', async () => {
       const testFilePath = testFolderPath + '/b.txt'
       await writeFile(testFilePath, 'bb')
-      await new Promise((r) => setTimeout(r, 100))
+      await new Promise((r) => setTimeout(r, 50))
       await ArchiveFileManager.removeOldFiles(testFolderPath, 200)
       expect(existsSync(testFilePath)).toBeTruthy()
     })

@@ -14,6 +14,25 @@ type MovieOutputValue = 'on' | 'off'
 type PictureOutputValue = 'on' | 'off' | 'first' | 'best'
 
 export class MotionClient {
+  private static extractValueFromResponseBody(body: string): string {
+    const bodyPartsSplitByEqualSign = body.split('=')
+    const partWithValue = bodyPartsSplitByEqualSign[1].trim()
+    const valuePartPartsSplitBySpace = partWithValue.split(' ')
+    return valuePartPartsSplitBySpace[0]
+  }
+
+  static async getHeight(): Promise<number> {
+    const response = await axios.get(CONFIG_GET_URL + 'query=height')
+    const value = this.extractValueFromResponseBody(response.data as string)
+    return parseFloat(value)
+  }
+
+  static async getWidth(): Promise<number> {
+    const response = await axios.get(CONFIG_GET_URL + 'query=width')
+    const value = this.extractValueFromResponseBody(response.data as string)
+    return parseFloat(value)
+  }
+
   static async setFilename(filename: string): Promise<void> {
     const moveFilename = filename
     const pictureFilename = filename + POST_PICTURE_FILENAME
@@ -31,12 +50,8 @@ export class MotionClient {
 
   static async getMovieOutput(): Promise<MovieOutputValue> {
     const response = await axios.get(CONFIG_GET_URL + 'query=movie_output')
-    const body = response.data as string
-    const bodyPartsSplitByEqualSign = body.split('=')
-    const partWithValue = bodyPartsSplitByEqualSign[1].trim()
-    const valuePartPartsSplitBySpace = partWithValue.split(' ')
-    const output = valuePartPartsSplitBySpace[0] as MovieOutputValue
-    return output
+    const value = this.extractValueFromResponseBody(response.data as string)
+    return value as MovieOutputValue
   }
 
   static async setMovieOutput(value: MovieOutputValue) {
@@ -46,16 +61,23 @@ export class MotionClient {
 
   static async getPictureOutput(): Promise<PictureOutputValue> {
     const response = await axios.get(CONFIG_GET_URL + 'query=picture_output')
-    const body = response.data as string
-    const bodyPartsSplitByEqualSign = body.split('=')
-    const partWithValue = bodyPartsSplitByEqualSign[1].trim()
-    const valuePartPartsSplitBySpace = partWithValue.split(' ')
-    const output = valuePartPartsSplitBySpace[0] as PictureOutputValue
-    return output
+    const value = this.extractValueFromResponseBody(response.data as string)
+    return value as PictureOutputValue
   }
 
   static async setPictureOutput(value: PictureOutputValue) {
     await axios.get(CONFIG_SET_URL + 'picture_output=' + value)
+    await axios.get(WRITE_URL)
+  }
+
+  static async getThreshold(): Promise<number> {
+    const response = await axios.get(CONFIG_GET_URL + 'query=threshold')
+    const value = this.extractValueFromResponseBody(response.data as string)
+    return parseInt(value)
+  }
+
+  static async setThreshold(value: number) {
+    await axios.get(CONFIG_SET_URL + 'threshold=' + value)
     await axios.get(WRITE_URL)
   }
 

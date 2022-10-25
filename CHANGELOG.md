@@ -8,6 +8,7 @@
 - Introduce setting `shot types` to indicate whether pictures or videos should be taken
 - Enforce alphabetical order of imports
 - Automatically deploy to Variscite test device
+- Introduce setting `trigger sensitivity`
 
 ### Changed
 
@@ -19,6 +20,7 @@
 - Set body parser's `urlencoded` option `extended` to `false`
 - Allow `site name` to be empty
 - Upgrade NestJS to version 9.x
+- Restructure settings' object
 
 ### Deprecated
 

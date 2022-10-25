@@ -6,12 +6,16 @@ import { SystemTimeInteractor } from './system-time-interactor'
 
 jest.mock('../motion-client', () => ({
   MotionClient: {
+    getHeight: () => 1,
+    getWidth: () => 1,
     setFilename: jest.fn(),
     setLeftTextOnImage: jest.fn(),
     getMovieOutput: () => 'on',
     setMovieOutput: jest.fn(),
-    getPictureOutput: () => 'on',
+    getPictureOutput: () => 'best',
     setPictureOutput: jest.fn(),
+    getThreshold: () => 1,
+    setThreshold: jest.fn(),
   },
 }))
 
@@ -34,15 +38,23 @@ describe('SettingsService', () => {
     const AVAILABLE_TIMEZONES = ['t1', 't2']
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
+    const TRIGGER_SENSITIVITY = 100
     const FILE_SETTINGS: SettingsFromJsonFile = {
       deviceName: 'd',
       siteName: 's',
       timeZone: 't',
     }
     const ALL_SETTINGS: Settings = {
-      ...FILE_SETTINGS,
-      shotTypes: SHOT_TYPES,
-      systemTime: SYSTEM_TIME,
+      camera: {
+        shotTypes: SHOT_TYPES,
+      },
+      general: {
+        ...FILE_SETTINGS,
+        systemTime: SYSTEM_TIME,
+      },
+      triggering: {
+        sensitivity: TRIGGER_SENSITIVITY,
+      },
     }
 
     let spyReadSettingsFile
@@ -94,12 +106,21 @@ describe('SettingsService', () => {
         timeZone: 't1',
       }
       const allSettings: Settings = {
-        ...settingsToUpdateInFile,
-        shotTypes: ['pictures', 'videos'],
-        systemTime: 'sy',
+        camera: {
+          shotTypes: ['pictures', 'videos'],
+        },
+        general: {
+          ...settingsToUpdateInFile,
+          systemTime: 'sy',
+        },
+        triggering: {
+          sensitivity: 1,
+        },
       }
       await service.updateSettings(allSettings)
-      expect(spySetSystemTime).toHaveBeenCalledWith(allSettings.systemTime)
+      expect(spySetSystemTime).toHaveBeenCalledWith(
+        allSettings.general.systemTime,
+      )
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         settingsToUpdateInFile,
         expect.any(String),
@@ -110,12 +131,14 @@ describe('SettingsService', () => {
     })
 
     it('updates one setting stored in settings file but neither system time nor time zone', async () => {
-      const settingsToUpdate: Partial<Settings> = {
-        deviceName: 'dd',
+      const settingsToUpdate: DeepPartial<Settings> = {
+        general: {
+          deviceName: 'dd',
+        },
       }
       await service.updateSettings(settingsToUpdate)
       const expectedSettings = JSON.parse(JSON.stringify(FILE_SETTINGS)) // deep clone
-      expectedSettings.deviceName = settingsToUpdate.deviceName
+      expectedSettings.deviceName = settingsToUpdate.general.deviceName
       expect(spySetSystemTime).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expectedSettings,
@@ -125,11 +148,15 @@ describe('SettingsService', () => {
     })
 
     it('updates system time but neither read nor write settings file', async () => {
-      const settingsToUpdate: Partial<Settings> = {
-        systemTime: 'sy',
+      const settingsToUpdate: DeepPartial<Settings> = {
+        general: {
+          systemTime: 'sy',
+        },
       }
       await service.updateSettings(settingsToUpdate)
-      expect(spySetSystemTime).toHaveBeenCalledWith(settingsToUpdate.systemTime)
+      expect(spySetSystemTime).toHaveBeenCalledWith(
+        settingsToUpdate.general.systemTime,
+      )
       expect(spyReadSettingsFile).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).not.toHaveBeenCalled()
       expect(spySetTimeZone).not.toHaveBeenCalled()
@@ -141,7 +168,17 @@ describe('SettingsService', () => {
         siteName: 'ss',
         timeZone: 't1',
       }
-      await service.updateAllSettings({ ...settings, shotTypes: SHOT_TYPES })
+      await service.updateAllSettings({
+        camera: {
+          shotTypes: SHOT_TYPES,
+        },
+        general: {
+          ...settings,
+        },
+        triggering: {
+          sensitivity: TRIGGER_SENSITIVITY,
+        },
+      })
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         settings,
         expect.any(String),
@@ -193,7 +230,7 @@ describe('SettingsService', () => {
 
     it('returns time zone', async () => {
       const timeZone = await service.getTimeZone()
-      expect(timeZone).toBe(ALL_SETTINGS.timeZone)
+      expect(timeZone).toBe(ALL_SETTINGS.general.timeZone)
     })
 
     it('sets time zone', async () => {
