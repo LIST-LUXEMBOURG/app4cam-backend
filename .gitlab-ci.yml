@@ -91,7 +91,7 @@ deploy-raspberry-pi:
     # Deploy.
     - ssh $RASPBERRY_PI_USER@$RASPBERRY_PI_HOST "
       systemctl --user stop $CI_PROJECT_NAME &&
-      rm --recursive --force $CI_PROJECT_NAME || true &&
+      rm --force --recursive $CI_PROJECT_NAME/* || true &&
       exit
       "
     - apk add rsync
@@ -134,7 +134,7 @@ deploy-variscite:
     # Deploy.
     - ssh $VARISCITE_USER@$VARISCITE_HOST "
       systemctl --user stop $CI_PROJECT_NAME &&
-      rm --recursive --force $CI_PROJECT_NAME || true &&
+      rm --force --recursive $CI_PROJECT_NAME/* || true &&
       exit
       "
     - apk add rsync
