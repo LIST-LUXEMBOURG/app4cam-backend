@@ -121,6 +121,10 @@ sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
 
    pre_capture 5
 
+   on_picture_save /home/app4cam/app4cam-backend/scripts/write-device-id-to-jpg-file.sh %f
+
+   on_movie_end /home/app4cam/app4cam-backend/scripts/write-device-id-to-mp4-file.sh %f
+
    picture_output best
 
    picture_filename %Y%m%dT%H%M%S_%q
@@ -128,6 +132,8 @@ sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
    movie_output on
 
    movie_max_time 60
+
+   movie_codex mp4
 
    movie_filename %Y%m%dT%H%M%S
 
@@ -210,7 +216,18 @@ vnc: 10.0.0.5::5900
 
 If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
 
-### 4. Creating a user service
+### 4. Installing ExifTool
+
+ExifTool is needed to add the device ID to the metadata of each shot file.
+
+1. Download latest version from [website](https://exiftool.org/): `wget <download-url>`
+2. Unpack the distribution file: `gzip -dc Image-ExifTool-<latest-number>.tar.gz | tar -xf -`
+3. Change into directory: `cd Image-ExifTool-<latest-number>`
+4. Prepare make file: `perl Makefile.PL`
+5. Optionally, run tests to verify system compatibility: `make test`
+6. Install for all users: `sudo make install`
+
+### 5. Creating a user service
 
 1. Open `journald` config file: `sudo nano /etc/systemd/journald.conf`
 2. Enable user service logging by setting `Storage=persistent`, and save file.
@@ -242,7 +259,7 @@ If no error messages was presented, just exit the script and reboot your device.
 
 If the last two commands result in `Failed to connect to bus: No such file or directory`, check as user: `printenv XDG_RUNTIME_DIR`. If it is empty, set the environment variable in front of them: `XDG_RUNTIME_DIR=/run/user/1001`
 
-### 5. Deploying the application
+### 6. Deploying the application
 
 First, log in as user: `su - <user>`
 
@@ -266,7 +283,7 @@ First, log in as user: `su - <user>`
 2. Start service: `systemctl --user start app4cam-backend`
 3. Verify the service is running: `systemctl --user status app4cam-backend`
 
-### 6. For continuous deployment (CD) only
+### 7. For continuous deployment (CD) only
 
 If you have set up the frontend already, you just need to do step 4.
 
@@ -292,7 +309,7 @@ If you have set up the frontend already, you just need to do step 4.
 12. Restart `sshd` service: `sudo systemctl restart ssh`
 13. Install rsync: `sudo apt install rsync -y`
 
-### 7. Adding FTP access
+### 8. Adding FTP access
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 

@@ -36,5 +36,6 @@ lerna-debug.log*
 
 # Application specific
 /config/development.env
+/device-id.txt
 /settings.json
 /version.txt
