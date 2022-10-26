@@ -9,6 +9,7 @@
 - Enforce alphabetical order of imports
 - Automatically deploy to Variscite test device
 - Introduce setting `trigger sensitivity`
+- Automatic addition of device ID as metadata to shots after saving them
 
 ### Changed
 
@@ -21,6 +22,7 @@
 - Allow `site name` to be empty
 - Upgrade NestJS to version 9.x
 - Restructure settings' object
+- Switch video format `mkv` to `mp4`
 
 ### Deprecated
 
