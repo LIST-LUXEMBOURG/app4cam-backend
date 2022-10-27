@@ -5,6 +5,7 @@ const ACTION_URL = BASE_URL + '0/action/'
 const CONFIG_BASE_URL = BASE_URL + '0/config/'
 const CONFIG_GET_URL = CONFIG_BASE_URL + 'get?'
 const CONFIG_SET_URL = CONFIG_BASE_URL + 'set?'
+const DETECTION_URL = BASE_URL + '0/detection/'
 const WRITE_URL = BASE_URL + 'action/config/write'
 
 const POST_PICTURE_FILENAME = '_%q'
@@ -83,5 +84,22 @@ export class MotionClient {
 
   static async takeSnapshot(): Promise<void> {
     await axios.get(ACTION_URL + 'snapshot')
+  }
+
+  static async pauseDetection(): Promise<void> {
+    await axios.get(DETECTION_URL + 'pause')
+  }
+
+  static async startDetection(): Promise<void> {
+    await axios.get(DETECTION_URL + 'start')
+  }
+
+  static async isDetectionStatusActive(): Promise<boolean> {
+    const response = await axios.get(DETECTION_URL + 'status')
+    const body = response.data as string
+    const bodyTrimmed = body.trim()
+    const bodyPartsSplitBySpace = bodyTrimmed.split(' ')
+    const value = bodyPartsSplitBySpace[bodyPartsSplitBySpace.length - 1]
+    return value === 'ACTIVE'
   }
 }
