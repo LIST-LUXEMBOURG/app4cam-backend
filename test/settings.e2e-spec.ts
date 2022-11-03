@@ -28,7 +28,6 @@ describe('SettingsController (e2e)', () => {
   const FILE_SETTINGS: SettingsFromJsonFile = {
     deviceName: 'd',
     siteName: 's',
-    timeZone: AVAILABLE_TIMEZONES[0],
   }
   const TRIGGER_SENSITIVITY = 1
   const ALL_SETTINGS: Settings = {
@@ -38,6 +37,7 @@ describe('SettingsController (e2e)', () => {
     general: {
       ...FILE_SETTINGS,
       systemTime: SYSTEM_TIME,
+      timeZone: AVAILABLE_TIMEZONES[0],
     },
     triggering: {
       sensitivity: TRIGGER_SENSITIVITY,
@@ -71,7 +71,7 @@ describe('SettingsController (e2e)', () => {
       .mockImplementation(() => Promise.resolve(AVAILABLE_TIMEZONES))
     spyGetTimeZone = jest
       .spyOn(SystemTimeInteractor, 'getTimeZone')
-      .mockImplementation(() => Promise.resolve(FILE_SETTINGS.timeZone))
+      .mockImplementation(() => Promise.resolve(ALL_SETTINGS.general.timeZone))
     spySetTimeZone = jest
       .spyOn(SystemTimeInteractor, 'setTimeZone')
       .mockImplementation(() => Promise.resolve())
@@ -189,6 +189,7 @@ describe('SettingsController (e2e)', () => {
           general: {
             ...FILE_SETTINGS,
             systemTime: new Date().toISOString(),
+            timeZone: ALL_SETTINGS.general.timeZone,
           },
           triggering: {
             sensitivity: TRIGGER_SENSITIVITY,
@@ -208,6 +209,7 @@ describe('SettingsController (e2e)', () => {
             ...FILE_SETTINGS,
             siteName: '',
             systemTime: new Date().toISOString(),
+            timeZone: ALL_SETTINGS.general.timeZone,
           },
           triggering: {
             sensitivity: TRIGGER_SENSITIVITY,
@@ -368,7 +370,7 @@ describe('SettingsController (e2e)', () => {
       return request(app.getHttpServer())
         .get('/settings/timeZone')
         .expect('Content-Type', /json/)
-        .expect(200, { timeZone: FILE_SETTINGS.timeZone })
+        .expect(200, { timeZone: ALL_SETTINGS.general.timeZone })
     })
 
     it('/timeZone (PUT)', async () => {

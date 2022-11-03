@@ -68,21 +68,33 @@ sudo apt-get install gdebi-core
 sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
 ```
 
-#### 1.2. Creating data folder
+#### 1.2. Creating user and data folder and setting permissions
 
 1. If you have not already during frontend setup, create a new user, `app4cam` e.g., with a password you remember: `sudo adduser <user>`
-2. Add `motion` user to `<user>` group: `sudo usermod -a -G <user> motion`
-3. Log in as user: `su - <user>`
-4. Create directories: `mkdir -p app4cam/data`
-5. Give `<user>` group write access to folder: `chmod -R 775 /home/app4cam/app4cam`
-6. Logout: `exit`
+2. Allow new user to use some commands as sudo by adding the following content to the newly created file: `sudo visudo -f /etc/sudoers.d/app4cam`
+
+   ```
+   <user> ALL=(ALL) NOPASSWD: /usr/bin/timedatectl
+   ```
+
+3. On Raspberry Pi, add the following line:
+
+   ```
+   <user> ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/raspberry-pi-write-system-time-to-rtc.sh
+   ```
+
+4. Add `motion` user to `<user>` group: `sudo usermod -a -G <user> motion`
+5. Log in as user: `su - <user>`
+6. Create directories: `mkdir -p app4cam/data`
+7. Give `<user>` group write access to folder: `chmod -R 775 /home/app4cam/app4cam`
+8. Logout: `exit`
 
 #### 1.3. Configuring Motion
 
 1. Open Motion config file: `sudo nano /etc/motion/motion.conf`
 2. In order of appearance, the following parameters which are configured differently:
 
-   On Raspberry PI:
+   On Raspberry Pi:
 
    ```bash
    daemon on

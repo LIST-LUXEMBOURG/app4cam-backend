@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Settings } from './settings'
 import { SettingsController } from './settings.controller'
@@ -26,6 +27,7 @@ describe('SettingsController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SettingsController],
       providers: [
+        ConfigService,
         {
           provide: SettingsService,
           useValue: {

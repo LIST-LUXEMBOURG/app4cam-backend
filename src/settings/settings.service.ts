@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { MotionClient } from '../motion-client'
 import { MotionTextAssembler } from './motion-text-assembler'
 import {
@@ -14,13 +15,21 @@ const SETTINGS_FILE_PATH = 'settings.json'
 
 @Injectable()
 export class SettingsService {
+  private readonly deviceType: string
   private readonly logger = new Logger(SettingsService.name)
 
+  constructor(private readonly configService: ConfigService) {
+    this.deviceType = this.configService.get<string>('deviceType')
+  }
+
   async getAllSettings(): Promise<Settings> {
-    const settings = await SettingsFileProvider.readSettingsFile(
+    const settingsFromFile = await SettingsFileProvider.readSettingsFile(
       SETTINGS_FILE_PATH,
     )
-    const time = await SystemTimeInteractor.getSystemTimeInIso8601Format()
+
+    const systemTime = await SystemTimeInteractor.getSystemTimeInIso8601Format()
+    const timeZone = await SystemTimeInteractor.getTimeZone()
+
     const shotTypes = []
     let triggerSensitivity = 0
     try {
@@ -48,19 +57,20 @@ export class SettingsService {
         throw error
       }
     }
-    const settingsToReturn = {
+
+    return {
       camera: {
         shotTypes,
       },
       general: {
-        ...settings,
-        systemTime: time,
+        ...settingsFromFile,
+        systemTime,
+        timeZone,
       },
       triggering: {
         sensitivity: triggerSensitivity,
       },
     }
-    return settingsToReturn
   }
 
   async updateSettings(settings: PatchableSettings): Promise<void> {
@@ -104,13 +114,15 @@ export class SettingsService {
       if (
         Object.prototype.hasOwnProperty.call(settings.general, 'systemTime')
       ) {
+        const isRaspberryPi = this.deviceType === 'RaspberryPi'
         await SystemTimeInteractor.setSystemTimeInIso8601Format(
           settings.general.systemTime,
+          isRaspberryPi,
         )
-        if (Object.keys(settings).length === 1) {
-          // If there is only this one object property, refrain from reading and writing for nothing.
-          return
-        }
+      }
+
+      if (Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')) {
+        await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
       }
 
       const settingsToUpdateInFile: Partial<SettingsFromJsonFile> = {}
@@ -125,39 +137,47 @@ export class SettingsService {
         settingsToUpdateInFile.siteName = settings.general.siteName
       }
 
-      if (Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')) {
-        settingsToUpdateInFile.timeZone = settings.general.timeZone
+      if (Object.keys(settingsToUpdateInFile).length > 0) {
+        // Only if there is an object property to update, do the reading and writing.
 
-        await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
-      }
+        const settingsReadFromFile =
+          await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+        const settingsMerged = {
+          ...settingsReadFromFile,
+          ...settingsToUpdateInFile,
+        }
+        await SettingsFileProvider.writeSettingsToFile(
+          settingsMerged,
+          SETTINGS_FILE_PATH,
+        )
 
-      const settingsReadFromFile = await SettingsFileProvider.readSettingsFile(
-        SETTINGS_FILE_PATH,
-      )
-      const settingsMerged = {
-        ...settingsReadFromFile,
-        ...settingsToUpdateInFile,
-      }
-      await SettingsFileProvider.writeSettingsToFile(
-        settingsMerged,
-        SETTINGS_FILE_PATH,
-      )
-
-      const filename = MotionTextAssembler.createFilename(
-        settingsMerged.siteName,
-        settingsMerged.deviceName,
-        settingsMerged.timeZone,
-      )
-      await MotionClient.setFilename(filename)
-      if (
-        Object.prototype.hasOwnProperty.call(settings.general, 'deviceName') ||
-        Object.prototype.hasOwnProperty.call(settings.general, 'siteName')
-      ) {
-        const imageText = MotionTextAssembler.createImageText(
+        let timeZone
+        if (
+          Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')
+        ) {
+          timeZone = settings.general.timeZone
+        } else {
+          timeZone = await SystemTimeInteractor.getTimeZone()
+        }
+        const filename = MotionTextAssembler.createFilename(
           settingsMerged.siteName,
           settingsMerged.deviceName,
+          timeZone,
         )
-        await MotionClient.setLeftTextOnImage(imageText)
+        await MotionClient.setFilename(filename)
+        if (
+          Object.prototype.hasOwnProperty.call(
+            settings.general,
+            'deviceName',
+          ) ||
+          Object.prototype.hasOwnProperty.call(settings.general, 'siteName')
+        ) {
+          const imageText = MotionTextAssembler.createImageText(
+            settingsMerged.siteName,
+            settingsMerged.deviceName,
+          )
+          await MotionClient.setLeftTextOnImage(imageText)
+        }
       }
     }
 
@@ -194,6 +214,14 @@ export class SettingsService {
         `The time zone '${settings.general.timeZone}' is not supported.`,
       )
     }
+
+    const isRaspberryPi = this.deviceType === 'RaspberryPi'
+    await SystemTimeInteractor.setSystemTimeInIso8601Format(
+      settings.general.systemTime,
+      isRaspberryPi,
+    )
+
+    await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
     if (Object.prototype.hasOwnProperty.call(settings.camera, 'shotTypes')) {
       try {
@@ -239,7 +267,6 @@ export class SettingsService {
     const settingsToWriteFile: SettingsFromJsonFile = {
       deviceName: settings.general.deviceName,
       siteName: settings.general.siteName,
-      timeZone: settings.general.timeZone,
     }
 
     await SettingsFileProvider.writeSettingsToFile(
@@ -276,10 +303,11 @@ export class SettingsService {
     )
     settings.siteName = siteName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    const timeZone = await SystemTimeInteractor.getTimeZone()
     const filename = MotionTextAssembler.createFilename(
       siteName,
       settings.deviceName,
-      settings.timeZone,
+      timeZone,
     )
     await MotionClient.setFilename(filename)
     const imageText = MotionTextAssembler.createImageText(
@@ -302,10 +330,11 @@ export class SettingsService {
     )
     settings.deviceName = deviceName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+    const timeZone = await SystemTimeInteractor.getTimeZone()
     const filename = MotionTextAssembler.createFilename(
       settings.siteName,
       deviceName,
-      settings.timeZone,
+      timeZone,
     )
     await MotionClient.setFilename(filename)
     const imageText = MotionTextAssembler.createImageText(
@@ -321,7 +350,11 @@ export class SettingsService {
   }
 
   async setSystemTime(systemTime: string): Promise<void> {
-    await SystemTimeInteractor.setSystemTimeInIso8601Format(systemTime)
+    const isRaspberryPi = this.deviceType === 'RaspberryPi'
+    await SystemTimeInteractor.setSystemTimeInIso8601Format(
+      systemTime,
+      isRaspberryPi,
+    )
   }
 
   async getAvailableTimeZones(): Promise<string[]> {
@@ -330,17 +363,8 @@ export class SettingsService {
   }
 
   async getTimeZone(): Promise<string> {
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
-    const settingsFileTimeZone = settings.timeZone
-    const systemTimeZone = await SystemTimeInteractor.getTimeZone()
-    if (settingsFileTimeZone !== systemTimeZone) {
-      throw new Error(
-        `There is a mismatch between the system time zone '${systemTimeZone}' and the time zone stored in the settings file '${settingsFileTimeZone}'.`,
-      )
-    }
-    return settingsFileTimeZone
+    const timeZone = await SystemTimeInteractor.getTimeZone()
+    return timeZone
   }
 
   async setTimeZone(timeZone: string): Promise<void> {
@@ -350,12 +374,10 @@ export class SettingsService {
         `The time zone '${timeZone}' is not supported.`,
       )
     }
+    await SystemTimeInteractor.setTimeZone(timeZone)
     const settings = await SettingsFileProvider.readSettingsFile(
       SETTINGS_FILE_PATH,
     )
-    settings.timeZone = timeZone
-    await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    await SystemTimeInteractor.setTimeZone(timeZone)
     const filename = MotionTextAssembler.createFilename(
       settings.siteName,
       settings.deviceName,

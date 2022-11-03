@@ -2,6 +2,10 @@ import { plainToClass } from 'class-transformer'
 import { IsNotEmpty, IsPositive, IsString, validateSync } from 'class-validator'
 
 class EnvironmentVariables {
+  @IsNotEmpty()
+  @IsString()
+  DEVICE_TYPE: 'RaspberryPi' | 'Variscite'
+
   DISABLE_ACCESS_CONTROL_ALLOW_ORIGIN: boolean
 
   NODE_ENV: string

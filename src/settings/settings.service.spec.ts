@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Settings, SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
@@ -24,7 +25,7 @@ describe('SettingsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SettingsService],
+      providers: [ConfigService, SettingsService],
     }).compile()
 
     service = module.get<SettingsService>(SettingsService)
@@ -42,7 +43,6 @@ describe('SettingsService', () => {
     const FILE_SETTINGS: SettingsFromJsonFile = {
       deviceName: 'd',
       siteName: 's',
-      timeZone: 't',
     }
     const ALL_SETTINGS: Settings = {
       camera: {
@@ -51,6 +51,7 @@ describe('SettingsService', () => {
       general: {
         ...FILE_SETTINGS,
         systemTime: SYSTEM_TIME,
+        timeZone: 't',
       },
       triggering: {
         sensitivity: TRIGGER_SENSITIVITY,
@@ -87,7 +88,9 @@ describe('SettingsService', () => {
         .mockImplementation(() => Promise.resolve(AVAILABLE_TIMEZONES))
       spyGetTimeZone = jest
         .spyOn(SystemTimeInteractor, 'getTimeZone')
-        .mockImplementation(() => Promise.resolve(FILE_SETTINGS.timeZone))
+        .mockImplementation(() =>
+          Promise.resolve(ALL_SETTINGS.general.timeZone),
+        )
       spySetTimeZone = jest
         .spyOn(SystemTimeInteractor, 'setTimeZone')
         .mockImplementation(() => Promise.resolve())
@@ -103,7 +106,6 @@ describe('SettingsService', () => {
       const settingsToUpdateInFile: SettingsFromJsonFile = {
         deviceName: 'dd',
         siteName: 'ss',
-        timeZone: 't1',
       }
       const allSettings: Settings = {
         camera: {
@@ -112,22 +114,22 @@ describe('SettingsService', () => {
         general: {
           ...settingsToUpdateInFile,
           systemTime: 'sy',
+          timeZone: 't1',
         },
         triggering: {
           sensitivity: 1,
         },
       }
       await service.updateSettings(allSettings)
-      expect(spySetSystemTime).toHaveBeenCalledWith(
-        allSettings.general.systemTime,
-      )
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         settingsToUpdateInFile,
         expect.any(String),
       )
-      expect(spySetTimeZone).toHaveBeenCalledWith(
-        settingsToUpdateInFile.timeZone,
+      expect(spySetSystemTime).toHaveBeenCalledWith(
+        allSettings.general.systemTime,
+        false,
       )
+      expect(spySetTimeZone).toHaveBeenCalledWith(allSettings.general.timeZone)
     })
 
     it('updates one setting stored in settings file but neither system time nor time zone', async () => {
@@ -156,6 +158,7 @@ describe('SettingsService', () => {
       await service.updateSettings(settingsToUpdate)
       expect(spySetSystemTime).toHaveBeenCalledWith(
         settingsToUpdate.general.systemTime,
+        false,
       )
       expect(spyReadSettingsFile).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).not.toHaveBeenCalled()
@@ -166,24 +169,30 @@ describe('SettingsService', () => {
       const settings: SettingsFromJsonFile = {
         deviceName: 'dd',
         siteName: 'ss',
-        timeZone: 't1',
       }
-      await service.updateAllSettings({
+      const allSettings: Settings = {
         camera: {
           shotTypes: SHOT_TYPES,
         },
         general: {
           ...settings,
+          systemTime: 'sy',
+          timeZone: 't1',
         },
         triggering: {
           sensitivity: TRIGGER_SENSITIVITY,
         },
-      })
+      }
+      await service.updateAllSettings(allSettings)
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         settings,
         expect.any(String),
       )
-      expect(spySetTimeZone).toHaveBeenCalledWith(settings.timeZone)
+      expect(spySetSystemTime).toHaveBeenCalledWith(
+        allSettings.general.systemTime,
+        false,
+      )
+      expect(spySetTimeZone).toHaveBeenCalledWith(allSettings.general.timeZone)
     })
 
     it('returns site name', async () => {
@@ -220,7 +229,7 @@ describe('SettingsService', () => {
     it('sets system time', async () => {
       const systemTime = 'd'
       await service.setSystemTime(systemTime)
-      expect(spySetSystemTime).toHaveBeenCalledWith(systemTime)
+      expect(spySetSystemTime).toHaveBeenCalledWith(systemTime, false)
     })
 
     it('returns available time zones', async () => {
@@ -236,10 +245,6 @@ describe('SettingsService', () => {
     it('sets time zone', async () => {
       const timeZone = 't1'
       await service.setTimeZone(timeZone)
-      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
-        expect.any(Object),
-        expect.any(String),
-      )
       expect(spySetTimeZone).toHaveBeenCalledWith(timeZone)
     })
 

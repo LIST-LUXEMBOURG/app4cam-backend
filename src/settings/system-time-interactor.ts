@@ -1,5 +1,6 @@
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
+import { DateConverter } from './date-converter'
 
 const exec = promisify(execSync)
 
@@ -10,28 +11,44 @@ export class SystemTimeInteractor {
 
   static async getSystemTimeInIso8601Format(): Promise<string> {
     if (this.isWindows()) {
-      // /bin/date command does not exist on Windows machines.
+      // timedatectl command does not exist on Windows machines.
       return Promise.resolve('')
     }
-    const { stdout, stderr } = await exec('/bin/date --iso-8601=seconds')
+    const { stdout, stderr } = await exec('timedatectl show | grep "^TimeUSec"')
     if (stderr) {
       throw new Error(stderr)
     }
-    const time = stdout.trimEnd()
-    return time
+    const line = stdout.trim()
+    const lineParts = line.split('=')
+    const time = lineParts[1]
+    const isoTime = DateConverter.convertTimedatectlFormatToIso(time)
+    return isoTime
   }
 
-  static async setSystemTimeInIso8601Format(systemTime: string): Promise<void> {
+  static async setSystemTimeInIso8601Format(
+    systemTime: string,
+    isRaspberryPi: boolean,
+  ): Promise<void> {
     if (this.isWindows()) {
-      // /bin/date command does not exist on Windows machines.
+      // timedatectl command does not exist on Windows machines.
       return Promise.resolve()
     }
-    const currentWorkingDirectory = process.cwd()
+    const systemTimeTransformed =
+      DateConverter.convertIsoToYMDHMSFormat(systemTime)
     const { stderr } = await exec(
-      `sudo /bin/date --set="${systemTime}" | sudo ${currentWorkingDirectory}/scripts/system_to_rtc.sh`,
+      `sudo timedatectl set-time "${systemTimeTransformed}"`,
     )
     if (stderr) {
       throw new Error(stderr)
+    }
+    if (isRaspberryPi) {
+      const currentWorkingDirectory = process.cwd()
+      const { stderr } = await exec(
+        `sudo ${currentWorkingDirectory}/scripts/raspberry-pi-write-system-time-to-rtc.sh`,
+      )
+      if (stderr) {
+        throw new Error(stderr)
+      }
     }
   }
 
@@ -53,14 +70,13 @@ export class SystemTimeInteractor {
       // timedatectl command does not exist on Windows machines.
       return Promise.resolve('')
     }
-    const { stdout, stderr } = await exec('timedatectl')
+    const { stdout, stderr } = await exec('timedatectl show | grep "^Timezone"')
     if (stderr) {
       throw new Error(stderr)
     }
-    const lines = stdout.trimEnd().split('\n')
-    const timeZoneLine = lines.find((l) => l.includes('Time zone:'))
-    const parts = timeZoneLine.trim().split(/\s+/)
-    const timeZone = parts[2]
+    const line = stdout.trim()
+    const lineParts = line.split('=')
+    const timeZone = lineParts[1]
     return timeZone
   }
 
