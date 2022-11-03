@@ -19,7 +19,6 @@ export class SettingsFileProvider {
       return {
         deviceName: '',
         siteName: '',
-        timeZone: '',
       }
     }
   }

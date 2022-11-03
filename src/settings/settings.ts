@@ -1,13 +1,13 @@
 export class SettingsFromJsonFile {
   deviceName: string
   siteName: string
-  timeZone: string
 }
 
 type ShotType = 'pictures' | 'videos'
 
 export class GeneralSettings extends SettingsFromJsonFile {
   systemTime: string
+  timeZone: string
 }
 
 export interface Settings {
@@ -26,7 +26,7 @@ export interface UpdatableSettings {
   camera: {
     shotTypes: ShotType[]
   }
-  general: SettingsFromJsonFile
+  general: GeneralSettings
   triggering: {
     sensitivity: number
   }

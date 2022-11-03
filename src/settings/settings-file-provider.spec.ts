@@ -35,7 +35,6 @@ describe('SettingsFileProvider', () => {
       const expected: SettingsFromJsonFile = {
         deviceName: '',
         siteName: '',
-        timeZone: '',
       }
       expect(settings).toEqual(expected)
     })
