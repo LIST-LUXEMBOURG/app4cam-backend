@@ -51,21 +51,22 @@ This software requires the following tools to be installed:
 #### 1.1. Installing Motion
 
 Motion is installed from the release deb files which provided a more recent version than the one available via apt.
-The version installed is the 4.3.2-1.
+The version installed is the 4.4.0-1.
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.3.2/pi_buster_motion_4.3.2-1_armhf.deb
+> https://github.com/Motion-Project/motion/releases/download/release-4.4.0/pi_buster_motion_4.4.0-1_armhf.deb
+> https://github.com/Motion-Project/motion/releases/download/release-4.4.0/bullseye_motion_4.4.0-1_arm64.deb (variscite)
 
-After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type:
+After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi):
 
 ```bash
-wget https://github.com/Motion-Project/motion/releases/download/release-4.3.2/pi_buster_motion_4.3.2-1_armhf.deb
+wget https://github.com/Motion-Project/motion/releases/download/release-4.4.0/pi_buster_motion_4.4.0-1_armhf.deb
 ```
 
 Next, install the retrieved deb package. The gdebi tool will automatically retrieve any dependency packages.
 
 ```bash
 sudo apt-get install gdebi-core
-sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
+sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
 ```
 
 #### 1.2. Creating user and data folder and setting permissions
@@ -111,7 +112,7 @@ sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
    On Variscite:
 
    ```bash
-   daemon on
+   daemon off
    ```
 
    On both:
@@ -163,7 +164,7 @@ sudo gdebi pi_buster_motion_4.3.2-1_armhf.deb
 5. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
 6. On Raspberry Pi, make sure `start_motion_daemon = yes` is set in `/etc/default/motion` file.
 
-A more described configuration can be found at https://motion-project.github.io/motion_config.html.
+A more described configuration can be found at https://motion-project.github.io/4.4.0/motion_config.html.
 
 #### 1.4. Running Motion as service
 
@@ -172,7 +173,6 @@ This should be done only after all the standard configuration has been completed
 As a service Motion uses the systemctl and option daemon must be set to `on`
 
 Next enable motion by entering the following at the command line: `sudo systemctl enable motion`  
-Then set `start_motion_daemon=yes` in the file `/etc/default/motion`
 
 The following commands now control the Motion service.
 
