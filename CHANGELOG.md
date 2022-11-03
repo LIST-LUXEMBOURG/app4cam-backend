@@ -10,6 +10,7 @@
 - Automatically deploy to Variscite test device
 - Introduce setting `trigger sensitivity`
 - Automatic addition of device ID as metadata to shots after saving them
+- New config option `DEVICE_TYPE` to define the device to run on
 
 ### Changed
 
