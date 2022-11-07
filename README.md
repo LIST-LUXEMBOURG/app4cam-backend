@@ -39,6 +39,10 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+### API documentation
+
+An OpenAPI Specification (OAS) is available under `/api`.
+
 ## Deployment
 
 This software requires the following tools to be installed:
