@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
 import { AppModule } from './app.module'
 import { PropertiesService } from './properties/properties.service'
@@ -21,6 +22,14 @@ async function bootstrap() {
 
   const propertiesService = app.get(PropertiesService)
   await propertiesService.saveDeviceIdToTextFile()
+
+  const version = (await propertiesService.getVersion()).version
+  const config = new DocumentBuilder()
+    .setTitle('App4Cam API')
+    .setVersion(version)
+    .build()
+  const document = SwaggerModule.createDocument(app, config)
+  SwaggerModule.setup('api', app, document)
 
   const configService = app.get(ConfigService)
   const port = configService.get('port')
