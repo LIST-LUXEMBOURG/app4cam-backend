@@ -54,6 +54,7 @@ Motion is installed from the release deb files which provided a more recent vers
 The version installed is the 4.4.0-1.
 
 > https://github.com/Motion-Project/motion/releases/download/release-4.4.0/pi_buster_motion_4.4.0-1_armhf.deb
+
 > https://github.com/Motion-Project/motion/releases/download/release-4.4.0/bullseye_motion_4.4.0-1_arm64.deb (variscite)
 
 After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi):
@@ -172,7 +173,7 @@ Motion should be set up to run as a service, which means that it will start auto
 This should be done only after all the standard configuration has been completed.
 As a service Motion uses the systemctl and option daemon must be set to `on`
 
-Next enable motion by entering the following at the command line: `sudo systemctl enable motion`  
+Next enable motion by entering the following at the command line: `sudo systemctl enable motion`
 
 The following commands now control the Motion service.
 
@@ -255,7 +256,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
    After=network.target
 
    [Install]
-   WantedBy=multi-user.target
+   WantedBy=default.target
 
    [Service]
    Type=simple
@@ -269,7 +270,12 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 8. Reload systemctl: `systemctl --user daemon-reload`
 9. Enable service: `systemctl --user enable app4cam-backend`
 
-If the last two commands result in `Failed to connect to bus: No such file or directory`, check as user: `printenv XDG_RUNTIME_DIR`. If it is empty, set the environment variable in front of them: `XDG_RUNTIME_DIR=/run/user/1001`
+If the last two commands result in `Failed to connect to bus: No such file or directory`, check as user: `printenv XDG_RUNTIME_DIR`.
+If it is empty, set the environment variable at the beginning of the same lines:
+
+```
+XDG_RUNTIME_DIR=/run/user/`id -u`
+```
 
 ### 6. Deploying the application
 
