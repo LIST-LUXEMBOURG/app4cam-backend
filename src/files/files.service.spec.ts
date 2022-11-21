@@ -5,6 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { SettingsModule } from '../settings/settings.module'
 import { SettingsService } from '../settings/settings.service'
 import { FileHandler } from './file-handler'
+import { FileInteractor } from './file-interactor'
 import { FilesService } from './files.service'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
@@ -193,6 +194,38 @@ describe('FilesService', () => {
 
     afterAll(() => {
       rm(testFolder, { recursive: true, force: true })
+    })
+  })
+
+  describe('removeAllFiles', () => {
+    let service: FilesService
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          {
+            provide: ConfigService,
+            useValue: {
+              get(): string {
+                return FIXTURE_FOLDER_PATH
+              },
+            },
+          },
+          FilesService,
+        ],
+        imports: [SettingsModule],
+      }).compile()
+
+      service = module.get<FilesService>(FilesService)
+    })
+
+    it('calls method on FileInteractor with path', async () => {
+      const spy = jest
+        .spyOn(FileInteractor, 'removeAllFilesInDirectory')
+        .mockResolvedValue()
+      await service.removeAllFiles()
+      expect(spy).toHaveBeenCalledWith(FIXTURE_FOLDER_PATH)
+      spy.mockRestore()
     })
   })
 })

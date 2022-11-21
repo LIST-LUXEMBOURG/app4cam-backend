@@ -25,6 +25,7 @@
 - Upgrade NestJS to version 9.x
 - Restructure settings' object
 - Switch video format `mkv` to `mp4`
+- Use dedicated command when deleting all files by passing `*` as single filename to not having to loop through all files
 
 ### Deprecated
 

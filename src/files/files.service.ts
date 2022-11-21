@@ -8,6 +8,7 @@ import { ArchiveFileManager } from './archive-file-manager'
 import { FileDeletionResponse } from './entities/file-deletion-response.entity'
 import { File } from './entities/file.entity'
 import { FileHandler } from './file-handler'
+import { FileInteractor } from './file-interactor'
 
 const ARCHIVE_FOLDER_PATH = 'temp'
 
@@ -87,6 +88,10 @@ export class FilesService {
       }
     }
     return result
+  }
+
+  async removeAllFiles(): Promise<void> {
+    FileInteractor.removeAllFilesInDirectory(this.fileFolderPath)
   }
 
   @Cron('*/5 * * * *') // every 5 minutes
