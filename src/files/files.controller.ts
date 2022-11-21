@@ -54,6 +54,14 @@ export class FilesController {
     if (filesDto.filenames.some((filename) => filename.includes('../'))) {
       throw new ForbiddenException()
     }
+
+    if (filesDto.filenames.length === 1 && filesDto.filenames[0] === '*') {
+      await this.filesService.removeAllFiles()
+      return {
+        '*': true,
+      }
+    }
+
     const filesWithDeletedState = await this.filesService.removeFiles(
       filesDto.filenames,
     )
