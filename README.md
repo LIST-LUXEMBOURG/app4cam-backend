@@ -112,12 +112,16 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
    locate_motion_mode on
 
    locate_motion_style redbox
+
+   event_gap 2
    ```
 
    On Variscite:
 
    ```bash
    daemon off
+
+   event_gap 5
    ```
 
    On both:
@@ -127,15 +131,13 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
 
    log_file /home/<user>/app4cam/motion.log
 
-   log_level 4
+   log_level 5
 
    target_dir /home/<user>/app4cam/data/
 
    width 1920
 
    height 1080
-
-   event_gap 2
 
    pre_capture 5
 
@@ -166,6 +168,12 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
    stream_localhost on
 
    snapshot_filename %Y%m%dT%H%M%S_snapshot
+   ```
+
+   For development:
+
+   ```
+   stream_port 8081
    ```
 
 3. Comment out the `text_left` property with a semicolon.
