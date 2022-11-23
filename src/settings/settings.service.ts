@@ -31,8 +31,13 @@ export class SettingsService {
     const timeZone = await SystemTimeInteractor.getTimeZone()
 
     const shotTypes = []
+    let pictureQuality = 0
+    let videoQuality = 0
     let triggerSensitivity = 0
     try {
+      pictureQuality = await MotionClient.getPictureQuality()
+      videoQuality = await MotionClient.getMovieQuality()
+
       const pictureOutput = await MotionClient.getPictureOutput()
       if (pictureOutput === 'best') {
         shotTypes.push('pictures')
@@ -60,7 +65,9 @@ export class SettingsService {
 
     return {
       camera: {
+        pictureQuality,
         shotTypes,
+        videoQuality,
       },
       general: {
         ...settingsFromFile,
@@ -87,6 +94,17 @@ export class SettingsService {
     }
 
     if (Object.prototype.hasOwnProperty.call(settings, 'camera')) {
+      if (
+        Object.prototype.hasOwnProperty.call(settings.camera, 'pictureQuality')
+      ) {
+        await MotionClient.setPictureQuality(settings.camera.pictureQuality)
+      }
+      if (
+        Object.prototype.hasOwnProperty.call(settings.camera, 'videoQuality')
+      ) {
+        await MotionClient.setMovieQuality(settings.camera.videoQuality)
+      }
+
       if (Object.prototype.hasOwnProperty.call(settings.camera, 'shotTypes')) {
         try {
           if (settings.camera.shotTypes.includes('pictures')) {
@@ -246,6 +264,9 @@ export class SettingsService {
     }
 
     try {
+      await MotionClient.setPictureQuality(settings.camera.pictureQuality)
+      await MotionClient.setMovieQuality(settings.camera.videoQuality)
+
       const height = await MotionClient.getHeight()
       const width = await MotionClient.getWidth()
       const threshold = Math.round(

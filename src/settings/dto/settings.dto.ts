@@ -2,6 +2,7 @@ import { Type } from 'class-transformer'
 import {
   IsArray,
   IsDateString,
+  IsInt,
   IsNotEmpty,
   IsNotEmptyObject,
   IsNumber,
@@ -17,10 +18,22 @@ import {
 type ShotType = 'pictures' | 'videos'
 
 class CameraSettingsPatchDto {
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  pictureQuality: number
+
   @IsArray()
   @Matches(/^(pictures|videos)$/, { each: true })
   @IsOptional()
   shotTypes?: ShotType[]
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  videoQuality: number
 }
 
 class GeneralSettingsPatchDto {
@@ -70,9 +83,21 @@ export class SettingsPatchDto {
 }
 
 class CameraSettingsPutDto {
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  pictureQuality: number
+
   @IsArray()
   @Matches(/^(pictures|videos)$/, { each: true })
   shotTypes: ShotType[]
+
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  videoQuality: number
 }
 
 class GeneralSettingsPutDto {

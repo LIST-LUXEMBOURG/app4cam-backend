@@ -6,17 +6,25 @@ import { SystemTimeInteractor } from '../src/settings/system-time-interactor'
 import { AppModule } from './../src/app.module'
 import { Settings, SettingsFromJsonFile } from 'src/settings/settings'
 
+const MOVIE_QUALITY = 80
+const PICTURE_QUALITY = 80
+const TRIGGER_SENSITIVITY = 1
+
 jest.mock('../src/motion-client', () => ({
   MotionClient: {
     getHeight: () => 10,
     getWidth: () => 10,
     setFilename: jest.fn(),
     setLeftTextOnImage: jest.fn(),
+    getMovieQuality: () => MOVIE_QUALITY,
+    setMovieQuality: jest.fn(),
     getMovieOutput: () => 'on',
     setMovieOutput: jest.fn(),
+    getPictureQuality: () => PICTURE_QUALITY,
+    setPictureQuality: jest.fn(),
     getPictureOutput: () => 'best',
     setPictureOutput: jest.fn(),
-    getThreshold: () => 1,
+    getThreshold: () => TRIGGER_SENSITIVITY,
     setThreshold: jest.fn(),
   },
 }))
@@ -29,10 +37,11 @@ describe('SettingsController (e2e)', () => {
     deviceName: 'd',
     siteName: 's',
   }
-  const TRIGGER_SENSITIVITY = 1
   const ALL_SETTINGS: Settings = {
     camera: {
+      pictureQuality: PICTURE_QUALITY,
       shotTypes: SHOT_TYPES,
+      videoQuality: MOVIE_QUALITY,
     },
     general: {
       ...FILE_SETTINGS,
@@ -98,7 +107,33 @@ describe('SettingsController (e2e)', () => {
     it('/ (PATCH) invalid option in shot types', () => {
       return request(app.getHttpServer())
         .patch('/settings')
-        .send({ camera: { shotTypes: ['a'] } })
+        .send({
+          camera: {
+            shotTypes: ['a'],
+          },
+        })
+        .expect(400)
+    })
+
+    it('/ (PATCH) invalid value for video quality', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({
+          camera: {
+            videoQuality: 101,
+          },
+        })
+        .expect(400)
+    })
+
+    it('/ (PATCH) invalid value for picture quality', () => {
+      return request(app.getHttpServer())
+        .patch('/settings')
+        .send({
+          camera: {
+            pictureQuality: -1,
+          },
+        })
         .expect(400)
     })
 
@@ -184,7 +219,9 @@ describe('SettingsController (e2e)', () => {
         .put('/settings')
         .send({
           camera: {
+            pictureQuality: PICTURE_QUALITY,
             shotTypes: SHOT_TYPES,
+            videoQuality: MOVIE_QUALITY,
           },
           general: {
             ...FILE_SETTINGS,
@@ -203,7 +240,9 @@ describe('SettingsController (e2e)', () => {
         .put('/settings')
         .send({
           camera: {
+            pictureQuality: PICTURE_QUALITY,
             shotTypes: SHOT_TYPES,
+            videoQuality: MOVIE_QUALITY,
           },
           general: {
             ...FILE_SETTINGS,
@@ -230,7 +269,49 @@ describe('SettingsController (e2e)', () => {
         .put('/settings')
         .send({
           camera: {
+            pictureQuality: PICTURE_QUALITY,
             shotTypes: [''],
+            videoQuality: MOVIE_QUALITY,
+          },
+          general: {
+            ...FILE_SETTINGS,
+            systemTime: new Date().toISOString(),
+          },
+          triggering: {
+            sensitivity: TRIGGER_SENSITIVITY,
+          },
+        })
+        .expect(400)
+    })
+
+    it('/ (PUT) invalid value as video quality', () => {
+      return request(app.getHttpServer())
+        .put('/settings')
+        .send({
+          camera: {
+            pictureQuality: PICTURE_QUALITY,
+            shotTypes: SHOT_TYPES,
+            videoQuality: -1,
+          },
+          general: {
+            ...FILE_SETTINGS,
+            systemTime: new Date().toISOString(),
+          },
+          triggering: {
+            sensitivity: TRIGGER_SENSITIVITY,
+          },
+        })
+        .expect(400)
+    })
+
+    it('/ (PUT) invalid value as picture quality', () => {
+      return request(app.getHttpServer())
+        .put('/settings')
+        .send({
+          camera: {
+            pictureQuality: 101,
+            shotTypes: SHOT_TYPES,
+            videoQuality: MOVIE_QUALITY,
           },
           general: {
             ...FILE_SETTINGS,
@@ -248,7 +329,9 @@ describe('SettingsController (e2e)', () => {
         .put('/settings')
         .send({
           camera: {
+            pictureQuality: PICTURE_QUALITY,
             shotTypes: ['a'],
+            videoQuality: MOVIE_QUALITY,
           },
           general: {
             ...FILE_SETTINGS,

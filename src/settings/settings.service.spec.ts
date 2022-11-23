@@ -11,8 +11,12 @@ jest.mock('../motion-client', () => ({
     getWidth: () => 1,
     setFilename: jest.fn(),
     setLeftTextOnImage: jest.fn(),
+    getMovieQuality: () => 60,
+    setMovieQuality: jest.fn(),
     getMovieOutput: () => 'on',
     setMovieOutput: jest.fn(),
+    getPictureQuality: () => 90,
+    setPictureQuality: jest.fn(),
     getPictureOutput: () => 'best',
     setPictureOutput: jest.fn(),
     getThreshold: () => 1,
@@ -46,7 +50,9 @@ describe('SettingsService', () => {
     }
     const ALL_SETTINGS: Settings = {
       camera: {
+        pictureQuality: 90,
         shotTypes: SHOT_TYPES,
+        videoQuality: 60,
       },
       general: {
         ...FILE_SETTINGS,
@@ -109,7 +115,9 @@ describe('SettingsService', () => {
       }
       const allSettings: Settings = {
         camera: {
+          pictureQuality: 90,
           shotTypes: ['pictures', 'videos'],
+          videoQuality: 60,
         },
         general: {
           ...settingsToUpdateInFile,
@@ -172,7 +180,9 @@ describe('SettingsService', () => {
       }
       const allSettings: Settings = {
         camera: {
+          pictureQuality: 90,
           shotTypes: SHOT_TYPES,
+          videoQuality: 60,
         },
         general: {
           ...settings,

@@ -8,7 +8,9 @@ describe('SettingsController', () => {
   const AVAILABLE_TIMEZONES = ['a', 'b']
   const SETTINGS: Settings = {
     camera: {
+      pictureQuality: 90,
       shotTypes: ['pictures', 'videos'],
+      videoQuality: 60,
     },
     general: {
       deviceName: 'd',
@@ -76,7 +78,9 @@ describe('SettingsController', () => {
   it('sets all settings', async () => {
     const settings = {
       camera: {
+        pictureQuality: 40,
         shotTypes: ['pictures' as const, 'videos' as const],
+        videoQuality: 40,
       },
       general: {
         deviceName: 'd',
