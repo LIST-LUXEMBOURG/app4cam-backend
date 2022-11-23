@@ -12,7 +12,9 @@ export class GeneralSettings extends SettingsFromJsonFile {
 
 export interface Settings {
   camera: {
+    pictureQuality: number
     shotTypes: ShotType[]
+    videoQuality: number
   }
   general: GeneralSettings
   triggering: {
@@ -24,7 +26,9 @@ export type PatchableSettings = DeepPartial<Settings>
 
 export interface UpdatableSettings {
   camera: {
+    pictureQuality: number
     shotTypes: ShotType[]
+    videoQuality: number
   }
   general: GeneralSettings
   triggering: {

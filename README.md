@@ -145,11 +145,15 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
 
    picture_output best
 
+   picture_quality 80
+
    picture_filename %Y%m%dT%H%M%S_%q
 
    movie_output on
 
    movie_max_time 60
+
+   movie_quality 80
 
    movie_codex mp4
 

@@ -3,8 +3,8 @@ import axios from 'axios'
 const BASE_URL = 'http://127.0.0.1:8080/'
 const ACTION_URL = BASE_URL + '0/action/'
 const CONFIG_BASE_URL = BASE_URL + '0/config/'
-const CONFIG_GET_URL = CONFIG_BASE_URL + 'get?'
-const CONFIG_SET_URL = CONFIG_BASE_URL + 'set?'
+const CONFIG_GET_URL = CONFIG_BASE_URL + 'get'
+const CONFIG_SET_URL = CONFIG_BASE_URL + 'set'
 const DETECTION_URL = BASE_URL + '0/detection/'
 const WRITE_URL = BASE_URL + 'action/config/write'
 
@@ -15,75 +15,82 @@ type MovieOutputValue = 'on' | 'off'
 type PictureOutputValue = 'on' | 'off' | 'first' | 'best'
 
 export class MotionClient {
-  private static extractValueFromResponseBody(body: string): string {
-    const bodyPartsSplitByEqualSign = body.split('=')
-    const partWithValue = bodyPartsSplitByEqualSign[1].trim()
-    const valuePartPartsSplitBySpace = partWithValue.split(' ')
-    return valuePartPartsSplitBySpace[0]
+  static async getHeight(): Promise<number> {
+    const value = await this.getConfigurationOption('height')
+    return parseFloat(value)
   }
 
-  static async getHeight(): Promise<number> {
-    const response = await axios.get(CONFIG_GET_URL + 'query=height')
-    const value = this.extractValueFromResponseBody(response.data as string)
-    return parseFloat(value)
+  static async getMovieOutput(): Promise<MovieOutputValue> {
+    const value = await this.getConfigurationOption('movie_output')
+    return value as MovieOutputValue
+  }
+
+  static async getMovieQuality(): Promise<number> {
+    const value = await this.getConfigurationOption('movie_quality')
+    return parseInt(value)
+  }
+
+  static async getPictureOutput(): Promise<PictureOutputValue> {
+    const value = await this.getConfigurationOption('picture_output')
+    return value as PictureOutputValue
+  }
+
+  static async getPictureQuality(): Promise<number> {
+    const value = await this.getConfigurationOption('picture_quality')
+    return parseInt(value)
+  }
+
+  static async getThreshold(): Promise<number> {
+    const value = await this.getConfigurationOption('threshold')
+    return parseInt(value)
   }
 
   static async getWidth(): Promise<number> {
-    const response = await axios.get(CONFIG_GET_URL + 'query=width')
-    const value = this.extractValueFromResponseBody(response.data as string)
+    const value = await this.getConfigurationOption('width')
     return parseFloat(value)
+  }
+
+  static async setLeftTextOnImage(text: string): Promise<void> {
+    await this.setConfigurationOption('text_left', text)
   }
 
   static async setFilename(filename: string): Promise<void> {
     const moveFilename = filename
     const pictureFilename = filename + POST_PICTURE_FILENAME
     const snapshotFilename = filename + POST_SNAPSHOT_FILENAME
-    await axios.get(CONFIG_SET_URL + 'movie_filename=' + moveFilename)
-    await axios.get(CONFIG_SET_URL + 'picture_filename=' + pictureFilename)
-    await axios.get(CONFIG_SET_URL + 'snapshot_filename=' + snapshotFilename)
+    await axios.get(CONFIG_SET_URL + '?movie_filename=' + moveFilename)
+    await axios.get(CONFIG_SET_URL + '?picture_filename=' + pictureFilename)
+    await axios.get(CONFIG_SET_URL + '?snapshot_filename=' + snapshotFilename)
     await axios.get(WRITE_URL)
   }
 
-  static async setLeftTextOnImage(text: string) {
-    await axios.get(CONFIG_SET_URL + 'text_left=' + text)
-    await axios.get(WRITE_URL)
+  static async setMovieOutput(value: MovieOutputValue): Promise<void> {
+    await this.setConfigurationOption('movie_output', value)
   }
 
-  static async getMovieOutput(): Promise<MovieOutputValue> {
-    const response = await axios.get(CONFIG_GET_URL + 'query=movie_output')
-    const value = this.extractValueFromResponseBody(response.data as string)
-    return value as MovieOutputValue
+  static async setMovieQuality(value: number): Promise<void> {
+    await this.setConfigurationOption('movie_quality', value.toString())
   }
 
-  static async setMovieOutput(value: MovieOutputValue) {
-    await axios.get(CONFIG_SET_URL + 'movie_output=' + value)
-    await axios.get(WRITE_URL)
+  static async setPictureOutput(value: PictureOutputValue): Promise<void> {
+    await this.setConfigurationOption('picture_output', value)
   }
 
-  static async getPictureOutput(): Promise<PictureOutputValue> {
-    const response = await axios.get(CONFIG_GET_URL + 'query=picture_output')
-    const value = this.extractValueFromResponseBody(response.data as string)
-    return value as PictureOutputValue
+  static async setPictureQuality(value: number): Promise<void> {
+    await this.setConfigurationOption('picture_quality', value.toString())
   }
 
-  static async setPictureOutput(value: PictureOutputValue) {
-    await axios.get(CONFIG_SET_URL + 'picture_output=' + value)
-    await axios.get(WRITE_URL)
+  static async setThreshold(value: number): Promise<void> {
+    await this.setConfigurationOption('threshold', value.toString())
   }
 
-  static async getThreshold(): Promise<number> {
-    const response = await axios.get(CONFIG_GET_URL + 'query=threshold')
-    const value = this.extractValueFromResponseBody(response.data as string)
-    return parseInt(value)
-  }
-
-  static async setThreshold(value: number) {
-    await axios.get(CONFIG_SET_URL + 'threshold=' + value)
-    await axios.get(WRITE_URL)
-  }
-
-  static async takeSnapshot(): Promise<void> {
-    await axios.get(ACTION_URL + 'snapshot')
+  static async isDetectionStatusActive(): Promise<boolean> {
+    const response = await axios.get(DETECTION_URL + 'status')
+    const body = response.data as string
+    const bodyTrimmed = body.trim()
+    const bodyPartsSplitBySpace = bodyTrimmed.split(' ')
+    const value = bodyPartsSplitBySpace[bodyPartsSplitBySpace.length - 1]
+    return value === 'ACTIVE'
   }
 
   static async pauseDetection(): Promise<void> {
@@ -94,12 +101,29 @@ export class MotionClient {
     await axios.get(DETECTION_URL + 'start')
   }
 
-  static async isDetectionStatusActive(): Promise<boolean> {
-    const response = await axios.get(DETECTION_URL + 'status')
-    const body = response.data as string
-    const bodyTrimmed = body.trim()
-    const bodyPartsSplitBySpace = bodyTrimmed.split(' ')
-    const value = bodyPartsSplitBySpace[bodyPartsSplitBySpace.length - 1]
-    return value === 'ACTIVE'
+  static async takeSnapshot(): Promise<void> {
+    await axios.get(ACTION_URL + 'snapshot')
+  }
+
+  private static extractValueFromResponseBody(body: string): string {
+    const bodyPartsSplitByEqualSign = body.split('=')
+    const partWithValue = bodyPartsSplitByEqualSign[1].trim()
+    const valuePartPartsSplitBySpace = partWithValue.split(' ')
+    return valuePartPartsSplitBySpace[0]
+  }
+
+  private static async getConfigurationOption(
+    optionName: string,
+  ): Promise<string> {
+    const response = await axios.get(`${CONFIG_GET_URL}?query=${optionName}`)
+    return this.extractValueFromResponseBody(response.data as string)
+  }
+
+  private static async setConfigurationOption(
+    optionName: string,
+    value: string,
+  ) {
+    await axios.get(`${CONFIG_SET_URL}?${optionName}=${value}`)
+    await axios.get(WRITE_URL)
   }
 }
