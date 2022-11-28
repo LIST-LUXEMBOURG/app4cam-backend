@@ -89,11 +89,19 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
    <user> ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/raspberry-pi-write-system-time-to-rtc.sh
    ```
 
-4. Add `motion` user to `<user>` group: `sudo usermod -a -G <user> motion`
-5. Log in as user: `su - <user>`
-6. Create directories: `mkdir -p app4cam/data`
-7. Give `<user>` group write access to folder: `chmod -R 775 /home/app4cam/app4cam`
-8. Logout: `exit`
+4. On Variscite, add the following line:
+
+   ```
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/initialise-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-visible-to-ir-leds.sh
+   ```
+
+5. Add `motion` user to `<user>` group: `sudo usermod -a -G <user> motion`
+6. Log in as user: `su - <user>`
+7. Create directories: `mkdir -p app4cam/data`
+8. Give `<user>` group write access to folder: `chmod -R 775 /home/app4cam/app4cam`
+9. Logout: `exit`
 
 #### 1.3. Configuring Motion
 
@@ -114,6 +122,10 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
    locate_motion_style redbox
 
    event_gap 2
+
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-visible-to-ir-leds.sh
+
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
    ```
 
    On Variscite:
