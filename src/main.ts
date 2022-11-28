@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
 import { AppModule } from './app.module'
+import { InitialisationInteractor } from './initialisation-interactor'
 import { PropertiesService } from './properties/properties.service'
 
 const PAYLOAD_LIMIT = '1mb'
@@ -22,6 +23,8 @@ async function bootstrap() {
 
   const propertiesService = app.get(PropertiesService)
   await propertiesService.saveDeviceIdToTextFile()
+
+  await InitialisationInteractor.initialiseLights()
 
   const version = (await propertiesService.getVersion()).version
   const config = new DocumentBuilder()
