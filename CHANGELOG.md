@@ -1,40 +1,6 @@
 # Changelog
 
-## Upcoming version
-
-### Added
-
-- Reintroduce `device ID` as property returning first MAC address
-- Introduce setting `shot types` to indicate whether pictures or videos should be taken
-- Enforce alphabetical order of imports
-- Automatically deploy to Variscite test device
-- Introduce setting `trigger sensitivity`
-- Automatic addition of device ID as metadata to shots after saving them
-- New config option `DEVICE_TYPE` to define the device to run on
-- Add OpenAPI Specification (OAS) using Swagger under `/api`
-- Introduce settings `picture quality` and `movie quality`
-
-### Changed
-
-- Move code build from Pi to CI/CD runner
-- Extract version number and commit hash to file `version.txt` upon build from where they are read
-- Rename `device ID` to `device name`
-- Rename `version` to `properties/version` endpoint
-- Update dependencies
-- Set body parser's `urlencoded` option `extended` to `false`
-- Allow `site name` to be empty
-- Upgrade NestJS to version 9.x
-- Restructure settings' object
-- Switch video format `mkv` to `mp4`
-- Use dedicated command when deleting all files by passing `*` as single filename to not having to loop through all files
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
+_See README of frontend_
 
 ## Sprint 5 - version 1.1.1
 
