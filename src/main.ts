@@ -24,7 +24,11 @@ async function bootstrap() {
   const propertiesService = app.get(PropertiesService)
   await propertiesService.saveDeviceIdToTextFile()
 
-  await InitialisationInteractor.initialiseLights()
+  const configService = app.get(ConfigService)
+  const deviceType = configService.get('deviceType')
+  if (deviceType === 'Variscite') {
+    await InitialisationInteractor.initialiseLights()
+  }
 
   const version = (await propertiesService.getVersion()).version
   const config = new DocumentBuilder()
@@ -34,7 +38,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, document)
 
-  const configService = app.get(ConfigService)
   const port = configService.get('port')
   await app.listen(port)
 }
