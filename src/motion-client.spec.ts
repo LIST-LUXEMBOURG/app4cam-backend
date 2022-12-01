@@ -40,6 +40,13 @@ describe(MotionClient.name, () => {
     })
   })
 
+  describe(MotionClient.getTargetDir.name, () => {
+    it('returns a value', async () => {
+      const response = await MotionClient.getTargetDir()
+      expect(response).toBe('/a/b/c')
+    })
+  })
+
   describe(MotionClient.getThreshold.name, () => {
     it('returns a value', async () => {
       const response = await MotionClient.getThreshold()
@@ -92,6 +99,12 @@ describe(MotionClient.name, () => {
   describe(MotionClient.setPictureQuality.name, () => {
     it('does not throw an error', async () => {
       expect(async () => await MotionClient.setPictureQuality(1)).not.toThrow()
+    })
+  })
+
+  describe(MotionClient.setTargetDir.name, () => {
+    it('does not throw an error', async () => {
+      expect(async () => await MotionClient.setTargetDir('a/')).not.toThrow()
     })
   })
 

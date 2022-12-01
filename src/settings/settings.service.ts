@@ -406,4 +406,13 @@ export class SettingsService {
     )
     await MotionClient.setFilename(filename)
   }
+
+  async getShotsFolder(): Promise<string> {
+    const shotsFolder = await MotionClient.getTargetDir()
+    return shotsFolder
+  }
+
+  async setShotsFolder(path: string): Promise<void> {
+    await MotionClient.setTargetDir(path)
+  }
 }

@@ -79,8 +79,11 @@ export class FilesController {
   }
 
   @Get(':id')
-  downloadFile(@Param('id') filename: string, @Res({ passthrough: true }) res) {
-    const file = this.filesService.getStreamableFile(filename)
+  async downloadFile(
+    @Param('id') filename: string,
+    @Res({ passthrough: true }) res,
+  ) {
+    const file = await this.filesService.getStreamableFile(filename)
     res.set({
       'Content-Type': file.contentType,
       'Content-Disposition': 'attachment; filename="' + filename + '"',

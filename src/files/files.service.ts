@@ -1,8 +1,8 @@
 import { lstat, readdir, rm } from 'fs/promises'
 import path = require('path')
 import { Injectable, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
+import { MotionClient } from '../motion-client'
 import { SettingsService } from '../settings/settings.service'
 import { ArchiveFileManager } from './archive-file-manager'
 import { FileDeletionResponse } from './entities/file-deletion-response.entity'
@@ -14,20 +14,15 @@ const ARCHIVE_FOLDER_PATH = 'temp'
 
 @Injectable()
 export class FilesService {
-  private readonly fileFolderPath: string
   private readonly logger = new Logger(FilesService.name)
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly settingsService: SettingsService,
-  ) {
-    this.fileFolderPath = this.configService.get<string>('filesFolderPath')
-  }
+  constructor(private readonly settingsService: SettingsService) {}
 
   async findAll(): Promise<File[]> {
-    const elements = await readdir(this.fileFolderPath)
+    const fileFolderPath = await MotionClient.getTargetDir()
+    const elements = await readdir(fileFolderPath)
     const elementPromises = elements.map(async (elementName) => {
-      const filePath = path.join(this.fileFolderPath, elementName)
+      const filePath = path.join(fileFolderPath, elementName)
       const stats = await lstat(filePath)
       return {
         name: elementName,
@@ -45,8 +40,9 @@ export class FilesService {
       })
   }
 
-  getStreamableFile(filename: string) {
-    const filePath = path.join(this.fileFolderPath, filename)
+  async getStreamableFile(filename: string) {
+    const fileFolderPath = await MotionClient.getTargetDir()
+    const filePath = path.join(fileFolderPath, filename)
     return FileHandler.createStreamWithContentType(filePath)
   }
 
@@ -59,8 +55,9 @@ export class FilesService {
       settings.general.siteName,
     )
     const archiveFilePath = path.join(ARCHIVE_FOLDER_PATH, archiveFilename)
+    const fileFolderPath = await MotionClient.getTargetDir()
     const filePaths = filenames.map((filename) =>
-      path.join(this.fileFolderPath, filename),
+      path.join(fileFolderPath, filename),
     )
     const logger = new Logger(ArchiveFileManager.name)
     await ArchiveFileManager.createArchive(archiveFilePath, filePaths, logger)
@@ -73,7 +70,8 @@ export class FilesService {
   }
 
   async removeFile(filename: string): Promise<void> {
-    const filePath = path.join(this.fileFolderPath, filename)
+    const fileFolderPath = await MotionClient.getTargetDir()
+    const filePath = path.join(fileFolderPath, filename)
     await rm(filePath)
   }
 
@@ -91,7 +89,8 @@ export class FilesService {
   }
 
   async removeAllFiles(): Promise<void> {
-    FileInteractor.removeAllFilesInDirectory(this.fileFolderPath)
+    const fileFolderPath = await MotionClient.getTargetDir()
+    FileInteractor.removeAllFilesInDirectory(fileFolderPath)
   }
 
   @Cron('*/5 * * * *') // every 5 minutes
