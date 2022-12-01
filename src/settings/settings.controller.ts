@@ -1,6 +1,14 @@
-import { Controller, Get, Body, Put, Patch } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Body,
+  Put,
+  Patch,
+  ForbiddenException,
+} from '@nestjs/common'
 import { DeviceNameDto } from './dto/device-name.dto'
 import { SettingsPatchDto, SettingsPutDto } from './dto/settings.dto'
+import { ShotsFolderDto } from './dto/shots-folder.dto'
 import { SiteNameDto } from './dto/site-name.dto'
 import { SystemTimeDto } from './dto/system-time.dto'
 import { TimeZoneDto } from './dto/time-zone.dto'
@@ -51,6 +59,22 @@ export class SettingsController {
   @Put('deviceName')
   setDeviceName(@Body() body: DeviceNameDto): Promise<void> {
     return this.settingsService.setDeviceName(body.deviceName)
+  }
+
+  @Get('shotsFolder')
+  async getShotsFolder(): Promise<ShotsFolderDto> {
+    const shotsFolder = await this.settingsService.getShotsFolder()
+    return {
+      shotsFolder,
+    }
+  }
+
+  @Put('shotsFolder')
+  setShotsFolder(@Body() body: ShotsFolderDto): Promise<void> {
+    if (!body.shotsFolder.startsWith('/media/')) {
+      throw new ForbiddenException()
+    }
+    return this.settingsService.setShotsFolder(body.shotsFolder)
   }
 
   @Get('systemTime')

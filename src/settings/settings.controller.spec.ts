@@ -22,6 +22,7 @@ describe('SettingsController', () => {
       sensitivity: 1,
     },
   }
+  const SHOTS_FOLDER = '/a'
   let controller: SettingsController
   let service: SettingsService
 
@@ -51,6 +52,8 @@ describe('SettingsController', () => {
               .mockReturnValue(AVAILABLE_TIMEZONES),
             getTimeZone: jest.fn().mockReturnValue(SETTINGS.general.timeZone),
             setTimeZone: jest.fn(),
+            getShotsFolder: jest.fn().mockReturnValue(SHOTS_FOLDER),
+            setShotsFolder: jest.fn(),
           },
         },
       ],
@@ -140,5 +143,16 @@ describe('SettingsController', () => {
     const timeZone = 'a'
     await controller.setTimeZone({ timeZone })
     expect(service.setTimeZone).toHaveBeenCalledWith(timeZone)
+  })
+
+  it('gets the shots folder', async () => {
+    const response = await controller.getShotsFolder()
+    expect(response).toEqual({ shotsFolder: SHOTS_FOLDER })
+  })
+
+  it('sets the shots folder', async () => {
+    const shotsFolder = '/media/a'
+    await controller.setShotsFolder({ shotsFolder })
+    expect(service.setShotsFolder).toHaveBeenCalledWith(shotsFolder)
   })
 })

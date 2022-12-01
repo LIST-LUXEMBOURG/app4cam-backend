@@ -6,6 +6,7 @@ const ALLOWED_GET_CONFIG_OPTIONS = [
   'movie_quality',
   'picture_output',
   'picture_quality',
+  'target_dir',
   'threshold',
   'width',
 ]
@@ -17,6 +18,7 @@ const ALLOWED_SET_CONFIG_OPTIONS = [
   'picture_output',
   'picture_quality',
   'snapshot_filename',
+  'target_dir',
   'text_left',
   'threshold',
 ]
@@ -47,6 +49,9 @@ export const handlers = [
       case 'movie_output':
       case 'picture_output':
         body = `Camera 0 ${queryParameterValues[0]} = on Done`
+        break
+      case 'target_dir':
+        body = `Camera 0 ${queryParameterValues[0]} = /a/b/c Done`
         break
       default:
         body = `Camera 0 ${queryParameterValues[0]} = 1 Done`

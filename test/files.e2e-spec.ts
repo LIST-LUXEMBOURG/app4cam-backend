@@ -5,6 +5,14 @@ import * as request from 'supertest'
 import { SettingsService } from '../src/settings/settings.service'
 import { AppModule } from './../src/app.module'
 
+const FILES_FOLDER_PATH = 'src/files/fixtures/'
+
+jest.mock('../src/motion-client', () => ({
+  MotionClient: {
+    getTargetDir: () => FILES_FOLDER_PATH,
+  },
+}))
+
 describe('FilesController (e2e)', () => {
   let app: INestApplication
 
@@ -70,7 +78,7 @@ describe('FilesController (e2e)', () => {
   it('/files (DELETE)', async () => {
     const filenames = ['to-delete-1.txt', 'to-delete-2.txt']
     for (const filename of filenames) {
-      const filePath = process.env.FILES_FOLDER_PATH + filename
+      const filePath = FILES_FOLDER_PATH + filename
       await writeFile(filePath, 'bla')
     }
     return request(app.getHttpServer())
@@ -83,7 +91,7 @@ describe('FilesController (e2e)', () => {
 
   it('/files (DELETE) first one does not exist', async () => {
     const filenames = ['non-existing.txt', 'existing.txt']
-    const filePath = process.env.FILES_FOLDER_PATH + filenames[1]
+    const filePath = FILES_FOLDER_PATH + filenames[1]
     await writeFile(filePath, 'bla')
     return request(app.getHttpServer())
       .delete('/files')
@@ -121,7 +129,7 @@ describe('FilesController (e2e)', () => {
 
   it('/files/:id (DELETE)', async () => {
     const filename = 'to-delete.txt'
-    const filePath = process.env.FILES_FOLDER_PATH + filename
+    const filePath = FILES_FOLDER_PATH + filename
     await writeFile(filePath, 'bla')
     return request(app.getHttpServer())
       .delete('/files/' + filename)

@@ -11,10 +11,6 @@ class EnvironmentVariables {
   NODE_ENV: string
 
   @IsNotEmpty()
-  @IsString()
-  FILES_FOLDER_PATH: string
-
-  @IsNotEmpty()
   @IsPositive()
   PORT: number
 }

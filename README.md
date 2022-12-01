@@ -50,9 +50,34 @@ This software requires the following tools to be installed:
 - **Motion** is a configurable software that monitors video signals from differen types of cameras and create videos and/or saves pictures of the activity.
 - **Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
 
-### 1. Setting up Motion
+### 1. Creating user and adding permissions
 
-#### 1.1. Installing Motion
+If you have not already during frontend setup, you will create a new user. The username `app4cam` will be used in the following.
+
+1. Create a new user, with a password you remember: `sudo adduser app4cam`
+2. Allow the new user to use some commands as sudo by adding the following content to the newly created file: `sudo visudo -f /etc/sudoers.d/app4cam`
+
+   ```
+   app4cam ALL=(ALL) NOPASSWD: /usr/bin/timedatectl
+   ```
+
+3. On Raspberry Pi, also add the following line:
+
+   ```
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/raspberry-pi-write-system-time-to-rtc.sh
+   ```
+
+4. On Variscite, also add the following line:
+
+   ```
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/initialise-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-visible-to-ir-leds.sh
+   ```
+
+### 2. Setting up Motion
+
+#### 2.1. Installing Motion
 
 Motion is installed from the release deb files which provided a more recent version than the one available via apt.
 The version installed is the 4.4.0-1.
@@ -74,39 +99,18 @@ sudo apt-get install gdebi-core
 sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
 ```
 
-#### 1.2. Creating user and data folder and setting permissions
+#### 2.2. Creating data folder and setting permissions
 
-1. If you have not already during frontend setup, create a new user, `app4cam` e.g., with a password you remember: `sudo adduser <user>`
-2. Allow new user to use some commands as sudo by adding the following content to the newly created file: `sudo visudo -f /etc/sudoers.d/app4cam`
+1. Add `motion` user to `app4cam` group: `sudo usermod -a -G app4cam motion`
+2. Log in as `app4cam` user: `su - app4cam`
+3. Create directories: `mkdir -p app4cam/data`
+4. Give `app4cam` group write access to folder: `chmod -R 775 /home/app4cam/app4cam`
+5. Logout: `exit`
 
-   ```
-   <user> ALL=(ALL) NOPASSWD: /usr/bin/timedatectl
-   ```
-
-3. On Raspberry Pi, add the following line:
-
-   ```
-   <user> ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/raspberry-pi-write-system-time-to-rtc.sh
-   ```
-
-4. On Variscite, add the following line:
-
-   ```
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/initialise-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-visible-to-ir-leds.sh
-   ```
-
-5. Add `motion` user to `<user>` group: `sudo usermod -a -G <user> motion`
-6. Log in as user: `su - <user>`
-7. Create directories: `mkdir -p app4cam/data`
-8. Give `<user>` group write access to folder: `chmod -R 775 /home/app4cam/app4cam`
-9. Logout: `exit`
-
-#### 1.3. Configuring Motion
+#### 2.3. Configuring Motion
 
 1. Open Motion config file: `sudo nano /etc/motion/motion.conf`
-2. In order of appearance, the following parameters which are configured differently:
+2. Configure the following parameters in order of appearance:
 
    On Raspberry Pi:
 
@@ -136,16 +140,16 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
    event_gap 5
    ```
 
-   On both:
+   On every device:
 
    ```bash
    setup_mode off
 
-   log_file /home/<user>/app4cam/motion.log
+   log_file /home/app4cam/app4cam/motion.log
 
    log_level 5
 
-   target_dir /home/<user>/app4cam/data/
+   target_dir /home/app4cam/app4cam/data/
 
    width 1920
 
@@ -195,24 +199,19 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
 
 A more described configuration can be found at https://motion-project.github.io/4.4.0/motion_config.html.
 
-#### 1.4. Running Motion as service
+#### 2.4. Running Motion as service
 
-Motion should be set up to run as a service, which means that it will start automatically whenever the device is started.
-This should be done only after all the standard configuration has been completed.
-As a service Motion uses the systemctl and option daemon must be set to `on`
+Motion needs to be run as a service so that it automatically starts whenever the device is started.
 
-Next enable motion by entering the following at the command line: `sudo systemctl enable motion`
+1. Enable service: `sudo systemctl enable motion`
+2. Start service: `sudo systemctl start motion`
+3. Verify that the service is running: `sudo systemctl status motion`
 
-The following commands now control the Motion service.
+During development, you may need to stop Motion: `sudo systemctl stop motion`
 
-- Start the Motion `sudo systemctl start motion`
-- Stop the Motion `sudo systemctl stop motion`
+### 3. Installing Witty Pi 3 (Raspberry Pi only)
 
-**Make sure to start the Motion service.**
-
-### 2. Installing Witty Pi 3
-
-Run these two commands on your Raspberry Pi:
+On Raspberry Pi, run these two commands in your home directory:
 
 ```bash
 wget http://www.uugear.com/repo/WittyPi3/install.sh
@@ -221,7 +220,7 @@ sudo sh install.sh
 
 A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
 
-### 3. Setting up RPi network behavior
+### 4. Setting up RPi network behavior
 
 We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
 For this we just need to run with root privileges the script `scripts/autohotspot/autohotspot-setup.sh`. On a new terminal:
@@ -257,7 +256,7 @@ vnc: 10.0.0.5::5900
 
 If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
 
-### 4. Installing ExifTool
+### 5. Installing ExifTool
 
 ExifTool is needed to add the device ID to the metadata of each shot file.
 
@@ -268,35 +267,80 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 5. Optionally, run tests to verify system compatibility: `make test`
 6. Install for all users: `sudo make install`
 
-### 5. Creating a user service
+### 6. Enabling user services
 
 1. Open `journald` config file: `sudo nano /etc/systemd/journald.conf`
 2. Enable user service logging by setting `Storage=persistent`, and save file.
 3. Restart `journald` service: `sudo systemctl restart systemd-journald`
-4. Log in as user: `su - <user>`
-5. Enable user lingering: `loginctl enable-linger <user>`
+4. Log in as user: `su - app4cam`
+5. Enable user lingering: `loginctl enable-linger app4cam`
 6. Create directories: `mkdir -p ~/.config/systemd/user/`
-7. Create user service with the following content: `nano ~/.config/systemd/user/app4cam-backend.service`
+7. Logout: `exit`
+
+### 7. Enabling USB auto-mounting
+
+1. Make sure `curl` is installed.
+2. Install `udisks2`: `sudo apt install udisks2`
+3. Install `udiskie`: `sudo apt install udiskie`
+4. Enable permissions in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
+
+   ```
+   [udisks2]
+   Identity=unix-group:app4cam
+   Action=org.freedesktop.udisks2.*
+   ResultAny=yes
+   ```
+
+5. Log in as user: `su - app4cam`
+6. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
+
+   ```
+   [Unit]
+   Description=Handle automounting of usb devices
+
+   [Service]
+   Type=simple
+   ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/app4cam/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
+   Restart=always
+   RestartSec=5
+   StartLimitIntervalSec=0
+
+   [Install]
+   WantedBy=default.target
+   ```
+
+7. Reload systemctl: `systemctl --user daemon-reload`
+8. Enable service: `systemctl --user enable udiskie`
+9. Start service: `systemctl --user start udiskie`
+10. Verify that the service is running: `systemctl --user status udiskie`
+
+### 8. Deploying the application
+
+#### 1. Creating a user service
+
+1. Log in as user: `su - app4cam`
+2. Create user service with the following content: `nano ~/.config/systemd/user/app4cam-backend.service`
 
    ```
    [Unit]
    Description=Service that keeps running app4cam-backend from startup
    After=network.target
 
-   [Install]
-   WantedBy=default.target
-
    [Service]
    Type=simple
    Environment="NODE_ENV=production"
    ExecStart=node dist/main
-   WorkingDirectory=/home/<user>/app4cam-backend
+   WorkingDirectory=/home/app4cam/app4cam-backend
    Restart=always
    RestartSec=5
+   StartLimitIntervalSec=0
+
+   [Install]
+   WantedBy=default.target
    ```
 
-8. Reload systemctl: `systemctl --user daemon-reload`
-9. Enable service: `systemctl --user enable app4cam-backend`
+3. Reload systemctl: `systemctl --user daemon-reload`
+4. Enable service: `systemctl --user enable app4cam-backend`
 
 If the last two commands result in `Failed to connect to bus: No such file or directory`, check as user: `printenv XDG_RUNTIME_DIR`.
 If it is empty, set the environment variable at the beginning of the same lines:
@@ -305,17 +349,15 @@ If it is empty, set the environment variable at the beginning of the same lines:
 XDG_RUNTIME_DIR=/run/user/`id -u`
 ```
 
-### 6. Deploying the application
+#### 2. Getting application
 
-First, log in as user: `su - <user>`
-
-#### Option 1: Download the artifact archive from Gitlab:
+###### Option 1: Download the artifact archive from Gitlab:
 
 1. Download and extract the archive into the home folder.
 2. Change into the directory: `cd app4cam-backend`
 3. Install the production dependencies: `npm ci --omit=dev --ignore-scripts`
 
-#### Option 2: Build it yourself:
+###### Option 2: Build it yourself:
 
 1. Clone this repository into the home folder: `git clone --single-branch --branch main https://git.list.lu/host/mechatronics/app4cam-backend.git`
 2. Change into the directory: `cd app4cam-backend`
@@ -323,17 +365,17 @@ First, log in as user: `su - <user>`
 4. Build: `npm run build`
 5. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
 
-#### Final steps
+#### 3. Final steps
 
 1. Adapt the configuration file if needed: `nano config/production.env`
 2. Start service: `systemctl --user start app4cam-backend`
 3. Verify the service is running: `systemctl --user status app4cam-backend`
 
-### 7. For continuous deployment (CD) only
+### 9. For continuous deployment (CD) only
 
 If you have set up the frontend already, you just need to do step 4.
 
-1. Log in as user: `su - <user>`
+1. Log in as user: `su - app4cam`
 2. Generate a public/private key pair without passphrase: `ssh-keygen -t ed25519`
 3. Copy public key to `.ssh/authorized_keys` file.
 4. Define the following variables in Gitlab:
@@ -350,12 +392,12 @@ If you have set up the frontend already, you just need to do step 4.
 7. Logout: `exit`
 8. Open SSH config file: `sudo nano /etc/ssh/sshd_config`
 9. Disable password authentication by setting `PasswordAuthentication no`, and save file.
-10. Prepend the following line: `Match User <user>`
+10. Prepend the following line: `Match User app4cam`
 11. Append the following line: `Match all`
 12. Restart `sshd` service: `sudo systemctl restart ssh`
 13. Install rsync: `sudo apt install rsync -y`
 
-### 8. Adding FTP access
+### 10. Adding FTP access
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 

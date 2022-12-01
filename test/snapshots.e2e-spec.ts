@@ -3,8 +3,11 @@ import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
 
+const FILES_FOLDER_PATH = 'src/files/fixtures/'
+
 jest.mock('../src/motion-client', () => ({
   MotionClient: {
+    getTargetDir: () => FILES_FOLDER_PATH,
     takeSnapshot: () => jest.fn(),
   },
 }))

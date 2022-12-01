@@ -8,6 +8,7 @@ import { Settings, SettingsFromJsonFile } from 'src/settings/settings'
 
 const MOVIE_QUALITY = 80
 const PICTURE_QUALITY = 80
+const SHOTS_FOLDER = '/a'
 const TRIGGER_SENSITIVITY = 1
 
 jest.mock('../src/motion-client', () => ({
@@ -24,8 +25,10 @@ jest.mock('../src/motion-client', () => ({
     setPictureQuality: jest.fn(),
     getPictureOutput: () => 'best',
     setPictureOutput: jest.fn(),
+    setTargetDir: jest.fn(),
     getThreshold: () => TRIGGER_SENSITIVITY,
     setThreshold: jest.fn(),
+    getTargetDir: () => SHOTS_FOLDER,
   },
 }))
 
@@ -412,6 +415,34 @@ describe('SettingsController (e2e)', () => {
         .put('/settings/deviceName')
         .send({ deviceName: '' })
         .expect(400)
+    })
+
+    it('/shotsFolder (GET)', async () => {
+      return request(app.getHttpServer())
+        .get('/settings/shotsFolder')
+        .expect('Content-Type', /json/)
+        .expect(200, { shotsFolder: SHOTS_FOLDER })
+    })
+
+    it('/shotsFolder (PUT)', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/shotsFolder')
+        .send({ shotsFolder: '/media/a' })
+        .expect(200)
+    })
+
+    it('/shotsFolder (PUT) empty', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/shotsFolder')
+        .send({ shotsFolder: '' })
+        .expect(400)
+    })
+
+    it('/shotsFolder (PUT) non-media path', async () => {
+      return request(app.getHttpServer())
+        .put('/settings/shotsFolder')
+        .send({ shotsFolder: '/a/b' })
+        .expect(403)
     })
 
     it('/systemTime (GET)', () => {

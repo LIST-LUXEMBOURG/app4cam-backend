@@ -2,6 +2,7 @@ import { existsSync } from 'fs'
 import { mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { MotionClient } from '../motion-client'
 import { SettingsModule } from '../settings/settings.module'
 import { SettingsService } from '../settings/settings.service'
 import { FileHandler } from './file-handler'
@@ -22,26 +23,22 @@ describe('FilesService', () => {
   })
 
   describe('findAll', () => {
-    let service: FilesService
     const testFolder = 'src/files/test-find-all'
+    let service: FilesService
+    let spyGetTargetDir
 
     beforeAll(() => {
       mkdir(testFolder)
+      spyGetTargetDir = jest
+        .spyOn(MotionClient, 'getTargetDir')
+        .mockImplementation(() => {
+          return Promise.resolve(testFolder)
+        })
     })
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          {
-            provide: ConfigService,
-            useValue: {
-              get(): string {
-                return testFolder
-              },
-            },
-          },
-          FilesService,
-        ],
+        providers: [FilesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -87,25 +84,25 @@ describe('FilesService', () => {
 
     afterAll(() => {
       rm(testFolder, { recursive: true, force: true })
+      spyGetTargetDir.mockRestore()
     })
   })
 
   describe('getStreamableFile', () => {
     let service: FilesService
+    let spyGetTargetDir
+
+    beforeAll(() => {
+      spyGetTargetDir = jest
+        .spyOn(MotionClient, 'getTargetDir')
+        .mockImplementation(() => {
+          return Promise.resolve(FIXTURE_FOLDER_PATH)
+        })
+    })
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          {
-            provide: ConfigService,
-            useValue: {
-              get(): string {
-                return FIXTURE_FOLDER_PATH
-              },
-            },
-          },
-          FilesService,
-        ],
+        providers: [FilesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -115,32 +112,32 @@ describe('FilesService', () => {
     it('calls the correct method', async () => {
       const filename = 'a.txt'
       const spy = jest.spyOn(FileHandler, 'createStreamWithContentType')
-      service.getStreamableFile(filename)
+      await service.getStreamableFile(filename)
       expect(spy).toHaveBeenCalled()
+    })
+
+    afterAll(() => {
+      spyGetTargetDir.mockRestore()
     })
   })
 
   describe('removeFile(s)', () => {
-    let service: FilesService
     const testFolder = 'src/files/test-delete-file'
+    let service: FilesService
+    let spyGetTargetDir
 
     beforeAll(() => {
       mkdir(testFolder)
+      spyGetTargetDir = jest
+        .spyOn(MotionClient, 'getTargetDir')
+        .mockImplementation(() => {
+          return Promise.resolve(testFolder)
+        })
     })
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          {
-            provide: ConfigService,
-            useValue: {
-              get(): string {
-                return testFolder
-              },
-            },
-          },
-          FilesService,
-        ],
+        providers: [FilesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -194,25 +191,25 @@ describe('FilesService', () => {
 
     afterAll(() => {
       rm(testFolder, { recursive: true, force: true })
+      spyGetTargetDir.mockRestore()
     })
   })
 
   describe('removeAllFiles', () => {
     let service: FilesService
+    let spyGetTargetDir
+
+    beforeAll(() => {
+      spyGetTargetDir = jest
+        .spyOn(MotionClient, 'getTargetDir')
+        .mockImplementation(() => {
+          return Promise.resolve(FIXTURE_FOLDER_PATH)
+        })
+    })
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          {
-            provide: ConfigService,
-            useValue: {
-              get(): string {
-                return FIXTURE_FOLDER_PATH
-              },
-            },
-          },
-          FilesService,
-        ],
+        providers: [FilesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -226,6 +223,10 @@ describe('FilesService', () => {
       await service.removeAllFiles()
       expect(spy).toHaveBeenCalledWith(FIXTURE_FOLDER_PATH)
       spy.mockRestore()
+    })
+
+    afterAll(() => {
+      spyGetTargetDir.mockRestore()
     })
   })
 })

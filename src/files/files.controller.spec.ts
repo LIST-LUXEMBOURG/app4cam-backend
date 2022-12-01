@@ -72,12 +72,12 @@ describe('FilesController', () => {
   })
 
   describe('downloadFile', () => {
-    it('asks for the streamable file and sets the response', () => {
+    it('asks for the streamable file and sets the response', async () => {
       const filename = 'a'
       const mockResponse = {
         set: jest.fn(),
       }
-      controller.downloadFile(filename, mockResponse)
+      await controller.downloadFile(filename, mockResponse)
       expect(service.getStreamableFile).toHaveBeenCalledWith(filename)
       expect(mockResponse.set).toHaveBeenCalled()
     })

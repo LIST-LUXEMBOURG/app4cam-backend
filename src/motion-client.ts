@@ -40,6 +40,11 @@ export class MotionClient {
     return parseInt(value)
   }
 
+  static async getTargetDir(): Promise<string> {
+    const value = await this.getConfigurationOption('target_dir')
+    return value
+  }
+
   static async getThreshold(): Promise<number> {
     const value = await this.getConfigurationOption('threshold')
     return parseInt(value)
@@ -78,6 +83,10 @@ export class MotionClient {
 
   static async setPictureQuality(value: number): Promise<void> {
     await this.setConfigurationOption('picture_quality', value.toString())
+  }
+
+  static async setTargetDir(value: string): Promise<void> {
+    await this.setConfigurationOption('target_dir', value)
   }
 
   static async setThreshold(value: number): Promise<void> {

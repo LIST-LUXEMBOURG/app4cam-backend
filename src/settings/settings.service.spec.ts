@@ -5,6 +5,8 @@ import { SettingsFileProvider } from './settings-file-provider'
 import { SettingsService } from './settings.service'
 import { SystemTimeInteractor } from './system-time-interactor'
 
+const SHOTS_FOLDER = '/a'
+
 jest.mock('../motion-client', () => ({
   MotionClient: {
     getHeight: () => 1,
@@ -21,6 +23,7 @@ jest.mock('../motion-client', () => ({
     setPictureOutput: jest.fn(),
     getThreshold: () => 1,
     setThreshold: jest.fn(),
+    getTargetDir: () => SHOTS_FOLDER,
   },
 }))
 
@@ -229,6 +232,11 @@ describe('SettingsService', () => {
         expect.any(Object),
         expect.any(String),
       )
+    })
+
+    it('returns shots folder', async () => {
+      const shotsFolder = await service.getShotsFolder()
+      expect(shotsFolder).toBe(SHOTS_FOLDER)
     })
 
     it('returns system time', async () => {
