@@ -80,23 +80,23 @@ If you have not already during frontend setup, you will create a new user. The u
 #### 2.1. Installing Motion
 
 Motion is installed from the release deb files which provided a more recent version than the one available via apt.
-The version installed is the 4.4.0-1.
+The versions installed are 4.5.0-1 (RPi) and 4.4.0-1 (Variscite).
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.4.0/pi_buster_motion_4.4.0-1_armhf.deb
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb
 
 > https://github.com/Motion-Project/motion/releases/download/release-4.4.0/bullseye_motion_4.4.0-1_arm64.deb (variscite)
 
 After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi):
 
 ```bash
-wget https://github.com/Motion-Project/motion/releases/download/release-4.4.0/pi_buster_motion_4.4.0-1_armhf.deb
+wget https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb
 ```
 
 Next, install the retrieved deb package. The gdebi tool will automatically retrieve any dependency packages.
 
 ```bash
 sudo apt-get install gdebi-core
-sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
+sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
 ```
 
 #### 2.2. Creating data folder and setting permissions
@@ -115,8 +115,6 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
    On Raspberry Pi:
 
    ```bash
-   daemon on
-
    mmalcam_name vc.ril.camera
 
    mmalcam_control_params -ex auto
@@ -124,25 +122,21 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
    locate_motion_mode on
 
    locate_motion_style redbox
-
-   event_gap 2
-
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-visible-to-ir-leds.sh
-
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
    ```
 
    On Variscite:
 
    ```bash
-   daemon off
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-visible-to-ir-leds.sh
 
-   event_gap 5
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
    ```
 
    On every device:
 
    ```bash
+   daemon off
+
    setup_mode off
 
    log_file /home/app4cam/app4cam/motion.log
@@ -154,6 +148,8 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
    width 1920
 
    height 1080
+
+   event_gap 2
 
    pre_capture 5
 
