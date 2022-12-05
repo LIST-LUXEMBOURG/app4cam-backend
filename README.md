@@ -104,7 +104,7 @@ sudo gdebi pi_buster_motion_4.4.0-1_armhf.deb
 1. Add `motion` user to `app4cam` group: `sudo usermod -a -G app4cam motion`
 2. Log in as `app4cam` user: `su - app4cam`
 3. Create directories: `mkdir -p app4cam/data`
-4. Give `app4cam` group write access to folder: `chmod -R 775 /home/app4cam/app4cam`
+4. Give `app4cam` group write access to folder: `chmod -R g+w /home/app4cam/app4cam`
 5. Logout: `exit`
 
 #### 2.3. Configuring Motion
@@ -282,7 +282,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 1. Make sure `curl` is installed.
 2. Install `udisks2`: `sudo apt install udisks2`
 3. Install `udiskie`: `sudo apt install udiskie`
-4. Enable permissions in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
+4. Enable permissions for udisks2 in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
 
    ```
    [udisks2]
@@ -291,28 +291,54 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
    ResultAny=yes
    ```
 
-5. Log in as user: `su - app4cam`
-6. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
+5. Mount the drives to `/media` directly by creating file with the following content: `sudo nano /etc/udev/rules.d/99-udisks2.rules`
 
-   ```
-   [Unit]
-   Description=Handle automounting of usb devices
+```
+# UDISKS_FILESYSTEM_SHARED
+# ==1: mount filesystem to a shared directory (/media/VolumeName)
+# ==0: mount filesystem to a private directory (/run/media/$USER/VolumeName)
+# See udisks(8)
+ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{UDISKS_FILESYSTEM_SHARED}="1"
+```
 
-   [Service]
-   Type=simple
-   ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/app4cam/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
-   Restart=always
-   RestartSec=5
-   StartLimitIntervalSec=0
+6. Clean stale mountpoints at every boot by creating file with the following content: `sudo nano /etc/tmpfiles.d/media.conf`
 
-   [Install]
-   WantedBy=default.target
-   ```
+```
+D /media 0755 root root 0 -
+```
 
-7. Reload systemctl: `systemctl --user daemon-reload`
-8. Enable service: `systemctl --user enable udiskie`
-9. Start service: `systemctl --user start udiskie`
-10. Verify that the service is running: `systemctl --user status udiskie`
+7. Log in as user: `su - app4cam`
+
+8. `mkdir .config/udiskie`
+
+9. `nano .config/udiskie/config.yml`
+
+```
+device_config:
+- options: [umask=0]
+```
+
+10. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
+
+```
+[Unit]
+Description=Handle automounting of usb devices
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/app4cam/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+```
+
+11. Reload systemctl: `systemctl --user daemon-reload`
+12. Enable service: `systemctl --user enable udiskie`
+13. Start service: `systemctl --user start udiskie`
+14. Verify that the service is running: `systemctl --user status udiskie`
 
 ### 8. Deploying the application
 
@@ -325,6 +351,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
    [Unit]
    Description=Service that keeps running app4cam-backend from startup
    After=network.target
+   StartLimitIntervalSec=0
 
    [Service]
    Type=simple
@@ -333,7 +360,6 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
    WorkingDirectory=/home/app4cam/app4cam-backend
    Restart=always
    RestartSec=5
-   StartLimitIntervalSec=0
 
    [Install]
    WantedBy=default.target
