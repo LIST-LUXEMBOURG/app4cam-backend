@@ -1,14 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { DiskSpaceUsageDto } from './disk-space-usage.dto'
+import { StorageStatusDto } from './dto/storage-status.dto'
+import { StorageUsageDto } from './dto/storage-usage.dto'
 import { StorageController } from './storage.controller'
 import { StorageService } from './storage.service'
 
-const DISK_USAGE: DiskSpaceUsageDto = {
-  capacityKb: 1,
-  usedPercentage: 2,
-}
-
 describe(StorageController.name, () => {
+  const STORAGE_STATUS: StorageStatusDto = {
+    isAvailable: true,
+    message: 'a',
+  }
+
+  const STORAGE_USAGE: StorageUsageDto = {
+    capacityKb: 1,
+    usedPercentage: 2,
+  }
+
   let controller: StorageController
 
   beforeEach(async () => {
@@ -18,7 +24,8 @@ describe(StorageController.name, () => {
         {
           provide: StorageService,
           useValue: {
-            getStorage: jest.fn().mockReturnValue(DISK_USAGE),
+            getStorageStatus: jest.fn().mockResolvedValue(STORAGE_STATUS),
+            getStorageUsage: jest.fn().mockReturnValue(STORAGE_USAGE),
           },
         },
       ],
@@ -31,8 +38,27 @@ describe(StorageController.name, () => {
     expect(controller).toBeDefined()
   })
 
-  it('gets the details', async () => {
-    const response = await controller.getStorage()
-    expect(response).toEqual(DISK_USAGE)
+  describe('getStorage', () => {
+    it('gets the details', async () => {
+      const response = await controller.getStorage()
+      expect(response).toEqual({
+        status: STORAGE_STATUS,
+        usage: STORAGE_USAGE,
+      })
+    })
+  })
+
+  describe('getStorageStatus', () => {
+    it('gets the details', async () => {
+      const response = await controller.getStorageStatus()
+      expect(response).toEqual(STORAGE_STATUS)
+    })
+  })
+
+  describe('getStorageUsage', () => {
+    it('gets the details', async () => {
+      const response = await controller.getStorageUsage()
+      expect(response).toEqual(STORAGE_USAGE)
+    })
   })
 })
