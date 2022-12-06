@@ -2,21 +2,34 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
-import { DiskSpaceUsageInteractor } from '../src/storage/disk-space-usage-interactor'
-import { DiskSpaceUsageDto } from 'src/storage/disk-space-usage.dto'
+import { StorageUsageInteractor } from '../src/storage/storage-usage-interactor'
+import { StorageStatusDto } from 'src/storage/dto/storage-status.dto'
+import { StorageUsageDto } from 'src/storage/dto/storage-usage.dto'
+
+const FILES_FOLDER_PATH = 'src/files/fixtures/'
+
+jest.mock('../src/motion-client', () => ({
+  MotionClient: {
+    getTargetDir: () => FILES_FOLDER_PATH,
+  },
+}))
 
 describe('StorageController (e2e)', () => {
-  const USAGE: DiskSpaceUsageDto = {
+  const STATUS: StorageStatusDto = {
+    isAvailable: true,
+    message: `The path ${FILES_FOLDER_PATH} is accessible and writable.`,
+  }
+  const USAGE: StorageUsageDto = {
     capacityKb: 1,
     usedPercentage: 2,
   }
 
   let app: INestApplication
-  let spyGetDiskSpaceUsage
+  let spyGetStorageUsage
 
   beforeAll(() => {
-    spyGetDiskSpaceUsage = jest
-      .spyOn(DiskSpaceUsageInteractor, 'getDiskSpaceUsage')
+    spyGetStorageUsage = jest
+      .spyOn(StorageUsageInteractor, 'getStorageUsage')
       .mockImplementation(() => Promise.resolve(USAGE))
   })
 
@@ -32,7 +45,24 @@ describe('StorageController (e2e)', () => {
   describe('/storage', () => {
     it('/ (GET)', () => {
       return request(app.getHttpServer())
-        .get('/storage')
+        .get('/storage/')
+        .expect('Content-Type', /json/)
+        .expect(200, {
+          status: STATUS,
+          usage: USAGE,
+        })
+    })
+
+    it('/status (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/storage/status')
+        .expect('Content-Type', /json/)
+        .expect(200, STATUS)
+    })
+
+    it('/usage (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/storage/usage')
         .expect('Content-Type', /json/)
         .expect(200, USAGE)
     })
@@ -43,6 +73,6 @@ describe('StorageController (e2e)', () => {
   })
 
   afterAll(() => {
-    spyGetDiskSpaceUsage.mockRestore()
+    spyGetStorageUsage.mockRestore()
   })
 })
