@@ -35,7 +35,7 @@ export class FilesService {
       .map((file) => {
         return {
           name: file.name,
-          creationTime: file.stats.birthtime,
+          creationTime: file.stats.mtime,
         }
       })
   }
