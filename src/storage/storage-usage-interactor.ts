@@ -6,7 +6,7 @@ import { NumberUtils } from './number-utils'
 const exec = promisify(execSync)
 
 export class StorageUsageInteractor {
-  static async getStorageUsage(): Promise<StorageUsageDto> {
+  static async getStorageUsage(path: string): Promise<StorageUsageDto> {
     const isWindows = process.platform === 'win32'
     if (isWindows) {
       // df command does not exist on Windows machines.
@@ -15,7 +15,7 @@ export class StorageUsageInteractor {
         usedPercentage: 0,
       })
     }
-    const { stdout, stderr } = await exec('df -Pkl | grep /dev/root')
+    const { stdout, stderr } = await exec(`df -Pkl | grep ${path}`)
     if (stderr) {
       throw new Error(stderr)
     }
