@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { FilesService } from '../files/files.service'
 import { MotionClient } from '../motion-client'
-
-const LATEST_SNAPSHOT_SYMBOLIC_LINK = 'lastsnap.jpg'
+import { FileSystemInteractor } from './file-system-interactor'
 
 @Injectable()
 export class SnapshotsService {
@@ -12,7 +11,12 @@ export class SnapshotsService {
 
   async takeSnapshot() {
     await MotionClient.takeSnapshot()
-    await new Promise((resolve) => setTimeout(resolve, 500)) // Workaround for not opening previous snapshot
-    return this.filesService.getStreamableFile(LATEST_SNAPSHOT_SYMBOLIC_LINK)
+    await new Promise((resolve) => setTimeout(resolve, 500)) // Workaround for not opening snapshot directly.
+    const fileFolderPath = await MotionClient.getTargetDir()
+    const filename =
+      await FileSystemInteractor.getNameOfMostRecentlyModifiedFile(
+        fileFolderPath,
+      )
+    return this.filesService.getStreamableFile(filename)
   }
 }

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { FilesService } from '../files/files.service'
 import { MotionClient } from '../motion-client'
+import { FileSystemInteractor } from './file-system-interactor'
 import { SnapshotsService } from './snapshots.service'
 
 const mockFileService = {
@@ -8,15 +9,23 @@ const mockFileService = {
 }
 
 describe(SnapshotsService.name, () => {
+  const MOST_RECENT_FILENAME = 'a'
+
   let service: SnapshotsService
+  let spyGetTargetDir
+  let spyGetNameOfMostRecentFile
   let spyTakeSnapshot
 
   beforeAll(() => {
+    spyGetTargetDir = jest
+      .spyOn(MotionClient, 'getTargetDir')
+      .mockResolvedValue('')
+    spyGetNameOfMostRecentFile = jest
+      .spyOn(FileSystemInteractor, 'getNameOfMostRecentlyModifiedFile')
+      .mockResolvedValue(MOST_RECENT_FILENAME)
     spyTakeSnapshot = jest
       .spyOn(MotionClient, 'takeSnapshot')
-      .mockImplementation(() => {
-        return Promise.resolve()
-      })
+      .mockResolvedValue()
   })
 
   beforeEach(async () => {
@@ -42,12 +51,14 @@ describe(SnapshotsService.name, () => {
       await service.takeSnapshot()
       expect(spyTakeSnapshot).toHaveBeenCalled()
       expect(mockFileService.getStreamableFile).toHaveBeenCalledWith(
-        'lastsnap.jpg',
+        MOST_RECENT_FILENAME,
       )
     })
   })
 
   afterAll(() => {
+    spyGetTargetDir.mockRestore()
+    spyGetNameOfMostRecentFile.mockRestore()
     spyTakeSnapshot.mockRestore()
   })
 })
