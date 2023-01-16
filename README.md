@@ -277,7 +277,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 
 1. Make sure `curl` is installed.
 2. Install `udisks2`: `sudo apt install udisks2`
-3. Install `udiskie`: `sudo apt install udiskie`
+3. Install `udiskie`: `sudo apt install udiskie -y`
 4. Enable permissions for udisks2 in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
 
    ```
@@ -289,19 +289,19 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 
 5. Mount the drives to `/media` directly by creating file with the following content: `sudo nano /etc/udev/rules.d/99-udisks2.rules`
 
-```
-# UDISKS_FILESYSTEM_SHARED
-# ==1: mount filesystem to a shared directory (/media/VolumeName)
-# ==0: mount filesystem to a private directory (/run/media/$USER/VolumeName)
-# See udisks(8)
-ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{UDISKS_FILESYSTEM_SHARED}="1"
-```
+   ```
+   # UDISKS_FILESYSTEM_SHARED
+   # ==1: mount filesystem to a shared directory (/media/VolumeName)
+   # ==0: mount filesystem to a private directory (/run/media/$USER/VolumeName)
+   # See udisks(8)
+   ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{UDISKS_FILESYSTEM_SHARED}="1"
+   ```
 
 6. Clean stale mountpoints at every boot by creating file with the following content: `sudo nano /etc/tmpfiles.d/media.conf`
 
-```
-D /media 0755 root root 0 -
-```
+   ```
+   D /media 0755 root root 0 -
+   ```
 
 7. Log in as user: `su - app4cam`
 
@@ -309,10 +309,10 @@ D /media 0755 root root 0 -
 
 9. `nano .config/udiskie/config.yml`
 
-```
-device_config:
-- options: [umask=0]
-```
+   ```
+   device_config:
+   - options: [umask=0]
+   ```
 
 10. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
 
@@ -337,6 +337,8 @@ WantedBy=default.target
 14. Verify that the service is running: `systemctl --user status udiskie`
 
 ### 8. Deploying the application
+
+Before starting, install the following dependency: `sudo apt install gpiod`
 
 #### 1. Creating a user service
 
@@ -405,21 +407,23 @@ If you have set up the frontend already, you just need to do step 4.
    - `RASPBERRY_PI_HOST`: IP address of Raspberry Pi
    - `RASPBERRY_PI_PRIVATE_KEY`: private key of Raspberry Pi user
    - `RASPBERRY_PI_USER`: user of Raspberry Pi
-   - `VARISCITE_HOST`: IP address of Variscite
-   - `VARISCITE_PRIVATE_KEY`: private key of Variscite user
-   - `VARISCITE_USER`: user of Variscite
+   - `VARISCITE_MX6_HOST`: IP address of Variscite MX6
+   - `VARISCITE_MX6_PRIVATE_KEY`: private key of Variscite MX6 user
+   - `VARISCITE_MX8M_HOST`: IP address of Variscite MX8M
+   - `VARISCITE_MX8M_PRIVATE_KEY`: private key of Variscite MX8M user
+   - `VARISCITE_USER`: user of Variscite devices
 
 5. Delete private key file: `rm .ssh/id_ed25519`
 6. Remove all "group" and "other" permissions for the `.ssh` directory: `chmod -R go= ~/.ssh`
 7. Logout: `exit`
 8. Open SSH config file: `sudo nano /etc/ssh/sshd_config`
-9. Disable password authentication by setting `PasswordAuthentication no`, and save file.
+9. Disable password authentication by setting `PasswordAuthentication no`.
 10. Prepend the following line: `Match User app4cam`
 11. Append the following line: `Match all`
 12. Restart `sshd` service: `sudo systemctl restart ssh`
 13. Install rsync: `sudo apt install rsync -y`
 
-### 10. Adding FTP access
+### 10. Adding FTP access (Raspberry Pi only)
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 
