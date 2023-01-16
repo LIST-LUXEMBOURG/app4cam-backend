@@ -26,7 +26,7 @@ jest.mock('../src/motion-client', () => ({
     getPictureOutput: () => 'best',
     setPictureOutput: jest.fn(),
     setTargetDir: jest.fn(),
-    getThreshold: () => TRIGGER_SENSITIVITY,
+    getThreshold: () => 75,
     setThreshold: jest.fn(),
     getTargetDir: () => SHOTS_FOLDER,
   },

@@ -10,6 +10,7 @@ import {
 } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SystemTimeInteractor } from './system-time-interactor'
+import { TriggerSensitivityCalculator } from './trigger-sensitivity-calculator'
 
 const SETTINGS_FILE_PATH = 'settings.json'
 
@@ -50,7 +51,12 @@ export class SettingsService {
       const height = await MotionClient.getHeight()
       const width = await MotionClient.getWidth()
       const threshold = await MotionClient.getThreshold()
-      triggerSensitivity = (100 * threshold) / (height * width)
+      triggerSensitivity =
+        TriggerSensitivityCalculator.convertThresholdToTriggerSensitivity(
+          threshold,
+          height,
+          width,
+        )
       this.logger.debug(
         `Calculated trigger sensitivity ${triggerSensitivity} from threshold ${threshold}, height ${height} and width ${width}`,
       )
@@ -206,9 +212,12 @@ export class SettingsService {
         try {
           const height = await MotionClient.getHeight()
           const width = await MotionClient.getWidth()
-          const threshold = Math.round(
-            (settings.triggering.sensitivity * height * width) / 100,
-          )
+          const threshold =
+            TriggerSensitivityCalculator.convertTriggerSensitivityToThreshold(
+              settings.triggering.sensitivity,
+              height,
+              width,
+            )
           this.logger.debug(
             `Calculated threshold ${threshold} from trigger sensitivity ${settings.triggering.sensitivity}, height ${height} and width ${width}`,
           )
@@ -269,9 +278,12 @@ export class SettingsService {
 
       const height = await MotionClient.getHeight()
       const width = await MotionClient.getWidth()
-      const threshold = Math.round(
-        (settings.triggering.sensitivity * height * width) / 100,
-      )
+      const threshold =
+        TriggerSensitivityCalculator.convertTriggerSensitivityToThreshold(
+          settings.triggering.sensitivity,
+          height,
+          width,
+        )
       this.logger.debug(
         `Calculated threshold ${threshold} from trigger sensitivity ${settings.triggering.sensitivity}, height ${height} and width ${width}`,
       )

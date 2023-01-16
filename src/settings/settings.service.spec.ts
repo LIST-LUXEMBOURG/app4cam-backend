@@ -46,7 +46,7 @@ describe('SettingsService', () => {
     const AVAILABLE_TIMEZONES = ['t1', 't2']
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
-    const TRIGGER_SENSITIVITY = 100
+    const TRIGGER_SENSITIVITY = 1
     const FILE_SETTINGS: SettingsFromJsonFile = {
       deviceName: 'd',
       siteName: 's',
