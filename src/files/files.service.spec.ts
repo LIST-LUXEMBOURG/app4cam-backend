@@ -27,8 +27,8 @@ describe('FilesService', () => {
     let service: FilesService
     let spyGetTargetDir
 
-    beforeAll(() => {
-      mkdir(testFolder)
+    beforeAll(async () => {
+      await mkdir(testFolder)
       spyGetTargetDir = jest
         .spyOn(MotionClient, 'getTargetDir')
         .mockImplementation(() => {
@@ -82,8 +82,8 @@ describe('FilesService', () => {
       )
     })
 
-    afterAll(() => {
-      rm(testFolder, { recursive: true, force: true })
+    afterAll(async () => {
+      await rm(testFolder, { recursive: true, force: true })
       spyGetTargetDir.mockRestore()
     })
   })
@@ -126,8 +126,8 @@ describe('FilesService', () => {
     let service: FilesService
     let spyGetTargetDir
 
-    beforeAll(() => {
-      mkdir(testFolder)
+    beforeAll(async () => {
+      await mkdir(testFolder)
       spyGetTargetDir = jest
         .spyOn(MotionClient, 'getTargetDir')
         .mockImplementation(() => {
@@ -189,8 +189,8 @@ describe('FilesService', () => {
       expect(result).toEqual(expectedResult)
     })
 
-    afterAll(() => {
-      rm(testFolder, { recursive: true, force: true })
+    afterAll(async () => {
+      await rm(testFolder, { recursive: true, force: true })
       spyGetTargetDir.mockRestore()
     })
   })

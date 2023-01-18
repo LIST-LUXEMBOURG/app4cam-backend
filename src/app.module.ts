@@ -8,6 +8,7 @@ import { AppService } from './app.service'
 import { configuration } from './config/configuration'
 import { validate } from './config/validation'
 import { FilesModule } from './files/files.module'
+import { LogFilesModule } from './log-files/log-files.module'
 import { LoggerMiddleware } from './logger.middleware'
 import { PropertiesModule } from './properties/properties.module'
 import { SettingsModule } from './settings/settings.module'
@@ -27,6 +28,7 @@ import { StorageModule } from './storage/storage.module'
     ScheduleModule.forRoot(),
     SnapshotsModule,
     StorageModule,
+    LogFilesModule,
   ],
   controllers: [AppController],
   providers: [
