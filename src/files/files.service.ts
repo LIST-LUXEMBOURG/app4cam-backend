@@ -10,7 +10,7 @@ import { File } from './entities/file.entity'
 import { FileHandler } from './file-handler'
 import { FileInteractor } from './file-interactor'
 
-const ARCHIVE_FOLDER_PATH = 'temp'
+const ARCHIVE_FOLDER_PATH = 'temp' // also used by log files module
 
 @Injectable()
 export class FilesService {

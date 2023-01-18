@@ -6,4 +6,5 @@ export const configuration = () => ({
     false,
   NODE_ENV: process.env.NODE_ENV,
   port: parseInt(process.env.PORT, 10),
+  serviceName: process.env.SERVICE_NAME,
 })

@@ -13,6 +13,10 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsPositive()
   PORT: number
+
+  @IsNotEmpty()
+  @IsString()
+  SERVICE_NAME: string
 }
 
 export function validate(config: Record<string, unknown>) {

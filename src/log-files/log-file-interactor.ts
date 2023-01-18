@@ -3,18 +3,21 @@ import { promisify } from 'util'
 
 const exec = promisify(execSync)
 
-export class InitialisationInteractor {
+export class LogFileInteractor {
   private static isWindows(): boolean {
     return process.platform === 'win32'
   }
 
-  static async initialiseLights(serviceName: string): Promise<void> {
+  static async writeAppLogFileToDisk(
+    serviceName: string,
+    logFilePath: string,
+  ): Promise<void> {
     if (this.isWindows()) {
       // The following command does not exist on Windows machines.
       return Promise.resolve()
     }
     const { stderr } = await exec(
-      `sudo /home/app4cam/${serviceName}/scripts/variscite/initialise-leds.sh`,
+      `journalctl --user -u ${serviceName} -b > ${logFilePath}`,
     )
     if (stderr) {
       throw new Error(stderr)

@@ -2,6 +2,7 @@ import { rest } from 'msw'
 
 const ALLOWED_GET_CONFIG_OPTIONS = [
   'height',
+  'log_file',
   'movie_output',
   'movie_quality',
   'picture_output',
@@ -46,6 +47,10 @@ export const handlers = [
 
     let body
     switch (queryParameterValues[0]) {
+      // Make sure to add new options to the allow list above too.
+      case 'log_file':
+        body = `Camera 0 ${queryParameterValues[0]} = /a/b.log Done`
+        break
       case 'movie_output':
       case 'picture_output':
         body = `Camera 0 ${queryParameterValues[0]} = on Done`

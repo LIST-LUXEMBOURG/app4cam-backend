@@ -12,6 +12,13 @@ describe(MotionClient.name, () => {
     })
   })
 
+  describe(MotionClient.getLogFilePath.name, () => {
+    it('returns a value', async () => {
+      const response = await MotionClient.getLogFilePath()
+      expect(response).toBe('/a/b.log')
+    })
+  })
+
   describe(MotionClient.getMovieOutput.name, () => {
     it('returns a value', async () => {
       const response = await MotionClient.getMovieOutput()
