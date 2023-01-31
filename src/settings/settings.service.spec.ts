@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { PropertiesService } from '../properties/properties.service'
 import { Settings, SettingsFromJsonFile } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SettingsService } from './settings.service'
@@ -27,12 +28,23 @@ jest.mock('../motion-client', () => ({
   },
 }))
 
+const mockPropertiesService = {
+  getAvailableTimeZones: jest.fn().mockReturnValue(['t1', 't2']),
+}
+
 describe('SettingsService', () => {
   let service: SettingsService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ConfigService, SettingsService],
+      providers: [
+        ConfigService,
+        {
+          provide: PropertiesService,
+          useValue: mockPropertiesService,
+        },
+        SettingsService,
+      ],
     }).compile()
 
     service = module.get<SettingsService>(SettingsService)
@@ -43,7 +55,6 @@ describe('SettingsService', () => {
   })
 
   describe('with mocked SettingsFileProvider', () => {
-    const AVAILABLE_TIMEZONES = ['t1', 't2']
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
     const TRIGGER_SENSITIVITY = 1
@@ -71,7 +82,6 @@ describe('SettingsService', () => {
     let spyWriteSettingsFile
     let spyGetSystemTime
     let spySetSystemTime
-    let spyGetAvailableTimeZones
     let spyGetTimeZone
     let spySetTimeZone
 
@@ -92,9 +102,6 @@ describe('SettingsService', () => {
       spySetSystemTime = jest
         .spyOn(SystemTimeInteractor, 'setSystemTimeInIso8601Format')
         .mockImplementation(() => Promise.resolve())
-      spyGetAvailableTimeZones = jest
-        .spyOn(SystemTimeInteractor, 'getAvailableTimeZones')
-        .mockImplementation(() => Promise.resolve(AVAILABLE_TIMEZONES))
       spyGetTimeZone = jest
         .spyOn(SystemTimeInteractor, 'getTimeZone')
         .mockImplementation(() =>
@@ -250,11 +257,6 @@ describe('SettingsService', () => {
       expect(spySetSystemTime).toHaveBeenCalledWith(systemTime, false)
     })
 
-    it('returns available time zones', async () => {
-      const timeZones = await service.getAvailableTimeZones()
-      expect(timeZones).toBe(AVAILABLE_TIMEZONES)
-    })
-
     it('returns time zone', async () => {
       const timeZone = await service.getTimeZone()
       expect(timeZone).toBe(ALL_SETTINGS.general.timeZone)
@@ -283,7 +285,6 @@ describe('SettingsService', () => {
       spyWriteSettingsFile.mockRestore()
       spyGetSystemTime.mockRestore()
       spySetSystemTime.mockRestore()
-      spyGetAvailableTimeZones.mockRestore()
       spyGetTimeZone.mockRestore()
       spySetTimeZone.mockRestore()
     })

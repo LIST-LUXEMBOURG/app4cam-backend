@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { MotionClient } from '../motion-client'
+import { PropertiesService } from '../properties/properties.service'
 import { MotionTextAssembler } from './motion-text-assembler'
 import {
   PatchableSettings,
@@ -19,7 +20,10 @@ export class SettingsService {
   private readonly deviceType: string
   private readonly logger = new Logger(SettingsService.name)
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly propertiesService: PropertiesService,
+  ) {
     this.deviceType = this.configService.get<string>('deviceType')
   }
 
@@ -91,7 +95,8 @@ export class SettingsService {
       Object.prototype.hasOwnProperty.call(settings, 'general') &&
       Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')
     ) {
-      const supportedTimeZones = await this.getAvailableTimeZones()
+      const supportedTimeZones =
+        await this.propertiesService.getAvailableTimeZones()
       if (!supportedTimeZones.includes(settings.general.timeZone)) {
         throw new BadRequestException(
           `The time zone '${settings.general.timeZone}' is not supported.`,
@@ -235,7 +240,8 @@ export class SettingsService {
   }
 
   async updateAllSettings(settings: UpdatableSettings): Promise<void> {
-    const supportedTimeZones = await this.getAvailableTimeZones()
+    const supportedTimeZones =
+      await this.propertiesService.getAvailableTimeZones()
     if (!supportedTimeZones.includes(settings.general.timeZone)) {
       throw new BadRequestException(
         `The time zone '${settings.general.timeZone}' is not supported.`,
@@ -390,18 +396,14 @@ export class SettingsService {
     )
   }
 
-  async getAvailableTimeZones(): Promise<string[]> {
-    const timeZones = await SystemTimeInteractor.getAvailableTimeZones()
-    return timeZones
-  }
-
   async getTimeZone(): Promise<string> {
     const timeZone = await SystemTimeInteractor.getTimeZone()
     return timeZone
   }
 
   async setTimeZone(timeZone: string): Promise<void> {
-    const supportedTimeZones = await this.getAvailableTimeZones()
+    const supportedTimeZones =
+      await this.propertiesService.getAvailableTimeZones()
     if (!supportedTimeZones.includes(timeZone)) {
       throw new BadRequestException(
         `The time zone '${timeZone}' is not supported.`,

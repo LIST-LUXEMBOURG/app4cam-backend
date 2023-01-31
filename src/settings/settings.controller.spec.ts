@@ -1,11 +1,11 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { PropertiesService } from '../properties/properties.service'
 import { Settings } from './settings'
 import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
 
 describe('SettingsController', () => {
-  const AVAILABLE_TIMEZONES = ['a', 'b']
   const SETTINGS: Settings = {
     camera: {
       pictureQuality: 90,
@@ -31,6 +31,7 @@ describe('SettingsController', () => {
       controllers: [SettingsController],
       providers: [
         ConfigService,
+        PropertiesService,
         {
           provide: SettingsService,
           useValue: {
@@ -47,9 +48,6 @@ describe('SettingsController', () => {
               .fn()
               .mockReturnValue(SETTINGS.general.systemTime),
             setSystemTime: jest.fn(),
-            getAvailableTimeZones: jest
-              .fn()
-              .mockReturnValue(AVAILABLE_TIMEZONES),
             getTimeZone: jest.fn().mockReturnValue(SETTINGS.general.timeZone),
             setTimeZone: jest.fn(),
             getShotsFolder: jest.fn().mockReturnValue(SHOTS_FOLDER),
@@ -127,11 +125,6 @@ describe('SettingsController', () => {
   it('sets the system time', async () => {
     await controller.setSystemTime({ systemTime: 'd' })
     expect(service.setSystemTime).toHaveBeenCalledWith('d')
-  })
-
-  it('gets the available time zones', async () => {
-    const response = await controller.getAvailableTimeZones()
-    expect(response).toEqual({ timeZones: AVAILABLE_TIMEZONES })
   })
 
   it('gets the time zone', async () => {

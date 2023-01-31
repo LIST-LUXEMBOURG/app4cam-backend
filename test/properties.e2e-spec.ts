@@ -4,9 +4,11 @@ import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
 import { VersionDto } from '../src/properties/dto/version.dto'
 import { MacAddressInteractor } from '../src/properties/interactors/mac-address-interactor'
+import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
 import { VersionInteractor } from '../src/properties/interactors/version-interactor'
 
 describe('PropertiesController (e2e)', () => {
+  const AVAILABLE_TIME_ZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const DEVICE_ID = 'a'
   const USAGE: VersionDto = {
     commitHash: 'abcd',
@@ -14,10 +16,14 @@ describe('PropertiesController (e2e)', () => {
   }
 
   let app: INestApplication
+  let spyGetAvailableTimeZones
   let spyGetFirstMacAddress
   let spyGetVersion
 
   beforeAll(() => {
+    spyGetAvailableTimeZones = jest
+      .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
+      .mockImplementation(() => Promise.resolve(AVAILABLE_TIME_ZONES))
     spyGetFirstMacAddress = jest
       .spyOn(MacAddressInteractor, 'getFirstMacAddress')
       .mockResolvedValue(DEVICE_ID)
@@ -43,6 +49,13 @@ describe('PropertiesController (e2e)', () => {
         .expect(200, { deviceId: DEVICE_ID })
     })
 
+    it('/timeZones (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/properties/timeZones')
+        .expect('Content-Type', /json/)
+        .expect(200, { timeZones: AVAILABLE_TIME_ZONES })
+    })
+
     it('/version (GET)', async () => {
       const response = await request(app.getHttpServer()).get(
         '/properties/version',
@@ -61,6 +74,7 @@ describe('PropertiesController (e2e)', () => {
   })
 
   afterAll(() => {
+    spyGetAvailableTimeZones.mockRestore()
     spyGetFirstMacAddress.mockRestore()
     spyGetVersion.mockRestore()
   })
