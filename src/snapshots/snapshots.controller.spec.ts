@@ -2,6 +2,7 @@ import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { FilesService } from '../files/files.service'
+import { PropertiesService } from '../properties/properties.service'
 import { SettingsService } from '../settings/settings.service'
 import { SnapshotsController } from './snapshots.controller'
 import { SnapshotsService } from './snapshots.service'
@@ -17,6 +18,7 @@ describe(SnapshotsController.name, () => {
       providers: [
         ConfigService,
         FilesService,
+        PropertiesService,
         SettingsService,
         {
           provide: SnapshotsService,

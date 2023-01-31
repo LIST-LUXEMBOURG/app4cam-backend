@@ -3,6 +3,7 @@ import { mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MotionClient } from '../motion-client'
+import { PropertiesService } from '../properties/properties.service'
 import { SettingsModule } from '../settings/settings.module'
 import { SettingsService } from '../settings/settings.service'
 import { FileHandler } from './file-handler'
@@ -14,7 +15,12 @@ const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 describe('FilesService', () => {
   it('is defined', async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ConfigService, FilesService, SettingsService],
+      providers: [
+        ConfigService,
+        FilesService,
+        PropertiesService,
+        SettingsService,
+      ],
       imports: [SettingsModule],
     }).compile()
 
@@ -38,7 +44,7 @@ describe('FilesService', () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [FilesService],
+        providers: [FilesService, PropertiesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -102,7 +108,7 @@ describe('FilesService', () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [FilesService],
+        providers: [FilesService, PropertiesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -137,7 +143,7 @@ describe('FilesService', () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [FilesService],
+        providers: [FilesService, PropertiesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -209,7 +215,7 @@ describe('FilesService', () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [FilesService],
+        providers: [FilesService, PropertiesService],
         imports: [SettingsModule],
       }).compile()
 

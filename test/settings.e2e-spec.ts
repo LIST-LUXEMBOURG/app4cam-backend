@@ -1,6 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
+import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
 import { SettingsFileProvider } from '../src/settings/settings-file-provider'
 import { SystemTimeInteractor } from '../src/settings/system-time-interactor'
 import { AppModule } from './../src/app.module'
@@ -79,7 +80,7 @@ describe('SettingsController (e2e)', () => {
       .spyOn(SystemTimeInteractor, 'setSystemTimeInIso8601Format')
       .mockImplementation(() => Promise.resolve())
     spyGetAvailableTimeZones = jest
-      .spyOn(SystemTimeInteractor, 'getAvailableTimeZones')
+      .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
       .mockImplementation(() => Promise.resolve(AVAILABLE_TIMEZONES))
     spyGetTimeZone = jest
       .spyOn(SystemTimeInteractor, 'getTimeZone')
@@ -471,13 +472,6 @@ describe('SettingsController (e2e)', () => {
         .put('/settings/systemTime')
         .send({ systemTime: 'a' })
         .expect(400)
-    })
-
-    it('/timeZones (GET)', () => {
-      return request(app.getHttpServer())
-        .get('/settings/timeZones')
-        .expect('Content-Type', /json/)
-        .expect(200, { timeZones: AVAILABLE_TIMEZONES })
     })
 
     it('/timeZone (GET)', () => {

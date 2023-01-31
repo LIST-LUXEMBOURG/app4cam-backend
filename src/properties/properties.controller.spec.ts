@@ -4,6 +4,8 @@ import { VersionDto } from './dto/version.dto'
 import { PropertiesController } from './properties.controller'
 import { PropertiesService } from './properties.service'
 
+const AVAILABLE_TIME_ZONES = ['a', 'b']
+
 const DEVICE_ID: DeviceIdDto = {
   deviceId: 'a',
 }
@@ -23,6 +25,9 @@ describe(PropertiesController.name, () => {
         {
           provide: PropertiesService,
           useValue: {
+            getAvailableTimeZones: jest
+              .fn()
+              .mockReturnValue(AVAILABLE_TIME_ZONES),
             getDeviceId: jest.fn().mockReturnValue(DEVICE_ID),
             getVersion: jest.fn().mockReturnValue(VERSION),
           },
@@ -35,6 +40,11 @@ describe(PropertiesController.name, () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined()
+  })
+
+  it('gets the available time zones', async () => {
+    const response = await controller.getAvailableTimeZones()
+    expect(response).toEqual({ timeZones: AVAILABLE_TIME_ZONES })
   })
 
   it('gets the device ID', async () => {

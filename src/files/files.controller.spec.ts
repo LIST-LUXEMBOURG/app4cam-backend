@@ -1,6 +1,7 @@
 import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { PropertiesService } from '../properties/properties.service'
 import { SettingsService } from '../settings/settings.service'
 import { FilesController } from './files.controller'
 import { FilesService } from './files.service'
@@ -31,6 +32,7 @@ describe('FilesController', () => {
             removeFiles: jest.fn(() => ({ a: true, b: true })),
           },
         },
+        PropertiesService,
         SettingsService,
       ],
     }).compile()
