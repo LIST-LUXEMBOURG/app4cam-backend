@@ -60,6 +60,14 @@ class TriggeringSettingsPatchDto {
   @Min(0.01)
   @Max(10)
   sensitivity?: number
+
+  @IsOptional()
+  @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
+  sleepingTime?: string
+
+  @IsOptional()
+  @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
+  wakingUpTime?: string
 }
 
 export class SettingsPatchDto {
@@ -123,6 +131,12 @@ class TriggeringSettingsPutDto {
   @Min(0.01)
   @Max(10)
   sensitivity: number
+
+  @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
+  sleepingTime: string
+
+  @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
+  wakingUpTime: string
 }
 
 export class SettingsPutDto {

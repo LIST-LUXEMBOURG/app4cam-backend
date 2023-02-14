@@ -3,6 +3,17 @@ import { SettingsFromJsonFile } from './settings'
 
 const JSON_INDENTATION_SPACES = 2
 
+export const JSON_SETTINGS_WITH_NONE_SET: SettingsFromJsonFile = {
+  general: {
+    deviceName: '',
+    siteName: '',
+  },
+  triggering: {
+    sleepingTime: '',
+    wakingUpTime: '',
+  },
+}
+
 export class SettingsFileProvider {
   static async readSettingsFile(
     filePath: string,
@@ -10,16 +21,17 @@ export class SettingsFileProvider {
     try {
       const buffer = await readFile(filePath)
       const data = buffer.toString()
-      const settings = JSON.parse(data)
-      return settings
+      const loadedSettings = JSON.parse(data)
+      const mergedSettings = {
+        ...JSON_SETTINGS_WITH_NONE_SET,
+        ...loadedSettings,
+      }
+      return mergedSettings
     } catch (err) {
-      if (err.code !== 'ENOENT') {
+      if (err.code !== 'ENOENT' && err.name !== 'SyntaxError') {
         throw err
       }
-      return {
-        deviceName: '',
-        siteName: '',
-      }
+      return JSON_SETTINGS_WITH_NONE_SET
     }
   }
 

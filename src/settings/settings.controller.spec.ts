@@ -6,6 +6,9 @@ import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
 
 describe('SettingsController', () => {
+  const SLEEPING_TIME = '10:12'
+  const WAKING_UP_TIME = '10:17'
+
   const SETTINGS: Settings = {
     camera: {
       pictureQuality: 90,
@@ -20,6 +23,8 @@ describe('SettingsController', () => {
     },
     triggering: {
       sensitivity: 1,
+      sleepingTime: SLEEPING_TIME,
+      wakingUpTime: WAKING_UP_TIME,
     },
   }
   const SHOTS_FOLDER = '/a'
@@ -52,6 +57,8 @@ describe('SettingsController', () => {
             setTimeZone: jest.fn(),
             getShotsFolder: jest.fn().mockReturnValue(SHOTS_FOLDER),
             setShotsFolder: jest.fn(),
+            getSleepingTime: jest.fn().mockReturnValue(SLEEPING_TIME),
+            getWakingUpTime: jest.fn().mockReturnValue(WAKING_UP_TIME),
           },
         },
       ],
@@ -91,6 +98,8 @@ describe('SettingsController', () => {
       },
       triggering: {
         sensitivity: 1,
+        sleepingTime: new Date().toISOString(),
+        wakingUpTime: new Date().toISOString(),
       },
     }
     await controller.updateAllSettings(settings)
