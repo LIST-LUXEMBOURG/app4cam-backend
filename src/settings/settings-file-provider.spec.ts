@@ -1,46 +1,70 @@
 import { mkdir, rm } from 'fs/promises'
 import { SettingsFromJsonFile } from './settings'
-import { SettingsFileProvider } from './settings-file-provider'
+import {
+  JSON_SETTINGS_WITH_NONE_SET,
+  SettingsFileProvider,
+} from './settings-file-provider'
 
 const FIXTURE_FOLDER_PATH = 'src/settings/fixtures'
 const TEST_FOLDER_PATH = 'src/settings/test'
 
-describe('SettingsFileProvider', () => {
-  describe('readSettingsFile', () => {
-    it('returns an empty object', async () => {
-      const settings = await SettingsFileProvider.readSettingsFile(
-        FIXTURE_FOLDER_PATH + '/empty-settings.json',
-      )
-      expect(settings).toEqual({})
+describe(SettingsFileProvider.name, () => {
+  describe(SettingsFileProvider.readSettingsFile.name, () => {
+    describe('when an empty JSON file is present', () => {
+      it('returns an object with empty settings', async () => {
+        const settings = await SettingsFileProvider.readSettingsFile(
+          FIXTURE_FOLDER_PATH + '/empty-settings.json',
+        )
+        expect(settings).toEqual(JSON_SETTINGS_WITH_NONE_SET)
+      })
     })
 
-    it('returns an object with one element', async () => {
-      const settings = await SettingsFileProvider.readSettingsFile(
-        FIXTURE_FOLDER_PATH + '/one-element-settings.json',
-      )
-      expect(settings).toEqual({ a: 1 })
+    describe('when a JSON file with an empty object is present', () => {
+      it('returns an object with empty settings', async () => {
+        const settings = await SettingsFileProvider.readSettingsFile(
+          FIXTURE_FOLDER_PATH + '/empty-object-settings.json',
+        )
+        expect(settings).toEqual(JSON_SETTINGS_WITH_NONE_SET)
+      })
     })
 
-    it('returns an object with three elements', async () => {
-      const settings = await SettingsFileProvider.readSettingsFile(
-        FIXTURE_FOLDER_PATH + '/three-elements-settings.json',
-      )
-      expect(settings).toEqual({ a: 1, b: 'c', d: false })
+    describe('when a JSON file with one setting is present', () => {
+      it('returns an object with the setting set and all the others being empty', async () => {
+        const settings = await SettingsFileProvider.readSettingsFile(
+          FIXTURE_FOLDER_PATH + '/one-setting-settings.json',
+        )
+        expect(settings).toEqual({
+          ...JSON_SETTINGS_WITH_NONE_SET,
+          ...{
+            general: {
+              deviceName: 'a',
+            },
+          },
+        })
+      })
     })
 
-    it('returns an object with empty properties if file does not exist', async () => {
-      const settings = await SettingsFileProvider.readSettingsFile(
-        FIXTURE_FOLDER_PATH + '/a',
-      )
-      const expected: SettingsFromJsonFile = {
-        deviceName: '',
-        siteName: '',
-      }
-      expect(settings).toEqual(expected)
+    describe('when the file does not exist', () => {
+      it('returns an object with empty properties', async () => {
+        const settings = await SettingsFileProvider.readSettingsFile(
+          FIXTURE_FOLDER_PATH + '/a',
+        )
+        const expected: SettingsFromJsonFile = {
+          general: {
+            deviceName: '',
+            siteName: '',
+          },
+          triggering: {
+            sleepingTime: '',
+            wakingUpTime: '',
+          },
+        }
+        expect(settings).toEqual(expected)
+      })
     })
   })
 
-  describe('writeSettingsToFile', () => {
+  describe(SettingsFileProvider.writeSettingsToFile.name, () => {
     const TEMPORARY_FILE_NAME = 'write-settings.json'
     const TEMPORARY_FILE_PATH = TEST_FOLDER_PATH + '/' + TEMPORARY_FILE_NAME
 
@@ -50,9 +74,14 @@ describe('SettingsFileProvider', () => {
 
     it('writes settings object', async () => {
       const SETTINGS = {
-        deviceName: 'd',
-        siteName: 's',
-        timeZone: 't',
+        general: {
+          deviceName: 'd',
+          siteName: 's',
+        },
+        triggering: {
+          sleepingTime: 's',
+          wakingUpTime: 'w',
+        },
       }
       await SettingsFileProvider.writeSettingsToFile(
         SETTINGS,

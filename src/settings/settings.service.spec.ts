@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PropertiesService } from '../properties/properties.service'
-import { Settings, SettingsFromJsonFile } from './settings'
+import { SystemTimeInteractor } from './interactors/system-time-interactor'
+import { Settings } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SettingsService } from './settings.service'
-import { SystemTimeInteractor } from './system-time-interactor'
 
 const SHOTS_FOLDER = '/a'
 
@@ -56,12 +56,24 @@ describe('SettingsService', () => {
 
   describe('with mocked SettingsFileProvider', () => {
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
+    const SLEEPING_TIME = '10:12'
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
     const TRIGGER_SENSITIVITY = 1
-    const FILE_SETTINGS: SettingsFromJsonFile = {
+    const WAKING_UP_TIME = '10:17'
+
+    const GENERAL_JSON_SETTINGS = {
       deviceName: 'd',
       siteName: 's',
     }
+    const TRIGGERING_JSON_SETTINGS = {
+      sleepingTime: SLEEPING_TIME,
+      wakingUpTime: WAKING_UP_TIME,
+    }
+    const JSON_SETTINGS = {
+      general: GENERAL_JSON_SETTINGS,
+      triggering: TRIGGERING_JSON_SETTINGS,
+    }
+
     const ALL_SETTINGS: Settings = {
       camera: {
         pictureQuality: 90,
@@ -69,11 +81,12 @@ describe('SettingsService', () => {
         videoQuality: 60,
       },
       general: {
-        ...FILE_SETTINGS,
+        ...GENERAL_JSON_SETTINGS,
         systemTime: SYSTEM_TIME,
         timeZone: 't',
       },
       triggering: {
+        ...TRIGGERING_JSON_SETTINGS,
         sensitivity: TRIGGER_SENSITIVITY,
       },
     }
@@ -88,28 +101,22 @@ describe('SettingsService', () => {
     beforeAll(() => {
       spyReadSettingsFile = jest
         .spyOn(SettingsFileProvider, 'readSettingsFile')
-        .mockImplementation(() => {
-          return Promise.resolve(FILE_SETTINGS)
-        })
+        .mockResolvedValue(JSON_SETTINGS)
       spyWriteSettingsFile = jest
         .spyOn(SettingsFileProvider, 'writeSettingsToFile')
-        .mockImplementation(() => {
-          return Promise.resolve()
-        })
+        .mockResolvedValue()
       spyGetSystemTime = jest
         .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
-        .mockImplementation(() => Promise.resolve(SYSTEM_TIME))
+        .mockResolvedValue(SYSTEM_TIME)
       spySetSystemTime = jest
         .spyOn(SystemTimeInteractor, 'setSystemTimeInIso8601Format')
-        .mockImplementation(() => Promise.resolve())
+        .mockResolvedValue()
       spyGetTimeZone = jest
         .spyOn(SystemTimeInteractor, 'getTimeZone')
-        .mockImplementation(() =>
-          Promise.resolve(ALL_SETTINGS.general.timeZone),
-        )
+        .mockResolvedValue(ALL_SETTINGS.general.timeZone)
       spySetTimeZone = jest
         .spyOn(SystemTimeInteractor, 'setTimeZone')
-        .mockImplementation(() => Promise.resolve())
+        .mockResolvedValue()
     })
 
     it('gets all settings', async () => {
@@ -119,9 +126,17 @@ describe('SettingsService', () => {
     })
 
     it('updates all optional settings', async () => {
-      const settingsToUpdateInFile: SettingsFromJsonFile = {
+      const generalJsonSettings = {
         deviceName: 'dd',
         siteName: 'ss',
+      }
+      const triggeringJsonSettings = {
+        sleepingTime: 'st',
+        wakingUpTime: 'wt',
+      }
+      const jsonSettings = {
+        general: generalJsonSettings,
+        triggering: triggeringJsonSettings,
       }
       const allSettings: Settings = {
         camera: {
@@ -130,17 +145,18 @@ describe('SettingsService', () => {
           videoQuality: 60,
         },
         general: {
-          ...settingsToUpdateInFile,
+          ...generalJsonSettings,
           systemTime: 'sy',
           timeZone: 't1',
         },
         triggering: {
+          ...triggeringJsonSettings,
           sensitivity: 1,
         },
       }
       await service.updateSettings(allSettings)
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
-        settingsToUpdateInFile,
+        jsonSettings,
         expect.any(String),
       )
       expect(spySetSystemTime).toHaveBeenCalledWith(
@@ -157,8 +173,8 @@ describe('SettingsService', () => {
         },
       }
       await service.updateSettings(settingsToUpdate)
-      const expectedSettings = JSON.parse(JSON.stringify(FILE_SETTINGS)) // deep clone
-      expectedSettings.deviceName = settingsToUpdate.general.deviceName
+      const expectedSettings = JSON.parse(JSON.stringify(JSON_SETTINGS)) // deep clone
+      expectedSettings.general.deviceName = settingsToUpdate.general.deviceName
       expect(spySetSystemTime).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expectedSettings,
@@ -167,7 +183,7 @@ describe('SettingsService', () => {
       expect(spySetTimeZone).not.toHaveBeenCalled()
     })
 
-    it('updates system time but neither read nor write settings file', async () => {
+    it('updates system time but does not write settings file', async () => {
       const settingsToUpdate: DeepPartial<Settings> = {
         general: {
           systemTime: 'sy',
@@ -178,46 +194,54 @@ describe('SettingsService', () => {
         settingsToUpdate.general.systemTime,
         false,
       )
-      expect(spyReadSettingsFile).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).not.toHaveBeenCalled()
       expect(spySetTimeZone).not.toHaveBeenCalled()
     })
 
     it('updates all settings', async () => {
-      const settings: SettingsFromJsonFile = {
+      const generalJsonSettings = {
         deviceName: 'dd',
         siteName: 'ss',
       }
-      const allSettings: Settings = {
+      const triggeringJsonSettings = {
+        sleepingTime: 'st',
+        wakingUpTime: 'wt',
+      }
+      const jsonSettings = {
+        general: generalJsonSettings,
+        triggering: triggeringJsonSettings,
+      }
+      const settings: Settings = {
         camera: {
           pictureQuality: 90,
           shotTypes: SHOT_TYPES,
           videoQuality: 60,
         },
         general: {
-          ...settings,
+          ...generalJsonSettings,
           systemTime: 'sy',
           timeZone: 't1',
         },
         triggering: {
+          ...triggeringJsonSettings,
           sensitivity: TRIGGER_SENSITIVITY,
         },
       }
-      await service.updateAllSettings(allSettings)
+      await service.updateAllSettings(settings)
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
-        settings,
+        jsonSettings,
         expect.any(String),
       )
       expect(spySetSystemTime).toHaveBeenCalledWith(
-        allSettings.general.systemTime,
+        settings.general.systemTime,
         false,
       )
-      expect(spySetTimeZone).toHaveBeenCalledWith(allSettings.general.timeZone)
+      expect(spySetTimeZone).toHaveBeenCalledWith(settings.general.timeZone)
     })
 
     it('returns site name', async () => {
       const siteName = await service.getSiteName()
-      expect(siteName).toBe(FILE_SETTINGS.siteName)
+      expect(siteName).toBe(GENERAL_JSON_SETTINGS.siteName)
     })
 
     it('sets site name', async () => {
@@ -230,7 +254,7 @@ describe('SettingsService', () => {
 
     it('returns device name', async () => {
       const deviceName = await service.getDeviceName()
-      expect(deviceName).toBe(FILE_SETTINGS.deviceName)
+      expect(deviceName).toBe(GENERAL_JSON_SETTINGS.deviceName)
     })
 
     it('sets device name', async () => {
@@ -271,6 +295,16 @@ describe('SettingsService', () => {
     it('throws an error when the time zone given is not supported', async () => {
       const timeZone = 'c'
       await expect(service.setTimeZone(timeZone)).rejects.toThrow()
+    })
+
+    it('returns the sleeping time', async () => {
+      const time = await service.getSleepingTime()
+      expect(time).toBe(SLEEPING_TIME)
+    })
+
+    it('returns the waking up time', async () => {
+      const time = await service.getWakingUpTime()
+      expect(time).toBe(WAKING_UP_TIME)
     })
 
     afterEach(() => {

@@ -1,6 +1,6 @@
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
-import { DateConverter } from './date-converter'
+import { DateConverter } from '../date-converter'
 
 const exec = promisify(execSync)
 
