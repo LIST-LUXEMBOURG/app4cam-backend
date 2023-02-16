@@ -61,13 +61,13 @@ If you have not already during frontend setup, you will create a new user. The u
    app4cam ALL=(ALL) NOPASSWD: /usr/bin/timedatectl
    ```
 
-3. On Raspberry Pi, also add the following line:
+3. On **Raspberry Pi**, also add the following line:
 
    ```
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/raspberry-pi-write-system-time-to-rtc.sh
    ```
 
-4. On Variscite, also add the following line:
+4. On **Variscite**, also add the following line:
 
    ```
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/initialise-leds.sh
@@ -80,11 +80,13 @@ If you have not already during frontend setup, you will create a new user. The u
 #### 2.1. Installing Motion
 
 Motion is installed from the release deb files which provided a more recent version than the one available via apt.
-The versions installed are 4.5.0-1 (RPi) and 4.4.0-1 (Variscite).
+The versions installed are 4.5.0 (RPi) and 4.5.1 (Variscite).
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb **- Raspberry Pi**
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.4.0/bullseye_motion_4.4.0-1_arm64.deb (variscite)
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_arm64.deb **- Variscite MX8**
+
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_armhf.deb **- Variscite MX6**
 
 After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi):
 
@@ -118,10 +120,6 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    mmalcam_name vc.ril.camera
 
    mmalcam_control_params -ex auto
-
-   locate_motion_mode on
-
-   locate_motion_style redbox
    ```
 
    On Variscite:
@@ -132,7 +130,7 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
    ```
 
-   On every device:
+   On all devices:
 
    ```bash
    daemon off
@@ -148,6 +146,10 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    width 1920
 
    height 1080
+
+   locate_motion_mode on
+
+   locate_motion_style redbox
 
    event_gap 2
 
@@ -191,9 +193,9 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
 3. Comment out the `text_left` property with a semicolon.
 4. Save the config file.
 5. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
-6. On Raspberry Pi, make sure `start_motion_daemon = yes` is set in `/etc/default/motion` file.
+6. On the **Raspberry Pi** and **SOM MX6**, make sure `start_motion_daemon = yes` is set in `/etc/default/motion` file.
 
-A more described configuration can be found at https://motion-project.github.io/4.4.0/motion_config.html.
+A more described configuration can be found at https://motion-project.github.io/4.5.0/motion_config.html.
 
 #### 2.4. Running Motion as service
 
