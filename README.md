@@ -345,7 +345,14 @@ Before starting, install the following dependency: `sudo apt install gpiod`
 #### 1. Creating a user service
 
 1. Log in as user: `su - app4cam`
-2. Create user service with the following content: `nano ~/.config/systemd/user/app4cam-backend.service`
+2. Make sure that the following environmental variable is set: `printenv XDG_RUNTIME_DIR`
+3. If not, let it be set on each login by adding the following line: `nano ~/.profile`
+
+   ```
+   export XDG_RUNTIME_DIR=/run/user/`id -u`
+   ```
+
+4. Create user service with the following content: `nano ~/.config/systemd/user/app4cam-backend.service`
 
    ```
    [Unit]
@@ -365,15 +372,8 @@ Before starting, install the following dependency: `sudo apt install gpiod`
    WantedBy=default.target
    ```
 
-3. Reload systemctl: `systemctl --user daemon-reload`
-4. Enable service: `systemctl --user enable app4cam-backend`
-
-If the last two commands result in `Failed to connect to bus: No such file or directory`, check as user: `printenv XDG_RUNTIME_DIR`.
-If it is empty, set the environment variable at the beginning of the same lines:
-
-```
-XDG_RUNTIME_DIR=/run/user/`id -u`
-```
+5. Reload systemctl: `systemctl --user daemon-reload`
+6. Enable service: `systemctl --user enable app4cam-backend`
 
 #### 2. Getting application
 
