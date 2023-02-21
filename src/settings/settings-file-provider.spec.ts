@@ -57,6 +57,7 @@ describe(SettingsFileProvider.name, () => {
           triggering: {
             sleepingTime: '',
             wakingUpTime: '',
+            light: 'infrared',
           },
         }
         expect(settings).toEqual(expected)
@@ -81,6 +82,7 @@ describe(SettingsFileProvider.name, () => {
         triggering: {
           sleepingTime: 's',
           wakingUpTime: 'w',
+          light: 'infrared' as const,
         },
       }
       await SettingsFileProvider.writeSettingsToFile(

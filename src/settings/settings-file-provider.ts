@@ -11,6 +11,7 @@ export const JSON_SETTINGS_WITH_NONE_SET: SettingsFromJsonFile = {
   triggering: {
     sleepingTime: '',
     wakingUpTime: '',
+    light: 'infrared',
   },
 }
 

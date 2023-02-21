@@ -1,12 +1,18 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
+import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
 import { SleepInteractor } from './interactors/sleep-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
 import { MotionTextAssembler } from './motion-text-assembler'
-import { PatchableSettings, Settings, SettingsFromJsonFile } from './settings'
+import {
+  LightType,
+  PatchableSettings,
+  Settings,
+  SettingsFromJsonFile,
+} from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { TriggerSensitivityCalculator } from './trigger-sensitivity-calculator'
 
@@ -255,6 +261,19 @@ export class SettingsService {
         newTriggeringSettings.wakingUpTime = settings.triggering.wakingUpTime
       }
 
+      if (
+        Object.prototype.hasOwnProperty.call(settings.triggering, 'light') &&
+        newTriggeringSettings.light != settings.triggering.light
+      ) {
+        newTriggeringSettings.light = settings.triggering.light
+
+        const serviceName = this.configService.get<string>('serviceName')
+        await InitialisationInteractor.initialiseLights(
+          serviceName,
+          newTriggeringSettings.light,
+        )
+      }
+
       if (Object.keys(newTriggeringSettings).length > 0) {
         // Only if there is an object property to update, do the reading and writing.
 
@@ -377,6 +396,17 @@ export class SettingsService {
       }
     }
 
+    const currentSettings = await SettingsFileProvider.readSettingsFile(
+      SETTINGS_FILE_PATH,
+    )
+    if (currentSettings.triggering.light != settings.triggering.light) {
+      const serviceName = this.configService.get<string>('serviceName')
+      await InitialisationInteractor.initialiseLights(
+        serviceName,
+        settings.triggering.light,
+      )
+    }
+
     const settingsToWriteFile: SettingsFromJsonFile = {
       general: {
         deviceName: settings.general.deviceName,
@@ -385,6 +415,7 @@ export class SettingsService {
       triggering: {
         sleepingTime: settings.triggering.sleepingTime,
         wakingUpTime: settings.triggering.wakingUpTime,
+        light: settings.triggering.light,
       },
     }
 
@@ -508,6 +539,13 @@ export class SettingsService {
 
   async setShotsFolder(path: string): Promise<void> {
     await MotionClient.setTargetDir(path)
+  }
+
+  async getTriggeringLight(): Promise<LightType> {
+    const settings = await SettingsFileProvider.readSettingsFile(
+      SETTINGS_FILE_PATH,
+    )
+    return settings.triggering.light
   }
 
   async getSleepingTime(): Promise<string> {

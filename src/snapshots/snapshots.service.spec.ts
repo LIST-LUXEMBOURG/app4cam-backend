@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { FilesService } from '../files/files.service'
+import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { FileSystemInteractor } from './file-system-interactor'
 import { SnapshotsService } from './snapshots.service'
@@ -15,6 +16,7 @@ describe(SnapshotsService.name, () => {
   let spyGetTargetDir
   let spyGetNameOfMostRecentFile
   let spyTakeSnapshot
+  let spyInitializeLights
 
   beforeAll(() => {
     spyGetTargetDir = jest
@@ -25,6 +27,9 @@ describe(SnapshotsService.name, () => {
       .mockResolvedValue(MOST_RECENT_FILENAME)
     spyTakeSnapshot = jest
       .spyOn(MotionClient, 'takeSnapshot')
+      .mockResolvedValue()
+    spyInitializeLights = jest
+      .spyOn(InitialisationInteractor, 'initialiseLights')
       .mockResolvedValue()
   })
 
@@ -60,5 +65,6 @@ describe(SnapshotsService.name, () => {
     spyGetTargetDir.mockRestore()
     spyGetNameOfMostRecentFile.mockRestore()
     spyTakeSnapshot.mockRestore()
+    spyInitializeLights.mockRestore()
   })
 })

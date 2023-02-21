@@ -1,6 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
+import { InitialisationInteractor } from '../src/initialisation-interactor'
 import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
 import { SystemTimeInteractor } from '../src/settings/interactors/system-time-interactor'
 import { SettingsFileProvider } from '../src/settings/settings-file-provider'
@@ -39,6 +40,7 @@ describe('SettingsController (e2e)', () => {
   const SLEEPING_TIME = '10:12'
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
   const WAKING_UP_TIME = '10:17'
+  const LIGHT = 'infrared' as const
 
   const GENERAL_JSON_SETTINGS = {
     deviceName: 'd',
@@ -47,6 +49,7 @@ describe('SettingsController (e2e)', () => {
   const TRIGGERING_JSON_SETTINGS = {
     sleepingTime: SLEEPING_TIME,
     wakingUpTime: WAKING_UP_TIME,
+    light: LIGHT,
   }
   const JSON_SETTINGS = {
     general: GENERAL_JSON_SETTINGS,
@@ -78,6 +81,7 @@ describe('SettingsController (e2e)', () => {
   let spyGetAvailableTimeZones
   let spyGetTimeZone
   let spySetTimeZone
+  let spyInitializeLights
 
   beforeAll(() => {
     spyReadSettingsFile = jest
@@ -101,6 +105,9 @@ describe('SettingsController (e2e)', () => {
     spySetTimeZone = jest
       .spyOn(SystemTimeInteractor, 'setTimeZone')
       .mockImplementation(() => Promise.resolve())
+    spyInitializeLights = jest
+      .spyOn(InitialisationInteractor, 'initialiseLights')
+      .mockResolvedValue()
   })
 
   beforeEach(async () => {
@@ -261,6 +268,28 @@ describe('SettingsController (e2e)', () => {
           .send({ triggering: { sleepingTime: '', wakingUpTime: '20:00' } })
           .expect(400)
       })
+
+      it('returns bad request on invalid light type', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              light: 'a',
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns success with valid light type', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              light: 'infrared',
+            },
+          })
+          .expect(200)
+      })
     })
 
     describe('/ (PUT)', () => {
@@ -279,6 +308,7 @@ describe('SettingsController (e2e)', () => {
         sensitivity: TRIGGER_SENSITIVITY,
         sleepingTime: '18:00',
         wakingUpTime: '20:00',
+        light: 'infrared',
       }
 
       it('returns success on all settings', () => {
@@ -557,6 +587,15 @@ describe('SettingsController (e2e)', () => {
           .expect(400)
       })
     })
+
+    describe('/triggeringLight (GET)', () => {
+      it('returns triggering light type', () => {
+        return request(app.getHttpServer())
+          .get('/settings/triggeringLight')
+          .expect('Content-Type', /text\/plain/)
+          .expect(200, LIGHT)
+      })
+    })
   })
 
   afterEach(() => {
@@ -571,5 +610,6 @@ describe('SettingsController (e2e)', () => {
     spyGetAvailableTimeZones.mockRestore()
     spyGetTimeZone.mockRestore()
     spySetTimeZone.mockRestore()
+    spyInitializeLights.mockRestore()
   })
 })
