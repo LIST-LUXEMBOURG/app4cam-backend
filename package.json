@@ -5,7 +5,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "node scripts/save-commit-hash-to-file.js && nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write --ignore-unknown .",
     "prepare": "husky install",
     "start": "node scripts/save-commit-hash-to-file.js && cross-env NODE_ENV=development nest start",
     "start:dev": "node scripts/save-commit-hash-to-file.js && cross-env NODE_ENV=development nest start --watch",

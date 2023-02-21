@@ -28,6 +28,7 @@ test:
     - hdce_docker
   script:
     - npm ci
+    - npx prettier --check .
     - npm run test
     - npm run test:e2e
 
