@@ -6,6 +6,7 @@ import { json, urlencoded } from 'body-parser'
 import { AppModule } from './app.module'
 import { InitialisationInteractor } from './initialisation-interactor'
 import { PropertiesService } from './properties/properties.service'
+import { SettingsService } from './settings/settings.service'
 
 const PAYLOAD_LIMIT = '1mb'
 
@@ -24,11 +25,14 @@ async function bootstrap() {
   const propertiesService = app.get(PropertiesService)
   await propertiesService.saveDeviceIdToTextFile()
 
+  const settingsService = app.get(SettingsService)
+  const lightType = await settingsService.getTriggeringLight()
+
   const configService = app.get(ConfigService)
   const deviceType = configService.get('deviceType')
   const serviceName = configService.get('serviceName')
   if (deviceType === 'Variscite') {
-    await InitialisationInteractor.initialiseLights(serviceName)
+    await InitialisationInteractor.initialiseLights(serviceName, lightType)
   }
 
   const version = (await propertiesService.getVersion()).version

@@ -25,6 +25,7 @@ describe('SettingsController', () => {
       sensitivity: 1,
       sleepingTime: SLEEPING_TIME,
       wakingUpTime: WAKING_UP_TIME,
+      light: 'infrared',
     },
   }
   const SHOTS_FOLDER = '/a'
@@ -100,6 +101,7 @@ describe('SettingsController', () => {
         sensitivity: 1,
         sleepingTime: new Date().toISOString(),
         wakingUpTime: new Date().toISOString(),
+        light: 'infrared' as const,
       },
     }
     await controller.updateAllSettings(settings)

@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { InitialisationInteractor } from '../initialisation-interactor'
 import { PropertiesService } from '../properties/properties.service'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
 import { Settings } from './settings'
@@ -60,6 +61,7 @@ describe('SettingsService', () => {
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
     const TRIGGER_SENSITIVITY = 1
     const WAKING_UP_TIME = '10:17'
+    const LIGHT_TYPE = 'infrared' as const
 
     const GENERAL_JSON_SETTINGS = {
       deviceName: 'd',
@@ -68,6 +70,7 @@ describe('SettingsService', () => {
     const TRIGGERING_JSON_SETTINGS = {
       sleepingTime: SLEEPING_TIME,
       wakingUpTime: WAKING_UP_TIME,
+      light: LIGHT_TYPE,
     }
     const JSON_SETTINGS = {
       general: GENERAL_JSON_SETTINGS,
@@ -97,6 +100,7 @@ describe('SettingsService', () => {
     let spySetSystemTime
     let spyGetTimeZone
     let spySetTimeZone
+    let spyInitializeLights
 
     beforeAll(() => {
       spyReadSettingsFile = jest
@@ -117,6 +121,9 @@ describe('SettingsService', () => {
       spySetTimeZone = jest
         .spyOn(SystemTimeInteractor, 'setTimeZone')
         .mockResolvedValue()
+      spyInitializeLights = jest
+        .spyOn(InitialisationInteractor, 'initialiseLights')
+        .mockResolvedValue()
     })
 
     it('gets all settings', async () => {
@@ -133,6 +140,7 @@ describe('SettingsService', () => {
       const triggeringJsonSettings = {
         sleepingTime: 'st',
         wakingUpTime: 'wt',
+        light: 'infrared' as const,
       }
       const jsonSettings = {
         general: generalJsonSettings,
@@ -206,6 +214,7 @@ describe('SettingsService', () => {
       const triggeringJsonSettings = {
         sleepingTime: 'st',
         wakingUpTime: 'wt',
+        light: 'infrared' as const,
       }
       const jsonSettings = {
         general: generalJsonSettings,
@@ -307,6 +316,11 @@ describe('SettingsService', () => {
       expect(time).toBe(WAKING_UP_TIME)
     })
 
+    it('returns the light type', async () => {
+      const light = await service.getTriggeringLight()
+      expect(light).toBe(LIGHT_TYPE)
+    })
+
     afterEach(() => {
       spyReadSettingsFile.mockClear()
       spyWriteSettingsFile.mockClear()
@@ -321,6 +335,7 @@ describe('SettingsService', () => {
       spySetSystemTime.mockRestore()
       spyGetTimeZone.mockRestore()
       spySetTimeZone.mockRestore()
+      spyInitializeLights.mockRestore()
     })
   })
 })

@@ -70,9 +70,9 @@ If you have not already during frontend setup, you will create a new user. The u
 4. On **Variscite**, also add the following line:
 
    ```
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/initialise-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-visible-to-ir-leds.sh
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-on-recording-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
    ```
 
 ### 2. Setting up Motion
@@ -125,9 +125,9 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    On Variscite:
 
    ```bash
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-visible-to-ir-leds.sh
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
 
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-ir-to-visible-leds.sh
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-on-recording-leds.sh
    ```
 
    On all devices:

@@ -8,9 +8,12 @@ class GeneralSettingsFromJsonFile {
   siteName: string
 }
 
+export type LightType = 'infrared' | 'visible'
+
 class TriggeringSettingsFromJsonFile {
   sleepingTime: string
   wakingUpTime: string
+  light: LightType
 }
 
 type ShotType = 'pictures' | 'videos'

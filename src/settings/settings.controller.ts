@@ -5,7 +5,9 @@ import {
   Put,
   Patch,
   ForbiddenException,
+  Res,
 } from '@nestjs/common'
+import { Response } from 'express'
 import { DeviceNameDto } from './dto/device-name.dto'
 import { SettingsPatchDto, SettingsPutDto } from './dto/settings.dto'
 import { ShotsFolderDto } from './dto/shots-folder.dto'
@@ -100,5 +102,12 @@ export class SettingsController {
   @Put('timeZone')
   setTimeZone(@Body() body: TimeZoneDto): Promise<void> {
     return this.settingsService.setTimeZone(body.timeZone)
+  }
+
+  @Get('triggeringLight')
+  async getTriggeringLight(@Res() res: Response) {
+    const triggeringLight = await this.settingsService.getTriggeringLight()
+    res.type('text/plain')
+    res.send(triggeringLight)
   }
 }

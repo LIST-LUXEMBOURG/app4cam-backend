@@ -14,6 +14,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator'
+import { LightType } from '../settings'
 
 type ShotType = 'pictures' | 'videos'
 
@@ -68,6 +69,10 @@ class TriggeringSettingsPatchDto {
   @IsOptional()
   @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
   wakingUpTime?: string
+
+  @IsOptional()
+  @Matches(/^(infrared|visible)$/)
+  light?: LightType
 }
 
 export class SettingsPatchDto {
@@ -137,6 +142,9 @@ class TriggeringSettingsPutDto {
 
   @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
   wakingUpTime: string
+
+  @Matches(/^(infrared|visible)$/)
+  light: LightType
 }
 
 export class SettingsPutDto {
