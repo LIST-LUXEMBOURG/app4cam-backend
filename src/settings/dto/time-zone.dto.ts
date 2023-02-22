@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString } from 'class-validator'
+import { IsNotEmpty, IsTimeZone } from 'class-validator'
 
 export class TimeZoneDto {
   @IsNotEmpty()
-  @IsString()
+  @IsTimeZone()
   timeZone: string
 }

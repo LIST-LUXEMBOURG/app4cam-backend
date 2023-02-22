@@ -8,7 +8,7 @@ import {
   IsNumber,
   IsObject,
   IsOptional,
-  IsString,
+  IsTimeZone,
   Matches,
   Max,
   Min,
@@ -51,7 +51,7 @@ class GeneralSettingsPatchDto {
   systemTime?: string
 
   @IsOptional()
-  @IsString()
+  @IsTimeZone()
   timeZone?: string
 }
 
@@ -126,7 +126,7 @@ class GeneralSettingsPutDto {
   systemTime: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsTimeZone()
   timeZone: string
 }
 
