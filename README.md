@@ -1,11 +1,10 @@
 # App4Cam Backend
 
-## Prerequisites
-
-- Git
-- \>= Node.js 16.x
-
 ## Development
+
+### Prerequisites
+
+- \>= Node.js 18.x
 
 ### Setup
 
@@ -49,6 +48,12 @@ This software requires the following tools to be installed:
 
 - **Motion** is a configurable software that monitors video signals from differen types of cameras and create videos and/or saves pictures of the activity.
 - **Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
+
+### Prerequisites
+
+- `curl`
+- `gpiod`
+- \>= Node.js 18.x
 
 ### 1. Creating user and adding permissions
 
@@ -143,10 +148,6 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
 
    target_dir /home/app4cam/app4cam/data/
 
-   width 1920
-
-   height 1080
-
    locate_motion_mode on
 
    locate_motion_style redbox
@@ -177,11 +178,19 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
 
    webcontrol_localhost on
 
-   webcontrol_parms 1
+   webcontrol_parms 2
 
    stream_localhost on
 
    snapshot_filename %Y%m%dT%H%M%S_snapshot
+   ```
+
+   Make sure to adapt the height and width to the maximum resolution your camera supports, for example:
+
+   ```
+   width 1920
+
+   height 1080
    ```
 
    For development:
@@ -277,10 +286,9 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 
 ### 7. Enabling USB auto-mounting
 
-1. Make sure `curl` is installed.
-2. Install `udisks2`: `sudo apt install udisks2`
-3. Install `udiskie`: `sudo apt install udiskie -y`
-4. Enable permissions for udisks2 in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
+1. Install `udisks2`: `sudo apt install udisks2`
+2. Install `udiskie`: `sudo apt install udiskie -y`
+3. Enable permissions for udisks2 in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
 
    ```
    [udisks2]
@@ -289,7 +297,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
    ResultAny=yes
    ```
 
-5. Mount the drives to `/media` directly by creating file with the following content: `sudo nano /etc/udev/rules.d/99-udisks2.rules`
+4. Mount the drives to `/media` directly by creating file with the following content: `sudo nano /etc/udev/rules.d/99-udisks2.rules`
 
    ```
    # UDISKS_FILESYSTEM_SHARED
@@ -299,44 +307,42 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
    ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{UDISKS_FILESYSTEM_SHARED}="1"
    ```
 
-6. Clean stale mountpoints at every boot by creating file with the following content: `sudo nano /etc/tmpfiles.d/media.conf`
+5. Clean stale mountpoints at every boot by creating file with the following content: `sudo nano /etc/tmpfiles.d/media.conf`
 
    ```
    D /media 0755 root root 0 -
    ```
 
-7. Log in as user: `su - app4cam`
-
-8. `mkdir .config/udiskie`
-
-9. `nano .config/udiskie/config.yml`
+6. Log in as user: `su - app4cam`
+7. `mkdir .config/udiskie`
+8. `nano .config/udiskie/config.yml`
 
    ```
    device_config:
    - options: [umask=0]
    ```
 
-10. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
+9. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
 
-```
-[Unit]
-Description=Handle automounting of usb devices
-StartLimitIntervalSec=0
+   ```
+   [Unit]
+   Description=Handle automounting of usb devices
+   StartLimitIntervalSec=0
 
-[Service]
-Type=simple
-ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/app4cam/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
-Restart=always
-RestartSec=5
+   [Service]
+   Type=simple
+   ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/app4cam/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
+   Restart=always
+   RestartSec=5
 
-[Install]
-WantedBy=default.target
-```
+   [Install]
+   WantedBy=default.target
+   ```
 
-11. Reload systemctl: `systemctl --user daemon-reload`
-12. Enable service: `systemctl --user enable udiskie`
-13. Start service: `systemctl --user start udiskie`
-14. Verify that the service is running: `systemctl --user status udiskie`
+10. Reload systemctl: `systemctl --user daemon-reload`
+11. Enable service: `systemctl --user enable udiskie`
+12. Start service: `systemctl --user start udiskie`
+13. Verify that the service is running: `systemctl --user status udiskie`
 
 ### 8. Deploying the application
 
@@ -385,11 +391,12 @@ Before starting, install the following dependency: `sudo apt install gpiod`
 
 ###### Option 2: Build it yourself:
 
-1. Clone this repository into the home folder: `git clone --single-branch --branch main https://git.list.lu/host/mechatronics/app4cam-backend.git`
-2. Change into the directory: `cd app4cam-backend`
-3. Install dependencies: `npm ci`
-4. Build: `npm run build`
-5. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
+1. Make sure Git is installed.
+2. Clone this repository into the home folder: `git clone --single-branch --branch main https://git.list.lu/host/mechatronics/app4cam-backend.git`
+3. Change into the directory: `cd app4cam-backend`
+4. Install dependencies: `npm ci`
+5. Build: `npm run build`
+6. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
 
 #### 3. Final steps
 
@@ -403,7 +410,7 @@ If you have set up the frontend already, you just need to do step 4.
 
 1. Log in as user: `su - app4cam`
 2. Generate a public/private key pair without passphrase: `ssh-keygen -t ed25519`
-3. Copy public key to `.ssh/authorized_keys` file.
+3. Copy public key to authorized keys file: `cp .ssh/id_ed25519.pub .ssh/authorized_keys`
 4. Define the following variables in Gitlab:
 
    - `RASPBERRY_PI_HOST`: IP address of Raspberry Pi
