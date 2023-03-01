@@ -218,7 +218,9 @@ sudo sh install.sh
 
 A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
 
-### 4. Setting up RPi network behavior
+### 4. Setting up network behavior
+
+#### On Raspberry Pi
 
 We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
 For this we just need to run with root privileges the script `scripts/autohotspot/autohotspot-setup.sh`. On a new terminal:
@@ -253,6 +255,15 @@ vnc: 10.0.0.5::5900
 ```
 
 If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
+
+#### On Variscite
+
+1. Run **with root privileges** the script: `scripts/variscite/setup-access-point.sh App4Cam 0123456789`
+   Adapt both parameters as required.
+   The first parameter is the name of the Wi-Fi network aka. SSID.
+   The second parameter is the password of the Wi-Fi network.
+2. Verify that the connection is running: `nmcli connection show`
+3. Check the Wi-Fi's broadcast IP address: `ifconfig`
 
 ### 5. Installing ExifTool
 
