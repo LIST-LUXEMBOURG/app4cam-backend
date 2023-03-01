@@ -106,7 +106,7 @@ describe('SettingsController (e2e)', () => {
       .spyOn(SystemTimeInteractor, 'setTimeZone')
       .mockImplementation(() => Promise.resolve())
     spyInitializeLights = jest
-      .spyOn(InitialisationInteractor, 'initialiseLights')
+      .spyOn(InitialisationInteractor, 'resetLights')
       .mockResolvedValue()
   })
 

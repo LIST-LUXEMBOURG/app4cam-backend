@@ -122,7 +122,7 @@ describe('SettingsService', () => {
         .spyOn(SystemTimeInteractor, 'setTimeZone')
         .mockResolvedValue()
       spyInitializeLights = jest
-        .spyOn(InitialisationInteractor, 'initialiseLights')
+        .spyOn(InitialisationInteractor, 'resetLights')
         .mockResolvedValue()
     })
 

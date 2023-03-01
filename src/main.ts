@@ -32,7 +32,7 @@ async function bootstrap() {
   const deviceType = configService.get('deviceType')
   const serviceName = configService.get('serviceName')
   if (deviceType === 'Variscite') {
-    await InitialisationInteractor.initialiseLights(serviceName, lightType)
+    await InitialisationInteractor.resetLights(serviceName, lightType)
   }
 
   const version = (await propertiesService.getVersion()).version

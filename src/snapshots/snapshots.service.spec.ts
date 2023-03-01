@@ -29,7 +29,7 @@ describe(SnapshotsService.name, () => {
       .spyOn(MotionClient, 'takeSnapshot')
       .mockResolvedValue()
     spyInitializeLights = jest
-      .spyOn(InitialisationInteractor, 'initialiseLights')
+      .spyOn(InitialisationInteractor, 'resetLights')
       .mockResolvedValue()
   })
 
