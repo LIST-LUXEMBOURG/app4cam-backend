@@ -9,7 +9,7 @@ export class InitialisationInteractor {
     return process.platform === 'win32'
   }
 
-  static async initialiseLights(
+  static async resetLights(
     serviceName: string,
     lightType: LightType,
   ): Promise<void> {

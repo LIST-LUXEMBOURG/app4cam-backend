@@ -95,10 +95,7 @@ export class SettingsService {
   }
 
   async updateSettings(settings: PatchableSettings): Promise<void> {
-    if (
-      Object.prototype.hasOwnProperty.call(settings, 'general') &&
-      Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')
-    ) {
+    if ('general' in settings && 'timeZone' in settings.general) {
       const supportedTimeZones =
         await this.propertiesService.getAvailableTimeZones()
       if (!supportedTimeZones.includes(settings.general.timeZone)) {
@@ -131,19 +128,15 @@ export class SettingsService {
       }
     }
 
-    if (Object.prototype.hasOwnProperty.call(settings, 'camera')) {
-      if (
-        Object.prototype.hasOwnProperty.call(settings.camera, 'pictureQuality')
-      ) {
+    if ('camera' in settings) {
+      if ('pictureQuality' in settings.camera) {
         await MotionClient.setPictureQuality(settings.camera.pictureQuality)
       }
-      if (
-        Object.prototype.hasOwnProperty.call(settings.camera, 'videoQuality')
-      ) {
+      if ('videoQuality' in settings.camera) {
         await MotionClient.setMovieQuality(settings.camera.videoQuality)
       }
 
-      if (Object.prototype.hasOwnProperty.call(settings.camera, 'shotTypes')) {
+      if ('shotTypes' in settings.camera) {
         try {
           if (settings.camera.shotTypes.includes('pictures')) {
             await MotionClient.setPictureOutput('best')
@@ -172,10 +165,8 @@ export class SettingsService {
     )
 
     let generalSettingsMerged = settingsReadFromFile.general
-    if (Object.prototype.hasOwnProperty.call(settings, 'general')) {
-      if (
-        Object.prototype.hasOwnProperty.call(settings.general, 'systemTime')
-      ) {
+    if ('general' in settings) {
+      if ('systemTime' in settings.general) {
         const isRaspberryPi = this.deviceType === 'RaspberryPi'
         await SystemTimeInteractor.setSystemTimeInIso8601Format(
           settings.general.systemTime,
@@ -183,24 +174,22 @@ export class SettingsService {
         )
       }
 
-      if (Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')) {
+      if ('timeZone' in settings.general) {
         await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
       }
 
       const newGeneralSettings: Partial<SettingsFromJsonFile['general']> = {}
 
-      if (
-        Object.prototype.hasOwnProperty.call(settings.general, 'deviceName')
-      ) {
+      if ('deviceName' in settings.general) {
         newGeneralSettings.deviceName = settings.general.deviceName
       }
 
-      if (Object.prototype.hasOwnProperty.call(settings.general, 'siteName')) {
+      if ('siteName' in settings.general) {
         newGeneralSettings.siteName = settings.general.siteName
       }
 
       if (Object.keys(newGeneralSettings).length > 0) {
-        // Only if there is an object property to update, do the reading and writing.
+        // Only if there is an object property to update, do the writing.
 
         isAtLeastOneJsonSettingUpdated = true
         generalSettingsMerged = {
@@ -209,9 +198,7 @@ export class SettingsService {
         }
 
         let timeZone
-        if (
-          Object.prototype.hasOwnProperty.call(settings.general, 'timeZone')
-        ) {
+        if ('timeZone' in settings.general) {
           timeZone = settings.general.timeZone
         } else {
           timeZone = await SystemTimeInteractor.getTimeZone()
@@ -223,11 +210,8 @@ export class SettingsService {
         )
         await MotionClient.setFilename(filename)
         if (
-          Object.prototype.hasOwnProperty.call(
-            settings.general,
-            'deviceName',
-          ) ||
-          Object.prototype.hasOwnProperty.call(settings.general, 'siteName')
+          'deviceName' in settings.general ||
+          'siteName' in settings.general
         ) {
           const imageText = MotionTextAssembler.createImageText(
             generalSettingsMerged.siteName,
@@ -239,36 +223,26 @@ export class SettingsService {
     }
 
     let triggeringSettingsMerged = settingsReadFromFile.triggering
-    if (Object.prototype.hasOwnProperty.call(settings, 'triggering')) {
+    if ('triggering' in settings) {
       const newTriggeringSettings: Partial<SettingsFromJsonFile['triggering']> =
         {}
 
-      if (
-        Object.prototype.hasOwnProperty.call(
-          settings.triggering,
-          'sleepingTime',
-        )
-      ) {
+      if ('sleepingTime' in settings.triggering) {
         newTriggeringSettings.sleepingTime = settings.triggering.sleepingTime
       }
 
-      if (
-        Object.prototype.hasOwnProperty.call(
-          settings.triggering,
-          'wakingUpTime',
-        )
-      ) {
+      if ('wakingUpTime' in settings.triggering) {
         newTriggeringSettings.wakingUpTime = settings.triggering.wakingUpTime
       }
 
       if (
-        Object.prototype.hasOwnProperty.call(settings.triggering, 'light') &&
+        'light' in settings.triggering &&
         newTriggeringSettings.light != settings.triggering.light
       ) {
         newTriggeringSettings.light = settings.triggering.light
 
         const serviceName = this.configService.get<string>('serviceName')
-        await InitialisationInteractor.initialiseLights(
+        await InitialisationInteractor.resetLights(
           serviceName,
           newTriggeringSettings.light,
         )
@@ -284,9 +258,7 @@ export class SettingsService {
         }
       }
 
-      if (
-        Object.prototype.hasOwnProperty.call(settings.triggering, 'sensitivity')
-      ) {
+      if ('sensitivity' in settings.triggering) {
         try {
           const height = await MotionClient.getHeight()
           const width = await MotionClient.getWidth()
@@ -349,7 +321,7 @@ export class SettingsService {
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
-    if (Object.prototype.hasOwnProperty.call(settings.camera, 'shotTypes')) {
+    if ('shotTypes' in settings.camera) {
       try {
         if (settings.camera.shotTypes.includes('pictures')) {
           await MotionClient.setPictureOutput('best')
@@ -401,13 +373,13 @@ export class SettingsService {
     )
     if (currentSettings.triggering.light != settings.triggering.light) {
       const serviceName = this.configService.get<string>('serviceName')
-      await InitialisationInteractor.initialiseLights(
+      await InitialisationInteractor.resetLights(
         serviceName,
         settings.triggering.light,
       )
     }
 
-    const settingsToWriteFile: SettingsFromJsonFile = {
+    const settingsToWriteToFile: SettingsFromJsonFile = {
       general: {
         deviceName: settings.general.deviceName,
         siteName: settings.general.siteName,
@@ -418,9 +390,8 @@ export class SettingsService {
         light: settings.triggering.light,
       },
     }
-
     await SettingsFileProvider.writeSettingsToFile(
-      settingsToWriteFile,
+      settingsToWriteToFile,
       SETTINGS_FILE_PATH,
     )
 
