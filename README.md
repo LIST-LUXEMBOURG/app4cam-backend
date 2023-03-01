@@ -305,6 +305,8 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
    # ==0: mount filesystem to a private directory (/run/media/$USER/VolumeName)
    # See udisks(8)
    ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{UDISKS_FILESYSTEM_SHARED}="1"
+   # Additionally allowed mount options:
+   ENV{UDISKS_MOUNT_OPTIONS_ALLOW}="errors"
    ```
 
 5. Clean stale mountpoints at every boot by creating file with the following content: `sudo nano /etc/tmpfiles.d/media.conf`
@@ -319,7 +321,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 
    ```
    device_config:
-   - options: [umask=0]
+   - options: [umask=0,errors=continue]
    ```
 
 9. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
