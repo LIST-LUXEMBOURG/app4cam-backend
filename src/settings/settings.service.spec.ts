@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { PropertiesService } from '../properties/properties.service'
+import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
 import { Settings } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
@@ -101,6 +102,7 @@ describe('SettingsService', () => {
     let spyGetTimeZone
     let spySetTimeZone
     let spyInitializeLights
+    let spySetAccessPointName
 
     beforeAll(() => {
       spyReadSettingsFile = jest
@@ -123,6 +125,9 @@ describe('SettingsService', () => {
         .mockResolvedValue()
       spyInitializeLights = jest
         .spyOn(InitialisationInteractor, 'resetLights')
+        .mockResolvedValue()
+      spySetAccessPointName = jest
+        .spyOn(AccessPointInteractor, 'setAccessPointName')
         .mockResolvedValue()
     })
 
@@ -336,6 +341,7 @@ describe('SettingsService', () => {
       spyGetTimeZone.mockRestore()
       spySetTimeZone.mockRestore()
       spyInitializeLights.mockRestore()
+      spySetAccessPointName.mockRestore()
     })
   })
 })

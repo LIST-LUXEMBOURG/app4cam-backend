@@ -4,6 +4,7 @@ import { Cron } from '@nestjs/schedule'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
+import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SleepInteractor } from './interactors/sleep-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
 import { MotionTextAssembler } from './motion-text-assembler'
@@ -218,6 +219,13 @@ export class SettingsService {
             generalSettingsMerged.deviceName,
           )
           await MotionClient.setLeftTextOnImage(imageText)
+
+          const isRaspberryPi = this.deviceType === 'RaspberryPi'
+          await AccessPointInteractor.setAccessPointName(
+            generalSettingsMerged.deviceName,
+            isRaspberryPi,
+            this.logger,
+          )
         }
       }
     }
@@ -409,6 +417,12 @@ export class SettingsService {
     await MotionClient.setLeftTextOnImage(imageText)
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
+
+    await AccessPointInteractor.setAccessPointName(
+      settings.general.deviceName,
+      isRaspberryPi,
+      this.logger,
+    )
   }
 
   async getSiteName(): Promise<string> {
@@ -451,6 +465,7 @@ export class SettingsService {
     )
     settings.general.deviceName = deviceName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
+
     const timeZone = await SystemTimeInteractor.getTimeZone()
     const filename = MotionTextAssembler.createFilename(
       settings.general.siteName,
@@ -458,11 +473,19 @@ export class SettingsService {
       timeZone,
     )
     await MotionClient.setFilename(filename)
+
     const imageText = MotionTextAssembler.createImageText(
       settings.general.siteName,
       deviceName,
     )
     await MotionClient.setLeftTextOnImage(imageText)
+
+    const isRaspberryPi = this.deviceType === 'RaspberryPi'
+    await AccessPointInteractor.setAccessPointName(
+      deviceName,
+      isRaspberryPi,
+      this.logger,
+    )
   }
 
   async getSystemTime(): Promise<string> {
