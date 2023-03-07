@@ -1,13 +1,15 @@
-if [ -z "$1" ] || [ -z "$2" ]
-then
-  echo "Two parameters are required."
-  echo "The first parameter is the name of the Wi-Fi network aka. SSID."
-  echo "The second parameter is the password of the Wi-Fi network."
-  exit 1
-fi
+#!/bin/bash
 
-name="$1"
-password="$2"
+name="App4Cam"
+password="0123456789"
+
+# Add the MAC address aka. device ID to the Wi-Fi network name aka. SSID name.
+mac_address=`cat /sys/class/net/*/address | grep -m 1 -P '(?:[a-zA-Z0-9]{2}[:]){5}[a-zA-Z0-9]{2}'`
+echo "MAC address found: $mac_address"
+if [ "$mac_address" ]
+then
+  name="$name $mac_address"
+fi
 
 nmcli con add type wifi ifname wlan0 mode ap con-name WIFI_AP ssid "$name"
 nmcli con modify WIFI_AP 802-11-wireless.band bg

@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { InitialisationInteractor } from '../src/initialisation-interactor'
 import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
+import { AccessPointInteractor } from '../src/settings/interactors/access-point-interactor'
 import { SystemTimeInteractor } from '../src/settings/interactors/system-time-interactor'
 import { SettingsFileProvider } from '../src/settings/settings-file-provider'
 import { AppModule } from './../src/app.module'
@@ -82,6 +83,7 @@ describe('SettingsController (e2e)', () => {
   let spyGetTimeZone
   let spySetTimeZone
   let spyInitializeLights
+  let spySetAccessPointName
 
   beforeAll(() => {
     spyReadSettingsFile = jest
@@ -107,6 +109,9 @@ describe('SettingsController (e2e)', () => {
       .mockImplementation(() => Promise.resolve())
     spyInitializeLights = jest
       .spyOn(InitialisationInteractor, 'resetLights')
+      .mockResolvedValue()
+    spySetAccessPointName = jest
+      .spyOn(AccessPointInteractor, 'setAccessPointName')
       .mockResolvedValue()
   })
 
@@ -611,5 +616,6 @@ describe('SettingsController (e2e)', () => {
     spyGetTimeZone.mockRestore()
     spySetTimeZone.mockRestore()
     spyInitializeLights.mockRestore()
+    spySetAccessPointName.mockRestore()
   })
 })

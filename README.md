@@ -75,6 +75,7 @@ If you have not already during frontend setup, you will create a new user. The u
 4. On **Variscite**, also add the following line:
 
    ```
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/access-point/change-access-point-name.sh
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
    motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-on-recording-leds.sh
    motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
@@ -267,10 +268,7 @@ If no error messages was presented, just exit the script and reboot your device.
 
 #### On Variscite
 
-1. Run **with root privileges** the script: `scripts/variscite/setup-access-point.sh App4Cam 0123456789`
-   Adapt both parameters as required.
-   The first parameter is the name of the Wi-Fi network aka. SSID.
-   The second parameter is the password of the Wi-Fi network.
+1. Run **with root privileges** the script: `/home/app4cam/app4cam-backend/scripts/variscite/access-point/setup-access-point.sh`
 2. Verify that the connection is running: `nmcli connection show`
 3. Check the Wi-Fi's broadcast IP address: `ifconfig`
 
