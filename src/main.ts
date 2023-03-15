@@ -26,12 +26,17 @@ async function bootstrap() {
   await propertiesService.saveDeviceIdToTextFile()
 
   const settingsService = app.get(SettingsService)
-  const lightType = await settingsService.getTriggeringLight()
+
+  if (process.platform !== 'win32') {
+    const mountPath = await InitialisationInteractor.getNewestMediaPath()
+    await settingsService.setShotsFolder(mountPath)
+  }
 
   const configService = app.get(ConfigService)
   const deviceType = configService.get('deviceType')
-  const serviceName = configService.get('serviceName')
   if (deviceType === 'Variscite') {
+    const serviceName = configService.get('serviceName')
+    const lightType = await settingsService.getTriggeringLight()
     await InitialisationInteractor.resetLights(serviceName, lightType)
   }
 
