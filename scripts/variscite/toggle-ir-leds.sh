@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# GPIO1_IO00
-line_nr="gpiochip0"
-pin_nr="0"
+# GPIO5_IO13
+line_nr="gpiochip4"
+pin_nr="13"
 
 echo "Setting infrared lights to $1"
 
