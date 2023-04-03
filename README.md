@@ -86,13 +86,17 @@ If you have not already during frontend setup, you will create a new user. The u
 #### 2.1. Installing Motion
 
 Motion is installed from the release deb files which provided a more recent version than the one available via apt.
-The versions installed are 4.5.0 (RPi) and 4.5.1 (Variscite).
+The most recent versions can be downloaded here https://github.com/Motion-Project/motion/releases/
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb **- Raspberry Pi**
+**Raspberry Pi** (armhf-pi architecture)
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_arm64.deb **- Variscite MX8**
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb 
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_armhf.deb **- Variscite MX6**
+ **Variscite MX8** (arm64 architecture)
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_arm64.deb
+
+ **Variscite MX6** (armhf architecture)
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_armhf.deb
 
 After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi):
 
@@ -120,17 +124,17 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
 1. Open Motion config file: `sudo nano /etc/motion/motion.conf`
 2. Configure the following parameters in order of appearance:
 
-   On Raspberry Pi:
+   On Raspberry Pi (for the Raspberry camera):
 
-   ```bash
+   ```
    mmalcam_name vc.ril.camera
 
    mmalcam_control_params -ex auto
    ```
 
-   On Variscite:
+   On Variscite (enable led ilumination):
 
-   ```bash
+   ```
    on_event_end sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
 
    on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-on-recording-leds.sh
@@ -138,7 +142,7 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
 
    On all devices:
 
-   ```bash
+   ```
    daemon off
 
    setup_mode off
@@ -194,6 +198,12 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    height 1080
    ```
 
+   USB camera settings (disable auto-focus, fix focus value, fix brigthness value):
+
+   ```
+   video_params "Focus, Auto"=0, "Focus (absolute)"=350, Brightness=16
+   ```
+
    For development:
 
    ```
@@ -203,7 +213,7 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
 3. Comment out the `text_left` property with a semicolon.
 4. Save the config file.
 5. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
-6. On the **Raspberry Pi** and **SOM MX6**, make sure `start_motion_daemon = yes` is set in `/etc/default/motion` file.
+6. On the **Raspberry Pi** make sure `start_motion_daemon = yes` is set in `/etc/default/motion` file.
 
 A more described configuration can be found at https://motion-project.github.io/4.5.0/motion_config.html.
 
