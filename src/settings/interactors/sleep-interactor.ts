@@ -13,7 +13,10 @@ export class SleepInteractor {
       // timedatectl command does not exist on Windows machines.
       return Promise.resolve()
     }
-    const { stderr } = await exec(`echo "${wakingUpTime}"`) // TODO
+    const currentWorkingDirectory = process.cwd()
+    const { stderr } = await exec(
+      `sudo ${currentWorkingDirectory}/scripts/go-to-sleep.sh "${wakingUpTime}"`,
+    )
     if (stderr) {
       throw new Error(stderr)
     }
