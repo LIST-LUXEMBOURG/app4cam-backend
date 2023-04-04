@@ -77,6 +77,7 @@ If you have not already during frontend setup, you will create a new user. The u
    ```
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/access-point/change-access-point-name.sh
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/go-to-sleep.sh
    motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-on-recording-leds.sh
    motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
    ```
@@ -90,12 +91,14 @@ The most recent versions can be downloaded here https://github.com/Motion-Projec
 
 **Raspberry Pi** (armhf-pi architecture)
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb 
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb
 
- **Variscite MX8** (arm64 architecture)
+**Variscite MX8** (arm64 architecture)
+
 > https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_arm64.deb
 
- **Variscite MX6** (armhf architecture)
+**Variscite MX6** (armhf architecture)
+
 > https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_armhf.deb
 
 After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi):
