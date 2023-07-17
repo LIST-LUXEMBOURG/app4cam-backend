@@ -428,6 +428,8 @@ Before starting, install the following dependency: `sudo apt install gpiod`
 2. Start service: `systemctl --user start app4cam-backend`
 3. Verify the service is running: `systemctl --user status app4cam-backend`
 
+You can check the service logs with the following command: `journalctl --user -u app4cam-backend -e`
+
 ### 9. For continuous deployment (CD) only
 
 If you have set up the frontend already, you just need to do step 4.
