@@ -37,6 +37,7 @@ export class InitialisationInteractor {
 
   static async resetLights(
     serviceName: string,
+    deviceType: string,
     lightType: LightType,
   ): Promise<void> {
     if (this.isWindows()) {
@@ -44,7 +45,7 @@ export class InitialisationInteractor {
       return Promise.resolve()
     }
     const { stderr } = await exec(
-      `sudo /home/app4cam/${serviceName}/scripts/variscite/switch-off-recording-leds.sh ${lightType}`,
+      `sudo /home/app4cam/${serviceName}/scripts/switch-off-recording-leds.sh ${deviceType} ${lightType}`,
     )
     if (stderr) {
       throw new Error(stderr)

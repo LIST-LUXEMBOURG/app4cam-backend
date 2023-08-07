@@ -1,11 +1,17 @@
 
 #!/bin/bash
 
-base_dir="$(dirname "$0")"
-
-if [ "$1" ]
+if [ "$1" = "Variscite" ]
 then
-  light_type="$1"
+  base_dir="$(dirname "$0")/variscite"
+elif [ "$1" = "RaspberryPi" ]
+then  
+  base_dir="$(dirname "$0")/raspberry-pi"
+fi
+
+if [ "$2" ]
+then
+  light_type="$2"
 else
   light_type=$(curl "http://127.0.0.1:3000/settings/triggeringLight")
   echo "response: $light_type"

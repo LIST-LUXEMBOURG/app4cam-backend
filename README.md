@@ -64,6 +64,9 @@ If you have not already during frontend setup, you will create a new user. The u
 
    ```
    app4cam ALL=(ALL) NOPASSWD: /usr/bin/timedatectl
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh
    ```
 
 3. On **Raspberry Pi**, also add the following line:
@@ -76,10 +79,7 @@ If you have not already during frontend setup, you will create a new user. The u
 
    ```
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/access-point/change-access-point-name.sh
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/go-to-sleep.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-on-recording-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
    ```
 
 ### 2. Setting up Motion
@@ -133,14 +133,18 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    mmalcam_name vc.ril.camera
 
    mmalcam_control_params -ex auto
+
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh RaspberryPi
+
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh RaspberryPi
    ```
 
    On Variscite (enable led ilumination):
 
    ```
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-off-recording-leds.sh
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh Variscite
 
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/variscite/switch-on-recording-leds.sh
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh Variscite
    ```
 
    On all devices:
