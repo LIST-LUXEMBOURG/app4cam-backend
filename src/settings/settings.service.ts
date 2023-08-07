@@ -250,8 +250,10 @@ export class SettingsService {
         newTriggeringSettings.light = settings.triggering.light
 
         const serviceName = this.configService.get<string>('serviceName')
+        const deviceType = this.configService.get<string>('deviceType')
         await InitialisationInteractor.resetLights(
           serviceName,
+          deviceType,
           newTriggeringSettings.light,
         )
       }
@@ -381,8 +383,10 @@ export class SettingsService {
     )
     if (currentSettings.triggering.light != settings.triggering.light) {
       const serviceName = this.configService.get<string>('serviceName')
+      const deviceType = this.configService.get<string>('deviceType')
       await InitialisationInteractor.resetLights(
         serviceName,
+        deviceType,
         settings.triggering.light,
       )
     }

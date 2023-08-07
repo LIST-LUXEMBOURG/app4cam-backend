@@ -34,11 +34,9 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService)
   const deviceType = configService.get('deviceType')
-  if (deviceType === 'Variscite') {
-    const serviceName = configService.get('serviceName')
-    const lightType = await settingsService.getTriggeringLight()
-    await InitialisationInteractor.resetLights(serviceName, lightType)
-  }
+  const serviceName = configService.get('serviceName')
+  const lightType = await settingsService.getTriggeringLight()
+  await InitialisationInteractor.resetLights(serviceName, deviceType, lightType)
 
   const version = (await propertiesService.getVersion()).version
   const config = new DocumentBuilder()
