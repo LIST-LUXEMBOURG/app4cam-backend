@@ -14,14 +14,14 @@ export class SystemTimeInteractor {
       // timedatectl command does not exist on Windows machines.
       return Promise.resolve('')
     }
-    const { stdout, stderr } = await exec('timedatectl show | grep "^TimeUSec"')
+    const { stdout, stderr } = await exec('timedatectl | grep "Universal time"')
     if (stderr) {
       throw new Error(stderr)
     }
     const line = stdout.trim()
-    const lineParts = line.split('=')
-    const time = lineParts[1]
-    const isoTime = DateConverter.convertTimedatectlFormatToIso(time)
+    const lineParts = line.split(': ')
+    const universalTime = lineParts[1]
+    const isoTime = DateConverter.convertTimedatectlFormatToIso(universalTime)
     return isoTime
   }
 
