@@ -371,8 +371,15 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 11. Enable service: `systemctl --user enable udiskie`
 12. Start service: `systemctl --user start udiskie`
 13. Verify that the service is running: `systemctl --user status udiskie`
+14. Logout: `exit`
 
-### 8. Deploying the application
+### 8. Make sure automatic time synchronisaton is disabled
+
+Verify the result line `NTP service` of running: `timedatectl`
+
+If it is still active, run: `timedatectl set-ntp 0`
+
+### 9. Deploying the application
 
 Before starting, install the following dependency: `sudo apt install gpiod`
 
@@ -434,7 +441,7 @@ Before starting, install the following dependency: `sudo apt install gpiod`
 
 You can check the service logs with the following command: `journalctl --user -u app4cam-backend -e`
 
-### 9. For continuous deployment (CD) only
+### 10. For continuous deployment (CD) only
 
 If you have set up the frontend already, you just need to do step 4.
 
@@ -462,7 +469,7 @@ If you have set up the frontend already, you just need to do step 4.
 12. Restart `sshd` service: `sudo systemctl restart ssh`
 13. Install rsync: `sudo apt install rsync -y`
 
-### 10. Adding FTP access (Raspberry Pi only)
+### 11. Adding FTP access (Raspberry Pi only)
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 
