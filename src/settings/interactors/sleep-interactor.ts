@@ -15,7 +15,7 @@ export class SleepInteractor {
     }
     const currentWorkingDirectory = process.cwd()
     const { stderr } = await exec(
-      `sudo ${currentWorkingDirectory}/scripts/go-to-sleep.sh "${wakingUpTime}"`,
+      `sudo ${currentWorkingDirectory}/scripts/variscite/go-to-sleep.sh "${wakingUpTime}"`,
     )
     if (stderr) {
       throw new Error(stderr)
