@@ -18,9 +18,9 @@ describe(DateConverter.name, () => {
     it('formats a date time', () => {
       expect(
         DateConverter.convertTimedatectlFormatToIso(
-          'Wed 2022-11-02 10:44:21 CET',
+          'Wed 2022-11-02 10:44:21 UTC',
         ),
-      ).toBe('2022-11-02T10:44:21+01:00')
+      ).toBe('2022-11-02T10:44:21Z')
     })
   })
 })

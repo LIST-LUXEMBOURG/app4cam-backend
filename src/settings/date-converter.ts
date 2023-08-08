@@ -7,13 +7,10 @@ export class DateConverter {
     return formattedTime
   }
 
-  static convertTimedatectlFormatToIso(input: string): string {
-    const parts = input.split(' ')
+  static convertTimedatectlFormatToIso(universalTime: string): string {
+    const parts = universalTime.split(' ')
     const date = parts[1]
     const time = parts[2]
-    const timeZone = parts[3]
-    const dateTime = DateTime.fromISO(`${date}T${time}`, { zone: timeZone })
-    const isoTime = dateTime.toISO({ suppressMilliseconds: true })
-    return isoTime
+    return `${date}T${time}Z`
   }
 }
