@@ -16,6 +16,7 @@ import {
 } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { TriggerSensitivityCalculator } from './trigger-sensitivity-calculator'
+import { UndefinedPathError } from './undefined-path-error'
 
 const SETTINGS_FILE_PATH = 'settings.json'
 
@@ -536,6 +537,10 @@ export class SettingsService {
   }
 
   async setShotsFolder(path: string): Promise<void> {
+    if (!path) {
+      this.logger.warn('The path to set as shots folder is not defined.')
+      throw new UndefinedPathError()
+    }
     await MotionClient.setTargetDir(path)
   }
 
