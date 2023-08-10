@@ -7,6 +7,7 @@ import { AppModule } from './app.module'
 import { InitialisationInteractor } from './initialisation-interactor'
 import { PropertiesService } from './properties/properties.service'
 import { SettingsService } from './settings/settings.service'
+import { UndefinedPathError } from './settings/undefined-path-error'
 
 const PAYLOAD_LIMIT = '1mb'
 
@@ -29,7 +30,13 @@ async function bootstrap() {
 
   if (process.platform !== 'win32') {
     const mountPath = await InitialisationInteractor.getNewestMediaPath()
-    await settingsService.setShotsFolder(mountPath)
+    try {
+      await settingsService.setShotsFolder(mountPath)
+    } catch (e) {
+      if (!(e instanceof UndefinedPathError)) {
+        throw e
+      }
+    }
   }
 
   const configService = app.get(ConfigService)
