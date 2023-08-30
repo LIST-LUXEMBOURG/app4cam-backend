@@ -6,7 +6,7 @@ import { StorageUsageDto } from './dto/storage-usage.dto'
 import { FileSystemInteractor } from './file-system-interactor'
 import { StorageUsageInteractor } from './storage-usage-interactor'
 
-const MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE = 1
+const MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE = 99
 const STORAGE_MOUNT_PATH = '/media'
 const WRITE_PERMISSION_MASK = 2
 
@@ -84,12 +84,12 @@ export class StorageService {
     const isMotionActive = await MotionClient.isDetectionStatusActive()
     this.logger.log(`Motion active status: ${isMotionActive}`)
     if (
-      diskSpaceUsage.usedPercentage <
+      diskSpaceUsage.usedPercentage >
       MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE
     ) {
       if (isMotionActive) {
         this.logger.log(
-          'Below threshold and Motion is still active => Trying to pause Motion...',
+          `Above threshold of ${MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE} and Motion is still active => Trying to pause Motion...`,
         )
         await MotionClient.pauseDetection()
         this.logger.log('Motion paused!')
@@ -97,7 +97,7 @@ export class StorageService {
     } else {
       if (!isMotionActive) {
         this.logger.log(
-          'Above threshold and Motion is still inactive => Trying to start Motion...',
+          `Below or equal to threshold of ${MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE} and Motion is still inactive => Trying to start Motion...`,
         )
         await MotionClient.startDetection()
         this.logger.log('Motion started!')
