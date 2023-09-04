@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'fs/promises'
-import { SettingsFromJsonFile } from './settings'
+import { LightType, SettingsFromJsonFile } from './settings'
 
+const DEFAULT_TRIGGERING_LIGHT: LightType = 'visible'
 const JSON_INDENTATION_SPACES = 2
 
 export const JSON_SETTINGS_WITH_NONE_SET: SettingsFromJsonFile = {
@@ -11,7 +12,7 @@ export const JSON_SETTINGS_WITH_NONE_SET: SettingsFromJsonFile = {
   triggering: {
     sleepingTime: '',
     wakingUpTime: '',
-    light: 'infrared',
+    light: DEFAULT_TRIGGERING_LIGHT,
   },
 }
 

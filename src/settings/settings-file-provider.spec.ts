@@ -45,7 +45,7 @@ describe(SettingsFileProvider.name, () => {
     })
 
     describe('when the file does not exist', () => {
-      it('returns an object with empty properties', async () => {
+      it('returns an object with empty properties and default triggering light', async () => {
         const settings = await SettingsFileProvider.readSettingsFile(
           FIXTURE_FOLDER_PATH + '/a',
         )
@@ -57,7 +57,7 @@ describe(SettingsFileProvider.name, () => {
           triggering: {
             sleepingTime: '',
             wakingUpTime: '',
-            light: 'infrared',
+            light: 'visible',
           },
         }
         expect(settings).toEqual(expected)
