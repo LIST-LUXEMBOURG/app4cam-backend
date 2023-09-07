@@ -160,10 +160,6 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
 
    target_dir /home/app4cam/app4cam/data/
 
-   locate_motion_mode on
-
-   locate_motion_style redbox
-
    event_gap 2
 
    pre_capture 5
