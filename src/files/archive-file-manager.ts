@@ -13,8 +13,16 @@ export class ArchiveFileManager {
     deviceName: string,
     siteName: string,
   ): string {
+    let name = ''
+    if (siteName) {
+      name += siteName + '_'
+    }
+    if (deviceName) {
+      name += deviceName + '_'
+    }
     const time = this.stripHyphensColonsDots(date.toISOString())
-    return siteName + '_' + deviceName + '_' + time + '.zip'
+    name += time + '.zip'
+    return name
   }
 
   static stripHyphensColonsDots(input: string) {

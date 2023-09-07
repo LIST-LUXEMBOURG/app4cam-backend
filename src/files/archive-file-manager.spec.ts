@@ -17,10 +17,24 @@ describe('ArchiveFileCreator', () => {
   })
 
   describe('createArchiveFilename', () => {
-    it('returns hash', () => {
+    it('returns complete name', () => {
       const dateTime = new Date(SYSTEM_TIME_ISO)
       expect(ArchiveFileManager.createArchiveFilename(dateTime, 'd', 's')).toBe(
         's_d_' + SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS + '.zip',
+      )
+    })
+
+    it('returns name without site name if not set', () => {
+      const dateTime = new Date(SYSTEM_TIME_ISO)
+      expect(ArchiveFileManager.createArchiveFilename(dateTime, 'd', '')).toBe(
+        'd_' + SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS + '.zip',
+      )
+    })
+
+    it('returns name without device name if not set', () => {
+      const dateTime = new Date(SYSTEM_TIME_ISO)
+      expect(ArchiveFileManager.createArchiveFilename(dateTime, '', 's')).toBe(
+        's_' + SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS + '.zip',
       )
     })
   })
