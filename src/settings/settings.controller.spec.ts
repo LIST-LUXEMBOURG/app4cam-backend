@@ -22,7 +22,7 @@ describe('SettingsController', () => {
       timeZone: 't',
     },
     triggering: {
-      sensitivity: 1,
+      threshold: 1,
       sleepingTime: SLEEPING_TIME,
       wakingUpTime: WAKING_UP_TIME,
       light: 'infrared',
@@ -98,7 +98,7 @@ describe('SettingsController', () => {
         timeZone: 't',
       },
       triggering: {
-        sensitivity: 1,
+        threshold: 1,
         sleepingTime: new Date().toISOString(),
         wakingUpTime: new Date().toISOString(),
         light: 'infrared' as const,

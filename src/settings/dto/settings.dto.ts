@@ -5,7 +5,6 @@ import {
   IsInt,
   IsNotEmpty,
   IsNotEmptyObject,
-  IsNumber,
   IsObject,
   IsOptional,
   IsTimeZone,
@@ -57,10 +56,10 @@ class GeneralSettingsPatchDto {
 
 class TriggeringSettingsPatchDto {
   @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0.01)
-  @Max(10)
-  sensitivity?: number
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
+  threshold?: number
 
   @IsOptional()
   @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
@@ -132,10 +131,10 @@ class GeneralSettingsPutDto {
 
 class TriggeringSettingsPutDto {
   @IsNotEmpty()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0.01)
-  @Max(10)
-  sensitivity: number
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
+  threshold: number
 
   @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
   sleepingTime: string

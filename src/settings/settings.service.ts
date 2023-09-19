@@ -15,7 +15,6 @@ import {
   SettingsFromJsonFile,
 } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
-import { TriggerSensitivityCalculator } from './trigger-sensitivity-calculator'
 import { UndefinedPathError } from './undefined-path-error'
 
 const SETTINGS_FILE_PATH = 'settings.json'
@@ -42,10 +41,11 @@ export class SettingsService {
 
     const shotTypes = []
     let pictureQuality = 0
+    let threshold = 1
     let videoQuality = 0
-    let triggerSensitivity = 0
     try {
       pictureQuality = await MotionClient.getPictureQuality()
+      threshold = await MotionClient.getThreshold()
       videoQuality = await MotionClient.getMovieQuality()
 
       const pictureOutput = await MotionClient.getPictureOutput()
@@ -56,19 +56,6 @@ export class SettingsService {
       if (movieOutput === 'on') {
         shotTypes.push('videos')
       }
-
-      const height = await MotionClient.getHeight()
-      const width = await MotionClient.getWidth()
-      const threshold = await MotionClient.getThreshold()
-      triggerSensitivity =
-        TriggerSensitivityCalculator.convertThresholdToTriggerSensitivity(
-          threshold,
-          height,
-          width,
-        )
-      this.logger.debug(
-        `Calculated trigger sensitivity ${triggerSensitivity} from threshold ${threshold}, height ${height} and width ${width}`,
-      )
     } catch (error) {
       if (error.config && error.config.url) {
         this.logger.error(`Could not connect to ${error.config.url}`)
@@ -91,7 +78,7 @@ export class SettingsService {
       },
       triggering: {
         ...settingsFromFile.triggering,
-        sensitivity: triggerSensitivity,
+        threshold,
       },
     }
   }
@@ -269,20 +256,9 @@ export class SettingsService {
         }
       }
 
-      if ('sensitivity' in settings.triggering) {
+      if ('threshold' in settings.triggering) {
         try {
-          const height = await MotionClient.getHeight()
-          const width = await MotionClient.getWidth()
-          const threshold =
-            TriggerSensitivityCalculator.convertTriggerSensitivityToThreshold(
-              settings.triggering.sensitivity,
-              height,
-              width,
-            )
-          this.logger.debug(
-            `Calculated threshold ${threshold} from trigger sensitivity ${settings.triggering.sensitivity}, height ${height} and width ${width}`,
-          )
-          await MotionClient.setThreshold(threshold)
+          await MotionClient.setThreshold(settings.triggering.threshold)
         } catch (error) {
           if (error.config && error.config.url) {
             this.logger.error(`Could not connect to ${error.config.url}`)
@@ -357,19 +333,7 @@ export class SettingsService {
     try {
       await MotionClient.setPictureQuality(settings.camera.pictureQuality)
       await MotionClient.setMovieQuality(settings.camera.videoQuality)
-
-      const height = await MotionClient.getHeight()
-      const width = await MotionClient.getWidth()
-      const threshold =
-        TriggerSensitivityCalculator.convertTriggerSensitivityToThreshold(
-          settings.triggering.sensitivity,
-          height,
-          width,
-        )
-      this.logger.debug(
-        `Calculated threshold ${threshold} from trigger sensitivity ${settings.triggering.sensitivity}, height ${height} and width ${width}`,
-      )
-      await MotionClient.setThreshold(threshold)
+      await MotionClient.setThreshold(settings.triggering.threshold)
     } catch (error) {
       if (error.config && error.config.url) {
         this.logger.error(`Could not connect to ${error.config.url}`)
