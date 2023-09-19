@@ -15,9 +15,8 @@ describe(FileSystemInteractor.name, () => {
         await mkdir(TEST_FOLDER_PATH + '/a')
         await mkdir(TEST_FOLDER_PATH + '/b')
         await writeFile(TEST_FOLDER_PATH + '/c.txt', 'a')
-        const subdirectories = await FileSystemInteractor.getSubdirectories(
-          TEST_FOLDER_PATH,
-        )
+        const subdirectories =
+          await FileSystemInteractor.getSubdirectories(TEST_FOLDER_PATH)
         expect(subdirectories).toStrictEqual(['a', 'b'])
       })
     })
@@ -25,9 +24,8 @@ describe(FileSystemInteractor.name, () => {
     describe('when no subdirectories and one file are present', () => {
       it('returns an empty list', async () => {
         await writeFile(TEST_FOLDER_PATH + '/a.txt', 'a')
-        const subdirectories = await FileSystemInteractor.getSubdirectories(
-          TEST_FOLDER_PATH,
-        )
+        const subdirectories =
+          await FileSystemInteractor.getSubdirectories(TEST_FOLDER_PATH)
         expect(subdirectories).toStrictEqual([])
       })
     })
@@ -49,9 +47,8 @@ describe(FileSystemInteractor.name, () => {
         const filePath = TEST_FOLDER_PATH + '/a.txt'
         await writeFile(filePath, 'a')
         chmodSync(filePath, 0o666)
-        const permissions = await FileSystemInteractor.getUnixFilePermissions(
-          filePath,
-        )
+        const permissions =
+          await FileSystemInteractor.getUnixFilePermissions(filePath)
         expect(permissions).toBe('0666')
       })
     })

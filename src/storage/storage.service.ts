@@ -42,9 +42,8 @@ export class StorageService {
       ) {
         let subdirectories: string[] = []
         try {
-          subdirectories = await FileSystemInteractor.getSubdirectories(
-            STORAGE_MOUNT_PATH,
-          )
+          subdirectories =
+            await FileSystemInteractor.getSubdirectories(STORAGE_MOUNT_PATH)
         } catch (error) {
           Logger.warn(error)
         }
@@ -78,9 +77,8 @@ export class StorageService {
   async pauseOrResumeMotionDependingOnDiskSpaceUsage() {
     this.logger.log('Cron job to pause or resume Motion triggered...')
     const devicePath = await MotionClient.getTargetDir()
-    const diskSpaceUsage = await StorageUsageInteractor.getStorageUsage(
-      devicePath,
-    )
+    const diskSpaceUsage =
+      await StorageUsageInteractor.getStorageUsage(devicePath)
     this.logger.log(
       `Disk space usage percentage: ${diskSpaceUsage.usedPercentage}`,
     )

@@ -32,9 +32,8 @@ export class SettingsService {
   }
 
   async getAllSettings(): Promise<Settings> {
-    const settingsFromFile = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settingsFromFile =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
 
     const systemTime = await SystemTimeInteractor.getSystemTimeInIso8601Format()
     const timeZone = await SystemTimeInteractor.getTimeZone()
@@ -149,9 +148,8 @@ export class SettingsService {
     }
 
     let isAtLeastOneJsonSettingUpdated = false
-    const settingsReadFromFile = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settingsReadFromFile =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
 
     let generalSettingsMerged = settingsReadFromFile.general
     if ('general' in settings) {
@@ -343,9 +341,8 @@ export class SettingsService {
       }
     }
 
-    const currentSettings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const currentSettings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     if (currentSettings.triggering.light != settings.triggering.light) {
       const serviceName = this.configService.get<string>('serviceName')
       const deviceType = this.configService.get<string>('deviceType')
@@ -395,16 +392,14 @@ export class SettingsService {
   }
 
   async getSiteName(): Promise<string> {
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return settings.general.siteName
   }
 
   async setSiteName(siteName: string): Promise<void> {
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     settings.general.siteName = siteName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
     const timeZone = await SystemTimeInteractor.getTimeZone()
@@ -422,16 +417,14 @@ export class SettingsService {
   }
 
   async getDeviceName(): Promise<string> {
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return settings.general.deviceName
   }
 
   async setDeviceName(deviceName: string): Promise<void> {
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     settings.general.deviceName = deviceName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
 
@@ -484,9 +477,8 @@ export class SettingsService {
       )
     }
     await SystemTimeInteractor.setTimeZone(timeZone)
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     const filename = MotionTextAssembler.createFilename(
       settings.general.siteName,
       settings.general.deviceName,
@@ -509,23 +501,20 @@ export class SettingsService {
   }
 
   async getTriggeringLight(): Promise<LightType> {
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return settings.triggering.light
   }
 
   async getSleepingTime(): Promise<string> {
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return settings.triggering.sleepingTime
   }
 
   async getWakingUpTime(): Promise<string> {
-    const settings = await SettingsFileProvider.readSettingsFile(
-      SETTINGS_FILE_PATH,
-    )
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return settings.triggering.wakingUpTime
   }
 
