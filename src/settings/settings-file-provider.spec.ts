@@ -89,9 +89,8 @@ describe(SettingsFileProvider.name, () => {
         SETTINGS,
         TEMPORARY_FILE_PATH,
       )
-      const settingsRetrieved = await SettingsFileProvider.readSettingsFile(
-        TEMPORARY_FILE_PATH,
-      )
+      const settingsRetrieved =
+        await SettingsFileProvider.readSettingsFile(TEMPORARY_FILE_PATH)
       expect(settingsRetrieved).toEqual(SETTINGS)
     })
 
