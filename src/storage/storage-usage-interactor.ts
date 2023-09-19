@@ -5,6 +5,9 @@ import { NumberUtils } from './number-utils'
 
 const exec = promisify(execSync)
 
+const EXTERNAL_STORAGE_DEVICE_PATH_PREFIX = '/media/'
+const ROOT_DEVICE_PATH = '/dev/root'
+
 export class StorageUsageInteractor {
   static async getStorageUsage(path: string): Promise<StorageUsageDto> {
     const isWindows = process.platform === 'win32'
@@ -15,7 +18,11 @@ export class StorageUsageInteractor {
         usedPercentage: 0,
       })
     }
-    const { stdout, stderr } = await exec(`df -Pkl | grep ${path}`)
+    let pathToFilterBy = path
+    if (!path.startsWith(EXTERNAL_STORAGE_DEVICE_PATH_PREFIX)) {
+      pathToFilterBy = ROOT_DEVICE_PATH
+    }
+    const { stdout, stderr } = await exec(`df -Pkl | grep ${pathToFilterBy}`)
     if (stderr) {
       throw new Error(stderr)
     }
