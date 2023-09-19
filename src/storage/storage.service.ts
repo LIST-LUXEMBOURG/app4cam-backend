@@ -36,7 +36,10 @@ export class StorageService {
       }
     } catch (error) {
       Logger.error(error)
-      if (error.code === 'ENOENT') {
+      if (
+        error.code === 'ENOENT' &&
+        devicePath.startsWith(STORAGE_MOUNT_PATH)
+      ) {
         let subdirectories: string[] = []
         try {
           subdirectories = await FileSystemInteractor.getSubdirectories(
