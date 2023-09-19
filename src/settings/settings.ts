@@ -30,7 +30,7 @@ export class GeneralSettings extends GeneralSettingsFromJsonFile {
 }
 
 class TriggeringSettings extends TriggeringSettingsFromJsonFile {
-  sensitivity: number
+  threshold: number
 }
 
 export interface Settings {

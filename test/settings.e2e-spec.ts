@@ -12,7 +12,7 @@ import { Settings } from 'src/settings/settings'
 const MOVIE_QUALITY = 80
 const PICTURE_QUALITY = 80
 const SHOTS_FOLDER = '/a'
-const TRIGGER_SENSITIVITY = 1
+const TRIGGER_THRESHOLD = 75
 
 jest.mock('../src/motion-client', () => ({
   MotionClient: {
@@ -70,7 +70,7 @@ describe('SettingsController (e2e)', () => {
     },
     triggering: {
       ...TRIGGERING_JSON_SETTINGS,
-      sensitivity: TRIGGER_SENSITIVITY,
+      threshold: TRIGGER_THRESHOLD,
     },
   }
 
@@ -218,31 +218,31 @@ describe('SettingsController (e2e)', () => {
           .expect(200)
       })
 
-      it('returns success trigger sensitivity', () => {
+      it('returns success trigger threshold', () => {
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { sensitivity: 1.01 } })
+          .send({ triggering: { threshold: 1 } })
           .expect(200)
       })
 
-      it('returns bad request on too low trigger sensitivity', () => {
+      it('returns bad request on too low threshold', () => {
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { sensitivity: 0 } })
+          .send({ triggering: { threshold: 0 } })
           .expect(400)
       })
 
-      it('returns bad request on too high trigger sensitivity', () => {
+      it('returns bad request on too high threshold', () => {
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { sensitivity: 10.01 } })
+          .send({ triggering: { threshold: 2147483648 } })
           .expect(400)
       })
 
-      it('returns bad request on trigger sensitivity with too many decimals', () => {
+      it('returns bad request on decimal threshold', () => {
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { sensitivity: 1.001 } })
+          .send({ triggering: { threshold: 1.1 } })
           .expect(400)
       })
 
@@ -310,7 +310,7 @@ describe('SettingsController (e2e)', () => {
         timeZone: ALL_SETTINGS.general.timeZone,
       }
       const goodTriggeringPutSettings = {
-        sensitivity: TRIGGER_SENSITIVITY,
+        threshold: TRIGGER_THRESHOLD,
         sleepingTime: '18:00',
         wakingUpTime: '20:00',
         light: 'infrared',

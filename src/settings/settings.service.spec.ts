@@ -91,7 +91,7 @@ describe('SettingsService', () => {
       },
       triggering: {
         ...TRIGGERING_JSON_SETTINGS,
-        sensitivity: TRIGGER_SENSITIVITY,
+        threshold: TRIGGER_SENSITIVITY,
       },
     }
 
@@ -164,7 +164,7 @@ describe('SettingsService', () => {
         },
         triggering: {
           ...triggeringJsonSettings,
-          sensitivity: 1,
+          threshold: 1,
         },
       }
       await service.updateSettings(allSettings)
@@ -238,7 +238,7 @@ describe('SettingsService', () => {
         },
         triggering: {
           ...triggeringJsonSettings,
-          sensitivity: TRIGGER_SENSITIVITY,
+          threshold: TRIGGER_SENSITIVITY,
         },
       }
       await service.updateAllSettings(settings)
