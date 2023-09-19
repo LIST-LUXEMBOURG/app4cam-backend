@@ -193,7 +193,7 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    snapshot_filename %Y%m%dT%H%M%S_snapshot
    ```
 
-   Make sure to adapt the height and width to the maximum resolution your camera supports, for example:
+   **Height and Width**: Make sure to adapt them to the maximum resolution your camera supports, for example:
 
    ```
    width 1920
@@ -201,10 +201,16 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    height 1080
    ```
 
-   USB camera settings (disable auto-focus, fix focus value, fix brigthness value):
+   **USB camera settings:** disable auto-focus, fix focus value, fix brigthness value.
 
    ```
    video_params "Focus, Auto"=0, "Focus (absolute)"=350, Brightness=16
+   ```
+
+   **Mask files:** If you need to add a mask file (example file for NEWTCAM), make sure your pgm file exists on the configured location.
+
+   ```
+    mask_file /home/app4cam/app4cam-backend/mask_files/NEWTCAM.pgm
    ```
 
    For development:
@@ -253,7 +259,7 @@ For this we just need to run with root privileges the script `scripts/autohotspo
 sudo scripts/autohotspot/autohotspot-setup.sh
 ```
 
-You will presented with a menu with these options:
+You will be presented with these options:
 
 ```bash
  1 = Install Autohotspot with eth0 access for Connected Devices
@@ -269,7 +275,7 @@ You will presented with a menu with these options:
 We should go for **Option 2: Install Autohotspot with No eth0 for connected devices.**
 
 Once installed and after a reboot the Raspberry Pi will connect to a router that has previously been connected to and is listed in `/etc/wpa_supplicant/wpa_supplicant.conf`. If no router is in range then it will generate a WiFi access point. The Pi can use the eth0 connection and also be accessed from a device on the etho network.  
-This will have an SSID of **App4Cam** and password of **0123456789**.
+The default SSID of **App4Cam** and password of **0123456789** will be used.
 Once a connection to the access point has been made you can access the Raspberry Pi via ssh & VNC.
 
 ```bash
