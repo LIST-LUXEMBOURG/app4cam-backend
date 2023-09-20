@@ -46,7 +46,7 @@ An OpenAPI Specification (OAS) is available under `/api`.
 
 This software requires the following tools to be installed:
 
-- **Motion** is a configurable software that monitors video signals from differen types of cameras and create videos and/or saves pictures of the activity.
+- **Motion** is a configurable software that monitors video signals from different types of cameras and create videos and/or saves pictures of the activity.
 - **Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
 
 ### Prerequisites
@@ -91,7 +91,7 @@ The most recent versions can be downloaded here https://github.com/Motion-Projec
 
 **Raspberry Pi** (armhf-pi architecture)
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb
+> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/pi_bullseye_motion_4.5.1-1_armhf.deb
 
 **Variscite MX8** (arm64 architecture)
 
@@ -104,14 +104,14 @@ The most recent versions can be downloaded here https://github.com/Motion-Projec
 After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi):
 
 ```bash
-wget https://github.com/Motion-Project/motion/releases/download/release-4.5.0/pi_bullseye_motion_4.5.0-1_armhf.deb
+wget https://github.com/Motion-Project/motion/releases/download/release-4.5.1/pi_bullseye_motion_4.5.1-1_armhf.deb
 ```
 
 Next, install the retrieved deb package. The gdebi tool will automatically retrieve any dependency packages.
 
 ```bash
 sudo apt-get install gdebi-core
-sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
+sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 ```
 
 #### 2.2. Creating data folder and setting permissions
@@ -137,14 +137,6 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    on_event_end sudo /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh RaspberryPi
 
    on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh RaspberryPi
-   ```
-
-   On Variscite (enable led ilumination):
-
-   ```
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh Variscite
-
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh Variscite
    ```
 
    On all devices:
@@ -191,6 +183,14 @@ sudo gdebi pi_bullseye_motion_4.5.0-1_armhf.deb
    stream_localhost on
 
    snapshot_filename %Y%m%dT%H%M%S_snapshot
+   ```
+
+   Enable led ilumination:
+
+   ```
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh
+
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh
    ```
 
    **Height and Width**: Make sure to adapt them to the maximum resolution your camera supports, for example:
