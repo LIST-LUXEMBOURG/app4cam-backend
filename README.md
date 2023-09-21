@@ -493,3 +493,17 @@ The FTP access can be used as an alternative way to download multiple files with
 3. Restart the server: `sudo systemctl restart vsftpd`
 
 Now, you can connect via an FTP client with the device's IP address, port 21, the username created and the corresponding password.
+
+### Release procedure
+
+1. Make sure that you are on the `main` branch and that it is up-to-date.
+2. Update `package.json` with the new version number.
+3. Update `package-lock.json`: `npm i --package-lock-only`
+4. Commit every change: `git commit -am "release version <version>"`
+5. Tag the new version: `git tag v<version>`
+6. Push the commit to the remote repository: `git push`
+7. Push the tag to the remote repository: `git push --tags`
+8. Append `-next` to the version number in `package.json`.
+9. Update `package-lock.json`: `npm i --package-lock-only`
+10. Commit every change: `git commit -am "prepare next release"`
+11. Push the commit to the remote repository: `git push`
