@@ -152,6 +152,10 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
    target_dir /home/app4cam/app4cam/data/
 
+   text_changes on
+
+   text_scale 2
+
    event_gap 2
 
    pre_capture 5
