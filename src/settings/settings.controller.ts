@@ -36,6 +36,13 @@ export class SettingsController {
     return this.settingsService.updateAllSettings(settings)
   }
 
+  @Get('cameraLight')
+  async getCameraLight(@Res() res: Response) {
+    const light = await this.settingsService.getCameraLight()
+    res.type('text/plain')
+    res.send(light)
+  }
+
   @Get('siteName')
   async getSiteName(): Promise<SiteNameDto> {
     const siteName = await this.settingsService.getSiteName()

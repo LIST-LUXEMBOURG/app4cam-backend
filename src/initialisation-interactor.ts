@@ -45,7 +45,7 @@ export class InitialisationInteractor {
       return Promise.resolve()
     }
     const { stderr } = await exec(
-      `sudo /home/app4cam/${serviceName}/scripts/switch-off-recording-leds.sh ${deviceType} ${lightType}`,
+      `sudo /home/app4cam/${serviceName}/scripts/use-triggering-leds.sh ${deviceType} ${lightType}`,
     )
     if (stderr) {
       throw new Error(stderr)

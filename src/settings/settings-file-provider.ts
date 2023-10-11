@@ -1,10 +1,14 @@
 import { readFile, writeFile } from 'fs/promises'
 import { LightType, SettingsFromJsonFile } from './settings'
 
+const DEFAULT_CAMERA_LIGHT: LightType = 'visible'
 const DEFAULT_TRIGGERING_LIGHT: LightType = 'visible'
 const JSON_INDENTATION_SPACES = 2
 
 export const JSON_SETTINGS_WITH_NONE_SET: SettingsFromJsonFile = {
+  camera: {
+    light: DEFAULT_CAMERA_LIGHT,
+  },
   general: {
     deviceName: '',
     siteName: '',

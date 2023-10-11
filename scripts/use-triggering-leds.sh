@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 if [ "$1" = "Variscite" ]
@@ -17,13 +16,13 @@ else
   echo "response: $light_type"
 fi
 
-ir_triggering=0
+infrared_leds_flag=0
 if [ "$light_type" = "infrared" ]
 then
-  ir_triggering=1
+  infrared_leds_flag=1
 fi
 
-visible_leds=$((1-ir_triggering))
+visible_leds_flag=$((1-infrared_leds_flag))
 
-"$base_dir"/toggle-ir-leds.sh $ir_triggering
-"$base_dir"/toggle-visible-leds.sh $visible_leds
+"$base_dir"/toggle-ir-leds.sh $infrared_leds_flag
+"$base_dir"/toggle-visible-leds.sh $visible_leds_flag

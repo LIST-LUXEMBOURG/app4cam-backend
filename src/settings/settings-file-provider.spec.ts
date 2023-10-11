@@ -45,11 +45,14 @@ describe(SettingsFileProvider.name, () => {
     })
 
     describe('when the file does not exist', () => {
-      it('returns an object with empty properties and default triggering light', async () => {
+      it('returns an object with empty properties and default camera and triggering light', async () => {
         const settings = await SettingsFileProvider.readSettingsFile(
           FIXTURE_FOLDER_PATH + '/a',
         )
         const expected: SettingsFromJsonFile = {
+          camera: {
+            light: 'visible',
+          },
           general: {
             deviceName: '',
             siteName: '',
@@ -75,6 +78,9 @@ describe(SettingsFileProvider.name, () => {
 
     it('writes settings object', async () => {
       const SETTINGS = {
+        camera: {
+          light: 'visible' as const,
+        },
         general: {
           deviceName: 'd',
           siteName: 's',

@@ -66,6 +66,7 @@ export class SettingsService {
 
     return {
       camera: {
+        ...settingsFromFile.camera,
         pictureQuality,
         shotTypes,
         videoQuality,
@@ -83,6 +84,19 @@ export class SettingsService {
   }
 
   async updateSettings(settings: PatchableSettings): Promise<void> {
+    if (
+      'camera' in settings &&
+      'triggering' in settings &&
+      'light' in settings.camera &&
+      'light' in settings.triggering &&
+      settings.camera.light === 'infrared' &&
+      settings.triggering.light === 'visible'
+    ) {
+      throw new BadRequestException(
+        'The combination of visible trigger light and infrared camera light is not valid.',
+      )
+    }
+
     if ('general' in settings && 'timeZone' in settings.general) {
       const supportedTimeZones =
         await this.propertiesService.getAvailableTimeZones()
@@ -116,7 +130,20 @@ export class SettingsService {
       }
     }
 
+    let isAtLeastOneJsonSettingUpdated = false
+    const settingsReadFromFile =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+
+    const cameraSettingsMerged = settingsReadFromFile.camera
     if ('camera' in settings) {
+      if (
+        'light' in settings.camera &&
+        settings.camera.light != settingsReadFromFile.camera.light
+      ) {
+        cameraSettingsMerged.light = settings.camera.light
+        isAtLeastOneJsonSettingUpdated = true
+      }
+
       if ('pictureQuality' in settings.camera) {
         await MotionClient.setPictureQuality(settings.camera.pictureQuality)
       }
@@ -146,10 +173,6 @@ export class SettingsService {
         }
       }
     }
-
-    let isAtLeastOneJsonSettingUpdated = false
-    const settingsReadFromFile =
-      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
 
     let generalSettingsMerged = settingsReadFromFile.general
     if ('general' in settings) {
@@ -231,7 +254,7 @@ export class SettingsService {
 
       if (
         'light' in settings.triggering &&
-        newTriggeringSettings.light != settings.triggering.light
+        settings.triggering.light != settingsReadFromFile.triggering.light
       ) {
         newTriggeringSettings.light = settings.triggering.light
 
@@ -270,6 +293,7 @@ export class SettingsService {
 
     if (isAtLeastOneJsonSettingUpdated) {
       const settingsToUpdate = {
+        camera: cameraSettingsMerged,
         general: generalSettingsMerged,
         triggering: triggeringSettingsMerged,
       }
@@ -281,6 +305,15 @@ export class SettingsService {
   }
 
   async updateAllSettings(settings: Settings): Promise<void> {
+    if (
+      settings.camera.light === 'infrared' &&
+      settings.triggering.light === 'visible'
+    ) {
+      throw new BadRequestException(
+        'The combination of visible trigger light and infrared camera light is not valid.',
+      )
+    }
+
     const supportedTimeZones =
       await this.propertiesService.getAvailableTimeZones()
     if (!supportedTimeZones.includes(settings.general.timeZone)) {
@@ -354,6 +387,9 @@ export class SettingsService {
     }
 
     const settingsToWriteToFile: SettingsFromJsonFile = {
+      camera: {
+        light: settings.camera.light,
+      },
       general: {
         deviceName: settings.general.deviceName,
         siteName: settings.general.siteName,
@@ -498,6 +534,12 @@ export class SettingsService {
       throw new UndefinedPathError()
     }
     await MotionClient.setTargetDir(path)
+  }
+
+  async getCameraLight(): Promise<LightType> {
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+    return settings.camera.light
   }
 
   async getTriggeringLight(): Promise<LightType> {
