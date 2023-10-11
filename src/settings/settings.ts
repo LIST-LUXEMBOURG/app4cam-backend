@@ -1,6 +1,13 @@
 export class SettingsFromJsonFile {
+  camera: CameraSettingsFromJsonFile
   general: GeneralSettingsFromJsonFile
   triggering: TriggeringSettingsFromJsonFile
+}
+
+export type LightType = 'infrared' | 'visible'
+
+interface CameraSettingsFromJsonFile {
+  light: LightType
 }
 
 class GeneralSettingsFromJsonFile {
@@ -8,17 +15,15 @@ class GeneralSettingsFromJsonFile {
   siteName: string
 }
 
-export type LightType = 'infrared' | 'visible'
-
 class TriggeringSettingsFromJsonFile {
+  light: LightType
   sleepingTime: string
   wakingUpTime: string
-  light: LightType
 }
 
 type ShotType = 'pictures' | 'videos'
 
-interface CameraSettings {
+interface CameraSettings extends CameraSettingsFromJsonFile {
   pictureQuality: number
   shotTypes: ShotType[]
   videoQuality: number

@@ -19,6 +19,10 @@ type ShotType = 'pictures' | 'videos'
 
 class CameraSettingsPatchDto {
   @IsOptional()
+  @Matches(/^(infrared|visible)$/)
+  light?: LightType
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(100)
@@ -95,6 +99,9 @@ export class SettingsPatchDto {
 }
 
 class CameraSettingsPutDto {
+  @Matches(/^(infrared|visible)$/)
+  light: LightType
+
   @IsNotEmpty()
   @IsInt()
   @Min(0)

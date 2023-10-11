@@ -37,12 +37,16 @@ jest.mock('../src/motion-client', () => ({
 
 describe('SettingsController (e2e)', () => {
   const AVAILABLE_TIMEZONES = ['Europe/Luxembourg', 'Europe/Paris']
+  const CAMERA_LIGHT = 'visible' as const
   const SHOT_TYPES = ['pictures' as const, 'videos' as const]
   const SLEEPING_TIME = '10:12'
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
+  const TRIGGERING_LIGHT = 'infrared' as const
   const WAKING_UP_TIME = '10:17'
-  const LIGHT = 'infrared' as const
 
+  const CAMERA_JSON_SETTINGS = {
+    light: CAMERA_LIGHT,
+  }
   const GENERAL_JSON_SETTINGS = {
     deviceName: 'd',
     siteName: 's',
@@ -50,15 +54,17 @@ describe('SettingsController (e2e)', () => {
   const TRIGGERING_JSON_SETTINGS = {
     sleepingTime: SLEEPING_TIME,
     wakingUpTime: WAKING_UP_TIME,
-    light: LIGHT,
+    light: TRIGGERING_LIGHT,
   }
   const JSON_SETTINGS = {
+    camera: CAMERA_JSON_SETTINGS,
     general: GENERAL_JSON_SETTINGS,
     triggering: TRIGGERING_JSON_SETTINGS,
   }
 
   const ALL_SETTINGS: Settings = {
     camera: {
+      light: CAMERA_LIGHT,
       pictureQuality: PICTURE_QUALITY,
       shotTypes: SHOT_TYPES,
       videoQuality: MOVIE_QUALITY,
@@ -274,7 +280,29 @@ describe('SettingsController (e2e)', () => {
           .expect(400)
       })
 
-      it('returns bad request on invalid light type', () => {
+      it('returns bad request on invalid camera light', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            camera: {
+              light: 'a',
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns success with valid camera light', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            camera: {
+              light: 'visible',
+            },
+          })
+          .expect(200)
+      })
+
+      it('returns bad request on invalid triggering light', () => {
         return request(app.getHttpServer())
           .patch('/settings')
           .send({
@@ -285,7 +313,7 @@ describe('SettingsController (e2e)', () => {
           .expect(400)
       })
 
-      it('returns success with valid light type', () => {
+      it('returns success with valid triggering light', () => {
         return request(app.getHttpServer())
           .patch('/settings')
           .send({
@@ -295,10 +323,25 @@ describe('SettingsController (e2e)', () => {
           })
           .expect(200)
       })
+
+      it('returns bad request on invalid camera and triggering light combination', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            camera: {
+              light: 'infrared',
+            },
+            triggering: {
+              light: 'visible',
+            },
+          })
+          .expect(400)
+      })
     })
 
     describe('/ (PUT)', () => {
       const goodCameraPutSettings = {
+        light: 'visible',
         pictureQuality: PICTURE_QUALITY,
         shotTypes: SHOT_TYPES,
         videoQuality: MOVIE_QUALITY,
@@ -416,6 +459,32 @@ describe('SettingsController (e2e)', () => {
             },
           })
           .expect(400)
+      })
+
+      it('returns bad request on invalid camera and triggering light combination', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: {
+              ...goodCameraPutSettings,
+              light: 'infrared',
+            },
+            general: goodGeneralPutSettings,
+            triggering: {
+              ...goodTriggeringPutSettings,
+              light: 'visible',
+            },
+          })
+          .expect(400)
+      })
+    })
+
+    describe('/cameraLight (GET)', () => {
+      it('returns camera light type', () => {
+        return request(app.getHttpServer())
+          .get('/settings/cameraLight')
+          .expect('Content-Type', /text\/plain/)
+          .expect(200, CAMERA_LIGHT)
       })
     })
 
@@ -598,7 +667,7 @@ describe('SettingsController (e2e)', () => {
         return request(app.getHttpServer())
           .get('/settings/triggeringLight')
           .expect('Content-Type', /text\/plain/)
-          .expect(200, LIGHT)
+          .expect(200, TRIGGERING_LIGHT)
       })
     })
   })

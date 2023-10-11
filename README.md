@@ -64,9 +64,9 @@ If you have not already during frontend setup, you will create a new user. The u
 
    ```
    app4cam ALL=(ALL) NOPASSWD: /usr/bin/timedatectl
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/use-triggering-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/use-recording-leds.sh
+   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/use-triggering-leds.sh
    ```
 
 3. On **Raspberry Pi**, also add the following line:
@@ -133,10 +133,6 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
    mmalcam_name vc.ril.camera
 
    mmalcam_control_params -ex auto
-
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh RaspberryPi
-
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh RaspberryPi
    ```
 
    On all devices:
@@ -189,12 +185,20 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
    snapshot_filename %Y%m%dT%H%M%S_snapshot
    ```
 
-   Enable led ilumination:
+   Enable LED illumination on Raspberry Pi:
 
    ```
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/switch-off-recording-leds.sh
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/use-triggering-leds.sh RaspberryPi
 
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/switch-on-recording-leds.sh
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/use-recording-leds.sh RaspberryPi
+   ```
+
+   Enable LED illumination on Variscite:
+
+   ```
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/use-triggering-leds.sh Variscite
+
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/use-recording-leds.sh Variscite
    ```
 
    **Height and Width**: Make sure to adapt them to the maximum resolution your camera supports, for example:

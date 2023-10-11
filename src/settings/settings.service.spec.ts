@@ -57,29 +57,35 @@ describe('SettingsService', () => {
   })
 
   describe('with mocked SettingsFileProvider', () => {
+    const CAMERA_LIGHT_TYPE = 'visible' as const
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SLEEPING_TIME = '10:12'
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
+    const TRIGGER_LIGHT_TYPE = 'infrared' as const
     const TRIGGER_SENSITIVITY = 1
     const WAKING_UP_TIME = '10:17'
-    const LIGHT_TYPE = 'infrared' as const
 
+    const CAMERA_JSON_SETTINGS = {
+      light: CAMERA_LIGHT_TYPE,
+    }
     const GENERAL_JSON_SETTINGS = {
       deviceName: 'd',
       siteName: 's',
     }
     const TRIGGERING_JSON_SETTINGS = {
+      light: TRIGGER_LIGHT_TYPE,
       sleepingTime: SLEEPING_TIME,
       wakingUpTime: WAKING_UP_TIME,
-      light: LIGHT_TYPE,
     }
     const JSON_SETTINGS = {
+      camera: CAMERA_JSON_SETTINGS,
       general: GENERAL_JSON_SETTINGS,
       triggering: TRIGGERING_JSON_SETTINGS,
     }
 
     const ALL_SETTINGS: Settings = {
       camera: {
+        light: CAMERA_LIGHT_TYPE,
         pictureQuality: 90,
         shotTypes: SHOT_TYPES,
         videoQuality: 60,
@@ -138,6 +144,9 @@ describe('SettingsService', () => {
     })
 
     it('updates all optional settings', async () => {
+      const cameraJsonSettings = {
+        light: 'visible' as const,
+      }
       const generalJsonSettings = {
         deviceName: 'dd',
         siteName: 'ss',
@@ -148,11 +157,13 @@ describe('SettingsService', () => {
         light: 'infrared' as const,
       }
       const jsonSettings = {
+        camera: cameraJsonSettings,
         general: generalJsonSettings,
         triggering: triggeringJsonSettings,
       }
       const allSettings: Settings = {
         camera: {
+          ...cameraJsonSettings,
           pictureQuality: 90,
           shotTypes: ['pictures', 'videos'],
           videoQuality: 60,
@@ -212,6 +223,9 @@ describe('SettingsService', () => {
     })
 
     it('updates all settings', async () => {
+      const cameraJsonSettings = {
+        light: 'visible' as const,
+      }
       const generalJsonSettings = {
         deviceName: 'dd',
         siteName: 'ss',
@@ -222,11 +236,13 @@ describe('SettingsService', () => {
         light: 'infrared' as const,
       }
       const jsonSettings = {
+        camera: cameraJsonSettings,
         general: generalJsonSettings,
         triggering: triggeringJsonSettings,
       }
       const settings: Settings = {
         camera: {
+          ...cameraJsonSettings,
           pictureQuality: 90,
           shotTypes: SHOT_TYPES,
           videoQuality: 60,
@@ -323,7 +339,7 @@ describe('SettingsService', () => {
 
     it('returns the light type', async () => {
       const light = await service.getTriggeringLight()
-      expect(light).toBe(LIGHT_TYPE)
+      expect(light).toBe(TRIGGER_LIGHT_TYPE)
     })
 
     afterEach(() => {
