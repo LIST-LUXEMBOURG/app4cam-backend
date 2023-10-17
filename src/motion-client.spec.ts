@@ -121,6 +121,17 @@ describe(MotionClient.name, () => {
     })
   })
 
+  describe(MotionClient.setVideoParams.name, () => {
+    it('does not throw an error', async () => {
+      expect(
+        async () =>
+          await MotionClient.setVideoParams(
+            '"Focus, Auto"=0, "Focus (absolute)"=200, Brightness=16',
+          ),
+      ).not.toThrow()
+    })
+  })
+
   describe(MotionClient.isDetectionStatusActive.name, () => {
     it('returns a value', async () => {
       const response = await MotionClient.isDetectionStatusActive()

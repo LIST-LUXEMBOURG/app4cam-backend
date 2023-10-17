@@ -17,6 +17,10 @@ import {
 import { SettingsFileProvider } from './settings-file-provider'
 import { UndefinedPathError } from './undefined-path-error'
 
+const MOTION_BRIGHTNESS = 16
+const MOTION_FOCUS_ABSOLUTE_VISIBLE_LIGHT = 350
+const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
+const MOTION_FOCUS_AUTO = 0
 const SETTINGS_FILE_PATH = 'settings.json'
 
 @Injectable()
@@ -142,6 +146,7 @@ export class SettingsService {
       ) {
         cameraSettingsMerged.light = settings.camera.light
         isAtLeastOneJsonSettingUpdated = true
+        await this.adaptFocusToCameraLight(cameraSettingsMerged.light)
       }
 
       if ('pictureQuality' in settings.camera) {
@@ -331,6 +336,8 @@ export class SettingsService {
       )
     }
 
+    await this.adaptFocusToCameraLight(settings.camera.light)
+
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
     await SystemTimeInteractor.setSystemTimeInIso8601Format(
       settings.general.systemTime,
@@ -424,6 +431,20 @@ export class SettingsService {
       settings.general.deviceName,
       isRaspberryPi,
       this.logger,
+    )
+  }
+
+  async adaptFocusToCameraLight(light: LightType): Promise<void> {
+    let focus: number
+    if (light === 'infrared') {
+      focus =
+        MOTION_FOCUS_ABSOLUTE_VISIBLE_LIGHT -
+        MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS
+    } else {
+      focus = MOTION_FOCUS_ABSOLUTE_VISIBLE_LIGHT
+    }
+    MotionClient.setVideoParams(
+      `"Focus, Auto"=${MOTION_FOCUS_AUTO}, "Focus (absolute)"=${focus}, Brightness=${MOTION_BRIGHTNESS}`,
     )
   }
 

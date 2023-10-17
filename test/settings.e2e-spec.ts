@@ -32,6 +32,7 @@ jest.mock('../src/motion-client', () => ({
     getThreshold: () => 75,
     setThreshold: jest.fn(),
     getTargetDir: () => SHOTS_FOLDER,
+    setVideoParams: jest.fn(),
   },
 }))
 

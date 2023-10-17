@@ -22,6 +22,7 @@ const ALLOWED_SET_CONFIG_OPTIONS = [
   'target_dir',
   'text_left',
   'threshold',
+  'video_params',
 ]
 
 const baseUrl = (path: string) =>
