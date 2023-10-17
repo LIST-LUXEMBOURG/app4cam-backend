@@ -98,6 +98,10 @@ export class MotionClient {
     await this.setConfigurationOption('threshold', value.toString())
   }
 
+  static async setVideoParams(value: string): Promise<void> {
+    await this.setConfigurationOption('video_params', value)
+  }
+
   static async isDetectionStatusActive(): Promise<boolean> {
     const response = await axios.get(DETECTION_URL + 'status')
     const body = response.data as string
