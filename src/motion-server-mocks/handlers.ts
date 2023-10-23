@@ -9,6 +9,7 @@ const ALLOWED_GET_CONFIG_OPTIONS = [
   'picture_quality',
   'target_dir',
   'threshold',
+  'video_params',
   'width',
 ]
 const ALLOWED_SET_CONFIG_OPTIONS = [
@@ -58,6 +59,9 @@ export const handlers = [
         break
       case 'target_dir':
         body = `Camera 0 ${queryParameterValues[0]} = /a/b/c Done`
+        break
+      case 'video_params':
+        body = `Camera 0 ${queryParameterValues[0]} = "Focus, Auto"=0, "Focus (absolute)"=200, Brightness=16 Done `
         break
       default:
         body = `Camera 0 ${queryParameterValues[0]} = 1 Done`

@@ -23,7 +23,8 @@ class TriggeringSettingsFromJsonFile {
 
 type ShotType = 'pictures' | 'videos'
 
-interface CameraSettings extends CameraSettingsFromJsonFile {
+export interface CameraSettings extends CameraSettingsFromJsonFile {
+  focus: number
   pictureQuality: number
   shotTypes: ShotType[]
   videoQuality: number
@@ -34,7 +35,7 @@ export class GeneralSettings extends GeneralSettingsFromJsonFile {
   timeZone: string
 }
 
-class TriggeringSettings extends TriggeringSettingsFromJsonFile {
+export class TriggeringSettings extends TriggeringSettingsFromJsonFile {
   threshold: number
 }
 

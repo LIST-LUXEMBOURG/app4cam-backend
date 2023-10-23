@@ -11,6 +11,7 @@ describe('SettingsController', () => {
 
   const SETTINGS: Settings = {
     camera: {
+      focus: 200,
       light: 'visible',
       pictureQuality: 90,
       shotTypes: ['pictures', 'videos'],
@@ -88,6 +89,7 @@ describe('SettingsController', () => {
   it('sets all settings', async () => {
     const settings = {
       camera: {
+        focus: 200,
         light: 'visible' as const,
         pictureQuality: 40,
         shotTypes: ['pictures' as const, 'videos' as const],

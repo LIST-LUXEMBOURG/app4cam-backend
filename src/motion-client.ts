@@ -55,6 +55,11 @@ export class MotionClient {
     return parseInt(value)
   }
 
+  static async getVideoParams(): Promise<string> {
+    const value = await this.getConfigurationOption('video_params')
+    return value
+  }
+
   static async getWidth(): Promise<number> {
     const value = await this.getConfigurationOption('width')
     return parseFloat(value)
@@ -124,10 +129,12 @@ export class MotionClient {
   }
 
   private static extractValueFromResponseBody(body: string): string {
-    const bodyPartsSplitByEqualSign = body.split('=')
-    const partWithValue = bodyPartsSplitByEqualSign[1].trim()
-    const valuePartPartsSplitBySpace = partWithValue.split(' ')
-    return valuePartPartsSplitBySpace[0]
+    const firstEqualSignPosition = body.indexOf('=')
+    const lastSpacePosition = body.trimEnd().lastIndexOf(' ')
+    const value = body
+      .substring(firstEqualSignPosition + 1, lastSpacePosition)
+      .trim()
+    return value
   }
 
   private static async getConfigurationOption(

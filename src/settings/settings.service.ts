@@ -8,6 +8,7 @@ import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SleepInteractor } from './interactors/sleep-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
 import { MotionTextAssembler } from './motion-text-assembler'
+import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
 import {
   LightType,
   PatchableSettings,
@@ -17,10 +18,8 @@ import {
 import { SettingsFileProvider } from './settings-file-provider'
 import { UndefinedPathError } from './undefined-path-error'
 
-const MOTION_BRIGHTNESS = 16
-const MOTION_FOCUS_ABSOLUTE_VISIBLE_LIGHT = 350
 const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
-const MOTION_FOCUS_AUTO = 0
+const MOTION_VIDEO_PARAMS_FOCUS_KEY = 'Focus (absolute)'
 const SETTINGS_FILE_PATH = 'settings.json'
 
 @Injectable()
@@ -43,10 +42,14 @@ export class SettingsService {
     const timeZone = await SystemTimeInteractor.getTimeZone()
 
     const shotTypes = []
+    let focus = 0
     let pictureQuality = 0
     let threshold = 1
     let videoQuality = 0
     try {
+      focus = await this.getFocusFromMotionAdaptedToCameraLight(
+        settingsFromFile.camera.light,
+      )
       pictureQuality = await MotionClient.getPictureQuality()
       threshold = await MotionClient.getThreshold()
       videoQuality = await MotionClient.getMovieQuality()
@@ -71,6 +74,7 @@ export class SettingsService {
     return {
       camera: {
         ...settingsFromFile.camera,
+        focus,
         pictureQuality,
         shotTypes,
         videoQuality,
@@ -146,7 +150,16 @@ export class SettingsService {
       ) {
         cameraSettingsMerged.light = settings.camera.light
         isAtLeastOneJsonSettingUpdated = true
-        await this.adaptFocusToCameraLight(cameraSettingsMerged.light)
+      }
+      if (
+        ('light' in settings.camera &&
+          settings.camera.light != settingsReadFromFile.camera.light) ||
+        'focus' in settings.camera
+      ) {
+        await this.setFocusInMotionAdaptedToCameraLight(
+          settings.camera.focus,
+          cameraSettingsMerged.light,
+        )
       }
 
       if ('pictureQuality' in settings.camera) {
@@ -336,8 +349,6 @@ export class SettingsService {
       )
     }
 
-    await this.adaptFocusToCameraLight(settings.camera.light)
-
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
     await SystemTimeInteractor.setSystemTimeInIso8601Format(
       settings.general.systemTime,
@@ -369,6 +380,11 @@ export class SettingsService {
     }
 
     try {
+      await this.setFocusInMotionAdaptedToCameraLight(
+        settings.camera.focus,
+        settings.camera.light,
+      )
+
       await MotionClient.setPictureQuality(settings.camera.pictureQuality)
       await MotionClient.setMovieQuality(settings.camera.videoQuality)
       await MotionClient.setThreshold(settings.triggering.threshold)
@@ -434,18 +450,37 @@ export class SettingsService {
     )
   }
 
-  async adaptFocusToCameraLight(light: LightType): Promise<void> {
-    let focus: number
-    if (light === 'infrared') {
-      focus =
-        MOTION_FOCUS_ABSOLUTE_VISIBLE_LIGHT -
-        MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS
-    } else {
-      focus = MOTION_FOCUS_ABSOLUTE_VISIBLE_LIGHT
-    }
-    MotionClient.setVideoParams(
-      `"Focus, Auto"=${MOTION_FOCUS_AUTO}, "Focus (absolute)"=${focus}, Brightness=${MOTION_BRIGHTNESS}`,
+  private async getFocusFromMotionAdaptedToCameraLight(
+    light: LightType,
+  ): Promise<number> {
+    const videoParametersString = await MotionClient.getVideoParams()
+    const videoParameters = MotionVideoParametersWorker.convertStringToObject(
+      videoParametersString,
     )
+    const focus = videoParameters[MOTION_VIDEO_PARAMS_FOCUS_KEY]
+    let focusAdaptedToLight = focus
+    if (light === 'infrared') {
+      focusAdaptedToLight += MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS
+    }
+    return focusAdaptedToLight
+  }
+
+  private async setFocusInMotionAdaptedToCameraLight(
+    focus: number,
+    light: LightType,
+  ) {
+    let focusAdaptedToLight = focus
+    if (light === 'infrared') {
+      focusAdaptedToLight -= MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS
+    }
+    const videoParametersString = await MotionClient.getVideoParams()
+    const videoParameters = MotionVideoParametersWorker.convertStringToObject(
+      videoParametersString,
+    )
+    videoParameters[MOTION_VIDEO_PARAMS_FOCUS_KEY] = focusAdaptedToLight
+    const newVideoParametersString =
+      MotionVideoParametersWorker.convertObjectToString(videoParameters)
+    await MotionClient.setVideoParams(newVideoParametersString)
   }
 
   async getSiteName(): Promise<string> {
