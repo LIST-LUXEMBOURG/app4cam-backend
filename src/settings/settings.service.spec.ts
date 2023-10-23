@@ -27,6 +27,8 @@ jest.mock('../motion-client', () => ({
     getThreshold: () => 1,
     setThreshold: jest.fn(),
     getTargetDir: () => SHOTS_FOLDER,
+    getVideoParams: () =>
+      '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
     setVideoParams: jest.fn(),
   },
 }))
@@ -59,6 +61,7 @@ describe('SettingsService', () => {
 
   describe('with mocked SettingsFileProvider', () => {
     const CAMERA_LIGHT_TYPE = 'visible' as const
+    const FOCUS = 200
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SLEEPING_TIME = '10:12'
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
@@ -86,6 +89,7 @@ describe('SettingsService', () => {
 
     const ALL_SETTINGS: Settings = {
       camera: {
+        focus: FOCUS,
         light: CAMERA_LIGHT_TYPE,
         pictureQuality: 90,
         shotTypes: SHOT_TYPES,
@@ -165,6 +169,7 @@ describe('SettingsService', () => {
       const allSettings: Settings = {
         camera: {
           ...cameraJsonSettings,
+          focus: 200,
           pictureQuality: 90,
           shotTypes: ['pictures', 'videos'],
           videoQuality: 60,
@@ -244,6 +249,7 @@ describe('SettingsService', () => {
       const settings: Settings = {
         camera: {
           ...cameraJsonSettings,
+          focus: 200,
           pictureQuality: 90,
           shotTypes: SHOT_TYPES,
           videoQuality: 60,

@@ -61,6 +61,15 @@ describe(MotionClient.name, () => {
     })
   })
 
+  describe(MotionClient.getVideoParams.name, () => {
+    it('returns a value', async () => {
+      const response = await MotionClient.getVideoParams()
+      expect(response).toBe(
+        '"Focus, Auto"=0, "Focus (absolute)"=200, Brightness=16',
+      )
+    })
+  })
+
   describe(MotionClient.getWidth.name, () => {
     it('returns a value', async () => {
       const response = await MotionClient.getWidth()

@@ -25,6 +25,11 @@ class CameraSettingsPatchDto {
   @IsOptional()
   @IsInt()
   @Min(0)
+  focus: number
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
   @Max(100)
   pictureQuality: number
 
@@ -101,6 +106,11 @@ export class SettingsPatchDto {
 class CameraSettingsPutDto {
   @Matches(/^(infrared|visible)$/)
   light: LightType
+
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  focus: number
 
   @IsNotEmpty()
   @IsInt()

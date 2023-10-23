@@ -7,7 +7,12 @@ import { AccessPointInteractor } from '../src/settings/interactors/access-point-
 import { SystemTimeInteractor } from '../src/settings/interactors/system-time-interactor'
 import { SettingsFileProvider } from '../src/settings/settings-file-provider'
 import { AppModule } from './../src/app.module'
-import { Settings } from 'src/settings/settings'
+import {
+  CameraSettings,
+  GeneralSettings,
+  Settings,
+  TriggeringSettings,
+} from 'src/settings/settings'
 
 const MOVIE_QUALITY = 80
 const PICTURE_QUALITY = 80
@@ -32,6 +37,8 @@ jest.mock('../src/motion-client', () => ({
     getThreshold: () => 75,
     setThreshold: jest.fn(),
     getTargetDir: () => SHOTS_FOLDER,
+    getVideoParams: () =>
+      '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
     setVideoParams: jest.fn(),
   },
 }))
@@ -39,6 +46,7 @@ jest.mock('../src/motion-client', () => ({
 describe('SettingsController (e2e)', () => {
   const AVAILABLE_TIMEZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const CAMERA_LIGHT = 'visible' as const
+  const FOCUS = 200
   const SHOT_TYPES = ['pictures' as const, 'videos' as const]
   const SLEEPING_TIME = '10:12'
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
@@ -65,6 +73,7 @@ describe('SettingsController (e2e)', () => {
 
   const ALL_SETTINGS: Settings = {
     camera: {
+      focus: FOCUS,
       light: CAMERA_LIGHT,
       pictureQuality: PICTURE_QUALITY,
       shotTypes: SHOT_TYPES,
@@ -143,6 +152,27 @@ describe('SettingsController (e2e)', () => {
     })
 
     describe('/ (PATCH)', () => {
+      it('returns success on valid focus value', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ camera: { focus: 300 } })
+          .expect(200)
+      })
+
+      it('returns bad request on negative focus value', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ camera: { focus: -100 } })
+          .expect(400)
+      })
+
+      it('returns bad request on string focus value', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ camera: { focus: 'a' } })
+          .expect(400)
+      })
+
       it('returns bad request on invalid option in shot types', () => {
         return request(app.getHttpServer())
           .patch('/settings')
@@ -341,19 +371,20 @@ describe('SettingsController (e2e)', () => {
     })
 
     describe('/ (PUT)', () => {
-      const goodCameraPutSettings = {
+      const goodCameraPutSettings: CameraSettings = {
+        focus: FOCUS,
         light: 'visible',
         pictureQuality: PICTURE_QUALITY,
         shotTypes: SHOT_TYPES,
         videoQuality: MOVIE_QUALITY,
       }
-      const goodGeneralPutSettings = {
+      const goodGeneralPutSettings: GeneralSettings = {
         deviceName: 'd',
         siteName: 's',
         systemTime: new Date().toISOString(),
         timeZone: ALL_SETTINGS.general.timeZone,
       }
-      const goodTriggeringPutSettings = {
+      const goodTriggeringPutSettings: TriggeringSettings = {
         threshold: TRIGGER_THRESHOLD,
         sleepingTime: '18:00',
         wakingUpTime: '20:00',
@@ -399,6 +430,34 @@ describe('SettingsController (e2e)', () => {
             camera: {
               ...goodCameraPutSettings,
               shotTypes: [''],
+            },
+            general: goodGeneralPutSettings,
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on negative focus value', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: {
+              ...goodCameraPutSettings,
+              focus: -100,
+            },
+            general: goodGeneralPutSettings,
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on string focus value', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: {
+              ...goodCameraPutSettings,
+              focus: 'a',
             },
             general: goodGeneralPutSettings,
             triggering: goodTriggeringPutSettings,
