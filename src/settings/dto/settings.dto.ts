@@ -25,13 +25,13 @@ class CameraSettingsPatchDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  focus: number
+  focus?: number
 
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(100)
-  pictureQuality: number
+  pictureQuality?: number
 
   @IsArray()
   @Matches(/^(pictures|videos)$/, { each: true })
@@ -42,7 +42,7 @@ class CameraSettingsPatchDto {
   @IsInt()
   @Min(0)
   @Max(100)
-  videoQuality: number
+  videoQuality?: number
 }
 
 class GeneralSettingsPatchDto {
