@@ -201,6 +201,15 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
    on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/use-recording-leds.sh Variscite
    ```
 
+   Using **different illumination types** for triggering and recording (e.g. infrared for triggering and visible for recording) can induce a **fake loop phenomenon**.  
+   To prevent the light switch to trigger a fake event these parameters should be added:
+
+   ```
+   lightswitch_percent 90
+
+   lightswitch_frames 5
+   ```
+
    **Height and Width**: Make sure to adapt them to the maximum resolution your camera supports, for example:
 
    ```
