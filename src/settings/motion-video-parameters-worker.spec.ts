@@ -13,6 +13,18 @@ describe(MotionVideoParametersWorker.name, () => {
         Brightness: 16,
       })
     })
+
+    it('converts an empty string', () => {
+      expect(
+        MotionVideoParametersWorker.convertStringToObject(''),
+      ).toStrictEqual({})
+    })
+
+    it('converts a motion null value', () => {
+      expect(
+        MotionVideoParametersWorker.convertStringToObject('(null)'),
+      ).toStrictEqual({})
+    })
   })
 
   describe(MotionVideoParametersWorker.convertObjectToString.name, () => {
