@@ -2,6 +2,9 @@ type VideoParameters = Record<string, number>
 
 export class MotionVideoParametersWorker {
   static convertStringToObject(input: string): VideoParameters {
+    if (!input || input === '(null)') {
+      return {}
+    }
     return input
       .split(/,+(?=(?:(?:[^"]*"){2})*[^"]*$)/g)
       .reduce((result, parameterString) => {

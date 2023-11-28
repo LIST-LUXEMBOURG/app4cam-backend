@@ -461,6 +461,14 @@ export class SettingsService {
     const videoParameters = MotionVideoParametersWorker.convertStringToObject(
       videoParametersString,
     )
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        videoParameters,
+        MOTION_VIDEO_PARAMS_FOCUS_KEY,
+      )
+    ) {
+      return 0
+    }
     const focus = videoParameters[MOTION_VIDEO_PARAMS_FOCUS_KEY]
     let focusAdaptedToLight = focus
     if (light === 'infrared') {
