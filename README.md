@@ -472,8 +472,6 @@ If you have set up the frontend already, you just need to do step 4.
    - `RASPBERRY_PI_HOST`: IP address of Raspberry Pi
    - `RASPBERRY_PI_PRIVATE_KEY`: private key of Raspberry Pi user
    - `RASPBERRY_PI_USER`: user of Raspberry Pi
-   - `VARISCITE_MX6_HOST`: IP address of Variscite MX6
-   - `VARISCITE_MX6_PRIVATE_KEY`: private key of Variscite MX6 user
    - `VARISCITE_MX8M_HOST`: IP address of Variscite MX8M
    - `VARISCITE_MX8M_PRIVATE_KEY`: private key of Variscite MX8M user
    - `VARISCITE_USER`: user of Variscite devices
