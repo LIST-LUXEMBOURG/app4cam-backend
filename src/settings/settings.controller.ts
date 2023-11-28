@@ -27,7 +27,9 @@ export class SettingsController {
   }
 
   @Patch()
-  updateSettings(@Body() settings: SettingsPatchDto): Promise<void> {
+  updateSettings(
+    @Body() settings: SettingsPatchDto,
+  ): Promise<SettingsPatchDto> {
     return this.settingsService.updateSettings(settings)
   }
 

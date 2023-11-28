@@ -153,10 +153,11 @@ describe('SettingsController (e2e)', () => {
 
     describe('/ (PATCH)', () => {
       it('returns success on valid focus value', () => {
+        const data = { camera: { focus: 300 } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ camera: { focus: 300 } })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns bad request on negative focus value', () => {
@@ -207,10 +208,11 @@ describe('SettingsController (e2e)', () => {
       })
 
       it('returns success on device name', () => {
+        const data = { general: { deviceName: 'a' } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ general: { deviceName: 'a' } })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns bad request on invalid space in device ID', () => {
@@ -221,17 +223,19 @@ describe('SettingsController (e2e)', () => {
       })
 
       it('returns success on site name', () => {
+        const data = { general: { siteName: 'a' } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ general: { siteName: 'a' } })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns success on empty site name', () => {
+        const data = { general: { siteName: '' } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ general: { siteName: '' } })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns bad request on invalid space in site name', () => {
@@ -242,24 +246,27 @@ describe('SettingsController (e2e)', () => {
       })
 
       it('returns success system time', () => {
+        const data = { general: { systemTime: new Date().toISOString() } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ general: { systemTime: new Date().toISOString() } })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns success on time zone', () => {
+        const data = { general: { timeZone: AVAILABLE_TIMEZONES[0] } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ general: { timeZone: AVAILABLE_TIMEZONES[0] } })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns success trigger threshold', () => {
+        const data = { triggering: { threshold: 1 } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { threshold: 1 } })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns bad request on too low threshold', () => {
@@ -284,10 +291,11 @@ describe('SettingsController (e2e)', () => {
       })
 
       it('returns success with empty sleeping and waking up times', () => {
+        const data = { triggering: { sleepingTime: '', wakingUpTime: '' } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { sleepingTime: '', wakingUpTime: '' } })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns bad request on empty sleeping time', () => {
@@ -323,14 +331,15 @@ describe('SettingsController (e2e)', () => {
       })
 
       it('returns success with valid camera light', () => {
+        const data = {
+          camera: {
+            light: 'visible',
+          },
+        }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({
-            camera: {
-              light: 'visible',
-            },
-          })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns bad request on invalid triggering light', () => {
@@ -345,14 +354,15 @@ describe('SettingsController (e2e)', () => {
       })
 
       it('returns success with valid triggering light', () => {
+        const data = {
+          triggering: {
+            light: 'infrared',
+          },
+        }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({
-            triggering: {
-              light: 'infrared',
-            },
-          })
-          .expect(200)
+          .send(data)
+          .expect(200, data)
       })
 
       it('returns bad request on invalid camera and triggering light combination', () => {

@@ -184,7 +184,7 @@ describe('SettingsService', () => {
           threshold: 1,
         },
       }
-      await service.updateSettings(allSettings)
+      const returnedSettings = await service.updateSettings(allSettings)
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         jsonSettings,
         expect.any(String),
@@ -194,6 +194,7 @@ describe('SettingsService', () => {
         false,
       )
       expect(spySetTimeZone).toHaveBeenCalledWith(allSettings.general.timeZone)
+      expect(returnedSettings).toStrictEqual(allSettings)
     })
 
     it('updates one setting stored in settings file but neither system time nor time zone', async () => {
@@ -202,7 +203,7 @@ describe('SettingsService', () => {
           deviceName: 'dd',
         },
       }
-      await service.updateSettings(settingsToUpdate)
+      const returnedSettings = await service.updateSettings(settingsToUpdate)
       const expectedSettings = JSON.parse(JSON.stringify(JSON_SETTINGS)) // deep clone
       expectedSettings.general.deviceName = settingsToUpdate.general.deviceName
       expect(spySetSystemTime).not.toHaveBeenCalled()
@@ -211,6 +212,7 @@ describe('SettingsService', () => {
         expect.any(String),
       )
       expect(spySetTimeZone).not.toHaveBeenCalled()
+      expect(returnedSettings).toStrictEqual(settingsToUpdate)
     })
 
     it('updates system time but does not write settings file', async () => {
@@ -219,13 +221,14 @@ describe('SettingsService', () => {
           systemTime: 'sy',
         },
       }
-      await service.updateSettings(settingsToUpdate)
+      const returnedSettings = await service.updateSettings(settingsToUpdate)
       expect(spySetSystemTime).toHaveBeenCalledWith(
         settingsToUpdate.general.systemTime,
         false,
       )
       expect(spyWriteSettingsFile).not.toHaveBeenCalled()
       expect(spySetTimeZone).not.toHaveBeenCalled()
+      expect(returnedSettings).toStrictEqual(settingsToUpdate)
     })
 
     it('updates all settings', async () => {

@@ -91,7 +91,9 @@ export class SettingsService {
     }
   }
 
-  async updateSettings(settings: PatchableSettings): Promise<void> {
+  async updateSettings(
+    settings: PatchableSettings,
+  ): Promise<PatchableSettings> {
     if (
       'camera' in settings &&
       'triggering' in settings &&
@@ -320,6 +322,8 @@ export class SettingsService {
         SETTINGS_FILE_PATH,
       )
     }
+
+    return settings
   }
 
   async updateAllSettings(settings: Settings): Promise<void> {
