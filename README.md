@@ -474,6 +474,8 @@ If you have set up the frontend already, you just need to do step 4.
    - `RASPBERRY_PI_USER`: user of Raspberry Pi
    - `VARISCITE_MX8M_HOST`: IP address of Variscite MX8M
    - `VARISCITE_MX8M_PRIVATE_KEY`: private key of Variscite MX8M user
+   - `VARISCITE_NEWTCAM2_HOST`: IP address of Variscite NEWTCAM version 2
+   - `VARISCITE_NEWTCAM2_PRIVATE_KEY`: private key of Variscite NEWTCAM version 2 user
    - `VARISCITE_USER`: user of Variscite devices
 
 5. Delete private key file: `rm .ssh/id_ed25519`
