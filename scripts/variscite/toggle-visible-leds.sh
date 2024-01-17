@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# GPIO5_IO12
+# GPIO5_IO3
 line_nr="gpiochip4"
-pin_nr="12"
+pin_nr="3"
 
 echo "Setting visible lights to $1"
 
