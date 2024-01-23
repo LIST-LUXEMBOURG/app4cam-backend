@@ -62,6 +62,7 @@ describe('SettingsService', () => {
   describe('with mocked SettingsFileProvider', () => {
     const CAMERA_LIGHT_TYPE = 'visible' as const
     const FOCUS = 200
+    const PASSWORD = 'p'
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SLEEPING_TIME = '10:12'
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
@@ -97,6 +98,7 @@ describe('SettingsService', () => {
       },
       general: {
         ...GENERAL_JSON_SETTINGS,
+        password: PASSWORD,
         systemTime: SYSTEM_TIME,
         timeZone: 't',
       },
@@ -113,7 +115,8 @@ describe('SettingsService', () => {
     let spyGetTimeZone
     let spySetTimeZone
     let spyInitializeLights
-    let spySetAccessPointName
+    let spySetAccessPointNameOrPassword
+    let spyGetAccessPointPassword
 
     beforeAll(() => {
       spyReadSettingsFile = jest
@@ -137,9 +140,12 @@ describe('SettingsService', () => {
       spyInitializeLights = jest
         .spyOn(InitialisationInteractor, 'resetLights')
         .mockResolvedValue()
-      spySetAccessPointName = jest
-        .spyOn(AccessPointInteractor, 'setAccessPointName')
+      spySetAccessPointNameOrPassword = jest
+        .spyOn(AccessPointInteractor, 'setAccessPointNameOrPassword')
         .mockResolvedValue()
+      spyGetAccessPointPassword = jest
+        .spyOn(AccessPointInteractor, 'getAccessPointPassword')
+        .mockResolvedValue(PASSWORD)
     })
 
     it('gets all settings', async () => {
@@ -176,6 +182,7 @@ describe('SettingsService', () => {
         },
         general: {
           ...generalJsonSettings,
+          password: 'pa',
           systemTime: 'sy',
           timeZone: 't1',
         },
@@ -259,6 +266,7 @@ describe('SettingsService', () => {
         },
         general: {
           ...generalJsonSettings,
+          password: 'pa',
           systemTime: 'sy',
           timeZone: 't1',
         },
@@ -367,7 +375,8 @@ describe('SettingsService', () => {
       spyGetTimeZone.mockRestore()
       spySetTimeZone.mockRestore()
       spyInitializeLights.mockRestore()
-      spySetAccessPointName.mockRestore()
+      spySetAccessPointNameOrPassword.mockRestore()
+      spyGetAccessPointPassword.mockRestore()
     })
   })
 })

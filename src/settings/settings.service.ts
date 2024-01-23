@@ -38,6 +38,11 @@ export class SettingsService {
     const settingsFromFile =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
 
+    const isRaspberryPi = this.deviceType === 'RaspberryPi'
+    const password = await AccessPointInteractor.getAccessPointPassword(
+      isRaspberryPi,
+      this.logger,
+    )
     const systemTime = await SystemTimeInteractor.getSystemTimeInIso8601Format()
     const timeZone = await SystemTimeInteractor.getTimeZone()
 
@@ -81,6 +86,7 @@ export class SettingsService {
       },
       general: {
         ...settingsFromFile.general,
+        password,
         systemTime,
         timeZone,
       },
@@ -239,6 +245,7 @@ export class SettingsService {
           timeZone,
         )
         await MotionClient.setFilename(filename)
+
         if (
           'deviceName' in settings.general ||
           'siteName' in settings.general
@@ -248,14 +255,17 @@ export class SettingsService {
             generalSettingsMerged.deviceName,
           )
           await MotionClient.setLeftTextOnImage(imageText)
-
-          const isRaspberryPi = this.deviceType === 'RaspberryPi'
-          await AccessPointInteractor.setAccessPointName(
-            generalSettingsMerged.deviceName,
-            isRaspberryPi,
-            this.logger,
-          )
         }
+      }
+
+      if ('deviceName' in settings.general || 'password' in settings.general) {
+        const isRaspberryPi = this.deviceType === 'RaspberryPi'
+        await AccessPointInteractor.setAccessPointNameOrPassword(
+          settings.general.deviceName,
+          settings.general.password,
+          isRaspberryPi,
+          this.logger,
+        )
       }
     }
 
@@ -447,8 +457,9 @@ export class SettingsService {
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
-    await AccessPointInteractor.setAccessPointName(
+    await AccessPointInteractor.setAccessPointNameOrPassword(
       settings.general.deviceName,
+      settings.general.password,
       isRaspberryPi,
       this.logger,
     )
@@ -547,8 +558,9 @@ export class SettingsService {
     await MotionClient.setLeftTextOnImage(imageText)
 
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
-    await AccessPointInteractor.setAccessPointName(
+    await AccessPointInteractor.setAccessPointNameOrPassword(
       deviceName,
+      undefined,
       isRaspberryPi,
       this.logger,
     )

@@ -9,8 +9,9 @@ export class AccessPointInteractor {
     return process.platform === 'win32'
   }
 
-  static async setAccessPointName(
+  static async setAccessPointNameOrPassword(
     name: string,
+    password: string,
     isRaspberryPi: boolean,
     logger: Logger,
   ): Promise<void> {
@@ -24,11 +25,41 @@ export class AccessPointInteractor {
       return
     }
     const currentWorkingDirectory = process.cwd()
-    const { stderr } = await exec(
-      `sudo ${currentWorkingDirectory}/scripts/variscite/access-point/change-access-point-name.sh "${name}"`,
-    )
+    let command = `sudo ${currentWorkingDirectory}/scripts/variscite/access-point/change-access-point-name-or-password.sh`
+    if (name) {
+      command += ` -n ${name}`
+    }
+    if (password) {
+      command += ` -p ${password}`
+    }
+    const { stderr } = await exec(command)
     if (stderr) {
       throw new Error(stderr)
     }
+  }
+
+  static async getAccessPointPassword(
+    isRaspberryPi: boolean,
+    logger: Logger,
+  ): Promise<string> {
+    if (this.isWindows()) {
+      return Promise.resolve('')
+    }
+    if (isRaspberryPi) {
+      logger.error(
+        'AccessPointInteractor does not currently support Raspberry Pi for changing the access point name.',
+      )
+      return
+    }
+    const currentWorkingDirectory = process.cwd()
+    const command = `sudo ${currentWorkingDirectory}/scripts/variscite/access-point/get-access-point-password.sh`
+    const { stdout, stderr } = await exec(command)
+    if (stderr) {
+      throw new Error(stderr)
+    }
+    const line = stdout.trim()
+    const lineParts = line.split(':')
+    const password = lineParts[1].trim()
+    return password
   }
 }

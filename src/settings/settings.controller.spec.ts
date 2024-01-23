@@ -19,6 +19,7 @@ describe('SettingsController', () => {
     },
     general: {
       deviceName: 'd',
+      password: 'p',
       siteName: 's',
       systemTime: '2022-01-18T14:48:37+01:00',
       timeZone: 't',
@@ -97,6 +98,7 @@ describe('SettingsController', () => {
       },
       general: {
         deviceName: 'd',
+        password: 'p',
         siteName: 's',
         systemTime: new Date().toISOString(),
         timeZone: 't',

@@ -51,6 +51,10 @@ class GeneralSettingsPatchDto {
   deviceName?: string
 
   @IsOptional()
+  @Matches(/^[ -~]{8,63}$/)
+  password?: string
+
+  @IsOptional()
   @Matches(/^[a-zA-Z0-9-]*$/)
   siteName?: string
 
@@ -133,6 +137,10 @@ class GeneralSettingsPutDto {
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9-]+$/)
   deviceName: string
+
+  @IsNotEmpty()
+  @Matches(/^[ -~]{8,63}$/)
+  password: string
 
   @Matches(/^[a-zA-Z0-9-]*$/)
   siteName: string
