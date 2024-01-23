@@ -159,7 +159,7 @@ deploy-variscite-newtcam2:
   tags:
     - hdce_docker
   environment:
-    name: Variscite NEWTCAM version 2 testing
+    name: Variscite NEWTCAM 2 testing
     url: http://$VARISCITE_NEWTCAM2_HOST
   script:
     ## Install ssh-agent if not already installed, it is required by Docker.
@@ -190,6 +190,50 @@ deploy-variscite-newtcam2:
     - apk add rsync
     - rsync --recursive config dist scripts temp package.json package-lock.json version.txt $VARISCITE_USER@$VARISCITE_NEWTCAM2_HOST:./$CI_PROJECT_NAME
     - ssh $VARISCITE_USER@$VARISCITE_NEWTCAM2_HOST "
+      cd $CI_PROJECT_NAME &&
+      npm ci --omit=dev --ignore-scripts &&
+      systemctl --user start $CI_PROJECT_NAME &&
+      exit
+      "
+
+deploy-variscite-newtcam3:
+  stage: deploy
+  except:
+    - tags
+  tags:
+    - hdce_docker
+  environment:
+    name: Variscite NEWTCAM 3 testing
+    url: http://$VARISCITE_NEWTCAM3_HOST
+  script:
+    ## Install ssh-agent if not already installed, it is required by Docker.
+    - 'which ssh-agent || ( apk update && apk add openssh-client )'
+
+    ## Run ssh-agent (inside the build environment).
+    - eval $(ssh-agent -s)
+
+    ## Add the SSH key variable to the agent store. We're using tr to fix line
+    ## endings which makes ed25519 keys work without extra base64 encoding.
+    ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
+    - echo "$VARISCITE_NEWTCAM3_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+
+    ## Create the SSH directory and give it the right permissions.
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+
+    ## Use ssh-keyscan to scan the keys of your private server.
+    - ssh-keyscan $VARISCITE_NEWTCAM3_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+    # Deploy.
+    - ssh $VARISCITE_USER@$VARISCITE_NEWTCAM3_HOST "
+      systemctl --user stop $CI_PROJECT_NAME &&
+      rm --force --recursive $CI_PROJECT_NAME/* || true &&
+      exit
+      "
+    - apk add rsync
+    - rsync --recursive config dist scripts temp package.json package-lock.json version.txt $VARISCITE_USER@$VARISCITE_NEWTCAM3_HOST:./$CI_PROJECT_NAME
+    - ssh $VARISCITE_USER@$VARISCITE_NEWTCAM3_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
       systemctl --user start $CI_PROJECT_NAME &&
