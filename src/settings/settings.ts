@@ -31,6 +31,7 @@ export interface CameraSettings extends CameraSettingsFromJsonFile {
 }
 
 export class GeneralSettings extends GeneralSettingsFromJsonFile {
+  password: string
   systemTime: string
   timeZone: string
 }

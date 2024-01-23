@@ -47,6 +47,7 @@ describe('SettingsController (e2e)', () => {
   const AVAILABLE_TIMEZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const CAMERA_LIGHT = 'visible' as const
   const FOCUS = 200
+  const PASSWORD = 'p'
   const SHOT_TYPES = ['pictures' as const, 'videos' as const]
   const SLEEPING_TIME = '10:12'
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
@@ -81,6 +82,7 @@ describe('SettingsController (e2e)', () => {
     },
     general: {
       ...GENERAL_JSON_SETTINGS,
+      password: PASSWORD,
       systemTime: SYSTEM_TIME,
       timeZone: AVAILABLE_TIMEZONES[0],
     },
@@ -99,7 +101,8 @@ describe('SettingsController (e2e)', () => {
   let spyGetTimeZone
   let spySetTimeZone
   let spyInitializeLights
-  let spySetAccessPointName
+  let spySetAccessPointNameOrPassword
+  let spyGetAccessPointPassword
 
   beforeAll(() => {
     spyReadSettingsFile = jest
@@ -126,9 +129,12 @@ describe('SettingsController (e2e)', () => {
     spyInitializeLights = jest
       .spyOn(InitialisationInteractor, 'resetLights')
       .mockResolvedValue()
-    spySetAccessPointName = jest
-      .spyOn(AccessPointInteractor, 'setAccessPointName')
+    spySetAccessPointNameOrPassword = jest
+      .spyOn(AccessPointInteractor, 'setAccessPointNameOrPassword')
       .mockResolvedValue()
+    spyGetAccessPointPassword = jest
+      .spyOn(AccessPointInteractor, 'getAccessPointPassword')
+      .mockResolvedValue(PASSWORD)
   })
 
   beforeEach(async () => {
@@ -378,6 +384,41 @@ describe('SettingsController (e2e)', () => {
           })
           .expect(400)
       })
+
+      it('returns success with valid Wi-Fi password', () => {
+        const data = {
+          general: {
+            password: '12345678',
+          },
+        }
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send(data)
+          .expect(200, data)
+      })
+
+      it('returns bad request on too short Wi-Fi password', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            general: {
+              password: '0',
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on too long Wi-Fi password', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            general: {
+              password:
+                '01234567890123456789012345678901234567890123456789012345678901234',
+            },
+          })
+          .expect(400)
+      })
     })
 
     describe('/ (PUT)', () => {
@@ -390,6 +431,7 @@ describe('SettingsController (e2e)', () => {
       }
       const goodGeneralPutSettings: GeneralSettings = {
         deviceName: 'd',
+        password: '12345678',
         siteName: 's',
         systemTime: new Date().toISOString(),
         timeZone: ALL_SETTINGS.general.timeZone,
@@ -755,6 +797,7 @@ describe('SettingsController (e2e)', () => {
     spyGetTimeZone.mockRestore()
     spySetTimeZone.mockRestore()
     spyInitializeLights.mockRestore()
-    spySetAccessPointName.mockRestore()
+    spySetAccessPointNameOrPassword.mockRestore()
+    spyGetAccessPointPassword.mockRestore()
   })
 })
