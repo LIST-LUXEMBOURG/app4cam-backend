@@ -96,7 +96,7 @@ deploy-raspberry-pi:
     # Deploy.
     - ssh $RASPBERRY_PI_USER@$RASPBERRY_PI_HOST "
       systemctl --user stop $CI_PROJECT_NAME &&
-      rm --force --recursive $CI_PROJECT_NAME/* || true &&
+      find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
       exit
       "
     - apk add rsync
@@ -140,7 +140,7 @@ deploy-variscite-mx8m:
     # Deploy.
     - ssh $VARISCITE_USER@$VARISCITE_MX8M_HOST "
       systemctl --user stop $CI_PROJECT_NAME &&
-      rm --force --recursive $CI_PROJECT_NAME/* || true &&
+      find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
       exit
       "
     - apk add rsync
@@ -184,7 +184,7 @@ deploy-variscite-newtcam2:
     # Deploy.
     - ssh $VARISCITE_USER@$VARISCITE_NEWTCAM2_HOST "
       systemctl --user stop $CI_PROJECT_NAME &&
-      rm --force --recursive $CI_PROJECT_NAME/* || true &&
+      find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
       exit
       "
     - apk add rsync
@@ -228,7 +228,7 @@ deploy-variscite-newtcam3:
     # Deploy.
     - ssh $VARISCITE_USER@$VARISCITE_NEWTCAM3_HOST "
       systemctl --user stop $CI_PROJECT_NAME &&
-      rm --force --recursive $CI_PROJECT_NAME/* || true &&
+      find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
       exit
       "
     - apk add rsync
