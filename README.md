@@ -491,7 +491,15 @@ If you have set up the frontend already, you just need to do step 4.
 12. Restart `sshd` service: `sudo systemctl restart ssh`
 13. Install rsync: `sudo apt install rsync -y`
 
-### 11. Adding FTP access (Raspberry Pi only)
+### 11. Hardware Configuration (Quimesis interface board only)
+
+To get a complete overview of the HW available please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
+
+#### WiFi Control
+
+Follow the local guide available here [WiFi Control README](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/wifi-button/scripts/variscite/wifi_control/README.md).
+
+### 12. Adding FTP access (Raspberry Pi only)
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 
