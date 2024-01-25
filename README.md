@@ -497,7 +497,11 @@ To get a complete overview of the HW available please read the wiki [variscite-g
 
 #### WiFi Control
 
-Follow the local guide available here [WiFi Control README](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/wifi-button/scripts/variscite/wifi_control/README.md).
+Follow the local guide available here [WiFi Control README](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/wifi_control/README.md).
+
+#### Battery Monitoring
+
+Follow the local guide available here [Battery Monitorin README](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/battery-monitoring/README.md).
 
 ### 12. Adding FTP access (Raspberry Pi only)
 
