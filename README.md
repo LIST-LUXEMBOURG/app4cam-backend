@@ -80,6 +80,7 @@ If you have not already during frontend setup, you will create a new user. The u
    ```
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/access-point/change-access-point-name-or-password.sh
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/access-point/get-access-point-password.sh
+   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/battery-monitoring/battery_monitoring
    app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/go-to-sleep.sh
    ```
 

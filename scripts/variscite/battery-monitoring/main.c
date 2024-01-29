@@ -27,12 +27,9 @@ int main(int argc, char **argv)
         perror("Failed to read 2 bytes from the i2c bus.\n");
         return -1;
     }
-    else
-    {
-        raw = (float)((buf[0] & 0b00001111)<<8)+buf[1]; // 10 bits
-        voltage = 0.003539425 * raw + 0.211151;
 
-        printf("%.1f", voltage);
-    }
-    return 1;
+    raw = (float)((buf[0] & 0b00001111)<<8)+buf[1]; // 10 bits
+    voltage = 0.003539425 * raw + 0.211151;
+    printf("%.1f", voltage);
+    return 0;
 }

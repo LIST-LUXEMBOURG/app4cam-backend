@@ -3,12 +3,14 @@ import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
 import { VersionDto } from '../src/properties/dto/version.dto'
+import { BatteryInteractor } from '../src/properties/interactors/battery-interactor'
 import { MacAddressInteractor } from '../src/properties/interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
 import { VersionInteractor } from '../src/properties/interactors/version-interactor'
 
 describe('PropertiesController (e2e)', () => {
   const AVAILABLE_TIME_ZONES = ['Europe/Luxembourg', 'Europe/Paris']
+  const BATTERY_VOLTAGE = 1.2
   const DEVICE_ID = 'a'
   const USAGE: VersionDto = {
     commitHash: 'abcd',
@@ -17,6 +19,7 @@ describe('PropertiesController (e2e)', () => {
 
   let app: INestApplication
   let spyGetAvailableTimeZones
+  let spyGetBatteryVoltage
   let spyGetFirstMacAddress
   let spyGetVersion
 
@@ -24,6 +27,9 @@ describe('PropertiesController (e2e)', () => {
     spyGetAvailableTimeZones = jest
       .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
       .mockImplementation(() => Promise.resolve(AVAILABLE_TIME_ZONES))
+    spyGetBatteryVoltage = jest
+      .spyOn(BatteryInteractor, 'getBatteryVoltage')
+      .mockResolvedValue(BATTERY_VOLTAGE)
     spyGetFirstMacAddress = jest
       .spyOn(MacAddressInteractor, 'getFirstMacAddress')
       .mockResolvedValue(DEVICE_ID)
@@ -42,6 +48,13 @@ describe('PropertiesController (e2e)', () => {
   })
 
   describe('/properties', () => {
+    it('/batteryVoltage (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/properties/batteryVoltage')
+        .expect('Content-Type', /json/)
+        .expect(200, { batteryVoltage: BATTERY_VOLTAGE })
+    })
+
     it('/deviceId (GET)', () => {
       return request(app.getHttpServer())
         .get('/properties/deviceId')
@@ -75,6 +88,7 @@ describe('PropertiesController (e2e)', () => {
 
   afterAll(() => {
     spyGetAvailableTimeZones.mockRestore()
+    spyGetBatteryVoltage.mockRestore()
     spyGetFirstMacAddress.mockRestore()
     spyGetVersion.mockRestore()
   })
