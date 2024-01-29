@@ -16,7 +16,7 @@ make
 ## Execute
 
 ```
-./wifi_control
+./battery_voltage
 ```
 
 ## Clean
