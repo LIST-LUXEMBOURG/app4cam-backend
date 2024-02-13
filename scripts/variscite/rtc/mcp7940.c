@@ -307,13 +307,13 @@ void MCP7940_now(int i2c_fd)
     i2c_read(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCSEC, size, read_buffer);
 
     sprintf(out_buffer, "%s %02d %s %4d %02d:%02d:%02d \n",
-            dict_day[(read_buffer[3] & 0x7) - 1], // Day of the week
-            read_buffer[4] & 0x3F,                // Day of the month
-            dict_month[(read_buffer[5] & 0x1F)],  // Month
-            read_buffer[6] + 2000,                // Year
-            bcd2int(read_buffer[2] & 0x3F),       // Hours
-            bcd2int(read_buffer[1] & 0x7F),       // Minutes
-            bcd2int(read_buffer[0] & 0x7F));      // Seconds
+            dict_day[bcd2int((read_buffer[3] & 0x7)) - 1],  // Day of the week
+            bcd2int(read_buffer[4] & 0x3F),                 // Day of the month
+            dict_month[bcd2int(read_buffer[5] & 0x1F)],    // Month
+            bcd2int(read_buffer[6]) + 2000,                 // Year
+            bcd2int(read_buffer[2] & 0x3F),                 // Hours
+            bcd2int(read_buffer[1] & 0x7F),                 // Minutes
+            bcd2int(read_buffer[0] & 0x7F));                // Seconds
     printf("%s", out_buffer);
 }
 
