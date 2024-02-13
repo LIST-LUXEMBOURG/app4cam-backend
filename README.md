@@ -471,16 +471,13 @@ If you have set up the frontend already, you just need to do step 4.
 3. Copy public key to authorized keys file: `cp .ssh/id_ed25519.pub .ssh/authorized_keys`
 4. Define the following variables in Gitlab:
 
+   - `APP4CAM_USER`: user of application
    - `RASPBERRY_PI_HOST`: IP address of Raspberry Pi
-   - `RASPBERRY_PI_PRIVATE_KEY`: private key of Raspberry Pi user
-   - `RASPBERRY_PI_USER`: user of Raspberry Pi
+   - `RASPBERRY_PI_PRIVATE_KEY`: private key of App4Cam user on Raspberry Pi
    - `VARISCITE_MX8M_HOST`: IP address of Variscite MX8M
-   - `VARISCITE_MX8M_PRIVATE_KEY`: private key of Variscite MX8M user
-   - `VARISCITE_NEWTCAM2_HOST`: IP address of Variscite NEWTCAM 2
-   - `VARISCITE_NEWTCAM2_PRIVATE_KEY`: private key of Variscite NEWTCAM 2 user
+   - `VARISCITE_MX8M_PRIVATE_KEY`: private key of App4Cam user on Variscite MX8M
    - `VARISCITE_NEWTCAM3_HOST`: IP address of Variscite NEWTCAM 3
-   - `VARISCITE_NEWTCAM3_PRIVATE_KEY`: private key of Variscite NEWTCAM 3 user
-   - `VARISCITE_USER`: user of Variscite devices
+   - `VARISCITE_NEWTCAM3_PRIVATE_KEY`: private key of App4Cam user on Variscite NEWTCAM 3
 
 5. Delete private key file: `rm .ssh/id_ed25519`
 6. Remove all "group" and "other" permissions for the `.ssh` directory: `chmod -R go= ~/.ssh`
