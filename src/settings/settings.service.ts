@@ -204,10 +204,10 @@ export class SettingsService {
     let generalSettingsMerged = settingsReadFromFile.general
     if ('general' in settings) {
       if ('systemTime' in settings.general) {
-        const isRaspberryPi = this.deviceType === 'RaspberryPi'
-        await SystemTimeInteractor.setSystemTimeInIso8601Format(
+        await SystemTimeInteractor.setSystemAndRtcTimeInIso8601Format(
           settings.general.systemTime,
-          isRaspberryPi,
+          this.deviceType,
+          this.logger,
         )
       }
 
@@ -364,10 +364,10 @@ export class SettingsService {
       )
     }
 
-    const isRaspberryPi = this.deviceType === 'RaspberryPi'
-    await SystemTimeInteractor.setSystemTimeInIso8601Format(
+    await SystemTimeInteractor.setSystemAndRtcTimeInIso8601Format(
       settings.general.systemTime,
-      isRaspberryPi,
+      this.deviceType,
+      this.logger,
     )
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
@@ -458,6 +458,7 @@ export class SettingsService {
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
+    const isRaspberryPi = this.deviceType === 'RaspberryPi'
     await AccessPointInteractor.setAccessPointNameOrPassword(
       settings.general.deviceName,
       settings.general.password,
@@ -573,10 +574,10 @@ export class SettingsService {
   }
 
   async setSystemTime(systemTime: string): Promise<void> {
-    const isRaspberryPi = this.deviceType === 'RaspberryPi'
-    await SystemTimeInteractor.setSystemTimeInIso8601Format(
+    await SystemTimeInteractor.setSystemAndRtcTimeInIso8601Format(
       systemTime,
-      isRaspberryPi,
+      this.deviceType,
+      this.logger,
     )
   }
 

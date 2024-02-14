@@ -111,7 +111,7 @@ describe('SettingsService', () => {
     let spyReadSettingsFile
     let spyWriteSettingsFile
     let spyGetSystemTime
-    let spySetSystemTime
+    let spySetSystemAndRtcTime
     let spyGetTimeZone
     let spySetTimeZone
     let spyInitializeLights
@@ -128,8 +128,8 @@ describe('SettingsService', () => {
       spyGetSystemTime = jest
         .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
         .mockResolvedValue(SYSTEM_TIME)
-      spySetSystemTime = jest
-        .spyOn(SystemTimeInteractor, 'setSystemTimeInIso8601Format')
+      spySetSystemAndRtcTime = jest
+        .spyOn(SystemTimeInteractor, 'setSystemAndRtcTimeInIso8601Format')
         .mockResolvedValue()
       spyGetTimeZone = jest
         .spyOn(SystemTimeInteractor, 'getTimeZone')
@@ -196,9 +196,10 @@ describe('SettingsService', () => {
         jsonSettings,
         expect.any(String),
       )
-      expect(spySetSystemTime).toHaveBeenCalledWith(
+      expect(spySetSystemAndRtcTime).toHaveBeenCalled()
+      // Only check the 1st argument:
+      expect(spySetSystemAndRtcTime.mock.calls[0][0]).toBe(
         allSettings.general.systemTime,
-        false,
       )
       expect(spySetTimeZone).toHaveBeenCalledWith(allSettings.general.timeZone)
       expect(returnedSettings).toStrictEqual(allSettings)
@@ -213,7 +214,7 @@ describe('SettingsService', () => {
       const returnedSettings = await service.updateSettings(settingsToUpdate)
       const expectedSettings = JSON.parse(JSON.stringify(JSON_SETTINGS)) // deep clone
       expectedSettings.general.deviceName = settingsToUpdate.general.deviceName
-      expect(spySetSystemTime).not.toHaveBeenCalled()
+      expect(spySetSystemAndRtcTime).not.toHaveBeenCalled()
       expect(spyWriteSettingsFile).toHaveBeenCalledWith(
         expectedSettings,
         expect.any(String),
@@ -229,9 +230,10 @@ describe('SettingsService', () => {
         },
       }
       const returnedSettings = await service.updateSettings(settingsToUpdate)
-      expect(spySetSystemTime).toHaveBeenCalledWith(
+      expect(spySetSystemAndRtcTime).toHaveBeenCalled()
+      // Only check the 1st argument:
+      expect(spySetSystemAndRtcTime.mock.calls[0][0]).toBe(
         settingsToUpdate.general.systemTime,
-        false,
       )
       expect(spyWriteSettingsFile).not.toHaveBeenCalled()
       expect(spySetTimeZone).not.toHaveBeenCalled()
@@ -280,9 +282,10 @@ describe('SettingsService', () => {
         jsonSettings,
         expect.any(String),
       )
-      expect(spySetSystemTime).toHaveBeenCalledWith(
+      expect(spySetSystemAndRtcTime).toHaveBeenCalled()
+      // Only check the 1st argument:
+      expect(spySetSystemAndRtcTime.mock.calls[0][0]).toBe(
         settings.general.systemTime,
-        false,
       )
       expect(spySetTimeZone).toHaveBeenCalledWith(settings.general.timeZone)
     })
@@ -326,7 +329,9 @@ describe('SettingsService', () => {
     it('sets system time', async () => {
       const systemTime = 'd'
       await service.setSystemTime(systemTime)
-      expect(spySetSystemTime).toHaveBeenCalledWith(systemTime, false)
+      expect(spySetSystemAndRtcTime).toHaveBeenCalled()
+      // Only check the 1st argument:
+      expect(spySetSystemAndRtcTime.mock.calls[0][0]).toBe(systemTime)
     })
 
     it('returns time zone', async () => {
@@ -363,7 +368,7 @@ describe('SettingsService', () => {
     afterEach(() => {
       spyReadSettingsFile.mockClear()
       spyWriteSettingsFile.mockClear()
-      spySetSystemTime.mockClear()
+      spySetSystemAndRtcTime.mockClear()
       spySetTimeZone.mockClear()
     })
 
@@ -371,7 +376,7 @@ describe('SettingsService', () => {
       spyReadSettingsFile.mockRestore()
       spyWriteSettingsFile.mockRestore()
       spyGetSystemTime.mockRestore()
-      spySetSystemTime.mockRestore()
+      spySetSystemAndRtcTime.mockRestore()
       spyGetTimeZone.mockRestore()
       spySetTimeZone.mockRestore()
       spyInitializeLights.mockRestore()
