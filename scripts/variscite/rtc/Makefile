@@ -5,7 +5,8 @@ CC=cc
 LINK=-I/home/app4cam/rtc
 CFLAGS=-O -D CONSUMER=\"$(CNS)\"
 
-all: set_time get_time
+all: set_time get_time sleep_until
+
 set_time: mcp7940.c set_time.c
 	$(CC) $(LINK) mcp7940.c set_time.c $(CFLAGS) -o set_time
 

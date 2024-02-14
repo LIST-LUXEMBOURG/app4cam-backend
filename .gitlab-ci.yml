@@ -105,7 +105,8 @@ deploy-raspberry-pi:
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
       make -C scripts/variscite/battery-monitoring &&
-      chmod +x scripts/variscite/battery-monitoring/battery_monitoring &&
+      make -C scripts/variscite/rtc &&
+      chmod +x scripts/variscite/battery-monitoring/battery_monitoring scripts/variscite/rtc/sleep_until &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
@@ -151,7 +152,8 @@ deploy-variscite-mx8m:
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
       make -C scripts/variscite/battery-monitoring &&
-      chmod +x scripts/variscite/battery-monitoring/battery_monitoring &&
+      make -C scripts/variscite/rtc &&
+      chmod +x scripts/variscite/battery-monitoring/battery_monitoring scripts/variscite/rtc/sleep_until &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
@@ -197,7 +199,8 @@ deploy-variscite-newtcam3:
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
       make -C scripts/variscite/battery-monitoring &&
-      chmod +x scripts/variscite/battery-monitoring/battery_monitoring &&
+      make -C scripts/variscite/rtc &&
+      chmod +x scripts/variscite/battery-monitoring/battery_monitoring scripts/variscite/rtc/sleep_until &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
