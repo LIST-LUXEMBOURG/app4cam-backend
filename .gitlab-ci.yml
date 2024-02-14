@@ -61,7 +61,7 @@ build:
       - package-lock.json
       - version.txt
 
-deploy-raspberry-pi:
+.deploy-raspberry-pi:
   stage: deploy
   except:
     - tags
