@@ -1,5 +1,7 @@
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
+import { Logger } from '@nestjs/common'
+import { DateTime } from 'luxon'
 
 const exec = promisify(execSync)
 
@@ -8,14 +10,22 @@ export class SleepInteractor {
     return process.platform === 'win32'
   }
 
-  static async triggerSleeping(wakingUpTime: string): Promise<void> {
+  static async triggerSleeping(
+    wakingUpDateTimeIso: string,
+    logger: Logger,
+  ): Promise<void> {
     if (this.isWindows()) {
       // timedatectl command does not exist on Windows machines.
       return Promise.resolve()
     }
     const currentWorkingDirectory = process.cwd()
+    const wakingUpDateTime = DateTime.fromISO(wakingUpDateTimeIso)
+    const wakingUpDateTimeString = wakingUpDateTime.toFormat(
+      'dd LLL yyyy HH:mm:ss',
+    )
+    logger.log(`Waking up time: ${wakingUpDateTimeString}`)
     const { stderr } = await exec(
-      `sudo ${currentWorkingDirectory}/scripts/variscite/go-to-sleep.sh "${wakingUpTime}"`,
+      `sudo ${currentWorkingDirectory}/scripts/variscite/rtc/sleep_until "${wakingUpDateTimeString}"`,
     )
     if (stderr) {
       throw new Error(stderr)

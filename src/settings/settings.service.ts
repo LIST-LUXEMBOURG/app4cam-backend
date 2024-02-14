@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
+import { DateTime } from 'luxon'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
@@ -659,8 +660,26 @@ export class SettingsService {
       const wakingUpTime = await this.getWakingUpTime()
       if (!wakingUpTime) {
         this.logger.error('No waking up time set, but a sleeping time is set.')
+        return
       }
-      SleepInteractor.triggerSleeping(wakingUpTime)
+      if (wakingUpTime == sleepingTime) {
+        this.logger.error(
+          'The waking up time cannot be the same as the sleeping time.',
+        )
+        return
+      }
+      const wakingUpTimeHours = parseInt(wakingUpTime.substring(0, 2))
+      const wakingUpTimeMinutes = parseInt(wakingUpTime.substring(3))
+      let wakingUpDateTime = DateTime.now().set({
+        hour: wakingUpTimeHours,
+        minute: wakingUpTimeMinutes,
+      })
+      if (wakingUpTime < sleepingTime) {
+        wakingUpDateTime = wakingUpDateTime.plus({ days: 1 })
+      }
+      SleepInteractor.triggerSleeping(wakingUpDateTime.toISO(), this.logger)
+    } else {
+      this.logger.log('Not time to sleep yet.')
     }
   }
 }
