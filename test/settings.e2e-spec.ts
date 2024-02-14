@@ -96,7 +96,7 @@ describe('SettingsController (e2e)', () => {
   let spyReadSettingsFile
   let spyWriteSettingsFile
   let spyGetSystemTime
-  let spySetSystemTime
+  let spySetSystemAndRtcTime
   let spyGetAvailableTimeZones
   let spyGetTimeZone
   let spySetTimeZone
@@ -114,8 +114,8 @@ describe('SettingsController (e2e)', () => {
     spyGetSystemTime = jest
       .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
       .mockImplementation(() => Promise.resolve(SYSTEM_TIME))
-    spySetSystemTime = jest
-      .spyOn(SystemTimeInteractor, 'setSystemTimeInIso8601Format')
+    spySetSystemAndRtcTime = jest
+      .spyOn(SystemTimeInteractor, 'setSystemAndRtcTimeInIso8601Format')
       .mockImplementation(() => Promise.resolve())
     spyGetAvailableTimeZones = jest
       .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
@@ -792,7 +792,7 @@ describe('SettingsController (e2e)', () => {
     spyReadSettingsFile.mockRestore()
     spyWriteSettingsFile.mockRestore()
     spyGetSystemTime.mockRestore()
-    spySetSystemTime.mockRestore()
+    spySetSystemAndRtcTime.mockRestore()
     spyGetAvailableTimeZones.mockRestore()
     spyGetTimeZone.mockRestore()
     spySetTimeZone.mockRestore()
