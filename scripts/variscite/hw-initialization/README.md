@@ -5,7 +5,7 @@ For the HW details read the available wiki [variscite-guide](https://git.list.lu
 
 ## Script
 
-The scripts was developed to be used on NewtCam HW boards developed by Quimesis.
+The scripts were developed to be used on NewtCam HW boards developed together with Quimesis.
 The initialization procedures are the following:
 
 ### 1. Synchronize the system time
@@ -29,7 +29,7 @@ After=default.target
 
 [Service]
 Type=simple
-ExecStart=/home/app4cam/app4cam-backend/scripts/Variscite/newtcam-hw-initialization.sh
+ExecStart=/home/app4cam/app4cam-backend/scripts/variscite/scripts/hw-initialization/newtcam-hw-initialization.sh
 
 [Install]
 WantedBy=default.target

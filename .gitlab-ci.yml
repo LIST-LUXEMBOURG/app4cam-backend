@@ -199,8 +199,7 @@ deploy-variscite-newtcam3:
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
       make -C scripts/variscite/battery-monitoring &&
-      make -C scripts/variscite/rtc &&
-      chmod +x scripts/variscite/battery-monitoring/battery_monitoring scripts/variscite/rtc/sleep_until &&
+      chmod +x scripts/variscite/battery-monitoring/battery_monitoring scripts/variscite/rtc/sleep_until scripts/variscite/rtc/set_time scripts/variscite/rtc/get_time &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
