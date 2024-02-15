@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { createReadStream } from 'fs'
 import path = require('path')
 import { MimeTypeDeterminer } from './mime-type-determiner'

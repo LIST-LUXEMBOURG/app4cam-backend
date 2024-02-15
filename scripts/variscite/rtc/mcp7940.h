@@ -1,3 +1,4 @@
+// © 2024 Luxembourg Institute of Science and Technology
 #include <time.h>
 
 #include <linux/i2c.h>

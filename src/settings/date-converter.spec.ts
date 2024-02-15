@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { Settings } from 'luxon'
 import { DateConverter } from './date-converter'
 

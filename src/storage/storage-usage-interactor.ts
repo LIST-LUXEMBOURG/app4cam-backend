@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
 import { StorageUsageDto } from './dto/storage-usage.dto'

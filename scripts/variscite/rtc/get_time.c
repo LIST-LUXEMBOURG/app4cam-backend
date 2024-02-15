@@ -1,4 +1,5 @@
 #include "mcp7940.h"
+// © 2024 Luxembourg Institute of Science and Technology
 
 /*!
     @usage:  ./get_time

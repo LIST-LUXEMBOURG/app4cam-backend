@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { ReadStream } from 'fs'
 import { FileHandler } from './file-handler'
 

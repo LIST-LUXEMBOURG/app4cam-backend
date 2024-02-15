@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { MotionClient } from './motion-client'
 import { server } from './motion-server-mocks/server'
 

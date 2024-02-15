@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { plainToClass } from 'class-transformer'
 import { IsNotEmpty, IsPositive, IsString, validateSync } from 'class-validator'
 

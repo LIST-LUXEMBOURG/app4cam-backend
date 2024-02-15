@@ -1,3 +1,4 @@
+# © 2024 Luxembourg Institute of Science and Technology
 PROJ=wifi_control
 CNS=App4Cam-backend
 CC=cc

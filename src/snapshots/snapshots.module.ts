@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { Module } from '@nestjs/common'
 import { FilesModule } from '../files/files.module'
 import { SnapshotsController } from './snapshots.controller'

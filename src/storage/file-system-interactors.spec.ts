@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { chmodSync } from 'fs'
 import { mkdir, rm, writeFile } from 'fs/promises'
 import { FileSystemInteractor } from './file-system-interactor'

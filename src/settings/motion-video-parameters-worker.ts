@@ -1,3 +1,4 @@
+// © 2023-2024 Luxembourg Institute of Science and Technology
 type VideoParameters = Record<string, number>
 
 export class MotionVideoParametersWorker {

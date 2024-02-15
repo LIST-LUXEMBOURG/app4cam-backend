@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { Test, TestingModule } from '@nestjs/testing'
 import { DeviceIdDto } from './dto/device-id.dto'
 import { VersionDto } from './dto/version.dto'

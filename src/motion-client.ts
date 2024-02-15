@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import axios from 'axios'
 
 const BASE_URL = 'http://127.0.0.1:8080/'

@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { existsSync } from 'fs'
 import { mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'

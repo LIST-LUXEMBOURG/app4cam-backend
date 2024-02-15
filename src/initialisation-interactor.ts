@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { exec as execSync } from 'child_process'
 import { lstat, readdir } from 'fs/promises'
 import path = require('path')

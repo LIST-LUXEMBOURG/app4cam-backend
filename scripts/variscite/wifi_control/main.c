@@ -1,3 +1,4 @@
+// © 2024 Luxembourg Institute of Science and Technology
 #include <gpiod.h>
 #include <stdio.h>
 #include <signal.h>

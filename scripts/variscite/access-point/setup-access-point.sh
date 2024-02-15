@@ -1,4 +1,5 @@
 #!/bin/bash
+# © 2023-2024 Luxembourg Institute of Science and Technology
 
 name="App4Cam"
 password="0123456789"
