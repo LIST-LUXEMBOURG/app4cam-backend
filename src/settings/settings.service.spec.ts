@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { InitialisationInteractor } from '../initialisation-interactor'

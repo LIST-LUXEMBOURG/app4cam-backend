@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const transformer = require('@nestjs/swagger/plugin')
 

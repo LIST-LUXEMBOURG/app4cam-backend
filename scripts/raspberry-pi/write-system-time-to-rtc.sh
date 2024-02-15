@@ -1,4 +1,5 @@
 #!/bin/bash
+# © 2024 Luxembourg Institute of Science and Technology
 
 # include utilities script in same directory
 wittpy_dir="/home/pi/wittypi"

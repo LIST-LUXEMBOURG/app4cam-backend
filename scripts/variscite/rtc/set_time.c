@@ -1,3 +1,4 @@
+// © 2024 Luxembourg Institute of Science and Technology
 #define _XOPEN_SOURCE 700
 #include <time.h>
 #include "mcp7940.h"

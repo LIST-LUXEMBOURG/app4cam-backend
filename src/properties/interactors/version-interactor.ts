@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { readFile } from 'fs/promises'
 import { VersionDto } from '../dto/version.dto'
 

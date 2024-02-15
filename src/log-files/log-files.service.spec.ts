@@ -1,3 +1,4 @@
+// © 2023-2024 Luxembourg Institute of Science and Technology
 import { rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'

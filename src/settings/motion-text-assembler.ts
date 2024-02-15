@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 const DATE_TIME_FILENAME_PART = '%Y%m%dT%H%M%S'
 
 export class MotionTextAssembler {

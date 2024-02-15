@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { rest } from 'msw'
 
 const ALLOWED_GET_CONFIG_OPTIONS = [

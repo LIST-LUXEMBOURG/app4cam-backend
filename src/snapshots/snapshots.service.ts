@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { Injectable, Logger } from '@nestjs/common'
 import { FilesService } from '../files/files.service'
 import { MotionClient } from '../motion-client'

@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { writeFile } from 'fs/promises'
 import { Injectable, Logger } from '@nestjs/common'
 import { DeviceIdDto } from './dto/device-id.dto'

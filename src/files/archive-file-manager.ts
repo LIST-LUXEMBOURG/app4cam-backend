@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { createWriteStream } from 'fs'
 import { lstat, readdir, rm } from 'fs/promises'
 import path = require('path')

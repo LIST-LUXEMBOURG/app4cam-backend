@@ -1,3 +1,4 @@
+// © 2024 Luxembourg Institute of Science and Technology
 #include "mcp7940.h"
 
 #define I2C_BUS_NAME "/dev/i2c-2"

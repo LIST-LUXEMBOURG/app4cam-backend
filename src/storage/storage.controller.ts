@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { Controller, Get } from '@nestjs/common'
 import { StorageStatusDto } from './dto/storage-status.dto'
 import { StorageUsageDto } from './dto/storage-usage.dto'

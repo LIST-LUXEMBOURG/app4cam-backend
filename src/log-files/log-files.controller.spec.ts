@@ -1,3 +1,4 @@
+// © 2023-2024 Luxembourg Institute of Science and Technology
 import { PassThrough } from 'stream'
 import { Test, TestingModule } from '@nestjs/testing'
 import { LogFilesController } from './log-files.controller'

@@ -1,4 +1,5 @@
 #!/bin/bash
+# © 2023-2024 Luxembourg Institute of Science and Technology
 
 pin_nr="27"
 raspi-gpio set "$pin_nr" op

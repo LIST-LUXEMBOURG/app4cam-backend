@@ -1,3 +1,4 @@
+// © 2023-2024 Luxembourg Institute of Science and Technology
 import { UndefinedPathError } from './undefined-path-error'
 
 describe(UndefinedPathError.name, () => {

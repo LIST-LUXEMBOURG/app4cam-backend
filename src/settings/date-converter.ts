@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { DateTime } from 'luxon'
 
 export class DateConverter {

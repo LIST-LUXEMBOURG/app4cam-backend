@@ -1,3 +1,4 @@
+// © 2023-2024 Luxembourg Institute of Science and Technology
 import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
 
 describe(MotionVideoParametersWorker.name, () => {

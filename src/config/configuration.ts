@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 export const configuration = () => ({
   deviceType: process.env.DEVICE_TYPE,
   disableAccessControlAllowOrigin:

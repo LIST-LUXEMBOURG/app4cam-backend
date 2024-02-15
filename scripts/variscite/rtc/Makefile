@@ -1,4 +1,4 @@
-
+# © 2024 Luxembourg Institute of Science and Technology
 PROJ=rtc
 CNS=App4Cam-backend
 CC=cc

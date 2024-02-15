@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { Controller, Get, Res, StreamableFile } from '@nestjs/common'
 import { SnapshotsService } from './snapshots.service'
 

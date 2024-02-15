@@ -1,4 +1,5 @@
 #!/bin/bash
+# © 2022-2024 Luxembourg Institute of Science and Technology
 
 # GPIO5_IO24
 line_nr="gpiochip4"

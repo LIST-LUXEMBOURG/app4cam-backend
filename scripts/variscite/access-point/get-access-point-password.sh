@@ -1,4 +1,5 @@
 #!/bin/bash
+# © 2024 Luxembourg Institute of Science and Technology
 
 CONNECTION_NAME=WIFI_AP
 

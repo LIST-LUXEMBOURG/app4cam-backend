@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { exec } = require('child_process')
 const fs = require('fs')

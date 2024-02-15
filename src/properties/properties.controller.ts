@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { Controller, Get } from '@nestjs/common'
 import { BatteryVoltageDto } from './dto/battery-voltage.dto'
 import { DeviceIdDto } from './dto/device-id.dto'

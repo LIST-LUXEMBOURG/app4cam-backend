@@ -1,3 +1,4 @@
+// © 2022-2024 Luxembourg Institute of Science and Technology
 import { NumberUtils } from './number-utils'
 
 describe(NumberUtils.name, () => {
