@@ -89,22 +89,22 @@ If you have not already during frontend setup, you will create a new user. The u
 
 #### 2.1. Installing Motion
 
-Motion is installed from the release deb files which provided a more recent version than the one available via apt.
-The most recent versions can be downloaded here https://github.com/Motion-Project/motion/releases/
+Motion is installed from the release deb files which provides a more recent version than the one available via apt.
+The most recent versions can be downloaded here [Motion releases](https://github.com/Motion-Project/motion/releases).
 
-**Raspberry Pi** (armhf-pi architecture)
+**Raspberry Pi** (Architecture: armhf-pi / OS: bullseye)
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/pi_bullseye_motion_4.5.1-1_armhf.deb
+> pi_bullseye_motion_x.x.x-x_armhf.deb
 
-**Variscite MX8** (arm64 architecture)
+**Variscite SOM MX8** (Architecture: arm64/ OS: bullseye)
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_arm64.deb
+> bullseye_motion_x.x.x-x_arm64.deb
 
-**Variscite MX6** (armhf architecture)
+**Variscite SOM MX6** (Architecture: armhf / OS: bullseye)
 
-> https://github.com/Motion-Project/motion/releases/download/release-4.5.1/bullseye_motion_4.5.1-1_armhf.deb
+> bullseye_motion_x.x.x-x_armhf.deb
 
-After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi):
+After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi - Motion 4.5.1-1):
 
 ```bash
 wget https://github.com/Motion-Project/motion/releases/download/release-4.5.1/pi_bullseye_motion_4.5.1-1_armhf.deb
@@ -121,8 +121,8 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
 1. Add `motion` user to `app4cam` group: `sudo usermod -a -G app4cam motion`
 2. Log in as `app4cam` user: `su - app4cam`
-3. Create directories: `mkdir -p app4cam/data`
-4. Give `app4cam` group write access to folder: `chmod -R g+w /home/app4cam/app4cam`
+3. Create directories: `mkdir -p data`
+4. Give `app4cam` group write access to folder: `chmod -R g+w /home/app4cam`
 5. Logout: `exit`
 
 #### 2.3. Configuring Motion
@@ -130,7 +130,7 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 1. Open Motion config file: `sudo nano /etc/motion/motion.conf`
 2. Configure the following parameters in order of appearance:
 
-   On Raspberry Pi (for the Raspberry camera):
+   On Raspberry Pi (for the Raspberry camera only):
 
    ```
    mmalcam_name vc.ril.camera
@@ -145,11 +145,11 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
    setup_mode off
 
-   log_file /home/app4cam/app4cam/motion.log
+   log_file /home/app4cam/motion.log
 
    log_level 5
 
-   target_dir /home/app4cam/app4cam/data/
+   target_dir /home/app4cam/data/
 
    text_changes on
 
@@ -204,8 +204,7 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
    on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/use-recording-leds.sh Variscite
    ```
 
-   Using **different illumination types** for triggering and recording (e.g. infrared for triggering and visible for recording) can induce a **fake loop phenomenon**.  
-   To prevent the light switch to trigger a fake event these parameters should be added:
+   Using **different illumination types** for triggering and recording (e.g. infrared for triggering and visible for recording) can induce a **fake loop phenomenon**. To prevent the light switch to trigger a fake event these parameters should be added:
 
    ```
    lightswitch_percent 90
@@ -255,6 +254,22 @@ Motion needs to be run as a service so that it automatically starts whenever the
 3. Verify that the service is running: `sudo systemctl status motion`
 
 During development, you may need to stop Motion: `sudo systemctl stop motion`
+
+#### 2.5. "libcamerify" Motion
+
+libcamerify is needed for libcamera support (used with the newer RPi cameras). In these specific cases we need to
+libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-arducam-imx519-16mp-autofocus-working-with-motion/4248).
+
+1. Make sure libcamera-tools are installed `sudo apt install libcamera-tools`
+
+2. Modify the motion service `sudo nano /lib/systemd/system/motion.service` changing the ExecStart line to  
+   `ExecStart=libcamerify /usr/bin/motion`
+
+3. Save and close. Follow with:  
+   `sudo systemctl daemon-reload`  
+   `sudo systemctl start motion.service`
+
+**IMPORTANT:** When using pivariety cameras (e.g. 64MP Hawkeye) do not update libcamera.
 
 ### 3. Installing Witty Pi 3 (Raspberry Pi only)
 
@@ -494,13 +509,13 @@ If you have set up the frontend already, you just need to do step 4.
 
 To get a complete overview of the HW available please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
 
-#### WiFi Control
+**WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/wifi_control/README.md).
 
-Follow the local guide available here [WiFi Control README](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/wifi_control/README.md).
+**Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/battery-monitoring/README.md).
 
-#### Battery Monitoring
+**RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/rtc/README.md).
 
-Follow the local guide available here [Battery Monitorin README](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/battery-monitoring/README.md).
+**Hardware initialization** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/hw-initialization/README.md).
 
 ### 12. Adding FTP access (Raspberry Pi only)
 
@@ -517,7 +532,7 @@ The FTP access can be used as an alternative way to download multiple files with
    local_umask=022
    chroot_local_user=YES
    user_sub_token=$USER
-   local_root=/home/app4cam/app4cam
+   local_root=/home/app4cam
    allow_writeable_chroot=YES
    ```
 
