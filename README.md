@@ -482,13 +482,14 @@ If you have set up the frontend already, you just need to do step 4.
 
 5. Delete private key file: `rm .ssh/id_ed25519`
 6. Remove all "group" and "other" permissions for the `.ssh` directory: `chmod -R go= ~/.ssh`
-7. Logout: `exit`
-8. Open SSH config file: `sudo nano /etc/ssh/sshd_config`
-9. Disable password authentication by setting `PasswordAuthentication no`.
-10. Prepend the following line: `Match User app4cam`
-11. Append the following line: `Match all`
-12. Restart `sshd` service: `sudo systemctl restart ssh`
-13. Install rsync: `sudo apt install rsync -y`
+7. Create the folder for the backend: `mkdir app4cam-backend`
+8. Logout: `exit`
+9. Open SSH config file: `sudo nano /etc/ssh/sshd_config`
+10. Disable password authentication by setting `PasswordAuthentication no`.
+11. Prepend the following line: `Match User app4cam`
+12. Append the following line: `Match all`
+13. Restart `sshd` service: `sudo systemctl restart ssh`
+14. Install rsync: `sudo apt install rsync -y`
 
 ### 11. Hardware Configuration (Quimesis interface board only)
 
