@@ -120,10 +120,9 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 #### 2.2. Creating data folder and setting permissions
 
 1. Add `motion` user to `app4cam` group: `sudo usermod -a -G app4cam motion`
-2. Log in as `app4cam` user: `su - app4cam`
-3. Create directories: `mkdir -p data`
-4. Give `app4cam` group write access to folder: `chmod -R g+w /home/app4cam`
-5. Logout: `exit`
+2. Create data directory: `sudo mkdir -p /home/app4cam/data`
+3. Create motion log directory: `sudo mkdir -p /home/app4cam/motion`
+4. Give `app4cam` group write access to new folder: `sudo chmod -R g+w /home/app4cam/data /home/app4cam/motion`
 
 #### 2.3. Configuring Motion
 
@@ -145,7 +144,7 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
    setup_mode off
 
-   log_file /home/app4cam/motion.log
+   log_file /home/app4cam/motion/motion.log
 
    log_level 5
 
@@ -533,7 +532,7 @@ The FTP access can be used as an alternative way to download multiple files with
    local_umask=022
    chroot_local_user=YES
    user_sub_token=$USER
-   local_root=/home/app4cam
+   local_root=/home/app4cam/data
    allow_writeable_chroot=YES
    ```
 
