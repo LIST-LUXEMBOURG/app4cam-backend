@@ -134,10 +134,9 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 #### 2.2. Creating data folder and setting permissions
 
 1. Add `motion` user to `app4cam` group: `sudo usermod -a -G app4cam motion`
-2. Create data directory: `sudo mkdir -p /home/app4cam/data`
-3. Create motion log directory: `sudo mkdir -p /home/app4cam/motion`
-4. Attribute new folder to `app4cam` user and group: `sudo chown app4cam:app4cam /home/app4cam/data /home/app4cam/motion`
-5. Give `app4cam` group write access to new folder: `sudo chmod g+w /home/app4cam/data /home/app4cam/motion`
+2. Create data and motion log directories: `sudo mkdir /home/app4cam/data /home/app4cam/motion`
+3. Attribute new folder to `app4cam` user and group: `sudo chown app4cam:app4cam /home/app4cam/data /home/app4cam/motion`
+4. Give `app4cam` group write access to new folder: `sudo chmod g+w /home/app4cam/data /home/app4cam/motion`
 
 #### 2.3. Configuring Motion
 
