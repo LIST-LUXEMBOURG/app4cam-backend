@@ -29,8 +29,12 @@ async function bootstrap() {
 
   const settingsService = app.get(SettingsService)
 
+  const configService = app.get(ConfigService)
+  const deviceType = configService.get('deviceType')
+
   if (process.platform !== 'win32') {
-    const mountPath = await InitialisationInteractor.getNewestMediaPath()
+    const mountPath =
+      await InitialisationInteractor.getNewestMediaPath(deviceType)
     try {
       await settingsService.setShotsFolder(mountPath)
     } catch (e) {
@@ -39,9 +43,6 @@ async function bootstrap() {
       }
     }
   }
-
-  const configService = app.get(ConfigService)
-  const deviceType = configService.get('deviceType')
   const serviceName = configService.get('serviceName')
   const lightType = await settingsService.getTriggeringLight()
   await InitialisationInteractor.resetLights(serviceName, deviceType, lightType)

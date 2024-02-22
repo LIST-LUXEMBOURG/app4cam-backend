@@ -360,7 +360,9 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 6. Create directories: `mkdir -p ~/.config/systemd/user/`
 7. Logout: `exit`
 
-### 7. Enabling USB auto-mounting
+### 7. Enabling USB auto-mounting (optional)
+
+Only enable this functionality if you use it.
 
 1. Install `udisks2`: `sudo apt install udisks2`
 2. Install `udiskie`: `sudo apt install udiskie -y`
