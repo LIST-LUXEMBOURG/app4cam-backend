@@ -8,13 +8,14 @@ import { LightType } from './settings/settings'
 const exec = promisify(execSync)
 
 const MEDIA_BASE_PATH = '/media'
+const RASPBERRY_PI_IGNORED_MEDIA_PATH = '/media/pi'
 
 export class InitialisationInteractor {
   private static isWindows(): boolean {
     return process.platform === 'win32'
   }
 
-  static async getNewestMediaPath() {
+  static async getNewestMediaPath(deviceType: string) {
     const elements = await readdir(MEDIA_BASE_PATH)
     const elementPromises = elements.map(async (element) => {
       const elementPath = path.join(MEDIA_BASE_PATH, element)
@@ -33,6 +34,11 @@ export class InitialisationInteractor {
       .map((folder) => {
         return folder.path
       })
+      .filter(
+        (folderPath) =>
+          deviceType !== 'RaspberryPi' ||
+          folderPath !== RASPBERRY_PI_IGNORED_MEDIA_PATH,
+      )
       .at(0)
   }
 
