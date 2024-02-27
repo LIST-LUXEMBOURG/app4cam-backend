@@ -35,5 +35,6 @@ git push
 # Push the tag to the remote repository.
 git push --tags
 
-# Append -next to the version number in package files, commit and tag.
-npm version "$NEW_VERSION-next" -m 'prepare next release'
+# Append -next to the version number in package files, and commit.
+npm version "$NEW_VERSION-next" --no-git-tag-version
+git -m "prepare next release"
