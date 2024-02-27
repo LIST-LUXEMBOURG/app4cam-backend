@@ -63,45 +63,7 @@ This software requires the following tools to be installed:
 - **Motion** is a configurable software that monitors video signals from different types of cameras and create videos and/or saves pictures of the activity.
 - **Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
 
-### Prerequisites
-
-- `curl`
-- `gpiod`
-- \>= Node.js 18.x
-
-### 1. Creating user and adding permissions
-
-If you have not already during frontend setup, you will create a new user. The username `app4cam` will be used in the following.
-
-1. Create a new user, with a password you remember: `sudo adduser app4cam`
-2. Allow the new user to use some commands as sudo by adding the following content to the newly created file: `sudo visudo -f /etc/sudoers.d/app4cam`
-
-   ```
-   app4cam ALL=(ALL) NOPASSWD: /usr/bin/timedatectl
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/use-triggering-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/use-recording-leds.sh
-   motion ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/use-triggering-leds.sh
-   ```
-
-3. On **Raspberry Pi**, also add the following line:
-
-   ```
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/raspberry-pi-write-system-time-to-rtc.sh
-   ```
-
-4. On **Variscite**, also add the following line:
-
-   ```
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/access-point/change-access-point-name-or-password.sh
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/access-point/get-access-point-password.sh
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/battery-monitoring/battery_monitoring
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/rtc/set_time
-   app4cam ALL=(ALL) NOPASSWD: /home/app4cam/app4cam-backend/scripts/variscite/rtc/sleep_until
-   ```
-
-### 2. Setting up Motion
-
-#### 2.1. Installing Motion
+### 1. Installing Motion
 
 Motion is installed from the release deb files which provides a more recent version than the one available via apt.
 The most recent versions can be downloaded here [Motion releases](https://github.com/Motion-Project/motion/releases).
@@ -131,14 +93,15 @@ sudo apt-get install gdebi-core
 sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 ```
 
-#### 2.2. Creating data folder and setting permissions
+### 2. Installing dependencies, creating user, folders and setting permissions
 
-1. Add `motion` user to `app4cam` group: `sudo usermod -a -G app4cam motion`
-2. Create data and motion log directories: `sudo mkdir /home/app4cam/data /home/app4cam/motion`
-3. Attribute new folder to `app4cam` user and group: `sudo chown app4cam:app4cam /home/app4cam/data /home/app4cam/motion`
-4. Give `app4cam` group write access to new folder: `sudo chmod g+w /home/app4cam/data /home/app4cam/motion`
+Execute the setup script:
 
-#### 2.3. Configuring Motion
+```shell
+scripts/setup/set-up.sh
+```
+
+### 3. Configuring Motion
 
 1. Open Motion config file: `sudo nano /etc/motion/motion.conf`
 2. Configure the following parameters in order of appearance:
@@ -258,7 +221,7 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
 A more described configuration can be found at https://motion-project.github.io/4.5.0/motion_config.html.
 
-#### 2.4. Running Motion as service
+#### 4. Running Motion as service
 
 Motion needs to be run as a service so that it automatically starts whenever the device is started.
 
@@ -268,7 +231,7 @@ Motion needs to be run as a service so that it automatically starts whenever the
 
 During development, you may need to stop Motion: `sudo systemctl stop motion`
 
-#### 2.5. "libcamerify" Motion
+#### 5. "libcamerify" Motion
 
 libcamerify is needed for libcamera support (used with the newer RPi cameras). In these specific cases we need to
 libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-arducam-imx519-16mp-autofocus-working-with-motion/4248).
@@ -284,7 +247,7 @@ libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-ar
 
 **IMPORTANT:** When using pivariety cameras (e.g. 64MP Hawkeye) do not update libcamera.
 
-### 3. Installing Witty Pi 3 (Raspberry Pi only)
+### 6. Installing Witty Pi 3 (Raspberry Pi only)
 
 On Raspberry Pi, run these two commands in your home directory:
 
@@ -295,7 +258,7 @@ sudo sh install.sh
 
 A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
 
-### 4. Setting up network behavior
+### 7. Setting up network behavior
 
 #### On Raspberry Pi
 
@@ -339,7 +302,7 @@ If no error messages was presented, just exit the script and reboot your device.
 2. Verify that the connection is running: `nmcli connection show`
 3. Check the Wi-Fi's broadcast IP address: `ifconfig`
 
-### 5. Installing ExifTool
+### 8. Installing ExifTool
 
 ExifTool is needed to add the device ID to the metadata of each shot file.
 
@@ -350,7 +313,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 5. Optionally, run tests to verify system compatibility: `make test`
 6. Install for all users: `sudo make install`
 
-### 6. Enabling user services
+### 9. Enabling user services
 
 1. Open `journald` config file: `sudo nano /etc/systemd/journald.conf`
 2. Enable user service logging by setting `Storage=persistent`, and save file.
@@ -360,10 +323,11 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 6. Create directories: `mkdir -p ~/.config/systemd/user/`
 7. Logout: `exit`
 
-### 7. Enabling USB auto-mounting (optional)
+### 10. Enabling USB auto-mounting (optional)
 
 Only enable this functionality if you use it.
 
+0. `sudo apt install curl -y`
 1. Install `udisks2`: `sudo apt install udisks2`
 2. Install `udiskie`: `sudo apt install udiskie -y`
 3. Enable permissions for udisks2 in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
@@ -425,13 +389,13 @@ Only enable this functionality if you use it.
 13. Verify that the service is running: `systemctl --user status udiskie`
 14. Logout: `exit`
 
-### 8. Make sure automatic time synchronisaton is disabled
+### 11. Make sure automatic time synchronisaton is disabled
 
 Verify the result line `NTP service` of running: `timedatectl`
 
 If it is still active, run: `timedatectl set-ntp 0`
 
-### 9. Deploying the application
+### 12. Deploying the application
 
 Before starting, install the following dependency: `sudo apt install gpiod`
 
@@ -493,47 +457,20 @@ Before starting, install the following dependency: `sudo apt install gpiod`
 
 You can check the service logs with the following command: `journalctl --user -u app4cam-backend -e`
 
-### 10. For continuous deployment (CD) only
+### 13. For continuous deployment (CD) only
 
-If you have set up the frontend already, you just need to do step 4.
+If you have set up the frontend already, you can just follow its [setup guide](https://git.list.lu/host/mechatronics/app4cam-frontend#3-for-continuous-deployment-cd-only).
 
-1. Log in as user: `su - app4cam`
-2. Generate a public/private key pair without passphrase: `ssh-keygen -t ed25519`
-3. Copy public key to authorized keys file: `cp .ssh/id_ed25519.pub .ssh/authorized_keys`
-4. Define the following variables in Gitlab:
+### 14. Hardware Configuration (Quimesis interface board only)
 
-   - `APP4CAM_USER`: user of application
-   - `RASPBERRY_PI_HOST`: IP address of Raspberry Pi
-   - `RASPBERRY_PI_PRIVATE_KEY`: private key of App4Cam user on Raspberry Pi
-   - `VARISCITE_MX8M_HOST`: IP address of Variscite MX8M
-   - `VARISCITE_MX8M_PRIVATE_KEY`: private key of App4Cam user on Variscite MX8M
-   - `VARISCITE_NEWTCAM3_HOST`: IP address of Variscite NEWTCAM 3
-   - `VARISCITE_NEWTCAM3_PRIVATE_KEY`: private key of App4Cam user on Variscite NEWTCAM 3
+To get a complete overview of the hardware available please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
 
-5. Delete private key file: `rm .ssh/id_ed25519`
-6. Remove all "group" and "other" permissions for the `.ssh` directory: `chmod -R go= ~/.ssh`
-7. Create the folder for the backend: `mkdir app4cam-backend`
-8. Logout: `exit`
-9. Open SSH config file: `sudo nano /etc/ssh/sshd_config`
-10. Disable password authentication by setting `PasswordAuthentication no`.
-11. Prepend the following line: `Match User app4cam`
-12. Append the following line: `Match all`
-13. Restart `sshd` service: `sudo systemctl restart ssh`
-14. Install rsync: `sudo apt install rsync -y`
+- **WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/wifi_control/README.md).
+- **Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/battery-monitoring/README.md).
+- **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/rtc/README.md).
+- **Hardware initialization** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/hw-initialization/README.md).
 
-### 11. Hardware Configuration (Quimesis interface board only)
-
-To get a complete overview of the HW available please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
-
-**WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/wifi_control/README.md).
-
-**Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/battery-monitoring/README.md).
-
-**RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/rtc/README.md).
-
-**Hardware initialization** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/hw-initialization/README.md).
-
-### 12. Adding FTP access (Raspberry Pi only)
+### 15. Adding FTP access (Raspberry Pi only)
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 
@@ -556,16 +493,16 @@ The FTP access can be used as an alternative way to download multiple files with
 
 Now, you can connect via an FTP client with the device's IP address, port 21, the username created and the corresponding password.
 
-### Release procedure
+## Release procedure
 
-1. Make sure that you are on the `main` branch and that it is up-to-date.
-2. Update `package.json` with the new version number.
-3. Update `package-lock.json`: `npm i --package-lock-only`
-4. Commit every change: `git commit -am "release version <version>"`
-5. Tag the new version: `git tag v<version>`
-6. Push the commit to the remote repository: `git push`
-7. Push the tag to the remote repository: `git push --tags`
-8. Append `-next` to the version number in `package.json`.
-9. Update `package-lock.json`: `npm i --package-lock-only`
-10. Commit every change: `git commit -am "prepare next release"`
-11. Push the commit to the remote repository: `git push`
+1. Run the following script with the real version number:
+
+   ```shell
+   scripts/release-version.sh "<version-number>"
+   ```
+
+2. Push the commit to the remote repository once you are ready:
+
+   ```shell
+   git push
+   ```
