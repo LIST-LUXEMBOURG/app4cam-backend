@@ -7,7 +7,7 @@ import { StorageUsageDto } from './dto/storage-usage.dto'
 import { FileSystemInteractor } from './file-system-interactor'
 import { StorageUsageInteractor } from './storage-usage-interactor'
 
-const MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE = 99
+const MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE = 95
 const STORAGE_MOUNT_PATH = '/media'
 const WRITE_PERMISSION_MASK = 2
 
