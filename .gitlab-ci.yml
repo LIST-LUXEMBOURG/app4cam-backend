@@ -100,7 +100,7 @@ deploy-raspberry-pi:
       exit
       "
     - apk add rsync
-    - rsync --recursive config dist scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$RASPBERRY_PI_HOST:./$CI_PROJECT_NAME
+    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$RASPBERRY_PI_HOST:./$CI_PROJECT_NAME
     - ssh $APP4CAM_USER@$RASPBERRY_PI_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
@@ -147,7 +147,7 @@ deploy-variscite-mx8m:
       exit
       "
     - apk add rsync
-    - rsync --recursive config dist scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_MX8M_HOST:./$CI_PROJECT_NAME
+    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_MX8M_HOST:./$CI_PROJECT_NAME
     - ssh $APP4CAM_USER@$VARISCITE_MX8M_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
@@ -194,7 +194,7 @@ deploy-variscite-newtcam3:
       exit
       "
     - apk add rsync
-    - rsync --recursive config dist scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_NEWTCAM3_HOST:./$CI_PROJECT_NAME
+    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_NEWTCAM3_HOST:./$CI_PROJECT_NAME
     - ssh $APP4CAM_USER@$VARISCITE_NEWTCAM3_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
