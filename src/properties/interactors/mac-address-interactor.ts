@@ -1,15 +1,14 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
+import { CommandUnavailableOnWindowsException } from '../exceptions/CommandUnavailableOnWindowsException'
 
 const exec = promisify(execSync)
 
 export class MacAddressInteractor {
   static async getFirstMacAddress(): Promise<string> {
-    const isWindows = process.platform === 'win32'
-    if (isWindows) {
-      // This command does not exist on Windows machines.
-      return '<not supported on Windows>'
+    if (process.platform === 'win32') {
+      throw new CommandUnavailableOnWindowsException()
     }
     const { stdout, stderr } = await exec('cat /sys/class/net/*/address')
     if (stderr) {

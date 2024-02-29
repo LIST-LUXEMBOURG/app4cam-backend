@@ -45,7 +45,7 @@ describe('FilesService', () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [FilesService, PropertiesService],
+        providers: [ConfigService, FilesService, PropertiesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -109,7 +109,7 @@ describe('FilesService', () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [FilesService, PropertiesService],
+        providers: [ConfigService, FilesService, PropertiesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -144,7 +144,7 @@ describe('FilesService', () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [FilesService, PropertiesService],
+        providers: [ConfigService, FilesService, PropertiesService],
         imports: [SettingsModule],
       }).compile()
 
@@ -216,7 +216,7 @@ describe('FilesService', () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [FilesService, PropertiesService],
+        providers: [ConfigService, FilesService, PropertiesService],
         imports: [SettingsModule],
       }).compile()
 

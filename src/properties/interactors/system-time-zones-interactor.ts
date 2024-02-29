@@ -1,6 +1,7 @@
 // © 2023-2024 Luxembourg Institute of Science and Technology
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
+import { CommandUnavailableOnWindowsException } from '../exceptions/CommandUnavailableOnWindowsException'
 
 const exec = promisify(execSync)
 
@@ -10,9 +11,8 @@ export class SystemTimeZonesInteractor {
   }
 
   static async getAvailableTimeZones(): Promise<string[]> {
-    if (this.isWindows()) {
-      // timedatectl command does not exist on Windows machines.
-      return Promise.resolve(['', ''])
+    if (process.platform === 'win32') {
+      throw new CommandUnavailableOnWindowsException()
     }
     const { stdout, stderr } = await exec('timedatectl list-timezones')
     if (stderr) {

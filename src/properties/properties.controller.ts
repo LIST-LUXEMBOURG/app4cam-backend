@@ -19,8 +19,11 @@ export class PropertiesController {
   }
 
   @Get('deviceId')
-  getDeviceId(): Promise<DeviceIdDto> {
-    return this.propertiesService.getDeviceId()
+  async getDeviceId(): Promise<DeviceIdDto> {
+    const deviceId = await this.propertiesService.getDeviceId()
+    return {
+      deviceId,
+    }
   }
 
   @Get('timeZones')
