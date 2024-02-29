@@ -1,4 +1,5 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { VersionDto } from './dto/version.dto'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
@@ -28,7 +29,7 @@ describe(PropertiesService.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PropertiesService],
+      providers: [ConfigService, PropertiesService],
     }).compile()
 
     service = module.get<PropertiesService>(PropertiesService)
@@ -48,7 +49,7 @@ describe(PropertiesService.name, () => {
       .spyOn(MacAddressInteractor, 'getFirstMacAddress')
       .mockResolvedValue(DEVICE_ID)
     const response = await service.getDeviceId()
-    expect(response).toEqual({ deviceId: DEVICE_ID })
+    expect(response).toBe(DEVICE_ID)
     spyGetDeviceId.mockRestore()
   })
 

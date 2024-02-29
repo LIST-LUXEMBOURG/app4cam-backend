@@ -1,15 +1,13 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { DeviceIdDto } from './dto/device-id.dto'
 import { VersionDto } from './dto/version.dto'
 import { PropertiesController } from './properties.controller'
 import { PropertiesService } from './properties.service'
 
 const AVAILABLE_TIME_ZONES = ['a', 'b']
 
-const DEVICE_ID: DeviceIdDto = {
-  deviceId: 'a',
-}
+const DEVICE_ID = 'a'
 
 const VERSION: VersionDto = {
   commitHash: 'a',
@@ -23,6 +21,7 @@ describe(PropertiesController.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PropertiesController],
       providers: [
+        ConfigService,
         {
           provide: PropertiesService,
           useValue: {
@@ -50,7 +49,7 @@ describe(PropertiesController.name, () => {
 
   it('gets the device ID', async () => {
     const response = await controller.getDeviceId()
-    expect(response).toEqual(DEVICE_ID)
+    expect(response).toEqual({ deviceId: DEVICE_ID })
   })
 
   it('gets the version', async () => {
