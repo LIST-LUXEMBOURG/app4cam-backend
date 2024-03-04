@@ -53,6 +53,7 @@ if [ "$device_type" = '1' ]
 then
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/get-input-voltage.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/write-system-time-to-rtc.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/v4l2-ctl" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 elif [ "$device_type" = '2' ]
 then
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/variscite/access-point/change-access-point-name-or-password.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'

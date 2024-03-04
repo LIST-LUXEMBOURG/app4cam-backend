@@ -7,8 +7,8 @@ import { json, urlencoded } from 'body-parser'
 import { AppModule } from './app.module'
 import { InitialisationInteractor } from './initialisation-interactor'
 import { PropertiesService } from './properties/properties.service'
+import { UndefinedPathException } from './settings/exceptions/UndefinedPathException'
 import { SettingsService } from './settings/settings.service'
-import { UndefinedPathError } from './settings/undefined-path-error'
 
 const PAYLOAD_LIMIT = '1mb'
 
@@ -38,7 +38,7 @@ async function bootstrap() {
     try {
       await settingsService.setShotsFolder(mountPath)
     } catch (e) {
-      if (!(e instanceof UndefinedPathError)) {
+      if (!(e instanceof UndefinedPathException)) {
         throw e
       }
     }
