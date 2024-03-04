@@ -6,9 +6,12 @@ import { DateTime } from 'luxon'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
+import { CommandUnavailableOnWindowsException } from './exceptions/CommandUnavailableOnWindowsException'
+import { UndefinedPathException } from './exceptions/UndefinedPathException'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SleepInteractor } from './interactors/sleep-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
+import { VideoDeviceInteractor } from './interactors/video-device-interactor'
 import { MotionTextAssembler } from './motion-text-assembler'
 import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
 import {
@@ -18,7 +21,6 @@ import {
   SettingsFromJsonFile,
 } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
-import { UndefinedPathError } from './undefined-path-error'
 
 const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
 const MOTION_VIDEO_PARAMS_FOCUS_KEY = 'Focus (absolute)'
@@ -54,9 +56,23 @@ export class SettingsService {
     let threshold = 1
     let videoQuality = 0
     try {
-      focus = await this.getFocusFromMotionAdaptedToCameraLight(
-        settingsFromFile.camera.light,
-      )
+      if (isRaspberryPi) {
+        try {
+          const focusValues = await VideoDeviceInteractor.getFocus()
+          focus = focusValues.value
+        } catch (error) {
+          if (error instanceof CommandUnavailableOnWindowsException) {
+            this.logger.warn('Failed to get focus:', error)
+            focus = 0
+          } else {
+            throw error
+          }
+        }
+      } else {
+        focus = await this.getFocusFromMotionAdaptedToCameraLight(
+          settingsFromFile.camera.light,
+        )
+      }
       pictureQuality = await MotionClient.getPictureQuality()
       threshold = await MotionClient.getThreshold()
       videoQuality = await MotionClient.getMovieQuality()
@@ -166,10 +182,22 @@ export class SettingsService {
           settings.camera.light != settingsReadFromFile.camera.light) ||
         'focus' in settings.camera
       ) {
-        await this.setFocusInMotionAdaptedToCameraLight(
-          settings.camera.focus,
-          cameraSettingsMerged.light,
-        )
+        if (this.deviceType === 'RaspberryPi') {
+          try {
+            await VideoDeviceInteractor.setFocus(settings.camera.focus)
+          } catch (error) {
+            if (error instanceof CommandUnavailableOnWindowsException) {
+              this.logger.error('Failed to set focus:', error)
+            } else {
+              throw error
+            }
+          }
+        } else {
+          await this.setFocusInMotionAdaptedToCameraLight(
+            settings.camera.focus,
+            cameraSettingsMerged.light,
+          )
+        }
       }
 
       if ('pictureQuality' in settings.camera) {
@@ -396,10 +424,22 @@ export class SettingsService {
     }
 
     try {
-      await this.setFocusInMotionAdaptedToCameraLight(
-        settings.camera.focus,
-        settings.camera.light,
-      )
+      if (this.deviceType === 'RaspberryPi') {
+        try {
+          await VideoDeviceInteractor.setFocus(settings.camera.focus)
+        } catch (error) {
+          if (error instanceof CommandUnavailableOnWindowsException) {
+            this.logger.error('Failed to set focus:', error)
+          } else {
+            throw error
+          }
+        }
+      } else {
+        await this.setFocusInMotionAdaptedToCameraLight(
+          settings.camera.focus,
+          settings.camera.light,
+        )
+      }
 
       await MotionClient.setPictureQuality(settings.camera.pictureQuality)
       await MotionClient.setMovieQuality(settings.camera.videoQuality)
@@ -614,7 +654,7 @@ export class SettingsService {
   async setShotsFolder(path: string): Promise<void> {
     if (!path) {
       this.logger.warn('The path to set as shots folder is not defined.')
-      throw new UndefinedPathError()
+      throw new UndefinedPathException()
     }
     await MotionClient.setTargetDir(path)
   }

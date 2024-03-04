@@ -196,7 +196,7 @@ scripts/setup/set-up.sh
    height 1080
    ```
 
-   **USB camera settings:** disable auto-focus, fix focus value, fix brigthness value.
+   **USB camera settings:** disable auto-focus, fix focus value, fix brightness value. (only relevant for NEWTCAM)
 
    ```
    video_params "Focus, Auto"=0, "Focus (absolute)"=350, Brightness=16
