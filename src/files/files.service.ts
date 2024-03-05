@@ -10,6 +10,7 @@ import { FileDeletionResponse } from './entities/file-deletion-response.entity'
 import { File } from './entities/file.entity'
 import { FileHandler } from './file-handler'
 import { FileInteractor } from './file-interactor'
+import { FileNamer } from './file-namer'
 
 const ARCHIVE_FOLDER_PATH = 'temp' // also used by log files module
 
@@ -50,10 +51,12 @@ export class FilesService {
   async getStreamableFiles(filenames: string[]) {
     const now = new Date()
     const settings = await this.settingsService.getAllSettings()
-    const archiveFilename = ArchiveFileManager.createArchiveFilename(
+    const archiveFilename = FileNamer.createFilename(
       now,
       settings.general.deviceName,
       settings.general.siteName,
+      '.zip',
+      settings.general.timeZone,
     )
     const archiveFilePath = path.join(ARCHIVE_FOLDER_PATH, archiveFilename)
     const fileFolderPath = await MotionClient.getTargetDir()

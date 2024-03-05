@@ -3,6 +3,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 import { DateTime } from 'luxon'
+import { FileNamer } from '../files/file-namer'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
@@ -361,6 +362,7 @@ export class SettingsService {
         settingsToUpdate,
         SETTINGS_FILE_PATH,
       )
+      await this.storeSettingsFileToShotsFolder(settingsToUpdate)
     }
 
     return settings
@@ -483,6 +485,7 @@ export class SettingsService {
       settingsToWriteToFile,
       SETTINGS_FILE_PATH,
     )
+    await this.storeSettingsFileToShotsFolder(settingsToWriteToFile)
 
     const filename = MotionTextAssembler.createFilename(
       settings.general.siteName,
@@ -547,6 +550,28 @@ export class SettingsService {
     const newVideoParametersString =
       MotionVideoParametersWorker.convertObjectToString(videoParameters)
     await MotionClient.setVideoParams(newVideoParametersString)
+  }
+
+  async storeSettingsFileToShotsFolder(
+    settings: SettingsFromJsonFile,
+  ): Promise<void> {
+    const now = new Date()
+    const deviceName = await this.getDeviceName()
+    const siteName = await this.getSiteName()
+    const timeZone = await this.getTimeZone()
+    const settingsFilename = FileNamer.createFilename(
+      now,
+      deviceName,
+      siteName,
+      '_automatically-exported-settings.json',
+      timeZone,
+    )
+    const shotsFolderPath = await this.getShotsFolder()
+    const settingsFileInShotsFolderPath = `${shotsFolderPath}/${settingsFilename}`
+    await SettingsFileProvider.writeSettingsToFile(
+      settings,
+      settingsFileInShotsFolderPath,
+    )
   }
 
   async getSiteName(): Promise<string> {
