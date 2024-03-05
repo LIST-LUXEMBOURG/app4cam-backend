@@ -5,41 +5,8 @@ import { LoggerService } from '@nestjs/common'
 import { ArchiveFileManager } from './archive-file-manager'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
-const SYSTEM_TIME_ISO = '2022-01-18T13:48:37.000Z'
-const SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS = '20220118T134837000Z'
 
-describe('ArchiveFileCreator', () => {
-  describe('stripHyphensColonsDots', () => {
-    it('removes all characters', async () => {
-      expect(ArchiveFileManager.stripHyphensColonsDots(SYSTEM_TIME_ISO)).toBe(
-        SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS,
-      )
-    })
-  })
-
-  describe('createArchiveFilename', () => {
-    it('returns complete name', () => {
-      const dateTime = new Date(SYSTEM_TIME_ISO)
-      expect(ArchiveFileManager.createArchiveFilename(dateTime, 'd', 's')).toBe(
-        's_d_' + SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS + '.zip',
-      )
-    })
-
-    it('returns name without site name if not set', () => {
-      const dateTime = new Date(SYSTEM_TIME_ISO)
-      expect(ArchiveFileManager.createArchiveFilename(dateTime, 'd', '')).toBe(
-        'd_' + SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS + '.zip',
-      )
-    })
-
-    it('returns name without device name if not set', () => {
-      const dateTime = new Date(SYSTEM_TIME_ISO)
-      expect(ArchiveFileManager.createArchiveFilename(dateTime, '', 's')).toBe(
-        's_' + SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS + '.zip',
-      )
-    })
-  })
-
+describe(ArchiveFileManager.name, () => {
   describe('createArchive', () => {
     const testFolderPath = 'src/files/test-archive-file-creation'
 

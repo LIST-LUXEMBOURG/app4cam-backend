@@ -9,27 +9,6 @@ const COMPRESSION_LEVEL = 1 // 0 (no compression) to 9 (best compression), or -1
 const TIME_TO_LIVE_MILLISECONDS = 3600000 // 1 hour
 
 export class ArchiveFileManager {
-  static createArchiveFilename(
-    date: Date,
-    deviceName: string,
-    siteName: string,
-  ): string {
-    let name = ''
-    if (siteName) {
-      name += siteName + '_'
-    }
-    if (deviceName) {
-      name += deviceName + '_'
-    }
-    const time = this.stripHyphensColonsDots(date.toISOString())
-    name += time + '.zip'
-    return name
-  }
-
-  static stripHyphensColonsDots(input: string) {
-    return input.replaceAll('-', '').replaceAll(':', '').replaceAll('.', '')
-  }
-
   static async createArchive(
     archiveFilePath: string,
     filePaths: string[],
