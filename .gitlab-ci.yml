@@ -111,7 +111,7 @@ deploy-raspberry-pi:
       exit
       "
 
-deploy-variscite-mx6:
+.deploy-variscite-mx6:
   stage: deploy
   except:
     - tags
