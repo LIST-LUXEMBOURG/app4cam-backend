@@ -5,7 +5,7 @@ import { InitialisationInteractor } from '../initialisation-interactor'
 import { PropertiesService } from '../properties/properties.service'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
-import { Settings } from './settings'
+import { PatchableSettings, Settings } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SettingsService } from './settings.service'
 
@@ -65,11 +65,17 @@ describe('SettingsService', () => {
     const FOCUS = 200
     const PASSWORD = 'p'
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
-    const SLEEPING_TIME = '10:12'
+    const SLEEPING_TIME = {
+      hour: 10,
+      minute: 12,
+    }
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
     const TRIGGER_LIGHT_TYPE = 'infrared' as const
     const TRIGGER_SENSITIVITY = 1
-    const WAKING_UP_TIME = '10:17'
+    const WAKING_UP_TIME = {
+      hour: 10,
+      minute: 17,
+    }
 
     const CAMERA_JSON_SETTINGS = {
       light: CAMERA_LIGHT_TYPE,
@@ -164,8 +170,14 @@ describe('SettingsService', () => {
         siteName: 'ss',
       }
       const triggeringJsonSettings = {
-        sleepingTime: 'st',
-        wakingUpTime: 'wt',
+        sleepingTime: {
+          hour: 9,
+          minute: 0,
+        },
+        wakingUpTime: {
+          hour: 8,
+          minute: 30,
+        },
         light: 'infrared' as const,
       }
       const jsonSettings = {
@@ -207,7 +219,7 @@ describe('SettingsService', () => {
     })
 
     it('updates one setting stored in settings file but neither system time nor time zone', async () => {
-      const settingsToUpdate: DeepPartial<Settings> = {
+      const settingsToUpdate: PatchableSettings = {
         general: {
           deviceName: 'dd',
         },
@@ -225,7 +237,7 @@ describe('SettingsService', () => {
     })
 
     it('updates system time but does not write settings file', async () => {
-      const settingsToUpdate: DeepPartial<Settings> = {
+      const settingsToUpdate: PatchableSettings = {
         general: {
           systemTime: 'sy',
         },
@@ -250,8 +262,14 @@ describe('SettingsService', () => {
         siteName: 'ss',
       }
       const triggeringJsonSettings = {
-        sleepingTime: 'st',
-        wakingUpTime: 'wt',
+        sleepingTime: {
+          hour: 9,
+          minute: 0,
+        },
+        wakingUpTime: {
+          hour: 8,
+          minute: 30,
+        },
         light: 'infrared' as const,
       }
       const jsonSettings = {

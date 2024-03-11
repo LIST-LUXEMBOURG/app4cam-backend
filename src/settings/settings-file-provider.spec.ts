@@ -54,13 +54,8 @@ describe(SettingsFileProvider.name, () => {
           camera: {
             light: 'visible',
           },
-          general: {
-            deviceName: '',
-            siteName: '',
-          },
+          general: {},
           triggering: {
-            sleepingTime: '',
-            wakingUpTime: '',
             light: 'visible',
           },
         }
@@ -87,8 +82,14 @@ describe(SettingsFileProvider.name, () => {
           siteName: 's',
         },
         triggering: {
-          sleepingTime: 's',
-          wakingUpTime: 'w',
+          sleepingTime: {
+            hour: 1,
+            minute: 2,
+          },
+          wakingUpTime: {
+            hour: 3,
+            minute: 4,
+          },
           light: 'infrared' as const,
         },
       }

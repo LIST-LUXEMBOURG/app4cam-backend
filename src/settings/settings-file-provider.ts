@@ -10,13 +10,8 @@ export const JSON_SETTINGS_WITH_NONE_SET: SettingsFromJsonFile = {
   camera: {
     light: DEFAULT_CAMERA_LIGHT,
   },
-  general: {
-    deviceName: '',
-    siteName: '',
-  },
+  general: {},
   triggering: {
-    sleepingTime: '',
-    wakingUpTime: '',
     light: DEFAULT_TRIGGERING_LIGHT,
   },
 }

@@ -18,6 +18,18 @@ import { LightType } from '../settings'
 
 type ShotType = 'pictures' | 'videos'
 
+class TriggeringTimeDto {
+  @IsNotEmpty()
+  @Min(0)
+  @Max(23)
+  hour: number
+
+  @IsNotEmpty()
+  @Min(0)
+  @Max(59)
+  minute: number
+}
+
 class CameraSettingsPatchDto {
   @IsOptional()
   @Matches(/^(infrared|visible)$/)
@@ -76,12 +88,10 @@ class TriggeringSettingsPatchDto {
   threshold?: number
 
   @IsOptional()
-  @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
-  sleepingTime?: string
+  sleepingTime?: TriggeringTimeDto
 
   @IsOptional()
-  @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
-  wakingUpTime?: string
+  wakingUpTime?: TriggeringTimeDto
 
   @IsOptional()
   @Matches(/^(infrared|visible)$/)
@@ -162,11 +172,11 @@ class TriggeringSettingsPutDto {
   @Max(2147483647)
   threshold: number
 
-  @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
-  sleepingTime: string
+  @IsNotEmpty()
+  sleepingTime: TriggeringTimeDto
 
-  @Matches(/^(([01][0-9]|2[0-3]):[0-5][0-9]|)$/)
-  wakingUpTime: string
+  @IsNotEmpty()
+  wakingUpTime: TriggeringTimeDto
 
   @Matches(/^(infrared|visible)$/)
   light: LightType

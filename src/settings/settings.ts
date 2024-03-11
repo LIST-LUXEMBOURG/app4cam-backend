@@ -1,11 +1,17 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
 export class SettingsFromJsonFile {
   camera: CameraSettingsFromJsonFile
-  general: GeneralSettingsFromJsonFile
-  triggering: TriggeringSettingsFromJsonFile
+  general: Partial<GeneralSettingsFromJsonFile>
+  triggering: Partial<TriggeringSettingsFromJsonFile> &
+    Pick<CameraSettingsFromJsonFile, 'light'>
 }
 
 export type LightType = 'infrared' | 'visible'
+
+export interface TriggeringTime {
+  hour: number
+  minute: number
+}
 
 interface CameraSettingsFromJsonFile {
   light: LightType
@@ -18,8 +24,8 @@ class GeneralSettingsFromJsonFile {
 
 class TriggeringSettingsFromJsonFile {
   light: LightType
-  sleepingTime: string
-  wakingUpTime: string
+  sleepingTime: TriggeringTime
+  wakingUpTime: TriggeringTime
 }
 
 type ShotType = 'pictures' | 'videos'
@@ -47,4 +53,8 @@ export interface Settings {
   triggering: TriggeringSettings
 }
 
-export type PatchableSettings = DeepPartial<Settings>
+export interface PatchableSettings {
+  camera?: Partial<CameraSettings>
+  general?: Partial<GeneralSettings>
+  triggering?: Partial<TriggeringSettings>
+}
