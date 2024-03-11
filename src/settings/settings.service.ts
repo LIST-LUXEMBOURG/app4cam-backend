@@ -20,6 +20,7 @@ import {
   PatchableSettings,
   Settings,
   SettingsFromJsonFile,
+  TriggeringTime,
 } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 
@@ -104,12 +105,16 @@ export class SettingsService {
         videoQuality,
       },
       general: {
+        deviceName: undefined,
+        siteName: undefined,
         ...settingsFromFile.general,
         password,
         systemTime,
         timeZone,
       },
       triggering: {
+        sleepingTime: undefined,
+        wakingUpTime: undefined,
         ...settingsFromFile.triggering,
         threshold,
       },
@@ -313,6 +318,21 @@ export class SettingsService {
         newTriggeringSettings.wakingUpTime = settings.triggering.wakingUpTime
       }
 
+      if (this.deviceType === 'RaspberryPi') {
+        try {
+          await SleepInteractor.configureWittyPiSchedule(
+            settings.triggering.sleepingTime,
+            settings.triggering.wakingUpTime,
+          )
+        } catch (error) {
+          if (error instanceof CommandUnavailableOnWindowsException) {
+            this.logger.error('Failed to configure Witty Pi:', error)
+          } else {
+            throw error
+          }
+        }
+      }
+
       if (
         'light' in settings.triggering &&
         settings.triggering.light != settingsReadFromFile.triggering.light
@@ -465,6 +485,21 @@ export class SettingsService {
         deviceType,
         settings.triggering.light,
       )
+    }
+
+    if (this.deviceType === 'RaspberryPi') {
+      try {
+        await SleepInteractor.configureWittyPiSchedule(
+          settings.triggering.sleepingTime,
+          settings.triggering.wakingUpTime,
+        )
+      } catch (error) {
+        if (error instanceof CommandUnavailableOnWindowsException) {
+          this.logger.error('Failed to configure Witty Pi:', error)
+        } else {
+          throw error
+        }
+      }
     }
 
     const settingsToWriteToFile: SettingsFromJsonFile = {
@@ -696,13 +731,13 @@ export class SettingsService {
     return settings.triggering.light
   }
 
-  async getSleepingTime(): Promise<string> {
+  async getSleepingTime(): Promise<TriggeringTime> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return settings.triggering.sleepingTime
   }
 
-  async getWakingUpTime(): Promise<string> {
+  async getWakingUpTime(): Promise<TriggeringTime> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return settings.triggering.wakingUpTime
@@ -711,17 +746,19 @@ export class SettingsService {
   @Cron('* * * * *') // every 1 minute
   async sleepWhenItIsTime() {
     this.logger.log('Cron job to go to sleep when it is time triggered...')
+    if (this.deviceType === 'RaspberryPi') {
+      this.logger.log('Exiting cron job as device type does not need it.')
+      return
+    }
     const sleepingTime = await this.getSleepingTime()
     if (!sleepingTime) {
       this.logger.log('No sleeping time set.')
       return
     }
-    const sleepingTimeHours = parseInt(sleepingTime.substring(0, 2))
-    const sleepingTimeMinutes = parseInt(sleepingTime.substring(3))
     const now = new Date()
     if (
-      sleepingTimeHours === now.getHours() &&
-      sleepingTimeMinutes === now.getMinutes()
+      sleepingTime.hour === now.getHours() &&
+      sleepingTime.minute === now.getMinutes()
     ) {
       this.logger.log('It is time to sleep. Good night!')
       const wakingUpTime = await this.getWakingUpTime()
@@ -735,16 +772,22 @@ export class SettingsService {
         )
         return
       }
-      const wakingUpTimeHours = parseInt(wakingUpTime.substring(0, 2))
-      const wakingUpTimeMinutes = parseInt(wakingUpTime.substring(3))
       let wakingUpDateTime = DateTime.now().set({
-        hour: wakingUpTimeHours,
-        minute: wakingUpTimeMinutes,
+        hour: wakingUpTime.hour,
+        minute: wakingUpTime.minute,
       })
       if (wakingUpTime < sleepingTime) {
         wakingUpDateTime = wakingUpDateTime.plus({ days: 1 })
       }
-      SleepInteractor.triggerSleeping(wakingUpDateTime.toISO(), this.logger)
+      try {
+        SleepInteractor.triggerSleeping(wakingUpDateTime.toISO(), this.logger)
+      } catch (error) {
+        if (error instanceof CommandUnavailableOnWindowsException) {
+          this.logger.error('Failed to trigger sleeping:', error)
+        } else {
+          throw error
+        }
+      }
     } else {
       this.logger.log('Not time to sleep yet.')
     }

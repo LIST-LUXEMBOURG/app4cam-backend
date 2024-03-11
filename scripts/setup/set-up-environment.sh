@@ -51,7 +51,9 @@ echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-tri
 
 if [ "$device_type" = '1' ]
 then
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/create-working-hours-schedule.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/get-input-voltage.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/remove-working-hours-schedule.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/set-camera-focus.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/write-system-time-to-rtc.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/v4l2-ctl" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'

@@ -50,10 +50,16 @@ describe('SettingsController (e2e)', () => {
   const FOCUS = 200
   const PASSWORD = 'p'
   const SHOT_TYPES = ['pictures' as const, 'videos' as const]
-  const SLEEPING_TIME = '10:12'
+  const SLEEPING_TIME = {
+    hour: 10,
+    minute: 12,
+  }
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
   const TRIGGERING_LIGHT = 'infrared' as const
-  const WAKING_UP_TIME = '10:17'
+  const WAKING_UP_TIME = {
+    hour: 10,
+    minute: 17,
+  }
 
   const CAMERA_JSON_SETTINGS = {
     light: CAMERA_LIGHT,
@@ -439,8 +445,14 @@ describe('SettingsController (e2e)', () => {
       }
       const goodTriggeringPutSettings: TriggeringSettings = {
         threshold: TRIGGER_THRESHOLD,
-        sleepingTime: '18:00',
-        wakingUpTime: '20:00',
+        sleepingTime: {
+          hour: 18,
+          minute: 0,
+        },
+        wakingUpTime: {
+          hour: 20,
+          minute: 0,
+        },
         light: 'infrared',
       }
 

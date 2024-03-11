@@ -7,8 +7,14 @@ import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
 
 describe('SettingsController', () => {
-  const SLEEPING_TIME = '10:12'
-  const WAKING_UP_TIME = '10:17'
+  const SLEEPING_TIME = {
+    hour: 10,
+    minute: 12,
+  }
+  const WAKING_UP_TIME = {
+    hour: 10,
+    minute: 17,
+  }
 
   const SETTINGS: Settings = {
     camera: {
@@ -106,8 +112,14 @@ describe('SettingsController', () => {
       },
       triggering: {
         threshold: 1,
-        sleepingTime: new Date().toISOString(),
-        wakingUpTime: new Date().toISOString(),
+        sleepingTime: {
+          hour: 1,
+          minute: 2,
+        },
+        wakingUpTime: {
+          hour: 3,
+          minute: 4,
+        },
         light: 'infrared' as const,
       },
     }
