@@ -45,7 +45,7 @@ export class VideoDeviceInteractor {
     if (focus < currentFocus.min || currentFocus.max < focus) {
       throw new Error('Focus value not supported!')
     }
-    const command = `sudo v4l2-ctl -d ${DEVICE_PATH} -c focus_absolute=${focus}`
+    const command = `sudo scripts/raspberry-pi/set-camera-focus.sh ${DEVICE_PATH} ${focus}`
     const { stderr } = await exec(command)
     if (stderr) {
       throw new Error(stderr)
