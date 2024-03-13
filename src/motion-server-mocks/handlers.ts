@@ -1,5 +1,5 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
-import { rest } from 'msw'
+import { http, HttpResponse } from 'msw'
 
 const ALLOWED_GET_CONFIG_OPTIONS = [
   'height',
@@ -31,21 +31,24 @@ const baseUrl = (path: string) =>
   new URL(path, 'http://127.0.0.1:8080').toString()
 
 export const handlers = [
-  rest.get(baseUrl('action/config/write'), (_req, res, ctx) =>
-    res(ctx.status(200)),
+  http.get(
+    baseUrl('action/config/write'),
+    () => new HttpResponse(null, { status: 200 }),
   ),
 
-  rest.get(baseUrl('0/action/snapshot'), (_req, res, ctx) =>
-    res(ctx.status(200)),
+  http.get(
+    baseUrl('0/action/snapshot'),
+    () => new HttpResponse(null, { status: 200 }),
   ),
 
-  rest.get(baseUrl('0/config/get'), (req, res, ctx) => {
-    const queryParameterValues = Array.from(req.url.searchParams.values())
+  http.get(baseUrl('0/config/get'), ({ request }) => {
+    const url = new URL(request.url)
+    const queryParameterValues = Array.from(url.searchParams.values())
     if (queryParameterValues.length !== 1) {
-      return res(ctx.status(400))
+      return new HttpResponse(null, { status: 400 })
     }
     if (!ALLOWED_GET_CONFIG_OPTIONS.includes(queryParameterValues[0])) {
-      return res(ctx.status(404))
+      return new HttpResponse(null, { status: 404 })
     }
 
     let body
@@ -68,29 +71,33 @@ export const handlers = [
         body = `Camera 0 ${queryParameterValues[0]} = 1 Done`
         break
     }
-    return res(ctx.status(200), ctx.body(body))
+    return new HttpResponse(body, { status: 200 })
   }),
 
-  rest.get(baseUrl('0/config/set'), (req, res, ctx) => {
-    const queryParameterKeys = Array.from(req.url.searchParams.keys())
+  http.get(baseUrl('0/config/set'), ({ request }) => {
+    const url = new URL(request.url)
+    const queryParameterKeys = Array.from(url.searchParams.keys())
     if (queryParameterKeys.length !== 1) {
-      return res(ctx.status(400))
+      return new HttpResponse(null, { status: 400 })
     }
     if (!ALLOWED_SET_CONFIG_OPTIONS.includes(queryParameterKeys[0])) {
-      return res(ctx.status(404))
+      return new HttpResponse(null, { status: 404 })
     }
-    return res(ctx.status(200))
+    return new HttpResponse(null, { status: 200 })
   }),
 
-  rest.get(baseUrl('0/detection/pause'), (_req, res, ctx) =>
-    res(ctx.status(200)),
+  http.get(
+    baseUrl('0/detection/pause'),
+    () => new HttpResponse(null, { status: 200 }),
   ),
 
-  rest.get(baseUrl('0/detection/start'), (_req, res, ctx) =>
-    res(ctx.status(200)),
+  http.get(
+    baseUrl('0/detection/start'),
+    () => new HttpResponse(null, { status: 200 }),
   ),
 
-  rest.get(baseUrl('0/detection/status'), (_req, res, ctx) => {
-    return res(ctx.status(200), ctx.body('Camera 0 Detection status ACTIVE'))
-  }),
+  http.get(
+    baseUrl('0/detection/status'),
+    () => new HttpResponse('Camera 0 Detection status ACTIVE', { status: 200 }),
+  ),
 ]
