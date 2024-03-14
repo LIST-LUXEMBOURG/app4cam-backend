@@ -121,8 +121,6 @@ scripts/setup/set-up.sh
 
    setup_mode off
 
-   log_file /home/app4cam/motion/motion.log
-
    log_level 5
 
    target_dir /home/app4cam/data/

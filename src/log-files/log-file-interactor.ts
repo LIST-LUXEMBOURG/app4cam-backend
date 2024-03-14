@@ -4,6 +4,10 @@ import { promisify } from 'util'
 
 const exec = promisify(execSync)
 
+const MOTION_SERVICE_NAME = 'motion'
+
+const SINCE_LOGGING_TIME = '2 weeks ago'
+
 export class LogFileInteractor {
   private static isWindows(): boolean {
     return process.platform === 'win32'
@@ -18,7 +22,20 @@ export class LogFileInteractor {
       return Promise.resolve()
     }
     const { stderr } = await exec(
-      `journalctl --user -u ${serviceName} -b > ${logFilePath}`,
+      `journalctl --user -u ${serviceName} -S "${SINCE_LOGGING_TIME}" > ${logFilePath}`,
+    )
+    if (stderr) {
+      throw new Error(stderr)
+    }
+  }
+
+  static async writeMotionLogFileToDisk(logFilePath: string): Promise<void> {
+    if (this.isWindows()) {
+      // The following command does not exist on Windows machines.
+      return Promise.resolve()
+    }
+    const { stderr } = await exec(
+      `sudo journalctl -u ${MOTION_SERVICE_NAME} -S "${SINCE_LOGGING_TIME}" > ${logFilePath}`,
     )
     if (stderr) {
       throw new Error(stderr)

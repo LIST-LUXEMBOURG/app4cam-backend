@@ -44,6 +44,7 @@ else
 fi
 
 # Allow the new user and the motion user to execute some commands as sudo.
+echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/journalctl" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/timedatectl" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-triggering-leds.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-recording-leds.sh" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
@@ -66,14 +67,14 @@ then
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/variscite/rtc/sleep_until" | sudo su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 fi
 
-# Create data and motion log folders.
-sudo mkdir "/home/$USERNAME/data" "/home/$USERNAME/motion"
+# Create data and folder.
+sudo mkdir "/home/$USERNAME/data"
 
-# Attribute new folders to new user and group.
-sudo chown "$USERNAME":"$USERNAME" "/home/$USERNAME/data" "/home/$USERNAME/motion"
+# Attribute new folder to new user and group.
+sudo chown "$USERNAME":"$USERNAME" "/home/$USERNAME/data"
 
-# Give new user group write access to new folders.
-sudo chmod g+w "/home/$USERNAME/data" "/home/$USERNAME/motion"
+# Give new user group write access to new folder.
+sudo chmod g+w "/home/$USERNAME/data"
 
 # Add motion user to new user group.
 sudo usermod -a -G "$USERNAME" motion

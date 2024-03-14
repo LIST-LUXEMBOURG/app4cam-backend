@@ -2,13 +2,11 @@
 import { rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { MotionClient } from '../motion-client'
 import { LogFileInteractor } from './log-file-interactor'
 import { LogFilesService } from './log-files.service'
 
 const APP_LOG_FILE_PATH = 'temp/app.log'
-
-const FIXTURE_LOG_FILE_PATH = 'src/log-files/fixtures/a.log'
+const MOTION_LOG_FILE_PATH = 'temp/motion.log'
 
 describe(LogFilesService.name, () => {
   let service: LogFilesService
@@ -54,14 +52,13 @@ describe(LogFilesService.name, () => {
 
   describe('getMotionLogFileStream', () => {
     let service: LogFilesService
-    let spyGetTargetDir
+    let spyWriteMotionLogFileToDisk
 
-    beforeAll(() => {
-      spyGetTargetDir = jest
-        .spyOn(MotionClient, 'getLogFilePath')
-        .mockImplementation(() => {
-          return Promise.resolve(FIXTURE_LOG_FILE_PATH)
-        })
+    beforeAll(async () => {
+      spyWriteMotionLogFileToDisk = jest
+        .spyOn(LogFileInteractor, 'writeMotionLogFileToDisk')
+        .mockResolvedValue()
+      await writeFile(MOTION_LOG_FILE_PATH, 'c')
     })
 
     beforeEach(async () => {
@@ -74,11 +71,12 @@ describe(LogFilesService.name, () => {
 
     it('calls the correct method', async () => {
       await service.getMotionLogFileStream()
-      expect(spyGetTargetDir).toHaveBeenCalled()
+      expect(spyWriteMotionLogFileToDisk).toHaveBeenCalled()
     })
 
-    afterAll(() => {
-      spyGetTargetDir.mockRestore()
+    afterAll(async () => {
+      spyWriteMotionLogFileToDisk.mockRestore()
+      await rm(MOTION_LOG_FILE_PATH)
     })
   })
 })

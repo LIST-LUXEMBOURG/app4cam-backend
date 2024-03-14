@@ -1,18 +1,13 @@
 // © 2023-2024 Luxembourg Institute of Science and Technology
 import { createReadStream } from 'fs'
-import { access, constants } from 'fs/promises'
 import path = require('path')
 import { Readable } from 'stream'
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { MotionClient } from '../motion-client'
 import { LogFileInteractor } from './log-file-interactor'
 
 const TEMPORARY_APP_LOG_FILENAME = 'app.log'
+const TEMPORARY_MOTION_LOG_FILENAME = 'motion.log'
 const TEMPORARY_FOLDER_PATH = 'temp' // also used by files module
 
 @Injectable()
@@ -34,17 +29,11 @@ export class LogFilesService {
   }
 
   async getMotionLogFileStream(): Promise<Readable> {
-    const logFilePath = await MotionClient.getLogFilePath()
-    try {
-      await access(logFilePath, constants.F_OK)
-    } catch {
-      throw new NotFoundException()
-    }
-    try {
-      await access(logFilePath, constants.R_OK)
-    } catch {
-      throw new ForbiddenException()
-    }
+    const logFilePath = path.join(
+      TEMPORARY_FOLDER_PATH,
+      TEMPORARY_MOTION_LOG_FILENAME,
+    )
+    await LogFileInteractor.writeMotionLogFileToDisk(logFilePath)
     const stream = createReadStream(logFilePath)
     return stream
   }
