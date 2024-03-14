@@ -327,10 +327,11 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 
 Only enable this functionality if you use it.
 
-0. `sudo apt install curl -y`
-1. Install `udisks2`: `sudo apt install udisks2`
-2. Install `udiskie`: `sudo apt install udiskie -y`
-3. Enable permissions for udisks2 in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
+1. `sudo apt install curl -y`
+2. Make sure that there is no udev rule configured for USB auto-mounting. The OS images of Variscite devices may come with a preconfigured rule in `/etc/udev/rules.d/automount.rules` that needs to be commented out.
+3. Install `udisks2`: `sudo apt install udisks2`
+4. Install `udiskie`: `sudo apt install udiskie -y`
+5. Enable permissions for udisks2 in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
 
    ```
    [udisks2]
@@ -339,7 +340,7 @@ Only enable this functionality if you use it.
    ResultAny=yes
    ```
 
-4. Mount the drives to `/media` directly by creating file with the following content: `sudo nano /etc/udev/rules.d/99-udisks2.rules`
+6. Mount the drives to `/media` directly by creating file with the following content: `sudo nano /etc/udev/rules.d/99-udisks2.rules`
 
    ```
    # UDISKS_FILESYSTEM_SHARED
@@ -351,43 +352,43 @@ Only enable this functionality if you use it.
    ENV{UDISKS_MOUNT_OPTIONS_ALLOW}="errors"
    ```
 
-5. Clean stale mountpoints at every boot by creating file with the following content: `sudo nano /etc/tmpfiles.d/media.conf`
+7. Clean stale mountpoints at every boot by creating file with the following content: `sudo nano /etc/tmpfiles.d/media.conf`
 
    ```
    D /media 0755 root root 0 -
    ```
 
-6. Log in as user: `su - app4cam`
-7. `mkdir .config/udiskie`
-8. `nano .config/udiskie/config.yml`
+8. Log in as user: `su - app4cam`
+9. `mkdir .config/udiskie`
+10. `nano .config/udiskie/config.yml`
 
-   ```
-   device_config:
-   - options: [umask=0,errors=continue]
-   ```
+    ```
+    device_config:
+    - options: [umask=0,errors=continue]
+    ```
 
-9. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
+11. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
 
-   ```
-   [Unit]
-   Description=Handle automounting of usb devices
-   StartLimitIntervalSec=0
+    ```
+    [Unit]
+    Description=Handle automounting of usb devices
+    StartLimitIntervalSec=0
 
-   [Service]
-   Type=simple
-   ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/app4cam/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
-   Restart=always
-   RestartSec=5
+    [Service]
+    Type=simple
+    ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/app4cam/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
+    Restart=always
+    RestartSec=5
 
-   [Install]
-   WantedBy=default.target
-   ```
+    [Install]
+    WantedBy=default.target
+    ```
 
-10. Reload systemctl: `systemctl --user daemon-reload`
-11. Enable service: `systemctl --user enable udiskie`
-12. Start service: `systemctl --user start udiskie`
-13. Verify that the service is running: `systemctl --user status udiskie`
-14. Logout: `exit`
+12. Reload systemctl: `systemctl --user daemon-reload`
+13. Enable service: `systemctl --user enable udiskie`
+14. Start service: `systemctl --user start udiskie`
+15. Verify that the service is running: `systemctl --user status udiskie`
+16. Logout: `exit`
 
 ### 11. Make sure automatic time synchronisaton is disabled
 
