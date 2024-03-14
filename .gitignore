@@ -10,7 +10,6 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-!src/log-files/fixtures/a.log
 
 # OS
 .DS_Store

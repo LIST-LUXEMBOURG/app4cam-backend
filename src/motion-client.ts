@@ -21,11 +21,6 @@ export class MotionClient {
     return parseFloat(value)
   }
 
-  static async getLogFilePath(): Promise<string> {
-    const value = await this.getConfigurationOption('log_file')
-    return value
-  }
-
   static async getMovieOutput(): Promise<MovieOutputValue> {
     const value = await this.getConfigurationOption('movie_output')
     return value as MovieOutputValue

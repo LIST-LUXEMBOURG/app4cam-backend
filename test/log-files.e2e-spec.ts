@@ -7,25 +7,23 @@ import { LogFileInteractor } from '../src/log-files/log-file-interactor'
 import { AppModule } from './../src/app.module'
 
 const APP_LOG_FILE_PATH = 'temp/app.log'
-
-const FIXTURE_LOG_FILE_PATH = 'src/log-files/fixtures/a.log'
-
-jest.mock('../src/motion-client', () => ({
-  MotionClient: {
-    getLogFilePath: () => FIXTURE_LOG_FILE_PATH,
-  },
-}))
+const MOTION_LOG_FILE_PATH = 'temp/motion.log'
 
 describe('LogFilesController (e2e)', () => {
   let app: INestApplication
 
   let spyWriteAppLogFileToDisk
+  let spyWriteMotionLogFileToDisk
 
   beforeAll(async () => {
     spyWriteAppLogFileToDisk = jest
       .spyOn(LogFileInteractor, 'writeAppLogFileToDisk')
       .mockResolvedValue()
     await writeFile(APP_LOG_FILE_PATH, 'b')
+    spyWriteMotionLogFileToDisk = jest
+      .spyOn(LogFileInteractor, 'writeMotionLogFileToDisk')
+      .mockResolvedValue()
+    await writeFile(MOTION_LOG_FILE_PATH, 'c')
   })
 
   beforeEach(async () => {
@@ -62,6 +60,8 @@ describe('LogFilesController (e2e)', () => {
 
   afterAll(async () => {
     spyWriteAppLogFileToDisk.mockRestore()
+    spyWriteMotionLogFileToDisk.mockRestore()
     await rm(APP_LOG_FILE_PATH)
+    await rm(MOTION_LOG_FILE_PATH)
   })
 })
