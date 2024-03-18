@@ -95,10 +95,10 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
 ### 2. Installing dependencies, creating user, folders and setting permissions
 
-Execute the setup script:
+Execute the setup script with root permissions:
 
 ```shell
-scripts/setup/set-up.sh
+scripts/setup/set-up-environment.sh
 ```
 
 ### 3. Configuring Motion
@@ -311,82 +311,22 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 5. Optionally, run tests to verify system compatibility: `make test`
 6. Install for all users: `sudo make install`
 
-### 9. Enabling user services
+### 9. Enabling user services and USB auto-mounting
 
-1. Open `journald` config file: `sudo nano /etc/systemd/journald.conf`
-2. Enable user service logging by setting `Storage=persistent`, and save file.
-3. Restart `journald` service: `sudo systemctl restart systemd-journald`
-4. Log in as user: `su - app4cam`
-5. Enable user lingering: `loginctl enable-linger app4cam`
-6. Create directories: `mkdir -p ~/.config/systemd/user/`
-7. Logout: `exit`
+Execute the setup script with root permissions:
 
-### 10. Enabling USB auto-mounting (optional)
+```shell
+scripts/setup/set-up-user-services.sh
+```
 
-Only enable this functionality if you use it.
+### 10. Checking USB auto-mounting
 
-1. `sudo apt install curl -y`
-2. Make sure that there is no udev rule configured for USB auto-mounting. The OS images of Variscite devices may come with a preconfigured rule in `/etc/udev/rules.d/automount.rules` that needs to be commented out.
-3. Install `udisks2`: `sudo apt install udisks2`
-4. Install `udiskie`: `sudo apt install udiskie -y`
-5. Enable permissions for udisks2 in polkit by creating file with the following content: `sudo nano /etc/polkit-1/localauthority/50-local.d/10-udiskie.pkla`
+Only perform this checks if you have enabled this functionality in the script before.
 
-   ```
-   [udisks2]
-   Identity=unix-group:app4cam
-   Action=org.freedesktop.udisks2.*
-   ResultAny=yes
-   ```
-
-6. Mount the drives to `/media` directly by creating file with the following content: `sudo nano /etc/udev/rules.d/99-udisks2.rules`
-
-   ```
-   # UDISKS_FILESYSTEM_SHARED
-   # ==1: mount filesystem to a shared directory (/media/VolumeName)
-   # ==0: mount filesystem to a private directory (/run/media/$USER/VolumeName)
-   # See udisks(8)
-   ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{UDISKS_FILESYSTEM_SHARED}="1"
-   # Additionally allowed mount options:
-   ENV{UDISKS_MOUNT_OPTIONS_ALLOW}="errors"
-   ```
-
-7. Clean stale mountpoints at every boot by creating file with the following content: `sudo nano /etc/tmpfiles.d/media.conf`
-
-   ```
-   D /media 0755 root root 0 -
-   ```
-
-8. Log in as user: `su - app4cam`
-9. `mkdir .config/udiskie`
-10. `nano .config/udiskie/config.yml`
-
-    ```
-    device_config:
-    - options: [umask=0,errors=continue]
-    ```
-
-11. Create user service with the following content: `nano ~/.config/systemd/user/udiskie.service`
-
-    ```
-    [Unit]
-    Description=Handle automounting of usb devices
-    StartLimitIntervalSec=0
-
-    [Service]
-    Type=simple
-    ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/app4cam/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
-    Restart=always
-    RestartSec=5
-
-    [Install]
-    WantedBy=default.target
-    ```
-
-12. Reload systemctl: `systemctl --user daemon-reload`
-13. Enable service: `systemctl --user enable udiskie`
-14. Start service: `systemctl --user start udiskie`
-15. Verify that the service is running: `systemctl --user status udiskie`
-16. Logout: `exit`
+1. Make sure that there is no udev rule configured for USB auto-mounting. The OS images of Variscite devices may come with a preconfigured rule in `/etc/udev/rules.d/automount.rules` that needs to be commented out.
+2. Log in as user: `su - app4cam`
+3. Verify that the service is running: `systemctl --user status udiskie`
+4. Logout: `exit`
 
 ### 11. Make sure automatic time synchronisaton is disabled
 
