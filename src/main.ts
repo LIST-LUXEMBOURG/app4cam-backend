@@ -30,7 +30,7 @@ async function bootstrap() {
   const settingsService = app.get(SettingsService)
 
   const configService = app.get(ConfigService)
-  const deviceType = configService.get('deviceType')
+  const deviceType = configService.get<string>('deviceType')
 
   if (process.platform !== 'win32') {
     const mountPath =

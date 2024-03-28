@@ -1,4 +1,5 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { FilesService } from '../files/files.service'
 import { InitialisationInteractor } from '../initialisation-interactor'
@@ -37,6 +38,7 @@ describe(SnapshotsService.name, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        ConfigService,
         {
           provide: FilesService,
           useValue: mockFileService,
