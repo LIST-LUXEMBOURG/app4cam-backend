@@ -88,10 +88,10 @@ class TriggeringSettingsPatchDto {
   threshold?: number
 
   @IsOptional()
-  sleepingTime?: TriggeringTimeDto
+  sleepingTime?: TriggeringTimeDto | null
 
   @IsOptional()
-  wakingUpTime?: TriggeringTimeDto
+  wakingUpTime?: TriggeringTimeDto | null
 
   @IsOptional()
   @Matches(/^(infrared|visible)$/)

@@ -147,32 +147,43 @@ export class SettingsService {
       }
     }
 
+    const settingsReadFromFile =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+
     if ('triggering' in settings) {
       if (
         ('sleepingTime' in settings.triggering &&
-          !('wakingUpTime' in settings.triggering)) ||
-        (!('sleepingTime' in settings.triggering) &&
-          'wakingUpTime' in settings.triggering)
+          'wakingUpTime' in settings.triggering &&
+          ((settings.triggering.sleepingTime === null &&
+            settings.triggering.wakingUpTime !== null) ||
+            (settings.triggering.sleepingTime !== null &&
+              settings.triggering.wakingUpTime === null))) ||
+        ('sleepingTime' in settings.triggering &&
+          !('wakingUpTime' in settings.triggering) &&
+          settings.triggering.sleepingTime === null) ||
+        ('wakingUpTime' in settings.triggering &&
+          !('sleepingTime' in settings.triggering) &&
+          settings.triggering.wakingUpTime === null)
       ) {
         throw new BadRequestException(
-          'Sleeping and waking up times must be given at the same time.',
+          'Both waking up and sleeping times can only be reset at the same time.',
         )
       }
-
       if (
-        (settings.triggering.sleepingTime &&
-          !settings.triggering.wakingUpTime) ||
-        (!settings.triggering.sleepingTime && settings.triggering.wakingUpTime)
+        !settingsReadFromFile.triggering.wakingUpTime &&
+        !settingsReadFromFile.triggering.sleepingTime &&
+        (('sleepingTime' in settings.triggering &&
+          !('wakingUpTime' in settings.triggering)) ||
+          ('wakingUpTime' in settings.triggering &&
+            !('sleepingTime' in settings.triggering)))
       ) {
         throw new BadRequestException(
-          'Sleeping and waking up times can only be empty at the same time.',
+          'Both waking up and sleeping times must be given.',
         )
       }
     }
 
     let isAtLeastOneJsonSettingUpdated = false
-    const settingsReadFromFile =
-      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
 
     const cameraSettingsMerged = settingsReadFromFile.camera
     if ('camera' in settings) {
@@ -318,21 +329,6 @@ export class SettingsService {
         newTriggeringSettings.wakingUpTime = settings.triggering.wakingUpTime
       }
 
-      if (this.deviceType === 'RaspberryPi') {
-        try {
-          await SleepInteractor.configureWittyPiSchedule(
-            settings.triggering.sleepingTime,
-            settings.triggering.wakingUpTime,
-          )
-        } catch (error) {
-          if (error instanceof CommandUnavailableOnWindowsException) {
-            this.logger.error('Failed to configure Witty Pi:', error)
-          } else {
-            throw error
-          }
-        }
-      }
-
       if (
         'light' in settings.triggering &&
         settings.triggering.light != settingsReadFromFile.triggering.light
@@ -355,6 +351,21 @@ export class SettingsService {
         triggeringSettingsMerged = {
           ...triggeringSettingsMerged,
           ...newTriggeringSettings,
+        }
+      }
+
+      if (this.deviceType === 'RaspberryPi') {
+        try {
+          await SleepInteractor.configureWittyPiSchedule(
+            triggeringSettingsMerged.sleepingTime,
+            triggeringSettingsMerged.wakingUpTime,
+          )
+        } catch (error) {
+          if (error instanceof CommandUnavailableOnWindowsException) {
+            this.logger.error('Failed to configure Witty Pi:', error)
+          } else {
+            throw error
+          }
         }
       }
 

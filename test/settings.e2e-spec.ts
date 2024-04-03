@@ -111,7 +111,7 @@ describe('SettingsController (e2e)', () => {
   let spySetAccessPointNameOrPassword
   let spyGetAccessPointPassword
 
-  beforeAll(() => {
+  beforeEach(() => {
     spyReadSettingsFile = jest
       .spyOn(SettingsFileProvider, 'readSettingsFile')
       .mockImplementation(() => Promise.resolve(JSON_SETTINGS))
@@ -304,7 +304,7 @@ describe('SettingsController (e2e)', () => {
       })
 
       it('returns success with empty sleeping and waking up times', () => {
-        const data = { triggering: { sleepingTime: '', wakingUpTime: '' } }
+        const data = { triggering: { sleepingTime: null, wakingUpTime: null } }
         return request(app.getHttpServer())
           .patch('/settings')
           .send(data)
@@ -314,21 +314,64 @@ describe('SettingsController (e2e)', () => {
       it('returns bad request on empty sleeping time', () => {
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { sleepingTime: '' } })
+          .send({ triggering: { sleepingTime: null } })
           .expect(400)
       })
 
       it('returns bad request on empty waking up time', () => {
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { wakingUpTime: '' } })
+          .send({ triggering: { wakingUpTime: null } })
           .expect(400)
       })
 
-      it('returns bad request on empty sleeping time while waking up time is not', () => {
+      it('returns success when setting sleeping time', () => {
+        const data = { triggering: { sleepingTime: '20:00' } }
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { sleepingTime: '', wakingUpTime: '20:00' } })
+          .send(data)
+          .expect(200, data)
+      })
+
+      it('returns bad request when setting sleeping time only when no time is set', () => {
+        const jsonSettingsWithoutTriggeringHours = {
+          camera: CAMERA_JSON_SETTINGS,
+          general: GENERAL_JSON_SETTINGS,
+          triggering: { light: TRIGGERING_LIGHT },
+        }
+        spyReadSettingsFile = jest
+          .spyOn(SettingsFileProvider, 'readSettingsFile')
+          .mockImplementation(() =>
+            Promise.resolve(jsonSettingsWithoutTriggeringHours),
+          )
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ triggering: { sleepingTime: '20:00' } })
+          .expect(400)
+      })
+
+      it('returns success when setting waking up time', () => {
+        const data = { triggering: { wakingUpTime: '20:00' } }
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send(data)
+          .expect(200, data)
+      })
+
+      it('returns bad request when setting waking up time only when no time is set', () => {
+        const jsonSettingsWithoutTriggeringHours = {
+          camera: CAMERA_JSON_SETTINGS,
+          general: GENERAL_JSON_SETTINGS,
+          triggering: { light: TRIGGERING_LIGHT },
+        }
+        spyReadSettingsFile = jest
+          .spyOn(SettingsFileProvider, 'readSettingsFile')
+          .mockImplementation(() =>
+            Promise.resolve(jsonSettingsWithoutTriggeringHours),
+          )
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ triggering: { wakingUpTime: '20:00' } })
           .expect(400)
       })
 
