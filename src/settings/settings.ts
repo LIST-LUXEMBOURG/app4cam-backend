@@ -31,6 +31,7 @@ class TriggeringSettingsFromJsonFile {
 type ShotType = 'pictures' | 'videos'
 
 export interface CameraSettings extends CameraSettingsFromJsonFile {
+  isLightEnabled: boolean
   focus: number
   pictureQuality: number
   shotTypes: ShotType[]
@@ -44,6 +45,7 @@ export class GeneralSettings extends GeneralSettingsFromJsonFile {
 }
 
 export class TriggeringSettings extends TriggeringSettingsFromJsonFile {
+  isLightEnabled: boolean
   threshold: number
 }
 

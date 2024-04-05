@@ -9,11 +9,11 @@ import { SystemTimeInteractor } from '../src/settings/interactors/system-time-in
 import { SettingsFileProvider } from '../src/settings/settings-file-provider'
 import { AppModule } from './../src/app.module'
 import {
-  CameraSettings,
-  GeneralSettings,
-  Settings,
-  TriggeringSettings,
-} from 'src/settings/settings'
+  CameraSettingsPutDto,
+  GeneralSettingsPutDto,
+  TriggeringSettingsPutDto,
+} from 'src/settings/dto/settings.dto'
+import { Settings } from 'src/settings/settings'
 
 const MOVIE_QUALITY = 80
 const PICTURE_QUALITY = 80
@@ -82,6 +82,7 @@ describe('SettingsController (e2e)', () => {
   const ALL_SETTINGS: Settings = {
     camera: {
       focus: FOCUS,
+      isLightEnabled: true,
       light: CAMERA_LIGHT,
       pictureQuality: PICTURE_QUALITY,
       shotTypes: SHOT_TYPES,
@@ -95,6 +96,7 @@ describe('SettingsController (e2e)', () => {
     },
     triggering: {
       ...TRIGGERING_JSON_SETTINGS,
+      isLightEnabled: true,
       threshold: TRIGGER_THRESHOLD,
     },
   }
@@ -472,21 +474,21 @@ describe('SettingsController (e2e)', () => {
     })
 
     describe('/ (PUT)', () => {
-      const goodCameraPutSettings: CameraSettings = {
+      const goodCameraPutSettings: CameraSettingsPutDto = {
         focus: FOCUS,
         light: 'visible',
         pictureQuality: PICTURE_QUALITY,
         shotTypes: SHOT_TYPES,
         videoQuality: MOVIE_QUALITY,
       }
-      const goodGeneralPutSettings: GeneralSettings = {
+      const goodGeneralPutSettings: GeneralSettingsPutDto = {
         deviceName: 'd',
         password: '12345678',
         siteName: 's',
         systemTime: new Date().toISOString(),
         timeZone: ALL_SETTINGS.general.timeZone,
       }
-      const goodTriggeringPutSettings: TriggeringSettings = {
+      const goodTriggeringPutSettings: TriggeringSettingsPutDto = {
         threshold: TRIGGER_THRESHOLD,
         sleepingTime: {
           hour: 18,
