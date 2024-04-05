@@ -19,6 +19,7 @@ describe('SettingsController', () => {
   const SETTINGS: Settings = {
     camera: {
       focus: 200,
+      isLightEnabled: true,
       light: 'visible',
       pictureQuality: 90,
       shotTypes: ['pictures', 'videos'],
@@ -32,10 +33,11 @@ describe('SettingsController', () => {
       timeZone: 't',
     },
     triggering: {
+      isLightEnabled: true,
+      light: 'infrared',
       threshold: 1,
       sleepingTime: SLEEPING_TIME,
       wakingUpTime: WAKING_UP_TIME,
-      light: 'infrared',
     },
   }
   const SHOTS_FOLDER = '/a'

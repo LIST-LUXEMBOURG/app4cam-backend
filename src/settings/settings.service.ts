@@ -7,6 +7,7 @@ import { FileNamer } from '../files/file-namer'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
+import { SettingsPutDto } from './dto/settings.dto'
 import { CommandUnavailableOnWindowsException } from './exceptions/CommandUnavailableOnWindowsException'
 import { UndefinedPathException } from './exceptions/UndefinedPathException'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
@@ -100,6 +101,7 @@ export class SettingsService {
       camera: {
         ...settingsFromFile.camera,
         focus,
+        isLightEnabled: !isRaspberryPi,
         pictureQuality,
         shotTypes,
         videoQuality,
@@ -116,6 +118,7 @@ export class SettingsService {
         sleepingTime: undefined,
         wakingUpTime: undefined,
         ...settingsFromFile.triggering,
+        isLightEnabled: !isRaspberryPi,
         threshold,
       },
     }
@@ -399,7 +402,7 @@ export class SettingsService {
     return settings
   }
 
-  async updateAllSettings(settings: Settings): Promise<void> {
+  async updateAllSettings(settings: SettingsPutDto): Promise<void> {
     if (
       settings.camera.light === 'infrared' &&
       settings.triggering.light === 'visible'

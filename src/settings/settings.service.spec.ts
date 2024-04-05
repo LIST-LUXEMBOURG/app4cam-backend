@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { PropertiesService } from '../properties/properties.service'
+import { SettingsPutDto } from './dto/settings.dto'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
 import { PatchableSettings, Settings } from './settings'
@@ -98,6 +99,7 @@ describe('SettingsService', () => {
     const ALL_SETTINGS: Settings = {
       camera: {
         focus: FOCUS,
+        isLightEnabled: true,
         light: CAMERA_LIGHT_TYPE,
         pictureQuality: 90,
         shotTypes: SHOT_TYPES,
@@ -111,6 +113,7 @@ describe('SettingsService', () => {
       },
       triggering: {
         ...TRIGGERING_JSON_SETTINGS,
+        isLightEnabled: true,
         threshold: TRIGGER_SENSITIVITY,
       },
     }
@@ -185,7 +188,7 @@ describe('SettingsService', () => {
         general: generalJsonSettings,
         triggering: triggeringJsonSettings,
       }
-      const allSettings: Settings = {
+      const allSettings: PatchableSettings = {
         camera: {
           ...cameraJsonSettings,
           focus: 200,
@@ -277,7 +280,7 @@ describe('SettingsService', () => {
         general: generalJsonSettings,
         triggering: triggeringJsonSettings,
       }
-      const settings: Settings = {
+      const settings: SettingsPutDto = {
         camera: {
           ...cameraJsonSettings,
           focus: 200,

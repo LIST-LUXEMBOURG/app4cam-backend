@@ -118,7 +118,7 @@ export class SettingsPatchDto {
   triggering?: TriggeringSettingsPatchDto
 }
 
-class CameraSettingsPutDto {
+export class CameraSettingsPutDto {
   @Matches(/^(infrared|visible)$/)
   light: LightType
 
@@ -144,7 +144,7 @@ class CameraSettingsPutDto {
   videoQuality: number
 }
 
-class GeneralSettingsPutDto {
+export class GeneralSettingsPutDto {
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9-]+$/)
   deviceName: string
@@ -165,7 +165,7 @@ class GeneralSettingsPutDto {
   timeZone: string
 }
 
-class TriggeringSettingsPutDto {
+export class TriggeringSettingsPutDto {
   @IsNotEmpty()
   @IsInt()
   @Min(1)
