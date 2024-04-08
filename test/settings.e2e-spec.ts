@@ -16,15 +16,17 @@ import {
 } from 'src/settings/dto/settings.dto'
 import { Settings } from 'src/settings/settings'
 
+const HEIGHT = 2
 const MOVIE_QUALITY = 80
 const PICTURE_QUALITY = 80
 const SHOTS_FOLDER = '/a'
-const TRIGGER_THRESHOLD = 75
+const TRIGGER_THRESHOLD = 5
+const WIDTH = 3
 
 jest.mock('../src/motion-client', () => ({
   MotionClient: {
-    getHeight: () => 10,
-    getWidth: () => 10,
+    getHeight: () => HEIGHT,
+    getWidth: () => WIDTH,
     setFilename: jest.fn(),
     setLeftTextOnImage: jest.fn(),
     getMovieQuality: () => MOVIE_QUALITY,
@@ -36,7 +38,7 @@ jest.mock('../src/motion-client', () => ({
     getPictureOutput: () => 'best',
     setPictureOutput: jest.fn(),
     setTargetDir: jest.fn(),
-    getThreshold: () => 75,
+    getThreshold: () => TRIGGER_THRESHOLD,
     setThreshold: jest.fn(),
     getTargetDir: () => SHOTS_FOLDER,
     getVideoDevice: () => '',
@@ -60,6 +62,7 @@ describe('SettingsController (e2e)', () => {
   }
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
   const TRIGGERING_LIGHT = 'infrared' as const
+  const TRIGGER_SENSITIVITY_MAXIMUM = HEIGHT * WIDTH
   const WAKING_UP_TIME = {
     hour: 10,
     minute: 17,
@@ -104,6 +107,7 @@ describe('SettingsController (e2e)', () => {
       ...TRIGGERING_JSON_SETTINGS,
       isLightEnabled: true,
       threshold: TRIGGER_THRESHOLD,
+      thresholdMaximum: TRIGGER_SENSITIVITY_MAXIMUM,
     },
   }
 
@@ -311,7 +315,7 @@ describe('SettingsController (e2e)', () => {
       it('returns bad request on too high threshold', () => {
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { threshold: 2147483648 } })
+          .send({ triggering: { threshold: HEIGHT * WIDTH + 1 } })
           .expect(400)
       })
 

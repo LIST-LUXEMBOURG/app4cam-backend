@@ -38,6 +38,7 @@ describe('SettingsController', () => {
       isLightEnabled: true,
       light: 'infrared',
       threshold: 1,
+      thresholdMaximum: 100,
       sleepingTime: SLEEPING_TIME,
       wakingUpTime: WAKING_UP_TIME,
     },

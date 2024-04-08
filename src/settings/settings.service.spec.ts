@@ -13,10 +13,14 @@ import { SettingsService } from './settings.service'
 
 const SHOTS_FOLDER = '/a'
 
+const HEIGHT = 2
+const TRIGGER_SENSITIVITY = 5
+const WIDTH = 3
+
 jest.mock('../motion-client', () => ({
   MotionClient: {
-    getHeight: () => 1,
-    getWidth: () => 1,
+    getHeight: () => HEIGHT,
+    getWidth: () => WIDTH,
     setFilename: jest.fn(),
     setLeftTextOnImage: jest.fn(),
     getMovieQuality: () => 60,
@@ -27,7 +31,7 @@ jest.mock('../motion-client', () => ({
     setPictureQuality: jest.fn(),
     getPictureOutput: () => 'best',
     setPictureOutput: jest.fn(),
-    getThreshold: () => 1,
+    getThreshold: () => TRIGGER_SENSITIVITY,
     setThreshold: jest.fn(),
     getTargetDir: () => SHOTS_FOLDER,
     getVideoDevice: () => '',
@@ -76,7 +80,7 @@ describe('SettingsService', () => {
     }
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
     const TRIGGER_LIGHT_TYPE = 'infrared' as const
-    const TRIGGER_SENSITIVITY = 1
+    const TRIGGER_SENSITIVITY_MAXIMUM = HEIGHT * WIDTH
     const WAKING_UP_TIME = {
       hour: 10,
       minute: 17,
@@ -121,6 +125,7 @@ describe('SettingsService', () => {
         ...TRIGGERING_JSON_SETTINGS,
         isLightEnabled: true,
         threshold: TRIGGER_SENSITIVITY,
+        thresholdMaximum: TRIGGER_SENSITIVITY_MAXIMUM,
       },
     }
 

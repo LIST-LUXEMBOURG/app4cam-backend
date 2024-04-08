@@ -60,6 +60,7 @@ export class SettingsService {
     let focusMinimum = Number.MIN_SAFE_INTEGER
     let pictureQuality = 0
     let threshold = 1
+    let thresholdMaximum = Number.MAX_SAFE_INTEGER
     let videoQuality = 0
     try {
       try {
@@ -105,6 +106,10 @@ export class SettingsService {
       if (movieOutput === 'on') {
         shotTypes.push('videos')
       }
+
+      const height = await MotionClient.getHeight()
+      const width = await MotionClient.getWidth()
+      thresholdMaximum = height * width
     } catch (error) {
       if (error.config && error.config.url) {
         this.logger.error(`Could not connect to ${error.config.url}`)
@@ -139,6 +144,7 @@ export class SettingsService {
         ...settingsFromFile.triggering,
         isLightEnabled: !isRaspberryPi,
         threshold,
+        thresholdMaximum,
       },
     }
   }
@@ -202,6 +208,16 @@ export class SettingsService {
         throw new BadRequestException(
           'Both waking up and sleeping times must be given.',
         )
+      }
+
+      if ('threshold' in settings.triggering) {
+        const height = await MotionClient.getHeight()
+        const width = await MotionClient.getWidth()
+        if (settings.triggering.threshold > height * width) {
+          throw new BadRequestException(
+            'The threshold must be smaller or equal to the resolution.',
+          )
+        }
       }
     }
 
@@ -470,6 +486,16 @@ export class SettingsService {
       throw new BadRequestException(
         'Sleeping and waking up times can only be empty at the same time.',
       )
+    }
+
+    if ('threshold' in settings.triggering) {
+      const height = await MotionClient.getHeight()
+      const width = await MotionClient.getWidth()
+      if (settings.triggering.threshold > height * width) {
+        throw new BadRequestException(
+          'The threshold must be smaller or equal to the resolution.',
+        )
+      }
     }
 
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
