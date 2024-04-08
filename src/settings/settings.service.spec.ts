@@ -6,6 +6,7 @@ import { PropertiesService } from '../properties/properties.service'
 import { SettingsPutDto } from './dto/settings.dto'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
+import { VideoDeviceInteractor } from './interactors/video-device-interactor'
 import { PatchableSettings, Settings } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 import { SettingsService } from './settings.service'
@@ -29,6 +30,7 @@ jest.mock('../motion-client', () => ({
     getThreshold: () => 1,
     setThreshold: jest.fn(),
     getTargetDir: () => SHOTS_FOLDER,
+    getVideoDevice: () => '',
     getVideoParams: () =>
       '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
     setVideoParams: jest.fn(),
@@ -64,6 +66,8 @@ describe('SettingsService', () => {
   describe('with mocked SettingsFileProvider', () => {
     const CAMERA_LIGHT_TYPE = 'visible' as const
     const FOCUS = 200
+    const FOCUS_MAX = 500
+    const FOCUS_MIN = 0
     const PASSWORD = 'p'
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SLEEPING_TIME = {
@@ -99,6 +103,8 @@ describe('SettingsService', () => {
     const ALL_SETTINGS: Settings = {
       camera: {
         focus: FOCUS,
+        focusMaximum: FOCUS_MAX,
+        focusMinimum: FOCUS_MIN,
         isLightEnabled: true,
         light: CAMERA_LIGHT_TYPE,
         pictureQuality: 90,
@@ -127,6 +133,7 @@ describe('SettingsService', () => {
     let spyInitializeLights
     let spySetAccessPointNameOrPassword
     let spyGetAccessPointPassword
+    let spyGetFocus
 
     beforeAll(() => {
       spyReadSettingsFile = jest
@@ -156,6 +163,9 @@ describe('SettingsService', () => {
       spyGetAccessPointPassword = jest
         .spyOn(AccessPointInteractor, 'getAccessPointPassword')
         .mockResolvedValue(PASSWORD)
+      spyGetFocus = jest
+        .spyOn(VideoDeviceInteractor, 'getFocus')
+        .mockResolvedValue({ min: FOCUS_MIN, max: FOCUS_MAX })
     })
 
     it('gets all settings', async () => {
@@ -404,6 +414,7 @@ describe('SettingsService', () => {
       spyInitializeLights.mockRestore()
       spySetAccessPointNameOrPassword.mockRestore()
       spyGetAccessPointPassword.mockRestore()
+      spyGetFocus.mockRestore()
     })
   })
 })

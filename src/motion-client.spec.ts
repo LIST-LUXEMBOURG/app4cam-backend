@@ -55,6 +55,13 @@ describe(MotionClient.name, () => {
     })
   })
 
+  describe(MotionClient.getVideoDevice.name, () => {
+    it('returns a value', async () => {
+      const response = await MotionClient.getVideoDevice()
+      expect(response).toBe('/dev/video0')
+    })
+  })
+
   describe(MotionClient.getVideoParams.name, () => {
     it('returns a value', async () => {
       const response = await MotionClient.getVideoParams()

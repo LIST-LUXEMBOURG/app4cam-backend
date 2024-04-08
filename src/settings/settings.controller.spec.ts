@@ -19,6 +19,8 @@ describe('SettingsController', () => {
   const SETTINGS: Settings = {
     camera: {
       focus: 200,
+      focusMaximum: Number.MAX_SAFE_INTEGER,
+      focusMinimum: Number.MIN_SAFE_INTEGER,
       isLightEnabled: true,
       light: 'visible',
       pictureQuality: 90,

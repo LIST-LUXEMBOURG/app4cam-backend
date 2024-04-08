@@ -46,6 +46,7 @@ fi
 # Allow the new user and the motion user to execute some commands as sudo.
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/journalctl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/timedatectl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/v4l2-ctl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-recording-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
@@ -57,7 +58,6 @@ then
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/remove-working-hours-schedule.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/set-camera-focus.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/write-system-time-to-rtc.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/v4l2-ctl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 elif [ "$device_type" = '2' ]
 then
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/variscite/access-point/change-access-point-name-or-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
