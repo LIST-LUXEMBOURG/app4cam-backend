@@ -84,7 +84,6 @@ class TriggeringSettingsPatchDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(2147483647)
   threshold?: number
 
   @IsOptional()
@@ -169,7 +168,6 @@ export class TriggeringSettingsPutDto {
   @IsNotEmpty()
   @IsInt()
   @Min(1)
-  @Max(2147483647)
   threshold: number
 
   @IsNotEmpty()

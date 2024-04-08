@@ -49,6 +49,7 @@ export class GeneralSettings extends GeneralSettingsFromJsonFile {
 export class TriggeringSettings extends TriggeringSettingsFromJsonFile {
   isLightEnabled: boolean
   threshold: number
+  thresholdMaximum: number
 }
 
 export interface Settings {
