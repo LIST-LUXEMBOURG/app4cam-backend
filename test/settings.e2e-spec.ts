@@ -6,6 +6,7 @@ import { InitialisationInteractor } from '../src/initialisation-interactor'
 import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
 import { AccessPointInteractor } from '../src/settings/interactors/access-point-interactor'
 import { SystemTimeInteractor } from '../src/settings/interactors/system-time-interactor'
+import { VideoDeviceInteractor } from '../src/settings/interactors/video-device-interactor'
 import { SettingsFileProvider } from '../src/settings/settings-file-provider'
 import { AppModule } from './../src/app.module'
 import {
@@ -38,6 +39,7 @@ jest.mock('../src/motion-client', () => ({
     getThreshold: () => 75,
     setThreshold: jest.fn(),
     getTargetDir: () => SHOTS_FOLDER,
+    getVideoDevice: () => '',
     getVideoParams: () =>
       '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
     setVideoParams: jest.fn(),
@@ -48,6 +50,8 @@ describe('SettingsController (e2e)', () => {
   const AVAILABLE_TIMEZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const CAMERA_LIGHT = 'visible' as const
   const FOCUS = 200
+  const FOCUS_MAX = 500
+  const FOCUS_MIN = 0
   const PASSWORD = 'p'
   const SHOT_TYPES = ['pictures' as const, 'videos' as const]
   const SLEEPING_TIME = {
@@ -82,6 +86,8 @@ describe('SettingsController (e2e)', () => {
   const ALL_SETTINGS: Settings = {
     camera: {
       focus: FOCUS,
+      focusMaximum: FOCUS_MAX,
+      focusMinimum: FOCUS_MIN,
       isLightEnabled: true,
       light: CAMERA_LIGHT,
       pictureQuality: PICTURE_QUALITY,
@@ -112,6 +118,7 @@ describe('SettingsController (e2e)', () => {
   let spyInitializeLights
   let spySetAccessPointNameOrPassword
   let spyGetAccessPointPassword
+  let spyGetFocus
 
   beforeEach(() => {
     spyReadSettingsFile = jest
@@ -144,6 +151,9 @@ describe('SettingsController (e2e)', () => {
     spyGetAccessPointPassword = jest
       .spyOn(AccessPointInteractor, 'getAccessPointPassword')
       .mockResolvedValue(PASSWORD)
+    spyGetFocus = jest
+      .spyOn(VideoDeviceInteractor, 'getFocus')
+      .mockResolvedValue({ min: FOCUS_MIN, max: FOCUS_MAX })
   })
 
   beforeEach(async () => {
@@ -186,6 +196,13 @@ describe('SettingsController (e2e)', () => {
         return request(app.getHttpServer())
           .patch('/settings')
           .send({ camera: { focus: 'a' } })
+          .expect(400)
+      })
+
+      it('returns bad request on string focus value', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ camera: { focus: 700 } })
           .expect(400)
       })
 
@@ -857,5 +874,6 @@ describe('SettingsController (e2e)', () => {
     spyInitializeLights.mockRestore()
     spySetAccessPointNameOrPassword.mockRestore()
     spyGetAccessPointPassword.mockRestore()
+    spyGetFocus.mockRestore()
   })
 })

@@ -5,8 +5,6 @@ import { CommandUnavailableOnWindowsException } from '../exceptions/CommandUnava
 
 const exec = promisify(execSync)
 
-const DEVICE_PATH = '/dev/v4l-subdev1'
-
 interface Focus {
   default?: number
   min?: number
@@ -15,11 +13,11 @@ interface Focus {
 }
 
 export class VideoDeviceInteractor {
-  static async getFocus(): Promise<Focus> {
+  static async getFocus(devicePath: string): Promise<Focus> {
     if (process.platform === 'win32') {
       throw new CommandUnavailableOnWindowsException()
     }
-    const command = `sudo v4l2-ctl -d ${DEVICE_PATH} -l | grep focus_absolute`
+    const command = `sudo v4l2-ctl -d ${devicePath} -l | grep focus_absolute`
     const { stdout, stderr } = await exec(command)
     if (stderr) {
       throw new Error(stderr)
@@ -37,15 +35,15 @@ export class VideoDeviceInteractor {
     return focusMappingsAsObject
   }
 
-  static async setFocus(focus: number): Promise<void> {
+  static async setFocus(devicePath: string, focus: number): Promise<void> {
     if (process.platform === 'win32') {
       throw new CommandUnavailableOnWindowsException()
     }
-    const currentFocus = await this.getFocus()
+    const currentFocus = await this.getFocus(devicePath)
     if (focus < currentFocus.min || currentFocus.max < focus) {
       throw new Error('Focus value not supported!')
     }
-    const command = `sudo scripts/raspberry-pi/set-camera-focus.sh ${DEVICE_PATH} ${focus}`
+    const command = `sudo scripts/raspberry-pi/set-camera-focus.sh ${devicePath} ${focus}`
     const { stderr } = await exec(command)
     if (stderr) {
       throw new Error(stderr)

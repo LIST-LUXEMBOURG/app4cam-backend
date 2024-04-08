@@ -51,6 +51,11 @@ export class MotionClient {
     return parseInt(value)
   }
 
+  static async getVideoDevice(): Promise<string> {
+    const value = await this.getConfigurationOption('video_device')
+    return value
+  }
+
   static async getVideoParams(): Promise<string> {
     const value = await this.getConfigurationOption('video_params')
     return value

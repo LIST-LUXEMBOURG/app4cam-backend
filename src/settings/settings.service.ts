@@ -27,6 +27,7 @@ import { SettingsFileProvider } from './settings-file-provider'
 
 const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
 const MOTION_VIDEO_PARAMS_FOCUS_KEY = 'Focus (absolute)'
+const RASPBERRY_PI_FOCUS_DEVICE_PATH = '/dev/v4l-subdev1'
 const SETTINGS_FILE_PATH = 'settings.json'
 
 @Injectable()
@@ -55,23 +56,39 @@ export class SettingsService {
 
     const shotTypes = []
     let focus = 0
+    let focusMaximum = Number.MAX_SAFE_INTEGER
+    let focusMinimum = Number.MIN_SAFE_INTEGER
     let pictureQuality = 0
     let threshold = 1
     let videoQuality = 0
     try {
-      if (isRaspberryPi) {
-        try {
-          const focusValues = await VideoDeviceInteractor.getFocus()
+      try {
+        let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
+        if (!isRaspberryPi) {
+          devicePath = await MotionClient.getVideoDevice()
+        }
+        const focusValues = await VideoDeviceInteractor.getFocus(devicePath)
+        if (isRaspberryPi) {
           focus = focusValues.value
-        } catch (error) {
-          if (error instanceof CommandUnavailableOnWindowsException) {
+        }
+        focusMaximum = focusValues.max
+        focusMinimum = focusValues.min
+      } catch (error) {
+        if (error instanceof CommandUnavailableOnWindowsException) {
+          if (isRaspberryPi) {
             this.logger.warn('Failed to get focus:', error)
             focus = 0
           } else {
-            throw error
+            this.logger.warn(
+              'Failed to get minimum and maximum focus values:',
+              error,
+            )
           }
+        } else {
+          throw error
         }
-      } else {
+      }
+      if (!isRaspberryPi) {
         focus = await this.getFocusFromMotionAdaptedToCameraLight(
           settingsFromFile.camera.light,
         )
@@ -102,6 +119,8 @@ export class SettingsService {
         ...settingsFromFile.camera,
         focus,
         isLightEnabled: !isRaspberryPi,
+        focusMaximum,
+        focusMinimum,
         pictureQuality,
         shotTypes,
         videoQuality,
@@ -186,10 +205,27 @@ export class SettingsService {
       }
     }
 
+    const isRaspberryPi = this.deviceType === 'RaspberryPi'
     let isAtLeastOneJsonSettingUpdated = false
 
     const cameraSettingsMerged = settingsReadFromFile.camera
     if ('camera' in settings) {
+      if ('focus' in settings.camera) {
+        let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
+        if (!isRaspberryPi) {
+          devicePath = await MotionClient.getVideoDevice()
+        }
+        const focusValues = await VideoDeviceInteractor.getFocus(devicePath)
+        if (
+          settings.camera.focus < focusValues.min ||
+          settings.camera.focus > focusValues.max
+        ) {
+          throw new BadRequestException(
+            `The focus value must be in the range ${focusValues.min} to ${focusValues.max}.`,
+          )
+        }
+      }
+
       if (
         'light' in settings.camera &&
         settings.camera.light != settingsReadFromFile.camera.light
@@ -204,7 +240,14 @@ export class SettingsService {
       ) {
         if (this.deviceType === 'RaspberryPi') {
           try {
-            await VideoDeviceInteractor.setFocus(settings.camera.focus)
+            let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
+            if (!isRaspberryPi) {
+              devicePath = await MotionClient.getVideoDevice()
+            }
+            await VideoDeviceInteractor.setFocus(
+              devicePath,
+              settings.camera.focus,
+            )
           } catch (error) {
             if (error instanceof CommandUnavailableOnWindowsException) {
               this.logger.error('Failed to set focus:', error)
@@ -429,6 +472,24 @@ export class SettingsService {
       )
     }
 
+    const isRaspberryPi = this.deviceType === 'RaspberryPi'
+
+    if ('camera' in settings && 'focus' in settings.camera) {
+      let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
+      if (!isRaspberryPi) {
+        devicePath = await MotionClient.getVideoDevice()
+      }
+      const focusValues = await VideoDeviceInteractor.getFocus(devicePath)
+      if (
+        settings.camera.focus < focusValues.min ||
+        settings.camera.focus > focusValues.max
+      ) {
+        throw new BadRequestException(
+          `The focus value must be in the range ${focusValues.min} to ${focusValues.max}.`,
+        )
+      }
+    }
+
     await SystemTimeInteractor.setSystemAndRtcTimeInIso8601Format(
       settings.general.systemTime,
       this.deviceType,
@@ -460,9 +521,16 @@ export class SettingsService {
     }
 
     try {
-      if (this.deviceType === 'RaspberryPi') {
+      if (isRaspberryPi) {
         try {
-          await VideoDeviceInteractor.setFocus(settings.camera.focus)
+          let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
+          if (!isRaspberryPi) {
+            devicePath = await MotionClient.getVideoDevice()
+          }
+          await VideoDeviceInteractor.setFocus(
+            devicePath,
+            settings.camera.focus,
+          )
         } catch (error) {
           if (error instanceof CommandUnavailableOnWindowsException) {
             this.logger.error('Failed to set focus:', error)
@@ -551,7 +619,6 @@ export class SettingsService {
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
-    const isRaspberryPi = this.deviceType === 'RaspberryPi'
     await AccessPointInteractor.setAccessPointNameOrPassword(
       settings.general.deviceName,
       settings.general.password,
