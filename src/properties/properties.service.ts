@@ -66,4 +66,11 @@ export class PropertiesService {
       `Wrote device ID '${deviceId}' to file '${DEVICE_ID_FILENAME}'.`,
     )
   }
+
+  async logVersion() {
+    const version = await this.getVersion()
+    this.logger.log(
+      `App4Cam version ${version.version} - ${version.commitHash}`,
+    )
+  }
 }

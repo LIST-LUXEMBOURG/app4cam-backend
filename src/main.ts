@@ -25,6 +25,7 @@ async function bootstrap() {
   app.use(urlencoded({ extended: false, limit: PAYLOAD_LIMIT }))
 
   const propertiesService = app.get(PropertiesService)
+  await propertiesService.logVersion()
   await propertiesService.saveDeviceIdToTextFile()
 
   const settingsService = app.get(SettingsService)
