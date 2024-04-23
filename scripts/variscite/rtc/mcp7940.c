@@ -289,7 +289,7 @@ void MCP7940_adjust(int i2c_fd, struct tm date_time)
     weekday_write(i2c_fd, MCP7940_ADDRESS, date_time.tm_wday);
     i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCDATE, int2bcd(date_time.tm_mday));
     i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCMTH, int2bcd(date_time.tm_mon));
-    i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCYEAR, date_time.tm_year - 100);
+    i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCYEAR, int2bcd(date_time.tm_year - 100));
 
     device_start(i2c_fd);
 }
