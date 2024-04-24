@@ -26,3 +26,5 @@ END   $end_value
 ON    $on_value
 OFF   $off_value
 EOL
+
+"$WITTY_PI_PATH"/runScript.sh
