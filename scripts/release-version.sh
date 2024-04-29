@@ -37,4 +37,4 @@ git push --tags
 
 # Append -next to the version number in package files, and commit.
 npm version "$NEW_VERSION-next" --no-git-tag-version
-git -m "prepare next release"
+git commit -am "prepare next release"
