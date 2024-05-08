@@ -98,7 +98,7 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 Execute the setup script with root permissions:
 
 ```shell
-scripts/setup/set-up-environment.sh
+sudo scripts/setup/set-up-environment.sh
 ```
 
 ### 3. Configuring Motion
@@ -316,7 +316,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 Execute the setup script with root permissions:
 
 ```shell
-scripts/setup/set-up-user-services.sh
+sudo scripts/setup/set-up-user-services.sh
 ```
 
 ### 10. Checking USB auto-mounting
@@ -338,40 +338,7 @@ If it is still active, run: `timedatectl set-ntp 0`
 
 Before starting, install the following dependency: `sudo apt install gpiod`
 
-#### 1. Creating a user service
-
-1. Log in as user: `su - app4cam`
-2. Make sure that the following environmental variable is set: `printenv XDG_RUNTIME_DIR`
-3. If not, let it be set on each login by adding the following line: `nano ~/.profile`
-
-   ```
-   export XDG_RUNTIME_DIR=/run/user/`id -u`
-   ```
-
-4. Create user service with the following content: `nano ~/.config/systemd/user/app4cam-backend.service`
-
-   ```
-   [Unit]
-   Description=Service that keeps running app4cam-backend from startup
-   After=network.target
-   StartLimitIntervalSec=0
-
-   [Service]
-   Type=simple
-   Environment="NODE_ENV=production"
-   ExecStart=node dist/main
-   WorkingDirectory=/home/app4cam/app4cam-backend
-   Restart=always
-   RestartSec=5
-
-   [Install]
-   WantedBy=default.target
-   ```
-
-5. Reload systemctl: `systemctl --user daemon-reload`
-6. Enable service: `systemctl --user enable app4cam-backend`
-
-#### 2. Getting application
+#### 1. Getting application
 
 ###### Option 1: Download the artifact archive from Gitlab:
 
@@ -388,7 +355,7 @@ Before starting, install the following dependency: `sudo apt install gpiod`
 5. Build: `npm run build`
 6. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
 
-#### 3. Final steps
+#### 2. Final steps
 
 1. Adapt the configuration file if needed: `nano config/production.env`
 2. Start service: `systemctl --user start app4cam-backend`

@@ -6,9 +6,6 @@ PASSWORD='app4cam'
 
 MINIMUM_NODE_VERSION='18'
 
-# Turn echo on.
-set -x
-
 # Determine device type.
 echo 'Specify the device type by specifying the number:'
 echo '[1] Raspberry Pi'
