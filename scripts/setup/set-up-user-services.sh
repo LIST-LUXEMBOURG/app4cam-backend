@@ -95,3 +95,52 @@ EOL
 else
   echo 'Skipped USB auto-mounting setup.'
 fi
+
+
+cat << EOF
+/------------------------------------/
+/ Setting up App4Cam backend service /
+/------------------------------------/
+EOF
+
+# Create user service.
+su "$USERNAME" -c 'touch ~/.config/systemd/user/app4cam-backend.service'
+tee /home/"$USERNAME"/.config/systemd/user/app4cam-backend.service << EOL
+[Unit]
+Description=Service that keeps running app4cam-backend from startup
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Environment="NODE_ENV=production"
+ExecStart=node dist/main
+WorkingDirectory=/home/$USERNAME/app4cam-backend
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOL
+
+# Reload systemctl.
+su "$USERNAME" -c 'systemctl --user daemon-reload'
+
+# Enable service.
+su "$USERNAME" -c 'systemctl --user enable app4cam-backend'
+
+
+cat << EOF
+/-----------------------------------------/
+/ Making sure environment variable is set /
+/-----------------------------------------/
+EOF
+
+if [[ -z $(su - "$USERNAME" -c 'printenv XDG_RUNTIME_DIR') ]]; then
+  echo 'The environment variable XDG_RUNTIME_DIR is undefined. Adding it to the profile file...'
+  # shellcheck disable=SC2016
+  echo 'export XDG_RUNTIME_DIR=/run/user/`id -u`' >> /home/"$USERNAME"/.profile
+  echo 'Added to the profile file. All good!'
+else
+  echo 'The environment variable XDG_RUNTIME_DIR is set. All good!'
+fi
