@@ -1,5 +1,34 @@
 # App4Cam Backend
 
+## Table of Contents
+
+1. [Development](#development)
+   - [Prerequisites](#prerequisites)
+   - [Setup](#setup)
+   - [Running the app](#running-the-app)
+   - [Test](#test)
+   - [API documentation](#api-documentation)
+   - [Copyright notice usage](#copyright-notice-usage)
+2. [Deployment](#deployment)
+   - [1. Installing dependencies, creating user, folders and setting permissions](#1-installing-dependencies-creating-user-folders-and-setting-permissions)
+   - [2. Installing Motion](#2-installing-motion)
+     - [Configuring Motion](#-configuring-motion)
+     - [Running Motion as service](#-running-motion-as-service)
+     - ["libcamerify" Motion](#-libcamerify-motion)
+   - [3. Setting up network behavior](#3-setting-up-network-behavior)
+     - [On Raspberry Pi](#-on-raspberry-pi)
+     - [On Variscite](#-on-variscite)
+   - [4. Installing ExifTool](#4-installing-exiftool)
+   - [5. Enabling user services and USB auto-mounting](#5-enabling-user-services-and-usb-auto-mounting)
+     - [Checking USB auto-mounting](#-checking-usb-auto-mounting)
+   - [6. Make sure automatic time synchronisaton is disabled](#6-make-sure-automatic-time-synchronisaton-is-disabled)
+   - [7. Installing Witty Pi 3 (Raspberry Pi only)](#7-installing-witty-pi-3-raspberry-pi-only)
+   - [8. Adding FTP access (Raspberry Pi only)](#8-adding-ftp-access-raspberry-pi-only)
+   - [9. Hardware Configuration (Quimesis interface board only)](#9-hardware-configuration-quimesis-interface-board-only)
+   - [10. Deploying the application](#10-deploying-the-application)
+   - [11. For continuous deployment (CD) only](#11-for-continuous-deployment-cd-only)
+3. [Release procedure](#release-procedure)
+
 ## Development
 
 ### Prerequisites
@@ -60,12 +89,17 @@ As year, indicate the year of creation. When making changes to code with an exis
 
 This software requires the following tools to be installed:
 
-- **Motion** is a configurable software that monitors video signals from different types of cameras and create videos and/or saves pictures of the activity.
-- **Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
+### 1. Installing dependencies, creating user, folders and setting permissions
 
-### 1. Installing Motion
+Execute the setup script with root permissions:
 
-Motion is installed from the release deb files which provides a more recent version than the one available via apt.
+```shell
+sudo scripts/setup/set-up-environment.sh
+```
+
+### 2. Installing Motion
+
+**Motion** is a configurable software that monitors video signals from different types of cameras and create videos and/or saves pictures of the activity. Motion is installed from the release deb files which provides a more recent version than the one available via apt.
 The most recent versions can be downloaded here [Motion releases](https://github.com/Motion-Project/motion/releases).
 
 **Raspberry Pi** (Architecture: armhf-pi / OS: bullseye)
@@ -93,15 +127,7 @@ sudo apt-get install gdebi-core
 sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 ```
 
-### 2. Installing dependencies, creating user, folders and setting permissions
-
-Execute the setup script with root permissions:
-
-```shell
-sudo scripts/setup/set-up-environment.sh
-```
-
-### 3. Configuring Motion
+#### - Configuring Motion
 
 1. Open Motion config file: `sudo nano /etc/motion/motion.conf`
 2. Configure the following parameters in order of appearance:
@@ -219,7 +245,7 @@ sudo scripts/setup/set-up-environment.sh
 
 A more described configuration can be found at https://motion-project.github.io/4.5.0/motion_config.html.
 
-#### 4. Running Motion as service
+#### - Running Motion as service
 
 Motion needs to be run as a service so that it automatically starts whenever the device is started.
 
@@ -229,7 +255,7 @@ Motion needs to be run as a service so that it automatically starts whenever the
 
 During development, you may need to stop Motion: `sudo systemctl stop motion`
 
-#### 5. "libcamerify" Motion
+#### - "libcamerify" Motion
 
 libcamerify is needed for libcamera support (used with the newer RPi cameras). In these specific cases we need to
 libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-arducam-imx519-16mp-autofocus-working-with-motion/4248).
@@ -245,20 +271,9 @@ libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-ar
 
 **IMPORTANT:** When using pivariety cameras (e.g. 64MP Hawkeye) do not update libcamera.
 
-### 6. Installing Witty Pi 3 (Raspberry Pi only)
+### 3. Setting up network behavior
 
-On Raspberry Pi, run these two commands in your home directory:
-
-```bash
-wget http://www.uugear.com/repo/WittyPi3/install.sh
-sudo sh install.sh
-```
-
-A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
-
-### 7. Setting up network behavior
-
-#### On Raspberry Pi
+#### - On Raspberry Pi
 
 We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
 For this we just need to run with root privileges the script `scripts/autohotspot/autohotspot-setup.sh`. On a new terminal:
@@ -294,13 +309,13 @@ vnc: 10.0.0.5::5900
 
 If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
 
-#### On Variscite
+#### - On Variscite
 
 1. Run **with root privileges** the script: `/home/app4cam/app4cam-backend/scripts/variscite/access-point/setup-access-point.sh`
 2. Verify that the connection is running: `nmcli connection show`
 3. Check the Wi-Fi's broadcast IP address: `ifconfig`
 
-### 8. Installing ExifTool
+### 4. Installing ExifTool
 
 ExifTool is needed to add the device ID to the metadata of each shot file.
 
@@ -311,7 +326,7 @@ ExifTool is needed to add the device ID to the metadata of each shot file.
 5. Optionally, run tests to verify system compatibility: `make test`
 6. Install for all users: `sudo make install`
 
-### 9. Enabling user services and USB auto-mounting
+### 5. Enabling user services and USB auto-mounting
 
 Execute the setup script with root permissions:
 
@@ -319,64 +334,34 @@ Execute the setup script with root permissions:
 sudo scripts/setup/set-up-user-services.sh
 ```
 
-### 10. Checking USB auto-mounting
+#### - Checking USB auto-mounting
 
-Only perform this checks if you have enabled this functionality in the script before.
+Only perform this checks if you have enabled this functionality in the setup script before.
 
 1. Make sure that there is no udev rule configured for USB auto-mounting. The OS images of Variscite devices may come with a preconfigured rule in `/etc/udev/rules.d/automount.rules` that needs to be commented out.
 2. Log in as user: `su - app4cam`
 3. Verify that the service is running: `systemctl --user status udiskie`
 4. Logout: `exit`
 
-### 11. Make sure automatic time synchronisaton is disabled
+### 6. Make sure automatic time synchronisaton is disabled
 
 Verify the result line `NTP service` of running: `timedatectl`
 
 If it is still active, run: `timedatectl set-ntp 0`
 
-### 12. Deploying the application
+### 7. Installing Witty Pi 3 (Raspberry Pi only)
 
-Before starting, install the following dependency: `sudo apt install gpiod`
+**Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
+On Raspberry Pi, run these two commands in your home directory:
 
-#### 1. Getting application
+```bash
+wget http://www.uugear.com/repo/WittyPi3/install.sh
+sudo sh install.sh
+```
 
-###### Option 1: Download the artifact archive from Gitlab:
+A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
 
-1. Download and extract the archive into the home folder.
-2. Change into the directory: `cd app4cam-backend`
-3. Install the production dependencies: `npm ci --omit=dev --ignore-scripts`
-
-###### Option 2: Build it yourself:
-
-1. Make sure Git is installed.
-2. Clone this repository into the home folder: `git clone --single-branch --branch main https://git.list.lu/host/mechatronics/app4cam-backend.git`
-3. Change into the directory: `cd app4cam-backend`
-4. Install dependencies: `npm ci`
-5. Build: `npm run build`
-6. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
-
-#### 2. Final steps
-
-1. Adapt the configuration file if needed: `nano config/production.env`
-2. Start service: `systemctl --user start app4cam-backend`
-3. Verify the service is running: `systemctl --user status app4cam-backend`
-
-You can check the service logs with the following command: `journalctl --user -u app4cam-backend -e`
-
-### 13. For continuous deployment (CD) only
-
-If you have set up the frontend already, you can just follow its [setup guide](https://git.list.lu/host/mechatronics/app4cam-frontend#3-for-continuous-deployment-cd-only).
-
-### 14. Hardware Configuration (Quimesis interface board only)
-
-To get a complete overview of the hardware available please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
-
-- **WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/wifi_control/README.md).
-- **Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/battery-monitoring/README.md).
-- **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/rtc/README.md).
-- **Hardware initialization** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/hw-initialization/README.md).
-
-### 15. Adding FTP access (Raspberry Pi only)
+### 8. Adding FTP access (Raspberry Pi only)
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 
@@ -398,6 +383,46 @@ The FTP access can be used as an alternative way to download multiple files with
 3. Restart the server: `sudo systemctl restart vsftpd`
 
 Now, you can connect via an FTP client with the device's IP address, port 21, the username created and the corresponding password.
+
+### 9. Hardware Configuration (Quimesis interface board only)
+
+To get a complete overview of the hardware available please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
+
+- **WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/wifi_control/README.md).
+- **Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/battery-monitoring/README.md).
+- **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/rtc/README.md).
+- **Hardware initialization** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/hw-initialization/README.md).
+
+### 10. Deploying the application
+
+Before starting, install the following dependency: `sudo apt install gpiod`
+
+#### Option 1: Download the artifact archive from Gitlab:
+
+1. Download and extract the archive into the home folder.
+2. Change into the directory: `cd app4cam-backend`
+3. Install the production dependencies: `npm ci --omit=dev --ignore-scripts`
+
+#### Option 2: Build it yourself:
+
+1. Make sure Git is installed.
+2. Clone this repository into the home folder: `git clone --single-branch --branch main https://git.list.lu/host/mechatronics/app4cam-backend.git`
+3. Change into the directory: `cd app4cam-backend`
+4. Install dependencies: `npm ci`
+5. Build: `npm run build`
+6. Set a configuration file. For instance, use the sample file: `cp config/sample.env config/production.env`
+
+#### Final steps
+
+1. Adapt the configuration file if needed: `nano config/production.env`
+2. Start service: `systemctl --user start app4cam-backend`
+3. Verify the service is running: `systemctl --user status app4cam-backend`
+
+You can check the service logs with the following command: `journalctl --user -u app4cam-backend -e`
+
+### 11. For continuous deployment (CD) only
+
+If you have set up the frontend already, you can just follow its [setup guide](https://git.list.lu/host/mechatronics/app4cam-frontend#3-for-continuous-deployment-cd-only).
 
 ## Release procedure
 
