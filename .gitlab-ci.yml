@@ -104,6 +104,8 @@ deploy-raspberry-pi:
     - ssh $APP4CAM_USER@$RASPBERRY_PI_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
+      make -C scripts/raspberry-pi/air-temperature &&
+      chmod +x scripts/raspberry-pi/air-temperature/read_air_temp &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
