@@ -426,13 +426,13 @@ If you have set up the frontend already, you can just follow its [setup guide](h
 
 ## Release procedure
 
-1. Run the following script with the real version number:
+1. Run the following script with the real version number in a Git Bash:
 
    ```shell
    scripts/release-version.sh "<version-number>"
    ```
 
-2. Push the commit to the remote repository once you are ready:
+2. Push the pre-version commit to the remote repository once it should be shared:
 
    ```shell
    git push
