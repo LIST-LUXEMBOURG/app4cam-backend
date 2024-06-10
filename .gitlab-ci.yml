@@ -21,8 +21,6 @@ stages:
 test:
   image: node:lts-alpine
   stage: test
-  except:
-    - tags
   tags:
     - hdce_docker
   script:
@@ -43,8 +41,6 @@ include:
 build:
   image: node:lts-alpine
   stage: build
-  except:
-    - tags
   tags:
     - hdce_docker
   script:
@@ -63,8 +59,6 @@ build:
 
 deploy-raspberry-pi:
   stage: deploy
-  except:
-    - tags
   tags:
     - hdce_docker
   environment:
@@ -112,8 +106,6 @@ deploy-raspberry-pi:
 
 .deploy-variscite-mx6:
   stage: deploy
-  except:
-    - tags
   tags:
     - hdce_docker
   environment:
@@ -160,8 +152,6 @@ deploy-raspberry-pi:
 
 deploy-variscite-mx8m:
   stage: deploy
-  except:
-    - tags
   tags:
     - hdce_docker
   environment:
@@ -208,8 +198,6 @@ deploy-variscite-mx8m:
 
 deploy-variscite-newtcam3:
   stage: deploy
-  except:
-    - tags
   tags:
     - hdce_docker
   environment:
