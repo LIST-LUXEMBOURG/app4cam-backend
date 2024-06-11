@@ -13,4 +13,13 @@ export class FileHandler {
       stream,
     }
   }
+
+  static compareDatesForSortingDescendingly(firstDate: Date, secondDate: Date) {
+    if (firstDate > secondDate) {
+      return -1
+    } else if (firstDate < secondDate) {
+      return 1
+    }
+    return 0
+  }
 }

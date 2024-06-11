@@ -40,6 +40,12 @@ export class FilesService {
           creationTime: file.stats.mtime,
         }
       })
+      .sort((a, b) =>
+        FileHandler.compareDatesForSortingDescendingly(
+          a.creationTime,
+          b.creationTime,
+        ),
+      )
   }
 
   async getStreamableFile(filename: string) {

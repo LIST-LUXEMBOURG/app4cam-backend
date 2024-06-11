@@ -73,12 +73,12 @@ describe('FilesService', () => {
       const files = await service.findAll()
       expect(files).toEqual(expect.any(Array))
       expect(files).toHaveLength(3)
-      expect(files[0].name).toEqual('a.txt')
-      expect(files[0].creationTime).toEqual(expect.any(Object))
-      expect(files[1].name).toEqual('b.txt')
-      expect(files[1].creationTime).toEqual(expect.any(Object))
       expect(files[2].name).toEqual('c.txt')
       expect(files[2].creationTime).toEqual(expect.any(Object))
+      expect(files[1].name).toEqual('b.txt')
+      expect(files[1].creationTime).toEqual(expect.any(Object))
+      expect(files[0].name).toEqual('a.txt')
+      expect(files[0].creationTime).toEqual(expect.any(Object))
     })
 
     afterEach(async () => {
