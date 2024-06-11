@@ -14,4 +14,33 @@ describe('FileHandler', () => {
       file.stream.close()
     })
   })
+
+  describe('compareDatesForSortingDescendingly', () => {
+    it('returns -1 if the first date is after the second', () => {
+      expect(
+        FileHandler.compareDatesForSortingDescendingly(
+          new Date('2022-12-11T14:49:00+01:00'),
+          new Date('2022-12-11T14:48:00+01:00'),
+        ),
+      ).toBe(-1)
+    })
+
+    it('returns 1 if the first date is before the second', () => {
+      expect(
+        FileHandler.compareDatesForSortingDescendingly(
+          new Date('2022-12-11T14:48:20+01:00'),
+          new Date('2022-12-11T14:49:00+01:00'),
+        ),
+      ).toBe(1)
+    })
+
+    it('returns 0 if dates are equal', () => {
+      expect(
+        FileHandler.compareDatesForSortingDescendingly(
+          new Date('2022-12-11T14:48:20+01:00'),
+          new Date('2022-12-11T14:48:20+01:00'),
+        ),
+      ).toBe(0)
+    })
+  })
 })
