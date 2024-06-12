@@ -196,12 +196,12 @@ deploy-variscite-mx8m:
       exit
       "
 
-deploy-variscite-newtcam3:
+deploy-variscite-newtcam:
   stage: deploy
   tags:
     - hdce_docker
   environment:
-    name: Variscite NEWTCAM 3 testing
+    name: Variscite NEWTCAM testing
     url: http://$VARISCITE_NEWTCAM3_HOST
   script:
     ## Install ssh-agent if not already installed, it is required by Docker.
