@@ -6,6 +6,7 @@ import { PropertiesService } from '../properties/properties.service'
 import { SettingsPutDto } from './dto/settings.dto'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
+import { TemperatureInteractor } from './interactors/temperature-interactor'
 import { VideoDeviceInteractor } from './interactors/video-device-interactor'
 import { PatchableSettings, Settings } from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
@@ -79,6 +80,7 @@ describe('SettingsService', () => {
       minute: 12,
     }
     const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
+    const TEMPERATURE_THRESHOLD = 10
     const TRIGGER_LIGHT_TYPE = 'infrared' as const
     const TRIGGER_SENSITIVITY_MAXIMUM = HEIGHT * WIDTH
     const WAKING_UP_TIME = {
@@ -96,6 +98,7 @@ describe('SettingsService', () => {
     const TRIGGERING_JSON_SETTINGS = {
       light: TRIGGER_LIGHT_TYPE,
       sleepingTime: SLEEPING_TIME,
+      temperatureThreshold: TEMPERATURE_THRESHOLD,
       wakingUpTime: WAKING_UP_TIME,
     }
     const JSON_SETTINGS = {
@@ -124,6 +127,7 @@ describe('SettingsService', () => {
       triggering: {
         ...TRIGGERING_JSON_SETTINGS,
         isLightEnabled: true,
+        isTemperatureThresholdEnabled: false,
         threshold: TRIGGER_SENSITIVITY,
         thresholdMaximum: TRIGGER_SENSITIVITY_MAXIMUM,
       },
@@ -188,15 +192,16 @@ describe('SettingsService', () => {
         siteName: 'ss',
       }
       const triggeringJsonSettings = {
+        light: 'infrared' as const,
         sleepingTime: {
           hour: 9,
           minute: 0,
         },
+        temperatureThreshold: 7,
         wakingUpTime: {
           hour: 8,
           minute: 30,
         },
-        light: 'infrared' as const,
       }
       const jsonSettings = {
         camera: cameraJsonSettings,
@@ -280,6 +285,7 @@ describe('SettingsService', () => {
         siteName: 'ss',
       }
       const triggeringJsonSettings = {
+        temperatureThreshold: 1,
         sleepingTime: {
           hour: 9,
           minute: 0,
@@ -400,6 +406,26 @@ describe('SettingsService', () => {
     it('returns the light type', async () => {
       const light = await service.getTriggeringLight()
       expect(light).toBe(TRIGGER_LIGHT_TYPE)
+    })
+
+    describe('isTemperatureBelowThreshold', () => {
+      it('returns true when above threshold', async () => {
+        const spyGetCurrentTemperature = jest
+          .spyOn(TemperatureInteractor, 'getCurrentTemperature')
+          .mockResolvedValue(-1)
+        const flag = await service.isTemperatureBelowThreshold()
+        expect(flag).toBeTruthy()
+        spyGetCurrentTemperature.mockRestore()
+      })
+
+      it('returns false when below threshold', async () => {
+        const spyGetCurrentTemperature = jest
+          .spyOn(TemperatureInteractor, 'getCurrentTemperature')
+          .mockResolvedValue(18)
+        const flag = await service.isTemperatureBelowThreshold()
+        expect(flag).toBeFalsy()
+        spyGetCurrentTemperature.mockRestore()
+      })
     })
 
     afterEach(() => {

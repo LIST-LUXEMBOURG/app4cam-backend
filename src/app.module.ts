@@ -11,6 +11,7 @@ import { validate } from './config/validation'
 import { FilesModule } from './files/files.module'
 import { LogFilesModule } from './log-files/log-files.module'
 import { LoggerMiddleware } from './logger.middleware'
+import { MotionInteractorModule } from './motion-interactor/motion-interactor.module'
 import { PropertiesModule } from './properties/properties.module'
 import { SettingsModule } from './settings/settings.module'
 import { SnapshotsModule } from './snapshots/snapshots.module'
@@ -30,6 +31,7 @@ import { StorageModule } from './storage/storage.module'
     SnapshotsModule,
     StorageModule,
     LogFilesModule,
+    MotionInteractorModule,
   ],
   controllers: [AppController],
   providers: [

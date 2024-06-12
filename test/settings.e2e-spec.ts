@@ -61,6 +61,7 @@ describe('SettingsController (e2e)', () => {
     minute: 12,
   }
   const SYSTEM_TIME = '2022-01-18T14:48:37+01:00'
+  const TEMPERATURE_THRESHOLD = 10
   const TRIGGERING_LIGHT = 'infrared' as const
   const TRIGGER_SENSITIVITY_MAXIMUM = HEIGHT * WIDTH
   const WAKING_UP_TIME = {
@@ -76,9 +77,10 @@ describe('SettingsController (e2e)', () => {
     siteName: 's',
   }
   const TRIGGERING_JSON_SETTINGS = {
-    sleepingTime: SLEEPING_TIME,
-    wakingUpTime: WAKING_UP_TIME,
     light: TRIGGERING_LIGHT,
+    sleepingTime: SLEEPING_TIME,
+    temperatureThreshold: TEMPERATURE_THRESHOLD,
+    wakingUpTime: WAKING_UP_TIME,
   }
   const JSON_SETTINGS = {
     camera: CAMERA_JSON_SETTINGS,
@@ -106,6 +108,7 @@ describe('SettingsController (e2e)', () => {
     triggering: {
       ...TRIGGERING_JSON_SETTINGS,
       isLightEnabled: true,
+      isTemperatureThresholdEnabled: false,
       threshold: TRIGGER_THRESHOLD,
       thresholdMaximum: TRIGGER_SENSITIVITY_MAXIMUM,
     },
@@ -421,6 +424,28 @@ describe('SettingsController (e2e)', () => {
           .expect(200, data)
       })
 
+      it('returns success on valid temperature threshold', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              temperatureThreshold: 1,
+            },
+          })
+          .expect(200)
+      })
+
+      it('returns bad request on invalid temperature threshold', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              temperatureThreshold: 'a',
+            },
+          })
+          .expect(400)
+      })
+
       it('returns bad request on invalid triggering light', () => {
         return request(app.getHttpServer())
           .patch('/settings')
@@ -510,16 +535,17 @@ describe('SettingsController (e2e)', () => {
         timeZone: ALL_SETTINGS.general.timeZone,
       }
       const goodTriggeringPutSettings: TriggeringSettingsPutDto = {
-        threshold: TRIGGER_THRESHOLD,
+        light: 'infrared',
         sleepingTime: {
           hour: 18,
           minute: 0,
         },
+        temperatureThreshold: 7,
+        threshold: TRIGGER_THRESHOLD,
         wakingUpTime: {
           hour: 20,
           minute: 0,
         },
-        light: 'infrared',
       }
 
       it('returns success on all settings', () => {
@@ -647,6 +673,20 @@ describe('SettingsController (e2e)', () => {
             triggering: {
               ...goodTriggeringPutSettings,
               wakingUpTime: '',
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on string temperature threshold value', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: goodGeneralPutSettings,
+            triggering: {
+              ...goodTriggeringPutSettings,
+              temperatureThreshold: 'a',
             },
           })
           .expect(400)

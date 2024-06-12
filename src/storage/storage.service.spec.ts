@@ -122,4 +122,34 @@ describe(StorageService.name, () => {
       spyGetStorageUsage.mockRestore()
     })
   })
+
+  describe('isDiskSpaceUsageAboveThreshold', () => {
+    it('returns true when above threshold', async () => {
+      const spyGetStorageUsage = jest
+        .spyOn(StorageUsageInteractor, 'getStorageUsage')
+        .mockImplementation(() => {
+          return Promise.resolve({
+            capacityKb: 1,
+            usedPercentage: 96,
+          })
+        })
+      const flag = await service.isDiskSpaceUsageAboveThreshold()
+      expect(flag).toBeTruthy()
+      spyGetStorageUsage.mockRestore()
+    })
+
+    it('returns false when below threshold', async () => {
+      const spyGetStorageUsage = jest
+        .spyOn(StorageUsageInteractor, 'getStorageUsage')
+        .mockImplementation(() => {
+          return Promise.resolve({
+            capacityKb: 1,
+            usedPercentage: 94,
+          })
+        })
+      const flag = await service.isDiskSpaceUsageAboveThreshold()
+      expect(flag).toBeFalsy()
+      spyGetStorageUsage.mockRestore()
+    })
+  })
 })
