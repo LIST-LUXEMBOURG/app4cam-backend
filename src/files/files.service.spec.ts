@@ -68,17 +68,19 @@ describe('FilesService', () => {
 
     it('returns three files', async () => {
       await writeFile(testFolder + '/a.txt', 'aa')
+      await new Promise((resolve) => setTimeout(resolve, 10))
       await writeFile(testFolder + '/b.txt', 'bb')
+      await new Promise((resolve) => setTimeout(resolve, 10))
       await writeFile(testFolder + '/c.txt', 'cc')
       const files = await service.findAll()
       expect(files).toEqual(expect.any(Array))
       expect(files).toHaveLength(3)
-      expect(files[2].name).toEqual('c.txt')
-      expect(files[2].creationTime).toEqual(expect.any(Object))
+      expect(files[0].name).toEqual('c.txt')
+      expect(files[0].creationTime).toEqual(expect.any(Object))
       expect(files[1].name).toEqual('b.txt')
       expect(files[1].creationTime).toEqual(expect.any(Object))
-      expect(files[0].name).toEqual('a.txt')
-      expect(files[0].creationTime).toEqual(expect.any(Object))
+      expect(files[2].name).toEqual('a.txt')
+      expect(files[2].creationTime).toEqual(expect.any(Object))
     })
 
     afterEach(async () => {
