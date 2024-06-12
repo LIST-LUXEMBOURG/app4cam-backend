@@ -159,9 +159,9 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
    pre_capture 5
 
-   on_picture_save /home/app4cam/app4cam-backend/scripts/on-picture-save.sh %f Variscite/RaspberryPi
+   on_picture_save /home/app4cam/app4cam-backend/scripts/on-picture-save.sh %f
 
-   on_movie_end /home/app4cam/app4cam-backend/scripts/write-device-id-to-mp4-file.sh %f
+   on_movie_end /home/app4cam/app4cam-backend/scripts/on-movie-end.sh %f
 
    picture_output best
 
