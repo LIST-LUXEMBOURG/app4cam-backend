@@ -1,6 +1,5 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
 import { Injectable, Logger } from '@nestjs/common'
-import { Cron } from '@nestjs/schedule'
 import { MotionClient } from '../motion-client'
 import { StorageStatusDto } from './dto/storage-status.dto'
 import { StorageUsageDto } from './dto/storage-usage.dto'
@@ -74,36 +73,11 @@ export class StorageService {
     return StorageUsageInteractor.getStorageUsage(devicePath)
   }
 
-  @Cron('*/5 * * * *') // every 5 minutes
-  async pauseOrResumeMotionDependingOnDiskSpaceUsage() {
-    this.logger.log('Cron job to pause or resume Motion triggered...')
-    const devicePath = await MotionClient.getTargetDir()
-    const diskSpaceUsage =
-      await StorageUsageInteractor.getStorageUsage(devicePath)
-    this.logger.log(
-      `Disk space usage percentage: ${diskSpaceUsage.usedPercentage}`,
-    )
-    const isMotionActive = await MotionClient.isDetectionStatusActive()
-    this.logger.log(`Motion active status: ${isMotionActive}`)
-    if (
+  async isDiskSpaceUsageAboveThreshold(): Promise<boolean> {
+    const diskSpaceUsage = await this.getStorageUsage()
+    return (
       diskSpaceUsage.usedPercentage >
       MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE
-    ) {
-      if (isMotionActive) {
-        this.logger.log(
-          `Above threshold of ${MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE} and Motion is still active => Trying to pause Motion...`,
-        )
-        await MotionClient.pauseDetection()
-        this.logger.log('Motion paused!')
-      }
-    } else {
-      if (!isMotionActive) {
-        this.logger.log(
-          `Below or equal to threshold of ${MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE} and Motion is still inactive => Trying to start Motion...`,
-        )
-        await MotionClient.startDetection()
-        this.logger.log('Motion started!')
-      }
-    }
+    )
   }
 }

@@ -83,6 +83,10 @@ class GeneralSettingsPatchDto {
 class TriggeringSettingsPatchDto {
   @IsOptional()
   @IsInt()
+  temperatureThreshold?: number | null
+
+  @IsOptional()
+  @IsInt()
   @Min(1)
   threshold?: number
 
@@ -165,6 +169,10 @@ export class GeneralSettingsPutDto {
 }
 
 export class TriggeringSettingsPutDto {
+  @IsNotEmpty()
+  @IsInt()
+  temperatureThreshold: number
+
   @IsNotEmpty()
   @IsInt()
   @Min(1)

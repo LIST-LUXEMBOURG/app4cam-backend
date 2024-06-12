@@ -82,15 +82,16 @@ describe(SettingsFileProvider.name, () => {
           siteName: 's',
         },
         triggering: {
+          light: 'infrared' as const,
           sleepingTime: {
             hour: 1,
             minute: 2,
           },
+          temperatureThreshold: 0,
           wakingUpTime: {
             hour: 3,
             minute: 4,
           },
-          light: 'infrared' as const,
         },
       }
       await SettingsFileProvider.writeSettingsToFile(

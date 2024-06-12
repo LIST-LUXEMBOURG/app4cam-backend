@@ -25,6 +25,7 @@ class GeneralSettingsFromJsonFile {
 class TriggeringSettingsFromJsonFile {
   light: LightType
   sleepingTime: TriggeringTime
+  temperatureThreshold: number
   wakingUpTime: TriggeringTime
 }
 
@@ -48,6 +49,7 @@ export class GeneralSettings extends GeneralSettingsFromJsonFile {
 
 export class TriggeringSettings extends TriggeringSettingsFromJsonFile {
   isLightEnabled: boolean
+  isTemperatureThresholdEnabled: boolean
   threshold: number
   thresholdMaximum: number
 }

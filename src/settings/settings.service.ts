@@ -13,6 +13,7 @@ import { UndefinedPathException } from './exceptions/UndefinedPathException'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SleepInteractor } from './interactors/sleep-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
+import { TemperatureInteractor } from './interactors/temperature-interactor'
 import { VideoDeviceInteractor } from './interactors/video-device-interactor'
 import { MotionTextAssembler } from './motion-text-assembler'
 import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
@@ -140,9 +141,11 @@ export class SettingsService {
       },
       triggering: {
         sleepingTime: undefined,
+        temperatureThreshold: undefined,
         wakingUpTime: undefined,
         ...settingsFromFile.triggering,
         isLightEnabled: !isRaspberryPi,
+        isTemperatureThresholdEnabled: isRaspberryPi,
         threshold,
         thresholdMaximum,
       },
@@ -387,6 +390,11 @@ export class SettingsService {
         newTriggeringSettings.sleepingTime = settings.triggering.sleepingTime
       }
 
+      if ('temperatureThreshold' in settings.triggering) {
+        newTriggeringSettings.temperatureThreshold =
+          settings.triggering.temperatureThreshold
+      }
+
       if ('wakingUpTime' in settings.triggering) {
         newTriggeringSettings.wakingUpTime = settings.triggering.wakingUpTime
       }
@@ -619,9 +627,10 @@ export class SettingsService {
         siteName: settings.general.siteName,
       },
       triggering: {
-        sleepingTime: settings.triggering.sleepingTime,
-        wakingUpTime: settings.triggering.wakingUpTime,
         light: settings.triggering.light,
+        sleepingTime: settings.triggering.sleepingTime,
+        temperatureThreshold: settings.triggering.temperatureThreshold,
+        wakingUpTime: settings.triggering.wakingUpTime,
       },
     }
     await SettingsFileProvider.writeSettingsToFile(
@@ -848,6 +857,15 @@ export class SettingsService {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return settings.triggering.wakingUpTime
+  }
+
+  async isTemperatureBelowThreshold(): Promise<boolean> {
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+    const threshold = settings.triggering.temperatureThreshold
+    const currentTemperature =
+      await TemperatureInteractor.getCurrentTemperature()
+    return currentTemperature < threshold
   }
 
   @Cron('* * * * *') // every 1 minute

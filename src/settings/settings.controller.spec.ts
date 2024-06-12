@@ -36,7 +36,9 @@ describe('SettingsController', () => {
     },
     triggering: {
       isLightEnabled: true,
+      isTemperatureThresholdEnabled: true,
       light: 'infrared',
+      temperatureThreshold: 10,
       threshold: 1,
       thresholdMaximum: 100,
       sleepingTime: SLEEPING_TIME,
@@ -116,16 +118,17 @@ describe('SettingsController', () => {
         timeZone: 't',
       },
       triggering: {
-        threshold: 1,
+        light: 'infrared' as const,
         sleepingTime: {
           hour: 1,
           minute: 2,
         },
+        temperatureThreshold: 7,
+        threshold: 1,
         wakingUpTime: {
           hour: 3,
           minute: 4,
         },
-        light: 'infrared' as const,
       },
     }
     await controller.updateAllSettings(settings)
