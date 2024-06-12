@@ -3,7 +3,7 @@
 
 echo "full filename: $1"
 
-/home/app4cam/app4cam-backend/scripts/write-device-id-to-jpg-file.sh "$1"
+/home/app4cam/app4cam-backend/scripts/write-device-id-to-mp4-file.sh "$1"
 
 type=`sed -n 's/.*DEVICE_TYPE=\([^ ]*\).*/\1/p' /home/app4cam/app4cam-backend/config/app4cam.env`
 echo "device type: $type"
@@ -13,5 +13,5 @@ then
     temp=$(/home/app4cam/app4cam-backend/scripts/raspberry-pi/air-temperature/read_air_temp)
     echo "Air temperature: $temp"
 
-    /home/app4cam/app4cam-backend/scripts/raspberry-pi/air-temperature/write-air-temperature-to-jpg-file.sh "$1" "$temp"
+    /home/app4cam/app4cam-backend/scripts/raspberry-pi/air-temperature/write-air-temperature-to-mp4-file.sh "$1" "$temp"
 fi
