@@ -5,7 +5,7 @@ echo "full filename: $1"
 
 /home/app4cam/app4cam-backend/scripts/write-device-id-to-jpg-file.sh "$1"
 
-type=`sed -n 's/.*DEVICE_TYPE=\([^ ]*\).*/\1/p' /home/app4cam/app4cam-backend/config/app4cam.env`
+type=$(sed -n 's/.*DEVICE_TYPE=\([^ ]*\).*/\1/p' /home/app4cam/app4cam-backend/config/production.env)
 echo "device type: $type"
 
 if [ "$type" = "RaspberryPi" ]

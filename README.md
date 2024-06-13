@@ -39,7 +39,8 @@
 
 1. Run: `npm install`
 2. Copy config file `config/sample.env` to `config/development.env`.
-3. Edit the latter config file as needed.
+3. Set `DISABLE_ACCESS_CONTROL_ALLOW_ORIGIN` to `false`.
+4. Optionally edit further options as needed.
 
 ### Running the app
 
