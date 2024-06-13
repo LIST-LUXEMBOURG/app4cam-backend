@@ -46,7 +46,7 @@ build:
   script:
     - apk add git
     - npm run build
-    - cp config/app4cam.env config/production.env
+    - cp config/sample.env config/production.env
   artifacts:
     paths:
       - config/
