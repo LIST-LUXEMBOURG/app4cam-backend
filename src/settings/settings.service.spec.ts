@@ -93,6 +93,8 @@ describe('SettingsService', () => {
     }
     const GENERAL_JSON_SETTINGS = {
       deviceName: 'd',
+      latitude: 1,
+      longitude: 2,
       siteName: 's',
     }
     const TRIGGERING_JSON_SETTINGS = {
@@ -189,6 +191,8 @@ describe('SettingsService', () => {
       }
       const generalJsonSettings = {
         deviceName: 'dd',
+        latitude: 1,
+        longitude: 2,
         siteName: 'ss',
       }
       const triggeringJsonSettings = {
@@ -282,6 +286,8 @@ describe('SettingsService', () => {
       }
       const generalJsonSettings = {
         deviceName: 'dd',
+        latitude: 1,
+        longitude: 2,
         siteName: 'ss',
       }
       const triggeringJsonSettings = {

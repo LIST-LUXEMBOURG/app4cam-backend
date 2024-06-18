@@ -74,6 +74,8 @@ describe('SettingsController (e2e)', () => {
   }
   const GENERAL_JSON_SETTINGS = {
     deviceName: 'd',
+    latitude: 1,
+    longitude: 2,
     siteName: 's',
   }
   const TRIGGERING_JSON_SETTINGS = {
@@ -254,10 +256,68 @@ describe('SettingsController (e2e)', () => {
           .expect(200, data)
       })
 
-      it('returns bad request on invalid space in device ID', () => {
+      it('returns bad request on invalid space in device name', () => {
         return request(app.getHttpServer())
           .patch('/settings')
           .send({ general: { deviceName: 'a ' } })
+          .expect(400)
+      })
+
+      it('returns success on valid latitude', () => {
+        const data = { general: { latitude: 42.42 } }
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send(data)
+          .expect(200, data)
+      })
+
+      it('returns bad request on string latitude', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ general: { latitude: 'a' } })
+          .expect(400)
+      })
+
+      it('returns bad request on too small latitude', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ general: { latitude: -100 } })
+          .expect(400)
+      })
+
+      it('returns bad request on too large latitude', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ general: { latitude: 100 } })
+          .expect(400)
+      })
+
+      it('returns success on valid longitude', () => {
+        const data = { general: { longitude: -123 } }
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send(data)
+          .expect(200, data)
+      })
+
+      it('returns bad request on string longitude', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ general: { longitude: 'a' } })
+          .expect(400)
+      })
+
+      it('returns bad request on too small longitude', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ general: { longitude: -190 } })
+          .expect(400)
+      })
+
+      it('returns bad request on too large longitude', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ general: { longitude: 190 } })
           .expect(400)
       })
 
@@ -529,6 +589,8 @@ describe('SettingsController (e2e)', () => {
       }
       const goodGeneralPutSettings: GeneralSettingsPutDto = {
         deviceName: 'd',
+        latitude: 1,
+        longitude: 2,
         password: '12345678',
         siteName: 's',
         systemTime: new Date().toISOString(),
@@ -557,6 +619,90 @@ describe('SettingsController (e2e)', () => {
             triggering: goodTriggeringPutSettings,
           })
           .expect(200)
+      })
+
+      it('returns bad request on string latitude', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              latitude: 'a',
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on too small latitude', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              latitude: -100,
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on too large latitude', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              latitude: 100,
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on string longitude', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              longitude: 'a',
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on too small longitude', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              longitude: -190,
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on too large longitude', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              longitude: 190,
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
       })
 
       it('returns success on empty site name', () => {

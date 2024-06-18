@@ -6,6 +6,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsNotEmptyObject,
+  IsNumber,
   IsObject,
   IsOptional,
   IsTimeZone,
@@ -62,6 +63,18 @@ class GeneralSettingsPatchDto {
   @IsOptional()
   @Matches(/^[a-zA-Z0-9-]+$/)
   deviceName?: string
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude?: number
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude?: number
 
   @IsOptional()
   @Matches(/^[ -~]{8,63}$/)
@@ -151,6 +164,18 @@ export class GeneralSettingsPutDto {
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9-]+$/)
   deviceName: string
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude: number
 
   @IsNotEmpty()
   @Matches(/^[ -~]{8,63}$/)
