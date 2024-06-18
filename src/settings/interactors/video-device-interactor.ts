@@ -1,11 +1,13 @@
 // © 2024 Luxembourg Institute of Science and Technology
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
-import { CommandUnavailableOnWindowsException } from '../exceptions/CommandUnavailableOnWindowsException'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
+import { FocusValueOutOfRange } from '../exceptions/FocusValueOutOfRange'
 
 const exec = promisify(execSync)
 
-interface Focus {
+interface FocusDetails {
   default?: number
   min?: number
   max?: number
@@ -13,19 +15,17 @@ interface Focus {
 }
 
 export class VideoDeviceInteractor {
-  static async getFocus(devicePath: string): Promise<Focus> {
-    if (process.platform === 'win32') {
-      throw new CommandUnavailableOnWindowsException()
-    }
+  static async getFocus(devicePath: string): Promise<FocusDetails> {
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     const command = `sudo v4l2-ctl -d ${devicePath} -l | grep focus_absolute`
     const { stdout, stderr } = await exec(command)
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
     const line = stdout.trim()
     const controlMapping = line.split(': ')
     const focusMappings = controlMapping[1].split(' ')
-    const focusMappingsAsObject: Focus = {}
+    const focusMappingsAsObject: FocusDetails = {}
     for (const focusMapping of focusMappings) {
       const mapping = focusMapping.split('=')
       const key = mapping[0]
@@ -36,17 +36,18 @@ export class VideoDeviceInteractor {
   }
 
   static async setFocus(devicePath: string, focus: number): Promise<void> {
-    if (process.platform === 'win32') {
-      throw new CommandUnavailableOnWindowsException()
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentFocus = await this.getFocus(devicePath)
     if (focus < currentFocus.min || currentFocus.max < focus) {
-      throw new Error('Focus value not supported!')
+      throw new FocusValueOutOfRange(
+        `Focus value ${focus} not between ${currentFocus.min} and ${currentFocus.max}!`,
+      )
     }
-    const command = `sudo scripts/raspberry-pi/set-camera-focus.sh ${devicePath} ${focus}`
+    const currentWorkingDirectory = process.cwd()
+    const command = `sudo ${currentWorkingDirectory}/scripts/raspberry-pi/set-camera-focus.sh ${devicePath} ${focus}`
     const { stderr } = await exec(command)
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
   }
 }

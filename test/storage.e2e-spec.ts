@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
-import { StorageUsageInteractor } from '../src/storage/storage-usage-interactor'
+import { StorageUsageInteractor } from '../src/storage/interactors/storage-usage-interactor'
 import { StorageStatusDto } from 'src/storage/dto/storage-status.dto'
 import { StorageUsageDto } from 'src/storage/dto/storage-usage.dto'
 

@@ -3,7 +3,8 @@ import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
 import { Logger } from '@nestjs/common'
 import { DateTime } from 'luxon'
-import { CommandUnavailableOnWindowsException } from '../exceptions/CommandUnavailableOnWindowsException'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
 import { TriggeringTime } from '../settings'
 
 const exec = promisify(execSync)
@@ -11,17 +12,11 @@ const exec = promisify(execSync)
 const WITTY_PI_END_YEARS_FROM_NOW = 10
 
 export class SleepInteractor {
-  private static throwExceptionIfOnWindows(): void {
-    if (process.platform === 'win32') {
-      throw new CommandUnavailableOnWindowsException()
-    }
-  }
-
   static async triggerSleeping(
     wakingUpDateTimeIso: string,
     logger: Logger,
   ): Promise<void> {
-    this.throwExceptionIfOnWindows()
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentWorkingDirectory = process.cwd()
     const wakingUpDateTime = DateTime.fromISO(wakingUpDateTimeIso)
     const wakingUpDateTimeString = wakingUpDateTime.toFormat(
@@ -32,7 +27,7 @@ export class SleepInteractor {
       `sudo ${currentWorkingDirectory}/scripts/variscite/rtc/sleep_until "${wakingUpDateTimeString}"`,
     )
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
   }
 
@@ -40,14 +35,14 @@ export class SleepInteractor {
     sleepingTime: TriggeringTime,
     wakingUpTime: TriggeringTime,
   ): Promise<void> {
-    this.throwExceptionIfOnWindows()
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentWorkingDirectory = process.cwd()
     if (!sleepingTime || !wakingUpTime) {
       const { stderr } = await exec(
         `sudo ${currentWorkingDirectory}/scripts/raspberry-pi/remove-working-hours-schedule.sh`,
       )
       if (stderr) {
-        throw new Error(stderr)
+        throw new CommandExecutionException(stderr)
       }
       return
     }
@@ -86,7 +81,7 @@ export class SleepInteractor {
       `sudo ${currentWorkingDirectory}/scripts/raspberry-pi/create-working-hours-schedule.sh "${beginValue}" "${endValue}" "${onValue}" "${offValue}"`,
     )
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
   }
 }

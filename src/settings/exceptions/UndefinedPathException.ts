@@ -2,6 +2,6 @@
 export class UndefinedPathException extends Error {
   constructor(message = '') {
     super(message)
-    this.name = 'CommandUnavailableOnWindowsException'
+    this.name = UndefinedPathException.name
   }
 }

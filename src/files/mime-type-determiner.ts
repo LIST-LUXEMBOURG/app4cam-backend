@@ -1,3 +1,5 @@
+import { UnknownMimeTypeException } from './exception/UnknownMimeTypeException'
+
 // © 2022-2024 Luxembourg Institute of Science and Technology
 export class MimeTypeDeterminer {
   static getContentType(fileExtension: string): string {
@@ -19,7 +21,7 @@ export class MimeTypeDeterminer {
       case 'zip':
         return 'application/zip'
       default:
-        throw new Error(
+        throw new UnknownMimeTypeException(
           `MIME type not found for file extension: '${fileExtension}'`,
         )
     }

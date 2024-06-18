@@ -7,8 +7,8 @@ import { FileNamer } from '../files/file-namer'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
-import { SettingsPutDto } from './dto/settings.dto'
-import { CommandUnavailableOnWindowsException } from './exceptions/CommandUnavailableOnWindowsException'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
+import { SettingsPutDto, TriggeringTimeDto } from './dto/settings.dto'
 import { UndefinedPathException } from './exceptions/UndefinedPathException'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SleepInteractor } from './interactors/sleep-interactor'
@@ -48,12 +48,10 @@ export class SettingsService {
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
 
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
-    const password = await AccessPointInteractor.getAccessPointPassword(
-      isRaspberryPi,
-      this.logger,
-    )
-    const systemTime = await SystemTimeInteractor.getSystemTimeInIso8601Format()
-    const timeZone = await SystemTimeInteractor.getTimeZone()
+
+    const password = await this.getAccessPointPassword()
+    const systemTime = await this.getSystemTime()
+    const timeZone = await this.getTimeZone()
 
     const shotTypes = []
     let focus = 0
@@ -64,37 +62,17 @@ export class SettingsService {
     let thresholdMaximum = Number.MAX_SAFE_INTEGER
     let videoQuality = 0
     try {
-      try {
-        let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
-        if (!isRaspberryPi) {
-          devicePath = await MotionClient.getVideoDevice()
-        }
-        const focusValues = await VideoDeviceInteractor.getFocus(devicePath)
-        if (isRaspberryPi) {
-          focus = focusValues.value
-        }
-        focusMaximum = focusValues.max
-        focusMinimum = focusValues.min
-      } catch (error) {
-        if (error instanceof CommandUnavailableOnWindowsException) {
-          if (isRaspberryPi) {
-            this.logger.warn('Failed to get focus:', error)
-            focus = 0
-          } else {
-            this.logger.warn(
-              'Failed to get minimum and maximum focus values:',
-              error,
-            )
-          }
-        } else {
-          throw error
-        }
-      }
-      if (!isRaspberryPi) {
+      const focusValues = await this.getFocusFromDriver()
+      focusMaximum = focusValues.max
+      focusMinimum = focusValues.min
+      if (isRaspberryPi) {
+        focus = focusValues.value
+      } else {
         focus = await this.getFocusFromMotionAdaptedToCameraLight(
           settingsFromFile.camera.light,
         )
       }
+
       pictureQuality = await MotionClient.getPictureQuality()
       threshold = await MotionClient.getThreshold()
       videoQuality = await MotionClient.getMovieQuality()
@@ -224,17 +202,12 @@ export class SettingsService {
       }
     }
 
-    const isRaspberryPi = this.deviceType === 'RaspberryPi'
     let isAtLeastOneJsonSettingUpdated = false
 
     const cameraSettingsMerged = settingsReadFromFile.camera
     if ('camera' in settings) {
       if ('focus' in settings.camera) {
-        let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
-        if (!isRaspberryPi) {
-          devicePath = await MotionClient.getVideoDevice()
-        }
-        const focusValues = await VideoDeviceInteractor.getFocus(devicePath)
+        const focusValues = await this.getFocusFromDriver()
         if (
           settings.camera.focus < focusValues.min ||
           settings.camera.focus > focusValues.max
@@ -258,22 +231,7 @@ export class SettingsService {
         'focus' in settings.camera
       ) {
         if (this.deviceType === 'RaspberryPi') {
-          try {
-            let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
-            if (!isRaspberryPi) {
-              devicePath = await MotionClient.getVideoDevice()
-            }
-            await VideoDeviceInteractor.setFocus(
-              devicePath,
-              settings.camera.focus,
-            )
-          } catch (error) {
-            if (error instanceof CommandUnavailableOnWindowsException) {
-              this.logger.error('Failed to set focus:', error)
-            } else {
-              throw error
-            }
-          }
+          await this.setFocusInDriver(settings.camera.focus)
         } else {
           await this.setFocusInMotionAdaptedToCameraLight(
             settings.camera.focus,
@@ -315,11 +273,7 @@ export class SettingsService {
     let generalSettingsMerged = settingsReadFromFile.general
     if ('general' in settings) {
       if ('systemTime' in settings.general) {
-        await SystemTimeInteractor.setSystemAndRtcTimeInIso8601Format(
-          settings.general.systemTime,
-          this.deviceType,
-          this.logger,
-        )
+        await this.setSystemTime(settings.general.systemTime)
       }
 
       if ('timeZone' in settings.general) {
@@ -349,7 +303,7 @@ export class SettingsService {
         if ('timeZone' in settings.general) {
           timeZone = settings.general.timeZone
         } else {
-          timeZone = await SystemTimeInteractor.getTimeZone()
+          timeZone = await this.getTimeZone()
         }
         const filename = MotionTextAssembler.createFilename(
           generalSettingsMerged.siteName,
@@ -371,12 +325,9 @@ export class SettingsService {
       }
 
       if ('deviceName' in settings.general || 'password' in settings.general) {
-        const isRaspberryPi = this.deviceType === 'RaspberryPi'
-        await AccessPointInteractor.setAccessPointNameOrPassword(
+        await this.setAccessPointNameOrPassword(
           settings.general.deviceName,
           settings.general.password,
-          isRaspberryPi,
-          this.logger,
         )
       }
     }
@@ -405,13 +356,17 @@ export class SettingsService {
       ) {
         newTriggeringSettings.light = settings.triggering.light
 
-        const serviceName = this.configService.get<string>('serviceName')
         const deviceType = this.configService.get<string>('deviceType')
-        await InitialisationInteractor.resetLights(
-          serviceName,
-          deviceType,
-          newTriggeringSettings.light,
-        )
+        try {
+          await InitialisationInteractor.resetLights(
+            deviceType,
+            newTriggeringSettings.light,
+          )
+        } catch (error) {
+          if (!(error instanceof CommandUnavailableOnWindowsException)) {
+            throw error
+          }
+        }
       }
 
       if (Object.keys(newTriggeringSettings).length > 0) {
@@ -425,18 +380,10 @@ export class SettingsService {
       }
 
       if (this.deviceType === 'RaspberryPi') {
-        try {
-          await SleepInteractor.configureWittyPiSchedule(
-            triggeringSettingsMerged.sleepingTime,
-            triggeringSettingsMerged.wakingUpTime,
-          )
-        } catch (error) {
-          if (error instanceof CommandUnavailableOnWindowsException) {
-            this.logger.error('Failed to configure Witty Pi:', error)
-          } else {
-            throw error
-          }
-        }
+        this.configureWittyPiSchedule(
+          triggeringSettingsMerged.sleepingTime,
+          triggeringSettingsMerged.wakingUpTime,
+        )
       }
 
       if ('threshold' in settings.triggering) {
@@ -509,11 +456,7 @@ export class SettingsService {
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
 
     if ('camera' in settings && 'focus' in settings.camera) {
-      let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
-      if (!isRaspberryPi) {
-        devicePath = await MotionClient.getVideoDevice()
-      }
-      const focusValues = await VideoDeviceInteractor.getFocus(devicePath)
+      const focusValues = await this.getFocusFromDriver()
       if (
         settings.camera.focus < focusValues.min ||
         settings.camera.focus > focusValues.max
@@ -524,11 +467,7 @@ export class SettingsService {
       }
     }
 
-    await SystemTimeInteractor.setSystemAndRtcTimeInIso8601Format(
-      settings.general.systemTime,
-      this.deviceType,
-      this.logger,
-    )
+    await this.setSystemTime(settings.general.systemTime)
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
@@ -556,22 +495,7 @@ export class SettingsService {
 
     try {
       if (isRaspberryPi) {
-        try {
-          let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
-          if (!isRaspberryPi) {
-            devicePath = await MotionClient.getVideoDevice()
-          }
-          await VideoDeviceInteractor.setFocus(
-            devicePath,
-            settings.camera.focus,
-          )
-        } catch (error) {
-          if (error instanceof CommandUnavailableOnWindowsException) {
-            this.logger.error('Failed to set focus:', error)
-          } else {
-            throw error
-          }
-        }
+        await this.setFocusInDriver(settings.camera.focus)
       } else {
         await this.setFocusInMotionAdaptedToCameraLight(
           settings.camera.focus,
@@ -594,28 +518,24 @@ export class SettingsService {
     const currentSettings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     if (currentSettings.triggering.light != settings.triggering.light) {
-      const serviceName = this.configService.get<string>('serviceName')
       const deviceType = this.configService.get<string>('deviceType')
-      await InitialisationInteractor.resetLights(
-        serviceName,
-        deviceType,
-        settings.triggering.light,
-      )
-    }
-
-    if (this.deviceType === 'RaspberryPi') {
       try {
-        await SleepInteractor.configureWittyPiSchedule(
-          settings.triggering.sleepingTime,
-          settings.triggering.wakingUpTime,
+        await InitialisationInteractor.resetLights(
+          deviceType,
+          settings.triggering.light,
         )
       } catch (error) {
-        if (error instanceof CommandUnavailableOnWindowsException) {
-          this.logger.error('Failed to configure Witty Pi:', error)
-        } else {
+        if (!(error instanceof CommandUnavailableOnWindowsException)) {
           throw error
         }
       }
+    }
+
+    if (this.deviceType === 'RaspberryPi') {
+      this.configureWittyPiSchedule(
+        settings.triggering.sleepingTime,
+        settings.triggering.wakingUpTime,
+      )
     }
 
     const settingsToWriteToFile: SettingsFromJsonFile = {
@@ -654,12 +574,40 @@ export class SettingsService {
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
-    await AccessPointInteractor.setAccessPointNameOrPassword(
+    await this.setAccessPointNameOrPassword(
       settings.general.deviceName,
       settings.general.password,
-      isRaspberryPi,
-      this.logger,
     )
+  }
+
+  private async getAccessPointPassword(): Promise<string> {
+    const isRaspberryPi = this.deviceType === 'RaspberryPi'
+    try {
+      const password = await AccessPointInteractor.getAccessPointPassword(
+        isRaspberryPi,
+        this.logger,
+      )
+      return password
+    } catch (error) {
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return '<not supported on Windows>'
+      } else {
+        throw error
+      }
+    }
+  }
+
+  private async configureWittyPiSchedule(
+    sleepingTime: TriggeringTimeDto,
+    wakingUpTime: TriggeringTimeDto,
+  ): Promise<void> {
+    try {
+      await SleepInteractor.configureWittyPiSchedule(sleepingTime, wakingUpTime)
+    } catch (error) {
+      if (!(error instanceof CommandUnavailableOnWindowsException)) {
+        throw error
+      }
+    }
   }
 
   private async getFocusFromMotionAdaptedToCameraLight(
@@ -703,6 +651,36 @@ export class SettingsService {
     await MotionClient.setVideoParams(newVideoParametersString)
   }
 
+  private async getFocusFromDriver() {
+    let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
+    if (this.deviceType !== 'RaspberryPi') {
+      devicePath = await MotionClient.getVideoDevice()
+    }
+    try {
+      const focus = await VideoDeviceInteractor.getFocus(devicePath)
+      return focus
+    } catch (error) {
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return { value: 0 }
+      }
+      throw error
+    }
+  }
+
+  private async setFocusInDriver(focus: number) {
+    let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
+    if (this.deviceType !== 'RaspberryPi') {
+      devicePath = await MotionClient.getVideoDevice()
+    }
+    try {
+      await VideoDeviceInteractor.setFocus(devicePath, focus)
+    } catch (error) {
+      if (!(error instanceof CommandUnavailableOnWindowsException)) {
+        throw error
+      }
+    }
+  }
+
   async storeSettingsFileToShotsFolder(
     settings: SettingsFromJsonFile,
   ): Promise<void> {
@@ -736,7 +714,7 @@ export class SettingsService {
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     settings.general.siteName = siteName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
-    const timeZone = await SystemTimeInteractor.getTimeZone()
+    const timeZone = await this.getTimeZone()
     const filename = MotionTextAssembler.createFilename(
       siteName,
       settings.general.deviceName,
@@ -762,7 +740,7 @@ export class SettingsService {
     settings.general.deviceName = deviceName
     await SettingsFileProvider.writeSettingsToFile(settings, SETTINGS_FILE_PATH)
 
-    const timeZone = await SystemTimeInteractor.getTimeZone()
+    const timeZone = await this.getTimeZone()
     const filename = MotionTextAssembler.createFilename(
       settings.general.siteName,
       deviceName,
@@ -776,31 +754,64 @@ export class SettingsService {
     )
     await MotionClient.setLeftTextOnImage(imageText)
 
+    await this.setAccessPointNameOrPassword(deviceName)
+  }
+
+  async setAccessPointNameOrPassword(
+    name: string,
+    password: string = undefined,
+  ): Promise<void> {
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
-    await AccessPointInteractor.setAccessPointNameOrPassword(
-      deviceName,
-      undefined,
-      isRaspberryPi,
-      this.logger,
-    )
+    try {
+      await AccessPointInteractor.setAccessPointNameOrPassword(
+        name,
+        password,
+        isRaspberryPi,
+        this.logger,
+      )
+    } catch (error) {
+      if (!(error instanceof CommandUnavailableOnWindowsException)) {
+        throw error
+      }
+    }
   }
 
   async getSystemTime(): Promise<string> {
-    const time = await SystemTimeInteractor.getSystemTimeInIso8601Format()
-    return time
+    try {
+      const time = await SystemTimeInteractor.getSystemTimeInIso8601Format()
+      return time
+    } catch (error) {
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return ''
+      }
+      throw error
+    }
   }
 
   async setSystemTime(systemTime: string): Promise<void> {
-    await SystemTimeInteractor.setSystemAndRtcTimeInIso8601Format(
-      systemTime,
-      this.deviceType,
-      this.logger,
-    )
+    try {
+      await SystemTimeInteractor.setSystemAndRtcTimeInIso8601Format(
+        systemTime,
+        this.deviceType,
+        this.logger,
+      )
+    } catch (error) {
+      if (!(error instanceof CommandUnavailableOnWindowsException)) {
+        throw error
+      }
+    }
   }
 
   async getTimeZone(): Promise<string> {
-    const timeZone = await SystemTimeInteractor.getTimeZone()
-    return timeZone
+    try {
+      const timeZone = await SystemTimeInteractor.getTimeZone()
+      return timeZone
+    } catch (error) {
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return ''
+      }
+      throw error
+    }
   }
 
   async setTimeZone(timeZone: string): Promise<void> {
@@ -811,7 +822,13 @@ export class SettingsService {
         `The time zone '${timeZone}' is not supported.`,
       )
     }
-    await SystemTimeInteractor.setTimeZone(timeZone)
+    try {
+      await SystemTimeInteractor.setTimeZone(timeZone)
+    } catch (error) {
+      if (!(error instanceof CommandUnavailableOnWindowsException)) {
+        throw error
+      }
+    }
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     const filename = MotionTextAssembler.createFilename(
@@ -907,9 +924,7 @@ export class SettingsService {
       try {
         SleepInteractor.triggerSleeping(wakingUpDateTime.toISO(), this.logger)
       } catch (error) {
-        if (error instanceof CommandUnavailableOnWindowsException) {
-          this.logger.error('Failed to trigger sleeping:', error)
-        } else {
+        if (!(error instanceof CommandUnavailableOnWindowsException)) {
           throw error
         }
       }

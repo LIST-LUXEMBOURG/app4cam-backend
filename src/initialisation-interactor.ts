@@ -4,6 +4,8 @@ import { lstat, readdir } from 'fs/promises'
 import path = require('path')
 import { promisify } from 'util'
 import { LightType } from './settings/settings'
+import { CommandExecutionException } from './shared/exceptions/CommandExecutionException'
+import { CommandUnavailableOnWindowsException } from './shared/exceptions/CommandUnavailableOnWindowsException'
 
 const exec = promisify(execSync)
 
@@ -11,10 +13,6 @@ const MEDIA_BASE_PATH = '/media'
 const RASPBERRY_PI_IGNORED_MEDIA_PATH = '/media/pi'
 
 export class InitialisationInteractor {
-  private static isWindows(): boolean {
-    return process.platform === 'win32'
-  }
-
   static async getNewestMediaPath(deviceType: string) {
     const elements = await readdir(MEDIA_BASE_PATH)
     const elementPromises = elements.map(async (element) => {
@@ -43,19 +41,16 @@ export class InitialisationInteractor {
   }
 
   static async resetLights(
-    serviceName: string,
     deviceType: string,
     lightType: LightType,
   ): Promise<void> {
-    if (this.isWindows()) {
-      // The following command does not exist on Windows machines.
-      return Promise.resolve()
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
+    const currentWorkingDirectory = process.cwd()
     const { stderr } = await exec(
-      `sudo /home/app4cam/${serviceName}/scripts/use-triggering-leds.sh ${deviceType} ${lightType}`,
+      `sudo ${currentWorkingDirectory}/scripts/use-triggering-leds.sh ${deviceType} ${lightType}`,
     )
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
   }
 }

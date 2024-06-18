@@ -2,8 +2,8 @@
 import { writeFile } from 'fs/promises'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { VersionDto } from './dto/version.dto'
-import { CommandUnavailableOnWindowsException } from './exceptions/CommandUnavailableOnWindowsException'
 import { BatteryInteractor } from './interactors/battery-interactor'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from './interactors/system-time-zones-interactor'
@@ -18,14 +18,16 @@ export class PropertiesService {
   constructor(private readonly configService: ConfigService) {}
 
   async getBatteryVoltage(): Promise<number> {
+    const deviceType = this.configService.get<string>('deviceType')
     try {
-      const deviceType = this.configService.get<string>('deviceType')
       const batteryVoltage =
         await BatteryInteractor.getBatteryVoltage(deviceType)
       return batteryVoltage
     } catch (error) {
-      this.logger.error('Failed to get battery voltage:', error)
-      return -1
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return -1
+      }
+      throw error
     }
   }
 
@@ -35,7 +37,6 @@ export class PropertiesService {
       return timeZones
     } catch (error) {
       if (error instanceof CommandUnavailableOnWindowsException) {
-        this.logger.error('Failed to get available time zones:', error)
         return Promise.resolve([''])
       }
       throw error
@@ -48,14 +49,13 @@ export class PropertiesService {
       return firstMacAddress
     } catch (error) {
       if (error instanceof CommandUnavailableOnWindowsException) {
-        this.logger.error('Failed to get first MAC address:', error)
         return '<not supported on Windows>'
       }
       throw error
     }
   }
 
-  getVersion(): Promise<VersionDto> {
+  async getVersion(): Promise<VersionDto> {
     return VersionInteractor.getVersion()
   }
 
