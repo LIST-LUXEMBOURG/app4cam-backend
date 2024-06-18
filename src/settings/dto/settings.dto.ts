@@ -18,7 +18,7 @@ import { LightType } from '../settings'
 
 type ShotType = 'pictures' | 'videos'
 
-class TriggeringTimeDto {
+export class TriggeringTimeDto {
   @IsNotEmpty()
   @Min(0)
   @Max(23)

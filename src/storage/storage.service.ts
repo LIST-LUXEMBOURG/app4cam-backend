@@ -1,10 +1,11 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
 import { Injectable, Logger } from '@nestjs/common'
 import { MotionClient } from '../motion-client'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { StorageStatusDto } from './dto/storage-status.dto'
 import { StorageUsageDto } from './dto/storage-usage.dto'
-import { FileSystemInteractor } from './file-system-interactor'
-import { StorageUsageInteractor } from './storage-usage-interactor'
+import { FileSystemInteractor } from './interactors/file-system-interactor'
+import { StorageUsageInteractor } from './interactors/storage-usage-interactor'
 
 const MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE = 95
 const STORAGE_MOUNT_PATH = '/media'
@@ -70,7 +71,18 @@ export class StorageService {
 
   async getStorageUsage(): Promise<StorageUsageDto> {
     const devicePath = await MotionClient.getTargetDir()
-    return StorageUsageInteractor.getStorageUsage(devicePath)
+    try {
+      const usage = StorageUsageInteractor.getStorageUsage(devicePath)
+      return usage
+    } catch (error) {
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return {
+          capacityKb: 0,
+          usedPercentage: 0,
+        }
+      }
+      throw error
+    }
   }
 
   async isDiskSpaceUsageAboveThreshold(): Promise<boolean> {

@@ -3,23 +3,18 @@ import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
 import { Logger } from '@nestjs/common'
 import { DateTime } from 'luxon'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
 import { DateConverter } from '../date-converter'
 
 const exec = promisify(execSync)
 
 export class SystemTimeInteractor {
-  private static isWindows(): boolean {
-    return process.platform === 'win32'
-  }
-
   static async getSystemTimeInIso8601Format(): Promise<string> {
-    if (this.isWindows()) {
-      // timedatectl command does not exist on Windows machines.
-      return Promise.resolve('')
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     const { stdout, stderr } = await exec('timedatectl | grep "Universal time"')
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
     const line = stdout.trim()
     const lineParts = line.split(': ')
@@ -33,16 +28,13 @@ export class SystemTimeInteractor {
     deviceType: string,
     logger: Logger,
   ): Promise<void> {
-    if (this.isWindows()) {
-      // timedatectl command does not exist on Windows machines.
-      return Promise.resolve()
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     const systemTimeTransformed = DateConverter.convertIsoToYMDHMSFormat(time)
     const { stderr } = await exec(
       `sudo timedatectl set-time "${systemTimeTransformed}"`,
     )
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
 
     let rtcSettingPathAndCommand = 'scripts/'
@@ -64,18 +56,15 @@ export class SystemTimeInteractor {
       `sudo ${currentWorkingDirectory}/${rtcSettingPathAndCommand}`,
     )
     if (rtcStderr) {
-      throw new Error(rtcStderr)
+      throw new CommandExecutionException(rtcStderr)
     }
   }
 
   static async getTimeZone(): Promise<string> {
-    if (this.isWindows()) {
-      // timedatectl command does not exist on Windows machines.
-      return Promise.resolve('')
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     const { stdout, stderr } = await exec('timedatectl show | grep "^Timezone"')
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
     const line = stdout.trim()
     const lineParts = line.split('=')
@@ -84,13 +73,10 @@ export class SystemTimeInteractor {
   }
 
   static async setTimeZone(timeZone: string): Promise<void> {
-    if (this.isWindows()) {
-      // timedatectl command does not exist on Windows machines.
-      return Promise.resolve()
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     const { stderr } = await exec(`sudo timedatectl set-timezone "${timeZone}"`)
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
   }
 }

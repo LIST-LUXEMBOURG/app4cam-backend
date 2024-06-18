@@ -1,18 +1,23 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
-import { ValidationPipe } from '@nestjs/common'
+import { Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { NestFactory } from '@nestjs/core'
+import { HttpAdapterHost, NestFactory } from '@nestjs/core'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
+import { AllExceptionsFilter } from './all-exceptions.filter'
 import { AppModule } from './app.module'
 import { InitialisationInteractor } from './initialisation-interactor'
 import { PropertiesService } from './properties/properties.service'
 import { UndefinedPathException } from './settings/exceptions/UndefinedPathException'
 import { SettingsService } from './settings/settings.service'
+import { CommandUnavailableOnWindowsException } from './shared/exceptions/CommandUnavailableOnWindowsException'
 
 const PAYLOAD_LIMIT = '1mb'
 
 async function bootstrap() {
+  const logger = new Logger('main')
+  logger.log('Bootstrapping the application...')
+
   const app = await NestFactory.create(AppModule, {
     cors: {
       exposedHeaders: ['Content-Disposition'],
@@ -24,6 +29,9 @@ async function bootstrap() {
   app.use(json({ limit: PAYLOAD_LIMIT }))
   app.use(urlencoded({ extended: false, limit: PAYLOAD_LIMIT }))
 
+  const { httpAdapter } = app.get(HttpAdapterHost)
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter))
+
   const propertiesService = app.get(PropertiesService)
   await propertiesService.logVersion()
   await propertiesService.saveDeviceIdToTextFile()
@@ -33,7 +41,11 @@ async function bootstrap() {
   const configService = app.get(ConfigService)
   const deviceType = configService.get<string>('deviceType')
 
-  if (process.platform !== 'win32') {
+  if (process.platform === 'win32') {
+    logger.warn(
+      'Windows environment detected. Many features are not supported!',
+    )
+  } else {
     const mountPath =
       await InitialisationInteractor.getNewestMediaPath(deviceType)
     try {
@@ -44,9 +56,14 @@ async function bootstrap() {
       }
     }
   }
-  const serviceName = configService.get('serviceName')
   const lightType = await settingsService.getTriggeringLight()
-  await InitialisationInteractor.resetLights(serviceName, deviceType, lightType)
+  try {
+    await InitialisationInteractor.resetLights(deviceType, lightType)
+  } catch (error) {
+    if (!(error instanceof CommandUnavailableOnWindowsException)) {
+      throw error
+    }
+  }
 
   const version = (await propertiesService.getVersion()).version
   const config = new DocumentBuilder()
@@ -58,5 +75,6 @@ async function bootstrap() {
 
   const port = configService.get('port')
   await app.listen(port)
+  logger.log('Bootstrapping the application done.')
 }
 bootstrap()

@@ -1,8 +1,8 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
 import { Test, TestingModule } from '@nestjs/testing'
 import { StorageUsageDto } from './dto/storage-usage.dto'
-import { FileSystemInteractor } from './file-system-interactor'
-import { StorageUsageInteractor } from './storage-usage-interactor'
+import { FileSystemInteractor } from './interactors/file-system-interactor'
+import { StorageUsageInteractor } from './interactors/storage-usage-interactor'
 import { StorageService } from './storage.service'
 
 const FILES_FOLDER_PATH = 'src/files/fixtures/'

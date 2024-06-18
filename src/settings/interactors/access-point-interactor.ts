@@ -2,23 +2,19 @@
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
 import { Logger } from '@nestjs/common'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
 
 const exec = promisify(execSync)
 
 export class AccessPointInteractor {
-  private static isWindows(): boolean {
-    return process.platform === 'win32'
-  }
-
   static async setAccessPointNameOrPassword(
     name: string,
     password: string,
     isRaspberryPi: boolean,
     logger: Logger,
   ): Promise<void> {
-    if (this.isWindows()) {
-      return Promise.resolve()
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     if (isRaspberryPi) {
       logger.error(
         'AccessPointInteractor does not currently support Raspberry Pi for changing the access point name.',
@@ -35,7 +31,7 @@ export class AccessPointInteractor {
     }
     const { stderr } = await exec(command)
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
   }
 
@@ -43,9 +39,7 @@ export class AccessPointInteractor {
     isRaspberryPi: boolean,
     logger: Logger,
   ): Promise<string> {
-    if (this.isWindows()) {
-      return Promise.resolve('')
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     if (isRaspberryPi) {
       logger.error(
         'AccessPointInteractor does not currently support Raspberry Pi for changing the access point name.',
@@ -56,7 +50,7 @@ export class AccessPointInteractor {
     const command = `sudo ${currentWorkingDirectory}/scripts/variscite/access-point/get-access-point-password.sh`
     const { stdout, stderr } = await exec(command)
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
     const line = stdout.trim()
     const lineParts = line.split(':')

@@ -4,6 +4,7 @@ import path = require('path')
 import { Readable } from 'stream'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { LogFileInteractor } from './log-file-interactor'
 
 const TEMPORARY_APP_LOG_FILENAME = 'app.log'
@@ -23,7 +24,16 @@ export class LogFilesService {
       TEMPORARY_FOLDER_PATH,
       TEMPORARY_APP_LOG_FILENAME,
     )
-    await LogFileInteractor.writeAppLogFileToDisk(this.serviceName, logFilePath)
+    try {
+      await LogFileInteractor.writeAppLogFileToDisk(
+        this.serviceName,
+        logFilePath,
+      )
+    } catch (error) {
+      if (!(error instanceof CommandUnavailableOnWindowsException)) {
+        throw error
+      }
+    }
     const stream = createReadStream(logFilePath)
     return stream
   }
@@ -33,7 +43,13 @@ export class LogFilesService {
       TEMPORARY_FOLDER_PATH,
       TEMPORARY_MOTION_LOG_FILENAME,
     )
-    await LogFileInteractor.writeMotionLogFileToDisk(logFilePath)
+    try {
+      await LogFileInteractor.writeMotionLogFileToDisk(logFilePath)
+    } catch (error) {
+      if (!(error instanceof CommandUnavailableOnWindowsException)) {
+        throw error
+      }
+    }
     const stream = createReadStream(logFilePath)
     return stream
   }

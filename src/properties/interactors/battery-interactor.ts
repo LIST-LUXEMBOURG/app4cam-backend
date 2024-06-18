@@ -1,16 +1,15 @@
 // © 2024 Luxembourg Institute of Science and Technology
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
-import { CommandUnavailableOnWindowsException } from '../exceptions/CommandUnavailableOnWindowsException'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
 import { UnsupportedDeviceTypeException } from '../exceptions/UnsupportedDeviceTypeException'
 
 const exec = promisify(execSync)
 
 export class BatteryInteractor {
   static async getBatteryVoltage(deviceType: string): Promise<number> {
-    if (process.platform === 'win32') {
-      throw new CommandUnavailableOnWindowsException()
-    }
+    CommandUnavailableOnWindowsException.throwIfOnWindows()
     let relativeCommandPath = 'scripts/'
     if (deviceType === 'RaspberryPi') {
       relativeCommandPath += 'raspberry-pi/get-input-voltage.sh'
@@ -24,7 +23,7 @@ export class BatteryInteractor {
       `sudo ${currentWorkingDirectory}/${relativeCommandPath}`,
     )
     if (stderr) {
-      throw new Error(stderr)
+      throw new CommandExecutionException(stderr)
     }
     const value = parseFloat(stdout)
     return value

@@ -5,6 +5,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { MotionClient } from '../motion-client'
 import { SettingsService } from '../settings/settings.service'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { ArchiveFileManager } from './archive-file-manager'
 import { FileDeletionResponse } from './entities/file-deletion-response.entity'
 import { File } from './entities/file.entity'
@@ -100,7 +101,13 @@ export class FilesService {
 
   async removeAllFiles(): Promise<void> {
     const fileFolderPath = await MotionClient.getTargetDir()
-    FileInteractor.removeAllFilesInDirectory(fileFolderPath)
+    try {
+      FileInteractor.removeAllFilesInDirectory(fileFolderPath)
+    } catch (error) {
+      if (!(error instanceof CommandUnavailableOnWindowsException)) {
+        throw error
+      }
+    }
   }
 
   @Cron('*/5 * * * *') // every 5 minutes

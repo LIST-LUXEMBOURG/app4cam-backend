@@ -2,6 +2,6 @@
 export class UnsupportedDeviceTypeException extends Error {
   constructor(type: string) {
     super(type)
-    this.name = 'UnsupportedDeviceTypeException'
+    this.name = UnsupportedDeviceTypeException.name
   }
 }
