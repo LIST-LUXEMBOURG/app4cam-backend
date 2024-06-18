@@ -29,6 +29,8 @@ describe('SettingsController', () => {
     },
     general: {
       deviceName: 'd',
+      latitude: 1,
+      longitude: 2,
       password: 'p',
       siteName: 's',
       systemTime: '2022-01-18T14:48:37+01:00',
@@ -112,6 +114,8 @@ describe('SettingsController', () => {
       },
       general: {
         deviceName: 'd',
+        latitude: 1,
+        longitude: 2,
         password: 'p',
         siteName: 's',
         systemTime: new Date().toISOString(),

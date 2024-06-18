@@ -111,6 +111,8 @@ export class SettingsService {
       },
       general: {
         deviceName: undefined,
+        latitude: undefined,
+        longitude: undefined,
         siteName: undefined,
         ...settingsFromFile.general,
         password,
@@ -284,6 +286,14 @@ export class SettingsService {
 
       if ('deviceName' in settings.general) {
         newGeneralSettings.deviceName = settings.general.deviceName
+      }
+
+      if ('latitude' in settings.general) {
+        newGeneralSettings.latitude = settings.general.latitude
+      }
+
+      if ('longitude' in settings.general) {
+        newGeneralSettings.longitude = settings.general.longitude
       }
 
       if ('siteName' in settings.general) {
@@ -544,6 +554,8 @@ export class SettingsService {
       },
       general: {
         deviceName: settings.general.deviceName,
+        latitude: settings.general.latitude,
+        longitude: settings.general.longitude,
         siteName: settings.general.siteName,
       },
       triggering: {
