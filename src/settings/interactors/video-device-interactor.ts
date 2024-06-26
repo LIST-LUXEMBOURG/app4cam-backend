@@ -44,7 +44,7 @@ export class VideoDeviceInteractor {
       )
     }
     const currentWorkingDirectory = process.cwd()
-    const command = `sudo ${currentWorkingDirectory}/scripts/raspberry-pi/set-camera-focus.sh ${devicePath} ${focus}`
+    const command = `sudo ${currentWorkingDirectory}/scripts/runtime/raspberry-pi/set-camera-focus.sh ${devicePath} ${focus}`
     const { stderr } = await exec(command)
     if (stderr) {
       throw new CommandExecutionException(stderr)

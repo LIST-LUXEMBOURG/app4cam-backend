@@ -47,7 +47,7 @@ export class InitialisationInteractor {
     CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentWorkingDirectory = process.cwd()
     const { stderr } = await exec(
-      `sudo ${currentWorkingDirectory}/scripts/use-triggering-leds.sh ${deviceType} ${lightType}`,
+      `sudo ${currentWorkingDirectory}/scripts/runtime/use-triggering-leds.sh ${deviceType} ${lightType}`,
     )
     if (stderr) {
       throw new CommandExecutionException(stderr)

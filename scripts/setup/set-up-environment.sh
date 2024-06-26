@@ -45,24 +45,24 @@ JOURNALCTL_PATH="$(type -p journalctl)"
 echo "$USERNAME ALL=(ALL) NOPASSWD: $JOURNALCTL_PATH" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/timedatectl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/v4l2-ctl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-recording-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-recording-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 
 if [ "$device_type" = '1' ]
 then
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/create-working-hours-schedule.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/get-input-voltage.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/remove-working-hours-schedule.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/set-camera-focus.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/raspberry-pi/write-system-time-to-rtc.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/working-hours/create-working-hours-schedule.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/working-hours/remove-working-hours-schedule.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/get-input-voltage.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/set-camera-focus.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/write-system-time-to-rtc.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 elif [ "$device_type" = '2' ]
 then
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/variscite/access-point/change-access-point-name-or-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/variscite/access-point/get-access-point-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/variscite/battery-monitoring/battery_monitoring" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/variscite/rtc/set_time" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/variscite/rtc/sleep_until" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/access-point/change-access-point-name-or-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/access-point/get-access-point-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/battery-monitoring/battery_monitoring" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/rtc/set_time" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/rtc/sleep_until" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 fi
 
 # Create data and folder.

@@ -24,7 +24,7 @@ export class SleepInteractor {
     )
     logger.log(`Waking up time: ${wakingUpDateTimeString}`)
     const { stderr } = await exec(
-      `sudo ${currentWorkingDirectory}/scripts/variscite/rtc/sleep_until "${wakingUpDateTimeString}"`,
+      `sudo ${currentWorkingDirectory}/scripts/runtime/variscite/rtc/sleep_until "${wakingUpDateTimeString}"`,
     )
     if (stderr) {
       throw new CommandExecutionException(stderr)
@@ -39,7 +39,7 @@ export class SleepInteractor {
     const currentWorkingDirectory = process.cwd()
     if (!sleepingTime || !wakingUpTime) {
       const { stderr } = await exec(
-        `sudo ${currentWorkingDirectory}/scripts/raspberry-pi/remove-working-hours-schedule.sh`,
+        `sudo ${currentWorkingDirectory}/scripts/runtime/raspberry-pi/working-hours/remove-working-hours-schedule.sh`,
       )
       if (stderr) {
         throw new CommandExecutionException(stderr)
@@ -78,7 +78,7 @@ export class SleepInteractor {
       offValue += ` M${difference_to_24_h_minutes}`
     }
     const { stderr } = await exec(
-      `sudo ${currentWorkingDirectory}/scripts/raspberry-pi/create-working-hours-schedule.sh "${beginValue}" "${endValue}" "${onValue}" "${offValue}"`,
+      `sudo ${currentWorkingDirectory}/scripts/runtime/raspberry-pi/working-hours/create-working-hours-schedule.sh "${beginValue}" "${endValue}" "${onValue}" "${offValue}"`,
     )
     if (stderr) {
       throw new CommandExecutionException(stderr)

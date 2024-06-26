@@ -29,7 +29,7 @@ After=default.target
 
 [Service]
 Type=simple
-ExecStart=/home/app4cam/app4cam-backend/scripts/variscite/scripts/hw-initialization/newtcam-hw-initialization.sh
+ExecStart=/home/app4cam/app4cam-backend/scripts/runtime/variscite/scripts/hardware-initialisation/newtcam-hw-initialization.sh
 
 [Install]
 WantedBy=default.target

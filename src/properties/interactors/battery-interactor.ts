@@ -10,7 +10,7 @@ const exec = promisify(execSync)
 export class BatteryInteractor {
   static async getBatteryVoltage(deviceType: string): Promise<number> {
     CommandUnavailableOnWindowsException.throwIfOnWindows()
-    let relativeCommandPath = 'scripts/'
+    let relativeCommandPath = 'scripts/runtime/'
     if (deviceType === 'RaspberryPi') {
       relativeCommandPath += 'raspberry-pi/get-input-voltage.sh'
     } else if (deviceType === 'Variscite') {

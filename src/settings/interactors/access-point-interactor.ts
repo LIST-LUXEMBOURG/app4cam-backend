@@ -22,7 +22,7 @@ export class AccessPointInteractor {
       return
     }
     const currentWorkingDirectory = process.cwd()
-    let command = `sudo ${currentWorkingDirectory}/scripts/variscite/access-point/change-access-point-name-or-password.sh`
+    let command = `sudo ${currentWorkingDirectory}/scripts/runtime/variscite/access-point/change-access-point-name-or-password.sh`
     if (name) {
       command += ` -n ${name}`
     }
@@ -47,7 +47,7 @@ export class AccessPointInteractor {
       return
     }
     const currentWorkingDirectory = process.cwd()
-    const command = `sudo ${currentWorkingDirectory}/scripts/variscite/access-point/get-access-point-password.sh`
+    const command = `sudo ${currentWorkingDirectory}/scripts/runtime/variscite/access-point/get-access-point-password.sh`
     const { stdout, stderr } = await exec(command)
     if (stderr) {
       throw new CommandExecutionException(stderr)

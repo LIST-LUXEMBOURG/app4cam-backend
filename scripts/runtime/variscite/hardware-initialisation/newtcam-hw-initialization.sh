@@ -2,7 +2,7 @@
 # © 2024 Luxembourg Institute of Science and Technology
 
 # scripts directory
-scripts_dir="/home/app4cam/app4cam-backend/scripts/variscite"
+scripts_dir="/home/app4cam/app4cam-backend/scripts/runtime/variscite"
 
 # read rtc date
 time_var="$(sudo $scripts_dir/rtc/get_time)"
