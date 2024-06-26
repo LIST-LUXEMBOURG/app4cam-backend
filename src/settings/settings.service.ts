@@ -9,6 +9,14 @@ import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { SettingsPutDto, TriggeringTimeDto } from './dto/settings.dto'
+import {
+  LightType,
+  PatchableSettings,
+  Settings,
+  SettingsFromJsonFile,
+  TriggeringTime,
+} from './entities/settings'
+import { ShotTypes } from './entities/shot-types'
 import { UndefinedPathException } from './exceptions/UndefinedPathException'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
 import { SleepInteractor } from './interactors/sleep-interactor'
@@ -17,13 +25,6 @@ import { TemperatureInteractor } from './interactors/temperature-interactor'
 import { VideoDeviceInteractor } from './interactors/video-device-interactor'
 import { MotionTextAssembler } from './motion-text-assembler'
 import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
-import {
-  LightType,
-  PatchableSettings,
-  Settings,
-  SettingsFromJsonFile,
-  TriggeringTime,
-} from './settings'
 import { SettingsFileProvider } from './settings-file-provider'
 
 const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
@@ -53,7 +54,7 @@ export class SettingsService {
     const systemTime = await this.getSystemTime()
     const timeZone = await this.getTimeZone()
 
-    const shotTypes = []
+    let shotTypes: ShotTypes = new Set()
     let focus = 0
     let focusMaximum = Number.MAX_SAFE_INTEGER
     let focusMinimum = Number.MIN_SAFE_INTEGER
@@ -77,14 +78,7 @@ export class SettingsService {
       threshold = await MotionClient.getThreshold()
       videoQuality = await MotionClient.getMovieQuality()
 
-      const pictureOutput = await MotionClient.getPictureOutput()
-      if (pictureOutput === 'best') {
-        shotTypes.push('pictures')
-      }
-      const movieOutput = await MotionClient.getMovieOutput()
-      if (movieOutput === 'on') {
-        shotTypes.push('videos')
-      }
+      shotTypes = await this.getShotTypes()
 
       const height = await MotionClient.getHeight()
       const width = await MotionClient.getWidth()
@@ -106,7 +100,7 @@ export class SettingsService {
         focusMaximum,
         focusMinimum,
         pictureQuality,
-        shotTypes,
+        shotTypes: Array.from(shotTypes),
         videoQuality,
       },
       general: {
@@ -713,6 +707,19 @@ export class SettingsService {
       settings,
       settingsFileInShotsFolderPath,
     )
+  }
+
+  async getShotTypes(): Promise<ShotTypes> {
+    const shotTypes: ShotTypes = new Set()
+    const pictureOutput = await MotionClient.getPictureOutput()
+    if (pictureOutput === 'best') {
+      shotTypes.add('pictures')
+    }
+    const movieOutput = await MotionClient.getMovieOutput()
+    if (movieOutput === 'on') {
+      shotTypes.add('videos')
+    }
+    return shotTypes
   }
 
   async getSiteName(): Promise<string> {

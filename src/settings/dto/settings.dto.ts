@@ -15,7 +15,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator'
-import { LightType } from '../settings'
+import { LightType } from '../entities/settings'
 
 type ShotType = 'pictures' | 'videos'
 

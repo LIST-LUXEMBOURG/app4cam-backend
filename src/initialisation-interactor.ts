@@ -3,7 +3,7 @@ import { exec as execSync } from 'child_process'
 import { lstat, readdir } from 'fs/promises'
 import path = require('path')
 import { promisify } from 'util'
-import { LightType } from './settings/settings'
+import { LightType } from './settings/entities/settings'
 import { CommandExecutionException } from './shared/exceptions/CommandExecutionException'
 import { CommandUnavailableOnWindowsException } from './shared/exceptions/CommandUnavailableOnWindowsException'
 

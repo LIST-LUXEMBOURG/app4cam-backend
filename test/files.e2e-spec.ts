@@ -1,5 +1,5 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
-import { writeFile } from 'fs/promises'
+import { rm, writeFile } from 'fs/promises'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
@@ -23,14 +23,15 @@ describe('FilesController (e2e)', () => {
     })
       .overrideProvider(SettingsService)
       .useValue({
-        getAllSettings: jest.fn(() =>
-          Promise.resolve({
-            general: {
-              deviceName: 'd',
-              siteName: 's',
-            },
-          }),
-        ),
+        getAllSettings: jest.fn().mockResolvedValue({
+          general: {
+            deviceName: 'd',
+            siteName: 's',
+          },
+        }),
+        getShotTypes: jest
+          .fn()
+          .mockResolvedValue(new Set(['pictures', 'videos'])),
       })
       .compile()
 
@@ -118,14 +119,19 @@ describe('FilesController (e2e)', () => {
       .expect(403)
   })
 
-  it('/files/:id (GET)', () => {
+  it('/files/:id (GET)', async () => {
     const filename = 'a.txt'
-    return request(app.getHttpServer())
-      .get('/files/' + filename)
-      .expect(200)
-      .expect('Content-Type', /text\/plain/)
-      .expect('Content-Disposition', `attachment; filename="${filename}"`)
-      .responseType('blob')
+    const filePath = FILES_FOLDER_PATH + filename
+    await writeFile(filePath, 'a')
+    const response = await request(app.getHttpServer()).get(
+      '/files/' + filename,
+    )
+    expect(response.status).toBe(200)
+    expect(response.headers['content-type']).toMatch(/text\/plain/)
+    expect(response.headers['content-disposition']).toBe(
+      `attachment; filename="${filename}"`,
+    )
+    await rm(filePath)
   })
 
   it('/files/:id (DELETE)', async () => {
@@ -142,6 +148,14 @@ describe('FilesController (e2e)', () => {
     return request(app.getHttpServer())
       .delete('/files/' + filename)
       .expect(404)
+  })
+
+  it('/file-stats/number-per-hours-of-day (GET)', async () => {
+    return request(app.getHttpServer())
+      .get('/file-stats/number-per-hours-of-day')
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .expect({ hoursOfDayCounts: new Array(24).fill(0) })
   })
 
   afterEach(() => {

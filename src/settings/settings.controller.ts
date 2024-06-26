@@ -11,11 +11,12 @@ import {
 import { Response } from 'express'
 import { DeviceNameDto } from './dto/device-name.dto'
 import { SettingsPatchDto, SettingsPutDto } from './dto/settings.dto'
+import { ShotTypesDto } from './dto/shot-types.dto'
 import { ShotsFolderDto } from './dto/shots-folder.dto'
 import { SiteNameDto } from './dto/site-name.dto'
 import { SystemTimeDto } from './dto/system-time.dto'
 import { TimeZoneDto } from './dto/time-zone.dto'
-import { Settings } from './settings'
+import { Settings } from './entities/settings'
 import { SettingsService } from './settings.service'
 
 @Controller('settings')
@@ -86,6 +87,14 @@ export class SettingsController {
       throw new ForbiddenException()
     }
     return this.settingsService.setShotsFolder(body.shotsFolder)
+  }
+
+  @Get('shotTypes')
+  async getShotTypes(): Promise<ShotTypesDto> {
+    const shotTypes = await this.settingsService.getShotTypes()
+    return {
+      shotTypes: Array.from(shotTypes),
+    }
   }
 
   @Get('systemTime')
