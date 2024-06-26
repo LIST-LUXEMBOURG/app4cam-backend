@@ -11,6 +11,7 @@
    - [Copyright notice usage](#copyright-notice-usage)
 2. [Deployment](#deployment)
    - [1. Installing dependencies, creating user, folders and setting permissions](#1-installing-dependencies-creating-user-folders-and-setting-permissions)
+     - [Hostname configuration: sudo host](#-hostname-configuration-sudo-host)
    - [2. Installing Motion](#2-installing-motion)
      - [Configuring Motion](#-configuring-motion)
      - [Running Motion as service](#-running-motion-as-service)
@@ -97,6 +98,26 @@ Execute the setup script with root permissions:
 ```shell
 sudo scripts/setup/set-up-environment.sh
 ```
+
+#### - Hostname configuration: sudo host
+
+If you type `sudo` in the terminal and get the error message `sudo: unable to resolve host` it means there is an issue with the system's hostname configuration. To fix it:
+
+1. Verify the current hostname of your system (for NewtCAM is `imx8mm-var-dart`):
+
+```shell
+hostname
+```
+
+2. Check if it exists on the /etc/hosts file:
+
+```shell
+nano /etc/hosts
+```
+
+3. Update Hostname (if necessary):
+
+(For NewtCam) Add `imx8mm-var-dart` after `localhost`
 
 ### 2. Installing Motion
 
