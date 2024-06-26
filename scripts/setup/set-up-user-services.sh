@@ -76,7 +76,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/$USERNAME/app4cam-backend/scripts/update-shots-folder.sh '{event}' '{mount_path}'"
+ExecStart=/usr/bin/udiskie -N -f '' --notify-command "/home/$USERNAME/app4cam-backend/scripts/runtime/update-shots-folder.sh '{event}' '{mount_path}'"
 Restart=always
 RestartSec=5
 

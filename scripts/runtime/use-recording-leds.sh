@@ -20,5 +20,5 @@ fi
 
 visible_leds_flag=$((1-infrared_leds_flag))
 
-"$base_dir"/toggle-ir-leds.sh $infrared_leds_flag
-"$base_dir"/toggle-visible-leds.sh $visible_leds_flag
+"$base_dir"/light/toggle-ir-leds.sh $infrared_leds_flag
+"$base_dir"/light/toggle-visible-leds.sh $visible_leds_flag

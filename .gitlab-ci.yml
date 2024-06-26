@@ -98,8 +98,8 @@ deploy-raspberry-pi:
     - ssh $APP4CAM_USER@$RASPBERRY_PI_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
-      make -C scripts/raspberry-pi/air-temperature &&
-      chmod +x scripts/raspberry-pi/air-temperature/read_air_temp &&
+      make -C scripts/runtime/raspberry-pi/air-temperature &&
+      chmod +x scripts/runtime/raspberry-pi/air-temperature/read_air_temp &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
@@ -142,10 +142,10 @@ deploy-raspberry-pi:
     - ssh $APP4CAM_USER@$VARISCITE_MX6_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
-      make -C scripts/variscite/battery-monitoring &&
-      make -C scripts/variscite/rtc &&
-      make -C scripts/variscite/wifi_control &&
-      chmod +x scripts/variscite/battery-monitoring/battery_monitoring scripts/variscite/rtc/sleep_until scripts/variscite/rtc/set_time scripts/variscite/rtc/get_time scripts/variscite/wifi_control/wifi_control &&
+      make -C scripts/runtime/variscite/battery-monitoring &&
+      make -C scripts/runtime/variscite/rtc &&
+      make -C scripts/runtime/variscite/wi-fi-control &&
+      chmod +x scripts/runtime/variscite/battery-monitoring/battery_monitoring scripts/runtime/variscite/rtc/sleep_until scripts/runtime/variscite/rtc/set_time scripts/runtime/variscite/rtc/get_time scripts/runtime/variscite/wi-fi-control/wifi_control &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
@@ -188,10 +188,10 @@ deploy-variscite-mx8m:
     - ssh $APP4CAM_USER@$VARISCITE_MX8M_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
-      make -C scripts/variscite/battery-monitoring &&
-      make -C scripts/variscite/rtc &&
-      make -C scripts/variscite/wifi_control &&
-      chmod +x scripts/variscite/battery-monitoring/battery_monitoring scripts/variscite/rtc/sleep_until scripts/variscite/rtc/set_time scripts/variscite/rtc/get_time scripts/variscite/wifi_control/wifi_control &&
+      make -C scripts/runtime/variscite/battery-monitoring &&
+      make -C scripts/runtime/variscite/rtc &&
+      make -C scripts/runtime/variscite/wi-fi-control &&
+      chmod +x scripts/runtime/variscite/battery-monitoring/battery_monitoring scripts/runtime/variscite/rtc/sleep_until scripts/runtime/variscite/rtc/set_time scripts/runtime/variscite/rtc/get_time scripts/runtime/variscite/wi-fi-control/wifi_control &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
@@ -234,10 +234,10 @@ deploy-variscite-newtcam:
     - ssh $APP4CAM_USER@$VARISCITE_NEWTCAM3_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
-      make -C scripts/variscite/battery-monitoring &&
-      make -C scripts/variscite/rtc &&
-      make -C scripts/variscite/wifi_control &&
-      chmod +x scripts/variscite/battery-monitoring/battery_monitoring scripts/variscite/rtc/sleep_until scripts/variscite/rtc/set_time scripts/variscite/rtc/get_time scripts/variscite/wifi_control/wifi_control &&
+      make -C scripts/runtime/variscite/battery-monitoring &&
+      make -C scripts/runtime/variscite/rtc &&
+      make -C scripts/runtime/variscite/wi-fi-control &&
+      chmod +x scripts/runtime/variscite/battery-monitoring/battery_monitoring scripts/runtime/variscite/rtc/sleep_until scripts/runtime/variscite/rtc/set_time scripts/runtime/variscite/rtc/get_time scripts/runtime/variscite/wi-fi-control/wifi_control &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "

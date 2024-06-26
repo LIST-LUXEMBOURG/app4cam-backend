@@ -43,7 +43,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=/home/app4cam/app4cam-backend/scripts/Variscite/wifi_control/wifi_control
+ExecStart=/home/app4cam/app4cam-backend/scripts/runtime/variscite/wi-fi-control/wifi_control
 Restart=always
 RestartSec=5
 

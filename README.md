@@ -181,9 +181,9 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
    pre_capture 5
 
-   on_picture_save /home/app4cam/app4cam-backend/scripts/on-picture-save.sh %f
+   on_picture_save /home/app4cam/app4cam-backend/scripts/runtime/on-picture-save.sh %f
 
-   on_movie_end /home/app4cam/app4cam-backend/scripts/on-movie-end.sh %f
+   on_movie_end /home/app4cam/app4cam-backend/scripts/runtime/on-movie-end.sh %f
 
    picture_output best
 
@@ -213,17 +213,17 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
    Enable LED illumination on Raspberry Pi:
 
    ```
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/use-triggering-leds.sh RaspberryPi
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/runtime/use-triggering-leds.sh RaspberryPi
 
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/use-recording-leds.sh RaspberryPi
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/runtime/use-recording-leds.sh RaspberryPi
    ```
 
    Enable LED illumination on Variscite:
 
    ```
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/use-triggering-leds.sh Variscite
+   on_event_end sudo /home/app4cam/app4cam-backend/scripts/runtime/use-triggering-leds.sh Variscite
 
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/use-recording-leds.sh Variscite
+   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/runtime/use-recording-leds.sh Variscite
    ```
 
    Using **different illumination types** for triggering and recording (e.g. infrared for triggering and visible for recording) can induce a **fake loop phenomenon**. To prevent the light switch to trigger a fake event these parameters should be added:
@@ -298,11 +298,10 @@ libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-ar
 #### - On Raspberry Pi
 
 We want to configure the Raspberry Pi in a way that it will **connect to a previously configured Wifi** network when the Pi is in range of the router (Laboratory conditions) or **Automatically setup a Raspberry Pi access point** when a known wifi network is not in range (Field conditions). For this purpose we will use the script **Autohotspot** developed by RaspberryConnect.com.  
-For this we just need to run with root privileges the script `scripts/autohotspot/autohotspot-setup.sh`. On a new terminal:
+On a new terminal, run the setup script with root privileges:
 
 ```bash
-# Run the script with root privileges.
-sudo scripts/autohotspot/autohotspot-setup.sh
+sudo scripts/setup/raspberry-pi/autohotspot/autohotspot-setup.sh
 ```
 
 You will be presented with these options:
@@ -333,7 +332,7 @@ If no error messages was presented, just exit the script and reboot your device.
 
 #### - On Variscite
 
-1. Run **with root privileges** the script: `/home/app4cam/app4cam-backend/scripts/variscite/access-point/setup-access-point.sh`
+1. Run **with root privileges** the script: `/home/app4cam/app4cam-backend/scripts/setup/variscite/setup-access-point.sh`
 2. Verify that the connection is running: `nmcli connection show`
 3. Check the Wi-Fi's broadcast IP address: `ifconfig`
 
@@ -410,10 +409,10 @@ Now, you can connect via an FTP client with the device's IP address, port 21, th
 
 To get a complete overview of the hardware available please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
 
-- **WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/wifi_control/README.md).
-- **Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/battery-monitoring/README.md).
-- **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/rtc/README.md).
-- **Hardware initialization** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/variscite/hw-initialization/README.md).
+- **WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/wi-fi-control/README.md).
+- **Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/battery-monitoring/README.md).
+- **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/rtc/README.md).
+- **Hardware initialisation** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/hardware-initialisation/README.md).
 
 ### 10. Deploying the application
 
@@ -451,7 +450,7 @@ If you have set up the frontend already, you can just follow its [setup guide](h
 1. Run the following script with the real version number in a Git Bash:
 
    ```shell
-   scripts/release-version.sh "<version-number>"
+   scripts/release/release-version.sh "<version-number>"
    ```
 
 2. Push the pre-version commit to the remote repository once it should be shared:

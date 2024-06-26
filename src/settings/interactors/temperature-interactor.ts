@@ -11,7 +11,7 @@ export class TemperatureInteractor {
     CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentWorkingDirectory = process.cwd()
     const { stdout, stderr } = await exec(
-      `${currentWorkingDirectory}/scripts/raspberry-pi/air-temperature/read_air_temp`,
+      `${currentWorkingDirectory}/scripts/runtime/raspberry-pi/air-temperature/read_air_temp`,
     )
     if (stderr) {
       throw new CommandExecutionException(stderr)
