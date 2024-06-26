@@ -2,7 +2,7 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PropertiesService } from '../properties/properties.service'
-import { Settings } from './settings'
+import { Settings } from './entities/settings'
 import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
 
@@ -47,6 +47,7 @@ describe('SettingsController', () => {
       wakingUpTime: WAKING_UP_TIME,
     },
   }
+  const SHOT_TYPES = ['pictures', 'videos']
   const SHOTS_FOLDER = '/a'
   let controller: SettingsController
   let service: SettingsService
@@ -77,6 +78,7 @@ describe('SettingsController', () => {
             setTimeZone: jest.fn(),
             getShotsFolder: jest.fn().mockReturnValue(SHOTS_FOLDER),
             setShotsFolder: jest.fn(),
+            getShotTypes: jest.fn().mockReturnValue(SHOT_TYPES),
             getSleepingTime: jest.fn().mockReturnValue(SLEEPING_TIME),
             getWakingUpTime: jest.fn().mockReturnValue(WAKING_UP_TIME),
           },
@@ -189,5 +191,10 @@ describe('SettingsController', () => {
     const shotsFolder = '/media/a'
     await controller.setShotsFolder({ shotsFolder })
     expect(service.setShotsFolder).toHaveBeenCalledWith(shotsFolder)
+  })
+
+  it('gets the shot types', async () => {
+    const response = await controller.getShotTypes()
+    expect(response).toEqual({ shotTypes: SHOT_TYPES })
   })
 })

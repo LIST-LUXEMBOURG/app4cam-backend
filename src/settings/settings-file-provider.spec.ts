@@ -1,6 +1,6 @@
 // © 2022-2024 Luxembourg Institute of Science and Technology
 import { mkdir, rm } from 'fs/promises'
-import { SettingsFromJsonFile } from './settings'
+import { SettingsFromJsonFile } from './entities/settings'
 import {
   JSON_SETTINGS_WITH_NONE_SET,
   SettingsFileProvider,

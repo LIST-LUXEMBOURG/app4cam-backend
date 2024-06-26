@@ -5,7 +5,7 @@ import { Logger } from '@nestjs/common'
 import { DateTime } from 'luxon'
 import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
 import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
-import { TriggeringTime } from '../settings'
+import { TriggeringTime } from '../entities/settings'
 
 const exec = promisify(execSync)
 

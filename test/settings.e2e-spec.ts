@@ -14,7 +14,7 @@ import {
   GeneralSettingsPutDto,
   TriggeringSettingsPutDto,
 } from 'src/settings/dto/settings.dto'
-import { Settings } from 'src/settings/settings'
+import { Settings } from 'src/settings/entities/settings'
 
 const HEIGHT = 2
 const MOVIE_QUALITY = 80
@@ -972,6 +972,15 @@ describe('SettingsController (e2e)', () => {
           .put('/settings/shotsFolder')
           .send({ shotsFolder: '/a/b' })
           .expect(403)
+      })
+    })
+
+    describe('/shotTypes (GET)', () => {
+      it('returns shot types', async () => {
+        return request(app.getHttpServer())
+          .get('/settings/shotTypes')
+          .expect('Content-Type', /json/)
+          .expect(200, { shotTypes: SHOT_TYPES })
       })
     })
 
