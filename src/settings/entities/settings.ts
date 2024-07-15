@@ -20,6 +20,7 @@ interface CameraSettingsFromJsonFile {
 class GeneralSettingsFromJsonFile {
   deviceName: string
   latitude: number
+  locationAccuracy: number
   longitude: number
   siteName: string
 }

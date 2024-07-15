@@ -30,6 +30,7 @@ describe('SettingsController', () => {
     general: {
       deviceName: 'd',
       latitude: 1,
+      locationAccuracy: 3,
       longitude: 2,
       password: 'p',
       siteName: 's',
@@ -117,6 +118,7 @@ describe('SettingsController', () => {
       general: {
         deviceName: 'd',
         latitude: 1,
+        locationAccuracy: 3,
         longitude: 2,
         password: 'p',
         siteName: 's',

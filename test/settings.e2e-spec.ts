@@ -75,6 +75,7 @@ describe('SettingsController (e2e)', () => {
   const GENERAL_JSON_SETTINGS = {
     deviceName: 'd',
     latitude: 1,
+    locationAccuracy: 3,
     longitude: 2,
     siteName: 's',
   }
@@ -289,6 +290,28 @@ describe('SettingsController (e2e)', () => {
         return request(app.getHttpServer())
           .patch('/settings')
           .send({ general: { latitude: 100 } })
+          .expect(400)
+      })
+
+      it('returns success on valid location accuracy', () => {
+        const data = { general: { locationAccuracy: 1.2 } }
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send(data)
+          .expect(200, data)
+      })
+
+      it('returns bad request on string location accuracy', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ general: { locationAccuracy: 'a' } })
+          .expect(400)
+      })
+
+      it('returns bad request on negative location accuracy', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({ general: { locationAccuracy: -1 } })
           .expect(400)
       })
 
@@ -590,6 +613,7 @@ describe('SettingsController (e2e)', () => {
       const goodGeneralPutSettings: GeneralSettingsPutDto = {
         deviceName: 'd',
         latitude: 1,
+        locationAccuracy: 3,
         longitude: 2,
         password: '12345678',
         siteName: 's',
@@ -657,6 +681,48 @@ describe('SettingsController (e2e)', () => {
             general: {
               ...goodGeneralPutSettings,
               latitude: 100,
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns success on null location accuracy', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              locationAccuracy: null,
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(200)
+      })
+
+      it('returns bad request on string location accuracy', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              locationAccuracy: 'a',
+            },
+            triggering: goodTriggeringPutSettings,
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on negative location accuracy', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: {
+              ...goodGeneralPutSettings,
+              locationAccuracy: -1,
             },
             triggering: goodTriggeringPutSettings,
           })
