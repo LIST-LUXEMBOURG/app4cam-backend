@@ -72,6 +72,11 @@ class GeneralSettingsPatchDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(0)
+  locationAccuracy?: number
+
+  @IsOptional()
+  @IsNumber()
   @Min(-180)
   @Max(180)
   longitude?: number
@@ -170,6 +175,11 @@ export class GeneralSettingsPutDto {
   @Min(-90)
   @Max(90)
   latitude: number
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  locationAccuracy?: number
 
   @IsNotEmpty()
   @IsNumber()

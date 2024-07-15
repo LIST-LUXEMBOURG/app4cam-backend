@@ -106,6 +106,7 @@ export class SettingsService {
       general: {
         deviceName: undefined,
         latitude: undefined,
+        locationAccuracy: undefined,
         longitude: undefined,
         siteName: undefined,
         ...settingsFromFile.general,
@@ -284,6 +285,10 @@ export class SettingsService {
 
       if ('latitude' in settings.general) {
         newGeneralSettings.latitude = settings.general.latitude
+      }
+
+      if ('locationAccuracy' in settings.general) {
+        newGeneralSettings.locationAccuracy = settings.general.locationAccuracy
       }
 
       if ('longitude' in settings.general) {
@@ -549,6 +554,7 @@ export class SettingsService {
       general: {
         deviceName: settings.general.deviceName,
         latitude: settings.general.latitude,
+        locationAccuracy: settings.general.locationAccuracy,
         longitude: settings.general.longitude,
         siteName: settings.general.siteName,
       },

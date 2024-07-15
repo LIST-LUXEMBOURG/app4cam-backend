@@ -94,6 +94,7 @@ describe('SettingsService', () => {
     const GENERAL_JSON_SETTINGS = {
       deviceName: 'd',
       latitude: 1,
+      locationAccuracy: 3,
       longitude: 2,
       siteName: 's',
     }
@@ -192,6 +193,7 @@ describe('SettingsService', () => {
       const generalJsonSettings = {
         deviceName: 'dd',
         latitude: 1,
+        locationAccuracy: 3,
         longitude: 2,
         siteName: 'ss',
       }
@@ -287,6 +289,7 @@ describe('SettingsService', () => {
       const generalJsonSettings = {
         deviceName: 'dd',
         latitude: 1,
+        locationAccuracy: 3,
         longitude: 2,
         siteName: 'ss',
       }
