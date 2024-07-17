@@ -128,13 +128,9 @@ The most recent versions can be downloaded here [Motion releases](https://github
 
 > pi_bullseye_motion_x.x.x-x_armhf.deb
 
-**Variscite SOM MX8** (Architecture: arm64/ OS: bullseye)
+**Variscite NewtCam** (Architecture: arm64/ OS: bullseye)
 
 > bullseye_motion_x.x.x-x_arm64.deb
-
-**Variscite SOM MX6** (Architecture: armhf / OS: bullseye)
-
-> bullseye_motion_x.x.x-x_armhf.deb
 
 After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi - Motion 4.5.1-1):
 

@@ -104,105 +104,13 @@ deploy-raspberry-pi:
       exit
       "
 
-.deploy-variscite-mx6:
-  stage: deploy
-  tags:
-    - hdce_docker
-  environment:
-    name: Variscite MX6 testing
-    url: http://$VARISCITE_MX6_HOST
-  script:
-    ## Install ssh-agent if not already installed, it is required by Docker.
-    - 'which ssh-agent || ( apk update && apk add openssh-client )'
-
-    ## Run ssh-agent (inside the build environment).
-    - eval $(ssh-agent -s)
-
-    ## Add the SSH key variable to the agent store. We're using tr to fix line
-    ## endings which makes ed25519 keys work without extra base64 encoding.
-    ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
-    - echo "$VARISCITE_MX6_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-
-    ## Create the SSH directory and give it the right permissions.
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-
-    ## Use ssh-keyscan to scan the keys of your private server.
-    - ssh-keyscan $VARISCITE_MX6_HOST >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-
-    # Deploy.
-    - ssh $APP4CAM_USER@$VARISCITE_MX6_HOST "
-      systemctl --user stop $CI_PROJECT_NAME &&
-      find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
-      exit
-      "
-    - apk add rsync
-    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_MX6_HOST:./$CI_PROJECT_NAME
-    - ssh $APP4CAM_USER@$VARISCITE_MX6_HOST "
-      cd $CI_PROJECT_NAME &&
-      npm ci --omit=dev --ignore-scripts &&
-      make -C scripts/runtime/variscite/battery-monitoring &&
-      make -C scripts/runtime/variscite/rtc &&
-      make -C scripts/runtime/variscite/wi-fi-control &&
-      chmod +x scripts/runtime/variscite/battery-monitoring/battery_monitoring scripts/runtime/variscite/rtc/sleep_until scripts/runtime/variscite/rtc/set_time scripts/runtime/variscite/rtc/get_time scripts/runtime/variscite/wi-fi-control/wifi_control &&
-      systemctl --user start $CI_PROJECT_NAME &&
-      exit
-      "
-
-deploy-variscite-mx8m:
-  stage: deploy
-  tags:
-    - hdce_docker
-  environment:
-    name: Variscite MX8M testing
-    url: http://$VARISCITE_MX8M_HOST
-  script:
-    ## Install ssh-agent if not already installed, it is required by Docker.
-    - 'which ssh-agent || ( apk update && apk add openssh-client )'
-
-    ## Run ssh-agent (inside the build environment).
-    - eval $(ssh-agent -s)
-
-    ## Add the SSH key variable to the agent store. We're using tr to fix line
-    ## endings which makes ed25519 keys work without extra base64 encoding.
-    ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
-    - echo "$VARISCITE_MX8M_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-
-    ## Create the SSH directory and give it the right permissions.
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-
-    ## Use ssh-keyscan to scan the keys of your private server.
-    - ssh-keyscan $VARISCITE_MX8M_HOST >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-
-    # Deploy.
-    - ssh $APP4CAM_USER@$VARISCITE_MX8M_HOST "
-      systemctl --user stop $CI_PROJECT_NAME &&
-      find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
-      exit
-      "
-    - apk add rsync
-    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_MX8M_HOST:./$CI_PROJECT_NAME
-    - ssh $APP4CAM_USER@$VARISCITE_MX8M_HOST "
-      cd $CI_PROJECT_NAME &&
-      npm ci --omit=dev --ignore-scripts &&
-      make -C scripts/runtime/variscite/battery-monitoring &&
-      make -C scripts/runtime/variscite/rtc &&
-      make -C scripts/runtime/variscite/wi-fi-control &&
-      chmod +x scripts/runtime/variscite/battery-monitoring/battery_monitoring scripts/runtime/variscite/rtc/sleep_until scripts/runtime/variscite/rtc/set_time scripts/runtime/variscite/rtc/get_time scripts/runtime/variscite/wi-fi-control/wifi_control &&
-      systemctl --user start $CI_PROJECT_NAME &&
-      exit
-      "
-
 deploy-variscite-newtcam:
   stage: deploy
   tags:
     - hdce_docker
   environment:
     name: Variscite NEWTCAM testing
-    url: http://$VARISCITE_NEWTCAM3_HOST
+    url: http://$VARISCITE_NEWTCAM_HOST
   script:
     ## Install ssh-agent if not already installed, it is required by Docker.
     - 'which ssh-agent || ( apk update && apk add openssh-client )'
@@ -213,25 +121,25 @@ deploy-variscite-newtcam:
     ## Add the SSH key variable to the agent store. We're using tr to fix line
     ## endings which makes ed25519 keys work without extra base64 encoding.
     ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
-    - echo "$VARISCITE_NEWTCAM3_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - echo "$VARISCITE_NEWTCAM_PRIVATE_KEY" | tr -d '\r' | ssh-add -
 
     ## Create the SSH directory and give it the right permissions.
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
 
     ## Use ssh-keyscan to scan the keys of your private server.
-    - ssh-keyscan $VARISCITE_NEWTCAM3_HOST >> ~/.ssh/known_hosts
+    - ssh-keyscan $VARISCITE_NEWTCAM_HOST >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
     # Deploy.
-    - ssh $APP4CAM_USER@$VARISCITE_NEWTCAM3_HOST "
+    - ssh $APP4CAM_USER@$VARISCITE_NEWTCAM_HOST "
       systemctl --user stop $CI_PROJECT_NAME &&
       find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
       exit
       "
     - apk add rsync
-    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_NEWTCAM3_HOST:./$CI_PROJECT_NAME
-    - ssh $APP4CAM_USER@$VARISCITE_NEWTCAM3_HOST "
+    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_NEWTCAM_HOST:./$CI_PROJECT_NAME
+    - ssh $APP4CAM_USER@$VARISCITE_NEWTCAM_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
       make -C scripts/runtime/variscite/battery-monitoring &&
