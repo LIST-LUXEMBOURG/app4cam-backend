@@ -75,5 +75,16 @@
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "license": "GPL-3.0-or-later",
+  "contributors": [
+    {
+      "name": "Adriano Gama",
+      "email": "adriano.gama@list.lu"
+    },
+    {
+      "name": "Daniel Waxweiler",
+      "email": "daniel.waxweiler@list.lu"
+    }
+  ]
 }
