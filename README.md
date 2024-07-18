@@ -8,7 +8,7 @@
    - [Running the app](#running-the-app)
    - [Test](#test)
    - [API documentation](#api-documentation)
-   - [Copyright notice usage](#copyright-notice-usage)
+   - [License notice](#license-notice)
 2. [Deployment](#deployment)
    - [1. Installing dependencies, creating user, folders and setting permissions](#1-installing-dependencies-creating-user-folders-and-setting-permissions)
      - [Hostname configuration: sudo host](#-hostname-configuration-sudo-host)
@@ -73,18 +73,25 @@ $ npm run test:cov
 
 An OpenAPI Specification (OAS) is available under `/api`.
 
-### Copyright notice usage
+### License notice
 
-The following copyright notice must be included as a comment at the beginning of every source code file:
-
-```
-© <year> Luxembourg Institute of Science and Technology
-```
-
-As year, indicate the year of creation. When making changes to code with an existing notice, retain the earliest copyright year, and optionally add the current copyright year, e.g.:
+The following license notice must be included as a comment at the beginning of every source code file:
 
 ```
-© 2022-2024 Luxembourg Institute of Science and Technology
+Copyright (C) 2022-2024  Luxembourg Institute of Science and Technology
+
+App4Cam is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+App4Cam is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
 ```
 
 ## Deployment
