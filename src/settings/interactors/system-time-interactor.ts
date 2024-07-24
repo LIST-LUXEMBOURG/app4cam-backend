@@ -52,7 +52,7 @@ export class SystemTimeInteractor {
       throw new CommandExecutionException(stderr)
     }
 
-    let rtcSettingPathAndCommand = 'scripts/'
+    let rtcSettingPathAndCommand = 'scripts/runtime/'
     if (deviceType === 'RaspberryPi') {
       rtcSettingPathAndCommand += 'raspberry-pi/write-system-time-to-rtc.sh'
     } else if (deviceType === 'Variscite') {
