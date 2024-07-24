@@ -8,5 +8,6 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.associations": {
     "mcp7940.h": "c"
-  }
+  },
+  "typescript.preferences.importModuleSpecifier": "relative"
 }
