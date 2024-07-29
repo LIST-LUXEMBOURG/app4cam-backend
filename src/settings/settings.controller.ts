@@ -24,6 +24,7 @@ import {
   Res,
 } from '@nestjs/common'
 import { Response } from 'express'
+import CoordinatesDto from './dto/coordinates.dto'
 import { DeviceNameDto } from './dto/device-name.dto'
 import { SettingsPatchDto, SettingsPutDto } from './dto/settings.dto'
 import { ShotTypesDto } from './dto/shot-types.dto'
@@ -60,6 +61,12 @@ export class SettingsController {
     const light = await this.settingsService.getCameraLight()
     res.type('text/plain')
     res.send(light)
+  }
+
+  @Get('coordinates')
+  async getCoordinates(): Promise<CoordinatesDto> {
+    const coordinates = await this.settingsService.getCoordinates()
+    return coordinates
   }
 
   @Get('siteName')
