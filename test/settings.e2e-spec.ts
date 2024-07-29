@@ -98,6 +98,7 @@ describe('SettingsController (e2e)', () => {
     light: TRIGGERING_LIGHT,
     sleepingTime: SLEEPING_TIME,
     temperatureThreshold: TEMPERATURE_THRESHOLD,
+    useSunriseAndSunsetTimes: false,
     wakingUpTime: WAKING_UP_TIME,
   }
   const JSON_SETTINGS = {
@@ -450,7 +451,7 @@ describe('SettingsController (e2e)', () => {
       })
 
       it('returns success when setting sleeping time', () => {
-        const data = { triggering: { sleepingTime: '20:00' } }
+        const data = { triggering: { sleepingTime: { hour: 20, minute: 0 } } }
         return request(app.getHttpServer())
           .patch('/settings')
           .send(data)
@@ -470,12 +471,12 @@ describe('SettingsController (e2e)', () => {
           )
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { sleepingTime: '20:00' } })
+          .send({ triggering: { sleepingTime: { hour: 20, minute: 0 } } })
           .expect(400)
       })
 
       it('returns success when setting waking up time', () => {
-        const data = { triggering: { wakingUpTime: '20:00' } }
+        const data = { triggering: { wakingUpTime: { hour: 20, minute: 0 } } }
         return request(app.getHttpServer())
           .patch('/settings')
           .send(data)
@@ -495,7 +496,7 @@ describe('SettingsController (e2e)', () => {
           )
         return request(app.getHttpServer())
           .patch('/settings')
-          .send({ triggering: { wakingUpTime: '20:00' } })
+          .send({ triggering: { wakingUpTime: { hour: 20, minute: 0 } } })
           .expect(400)
       })
 
@@ -615,6 +616,88 @@ describe('SettingsController (e2e)', () => {
           })
           .expect(400)
       })
+
+      it('returns bad request on string useSunriseAndSunsetTimes flag', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              useSunriseAndSunsetTimes: 'a',
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on setting waking up and sleeping times as well as the sunrise sunset flag', () => {
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              sleepingTime: '20:00',
+              useSunriseAndSunsetTimes: true,
+              wakingUpTime: '06:00',
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on setting waking up and sleeping times when useSunriseAndSunsetTimes is true already', () => {
+        const jsonSettings = {
+          camera: CAMERA_JSON_SETTINGS,
+          general: GENERAL_JSON_SETTINGS,
+          triggering: {
+            ...TRIGGERING_JSON_SETTINGS,
+            useSunriseAndSunsetTimes: true,
+          },
+        }
+        spyReadSettingsFile = jest
+          .spyOn(SettingsFileProvider, 'readSettingsFile')
+          .mockResolvedValue(jsonSettings)
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              sleepingTime: {
+                hour: 20,
+                minute: 0,
+              },
+              wakingUpTime: {
+                hour: 6,
+                minute: 0,
+              },
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on setting useSunriseAndSunsetTimes true when waking up and sleeping times are set already', () => {
+        const jsonSettings = {
+          camera: CAMERA_JSON_SETTINGS,
+          general: GENERAL_JSON_SETTINGS,
+          triggering: {
+            ...TRIGGERING_JSON_SETTINGS,
+            sleepingTime: {
+              hour: 20,
+              minute: 0,
+            },
+            wakingUpTime: {
+              hour: 6,
+              minute: 0,
+            },
+          },
+        }
+        spyReadSettingsFile = jest
+          .spyOn(SettingsFileProvider, 'readSettingsFile')
+          .mockResolvedValue(jsonSettings)
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              useSunriseAndSunsetTimes: true,
+            },
+          })
+          .expect(400)
+      })
     })
 
     describe('/ (PUT)', () => {
@@ -643,6 +726,7 @@ describe('SettingsController (e2e)', () => {
         },
         temperatureThreshold: 7,
         threshold: TRIGGER_THRESHOLD,
+        useSunriseAndSunsetTimes: false,
         wakingUpTime: {
           hour: 20,
           minute: 0,
@@ -931,6 +1015,34 @@ describe('SettingsController (e2e)', () => {
             triggering: {
               ...goodTriggeringPutSettings,
               light: 'visible',
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on string useSunriseAndSunsetTimes flag', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: goodGeneralPutSettings,
+            triggering: {
+              ...goodTriggeringPutSettings,
+              useSunriseAndSunsetTimes: 'a',
+            },
+          })
+          .expect(400)
+      })
+
+      it('returns bad request on both waking up and sleeping times and useSunriseAndSunsetTimes flag being used', () => {
+        return request(app.getHttpServer())
+          .put('/settings')
+          .send({
+            camera: goodCameraPutSettings,
+            general: goodGeneralPutSettings,
+            triggering: {
+              ...goodTriggeringPutSettings,
+              useSunriseAndSunsetTimes: true,
             },
           })
           .expect(400)

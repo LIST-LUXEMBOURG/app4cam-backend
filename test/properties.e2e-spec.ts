@@ -18,31 +18,48 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
+import { SunriseAndSunsetDto } from '../src/properties/dto/sunrise-and-sunset.dto'
 import { VersionDto } from '../src/properties/dto/version.dto'
 import { BatteryInteractor } from '../src/properties/interactors/battery-interactor'
 import { MacAddressInteractor } from '../src/properties/interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
 import { VersionInteractor } from '../src/properties/interactors/version-interactor'
+import { SunriseSunsetCalculator } from '../src/properties/sunrise-sunset-calculator'
+import { SettingsService } from '../src/settings/settings.service'
 
 describe('PropertiesController (e2e)', () => {
   const AVAILABLE_TIME_ZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const BATTERY_VOLTAGE = 1.2
   const DEVICE_ID = 'a'
+  const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
+    sunrise: {
+      hour: 1,
+      minute: 2,
+    },
+    sunset: {
+      hour: 3,
+      minute: 4,
+    },
+  }
   const USAGE: VersionDto = {
     commitHash: 'abcd',
     version: '1.0.0',
   }
 
   let app: INestApplication
+  let spyCalculateSunriseAndSunset
   let spyGetAvailableTimeZones
   let spyGetBatteryVoltage
   let spyGetFirstMacAddress
   let spyGetVersion
 
   beforeAll(() => {
+    spyCalculateSunriseAndSunset = jest
+      .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
+      .mockReturnValue(SUNRISE_AND_SUNSET)
     spyGetAvailableTimeZones = jest
       .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
-      .mockImplementation(() => Promise.resolve(AVAILABLE_TIME_ZONES))
+      .mockResolvedValue(AVAILABLE_TIME_ZONES)
     spyGetBatteryVoltage = jest
       .spyOn(BatteryInteractor, 'getBatteryVoltage')
       .mockResolvedValue(BATTERY_VOLTAGE)
@@ -51,13 +68,20 @@ describe('PropertiesController (e2e)', () => {
       .mockResolvedValue(DEVICE_ID)
     spyGetVersion = jest
       .spyOn(VersionInteractor, 'getVersion')
-      .mockImplementation(() => Promise.resolve(USAGE))
+      .mockResolvedValue(USAGE)
   })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile()
+    })
+      .overrideProvider(SettingsService)
+      .useValue({
+        getLatitudeAndLongitude: jest
+          .fn()
+          .mockResolvedValue({ latitude: 1, longitude: 2 }),
+      })
+      .compile()
 
     app = moduleFixture.createNestApplication()
     await app.init()
@@ -76,6 +100,13 @@ describe('PropertiesController (e2e)', () => {
         .get('/properties/deviceId')
         .expect('Content-Type', /json/)
         .expect(200, { deviceId: DEVICE_ID })
+    })
+
+    it('/sunsetAndSunrise (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/properties/sunsetAndSunrise')
+        .expect('Content-Type', /json/)
+        .expect(200, SUNRISE_AND_SUNSET)
     })
 
     it('/timeZones (GET)', () => {
@@ -103,6 +134,7 @@ describe('PropertiesController (e2e)', () => {
   })
 
   afterAll(() => {
+    spyCalculateSunriseAndSunset.mockRestore()
     spyGetAvailableTimeZones.mockRestore()
     spyGetBatteryVoltage.mockRestore()
     spyGetFirstMacAddress.mockRestore()

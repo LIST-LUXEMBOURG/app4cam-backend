@@ -15,14 +15,17 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { writeFile } from 'fs/promises'
-import { Injectable, Logger } from '@nestjs/common'
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { SettingsService } from '../settings/settings.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
+import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
 import { VersionDto } from './dto/version.dto'
 import { BatteryInteractor } from './interactors/battery-interactor'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from './interactors/system-time-zones-interactor'
 import { VersionInteractor } from './interactors/version-interactor'
+import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
 
 const DEVICE_ID_FILENAME = 'device-id.txt'
 
@@ -30,7 +33,11 @@ const DEVICE_ID_FILENAME = 'device-id.txt'
 export class PropertiesService {
   private readonly logger = new Logger(PropertiesService.name)
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(forwardRef(() => SettingsService))
+    private readonly settingsService: SettingsService,
+  ) {}
 
   async getBatteryVoltage(): Promise<number> {
     const deviceType = this.configService.get<string>('deviceType')
@@ -67,6 +74,27 @@ export class PropertiesService {
         return '<not supported on Windows>'
       }
       throw error
+    }
+  }
+
+  async getNextSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
+    const coordinates = await this.settingsService.getLatitudeAndLongitude()
+    const today = new Date()
+    const todaysTwilights = SunriseSunsetCalculator.calculateSunriseAndSunset(
+      today,
+      coordinates.latitude,
+      coordinates.longitude,
+    )
+    const tomorrow = new Date(today.getDate() + 1)
+    const tomorrowsTwilights =
+      SunriseSunsetCalculator.calculateSunriseAndSunset(
+        tomorrow,
+        coordinates.latitude,
+        coordinates.longitude,
+      )
+    return {
+      sunset: todaysTwilights.sunset,
+      sunrise: tomorrowsTwilights.sunrise,
     }
   }
 

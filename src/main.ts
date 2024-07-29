@@ -80,6 +80,8 @@ async function bootstrap() {
     }
   }
 
+  settingsService.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
+
   const version = (await propertiesService.getVersion()).version
   const config = new DocumentBuilder()
     .setTitle('App4Cam API')

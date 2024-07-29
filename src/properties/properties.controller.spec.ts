@@ -16,6 +16,7 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
 import { VersionDto } from './dto/version.dto'
 import { PropertiesController } from './properties.controller'
 import { PropertiesService } from './properties.service'
@@ -23,6 +24,17 @@ import { PropertiesService } from './properties.service'
 const AVAILABLE_TIME_ZONES = ['a', 'b']
 
 const DEVICE_ID = 'a'
+
+const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
+  sunrise: {
+    hour: 1,
+    minute: 2,
+  },
+  sunset: {
+    hour: 3,
+    minute: 4,
+  },
+}
 
 const VERSION: VersionDto = {
   commitHash: 'a',
@@ -44,6 +56,9 @@ describe(PropertiesController.name, () => {
               .fn()
               .mockReturnValue(AVAILABLE_TIME_ZONES),
             getDeviceId: jest.fn().mockReturnValue(DEVICE_ID),
+            getNextSunsetAndSunrise: jest
+              .fn()
+              .mockReturnValue(SUNRISE_AND_SUNSET),
             getVersion: jest.fn().mockReturnValue(VERSION),
           },
         },
@@ -65,6 +80,11 @@ describe(PropertiesController.name, () => {
   it('gets the device ID', async () => {
     const response = await controller.getDeviceId()
     expect(response).toEqual({ deviceId: DEVICE_ID })
+  })
+
+  it('gets the sunrise and sunset', async () => {
+    const response = await controller.getSunsetAndSunrise()
+    expect(response).toEqual(SUNRISE_AND_SUNSET)
   })
 
   it('gets the version', async () => {

@@ -14,7 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 import { DateTime } from 'luxon'
@@ -22,6 +28,7 @@ import { FileNamer } from '../files/file-namer'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
+import TriggeringTime from '../shared/entities/triggering-time'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import CoordinatesDto from './dto/coordinates.dto'
 import { SettingsPutDto, TriggeringTimeDto } from './dto/settings.dto'
@@ -30,7 +37,6 @@ import {
   PatchableSettings,
   Settings,
   SettingsFromJsonFile,
-  TriggeringTime,
 } from './entities/settings'
 import { ShotTypes } from './entities/shot-types'
 import { UndefinedPathException } from './exceptions/UndefinedPathException'
@@ -55,6 +61,7 @@ export class SettingsService {
 
   constructor(
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => PropertiesService))
     private readonly propertiesService: PropertiesService,
   ) {
     this.deviceType = this.configService.get<string>('deviceType')
@@ -133,6 +140,7 @@ export class SettingsService {
       triggering: {
         sleepingTime: undefined,
         temperatureThreshold: undefined,
+        useSunriseAndSunsetTimes: undefined,
         wakingUpTime: undefined,
         ...settingsFromFile.triggering,
         isLightEnabled: !isRaspberryPi,
@@ -201,6 +209,43 @@ export class SettingsService {
       ) {
         throw new BadRequestException(
           'Both waking up and sleeping times must be given.',
+        )
+      }
+
+      if (
+        'useSunriseAndSunsetTimes' in settings.triggering &&
+        settings.triggering.useSunriseAndSunsetTimes
+      ) {
+        if (
+          'sleepingTime' in settings.triggering &&
+          settings.triggering.sleepingTime !== null &&
+          'wakingUpTime' in settings.triggering &&
+          settings.triggering.wakingUpTime !== null
+        ) {
+          throw new BadRequestException(
+            'The sunrise and sunset times cannot be used together with the waking up and sleeping times. Choose one of both.',
+          )
+        }
+
+        if (
+          settingsReadFromFile.triggering.sleepingTime &&
+          settingsReadFromFile.triggering.wakingUpTime
+        ) {
+          throw new BadRequestException(
+            'The sunrise and sunset times cannot be used together with the waking up and sleeping times. Reset the latter first.',
+          )
+        }
+      }
+
+      if (
+        settingsReadFromFile.triggering.useSunriseAndSunsetTimes &&
+        'sleepingTime' in settings.triggering &&
+        settings.triggering.sleepingTime !== null &&
+        'wakingUpTime' in settings.triggering &&
+        settings.triggering.wakingUpTime !== null
+      ) {
+        throw new BadRequestException(
+          'The sunrise and sunset times cannot be used together with the waking up and sleeping times. Reset the former first.',
         )
       }
 
@@ -371,6 +416,11 @@ export class SettingsService {
           settings.triggering.temperatureThreshold
       }
 
+      if ('useSunriseAndSunsetTimes' in settings.triggering) {
+        newTriggeringSettings.useSunriseAndSunsetTimes =
+          settings.triggering.useSunriseAndSunsetTimes
+      }
+
       if ('wakingUpTime' in settings.triggering) {
         newTriggeringSettings.wakingUpTime = settings.triggering.wakingUpTime
       }
@@ -410,6 +460,8 @@ export class SettingsService {
           triggeringSettingsMerged.wakingUpTime,
         )
       }
+
+      this.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
 
       if ('threshold' in settings.triggering) {
         try {
@@ -465,6 +517,16 @@ export class SettingsService {
     ) {
       throw new BadRequestException(
         'Sleeping and waking up times can only be empty at the same time.',
+      )
+    }
+
+    if (
+      settings.triggering.useSunriseAndSunsetTimes &&
+      settings.triggering.sleepingTime &&
+      settings.triggering.wakingUpTime
+    ) {
+      throw new BadRequestException(
+        'The sunrise and sunset times cannot be used together with the waking up and sleeping times.',
       )
     }
 
@@ -563,6 +625,8 @@ export class SettingsService {
       )
     }
 
+    this.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
+
     const settingsToWriteToFile: SettingsFromJsonFile = {
       camera: {
         light: settings.camera.light,
@@ -578,6 +642,7 @@ export class SettingsService {
         light: settings.triggering.light,
         sleepingTime: settings.triggering.sleepingTime,
         temperatureThreshold: settings.triggering.temperatureThreshold,
+        useSunriseAndSunsetTimes: settings.triggering.useSunriseAndSunsetTimes,
         wakingUpTime: settings.triggering.wakingUpTime,
       },
     }
@@ -936,6 +1001,48 @@ export class SettingsService {
     return currentTemperature < threshold
   }
 
+  async getLatitudeAndLongitude(): Promise<{
+    latitude: number
+    longitude: number
+  }> {
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+    return {
+      latitude: settings.general.latitude,
+      longitude: settings.general.longitude,
+    }
+  }
+
+  async getUseSunriseAndSunsetTimes(): Promise<boolean> {
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+    return settings.triggering.useSunriseAndSunsetTimes
+  }
+
+  async setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi() {
+    if (this.deviceType !== 'RaspberryPi') {
+      return
+    }
+    const useSunriseAndSunsetTimes = await this.getUseSunriseAndSunsetTimes()
+    if (useSunriseAndSunsetTimes) {
+      const sunsetAndSunrise =
+        await this.propertiesService.getNextSunsetAndSunrise()
+      const sunriseString = sunsetAndSunrise.sunrise.hour
+        .toString()
+        .padStart(2, '0')
+      const sunsetString = sunsetAndSunrise.sunset.hour
+        .toString()
+        .padStart(2, '0')
+      this.logger.log(
+        `Sending sunrise ${sunriseString} and sunset ${sunsetString} to Witty Pi...`,
+      )
+      await this.configureWittyPiSchedule(
+        sunsetAndSunrise.sunset,
+        sunsetAndSunrise.sunrise,
+      )
+    }
+  }
+
   @Cron('* * * * *') // every 1 minute
   async sleepWhenItIsTime() {
     this.logger.log('Cron job to go to sleep when it is time triggered...')
@@ -943,7 +1050,27 @@ export class SettingsService {
       this.logger.log('Exiting cron job as device type does not need it.')
       return
     }
-    const sleepingTime = await this.getSleepingTime()
+
+    const useSunriseAndSunsetTimes = await this.getUseSunriseAndSunsetTimes()
+    let sleepingTime: TriggeringTime
+    let wakingUpTime: TriggeringTime
+    if (useSunriseAndSunsetTimes) {
+      const sunsetAndSunrise =
+        await this.propertiesService.getNextSunsetAndSunrise()
+      sleepingTime = sunsetAndSunrise.sunset
+      wakingUpTime = sunsetAndSunrise.sunrise
+      this.logger.log(`Using next sunset and sunrise times.`)
+    } else {
+      sleepingTime = await this.getSleepingTime()
+      wakingUpTime = await this.getWakingUpTime()
+      this.logger.log(`Using manually set sleeping and waking up times.`)
+    }
+    const sleepingTimeString = sleepingTime.hour.toString().padStart(2, '0')
+    const wakingUpString = wakingUpTime.hour.toString().padStart(2, '0')
+    this.logger.log(
+      `Setting sleeping time ${sleepingTimeString} and waking up time ${wakingUpString}...`,
+    )
+
     if (!sleepingTime) {
       this.logger.log('No sleeping time set.')
       return
@@ -954,7 +1081,6 @@ export class SettingsService {
       sleepingTime.minute === now.getMinutes()
     ) {
       this.logger.log('It is time to sleep. Good night!')
-      const wakingUpTime = await this.getWakingUpTime()
       if (!wakingUpTime) {
         this.logger.error('No waking up time set, but a sleeping time is set.')
         return

@@ -59,6 +59,7 @@ describe('SettingsController', () => {
       temperatureThreshold: 10,
       threshold: 1,
       thresholdMaximum: 100,
+      useSunriseAndSunsetTimes: false,
       sleepingTime: SLEEPING_TIME,
       wakingUpTime: WAKING_UP_TIME,
     },
@@ -148,6 +149,7 @@ describe('SettingsController', () => {
         },
         temperatureThreshold: 7,
         threshold: 1,
+        useSunriseAndSunsetTimes: false,
         wakingUpTime: {
           hour: 3,
           minute: 4,
