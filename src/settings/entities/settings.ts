@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
+import TriggeringTime from '../../shared/entities/triggering-time'
+
 export class SettingsFromJsonFile {
   camera: CameraSettingsFromJsonFile
   general: Partial<GeneralSettingsFromJsonFile>
@@ -22,11 +24,6 @@ export class SettingsFromJsonFile {
 }
 
 export type LightType = 'infrared' | 'visible'
-
-export interface TriggeringTime {
-  hour: number
-  minute: number
-}
 
 interface CameraSettingsFromJsonFile {
   light: LightType
@@ -44,6 +41,7 @@ class TriggeringSettingsFromJsonFile {
   light: LightType
   sleepingTime: TriggeringTime
   temperatureThreshold: number
+  useSunriseAndSunsetTimes: boolean
   wakingUpTime: TriggeringTime
 }
 

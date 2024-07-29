@@ -14,17 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { forwardRef, Module } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { SettingsModule } from '../settings/settings.module'
-import { SettingsService } from '../settings/settings.service'
-import { PropertiesController } from './properties.controller'
-import { PropertiesService } from './properties.service'
-
-@Module({
-  controllers: [PropertiesController],
-  providers: [ConfigService, PropertiesService, SettingsService],
-  imports: [ConfigModule, forwardRef(() => SettingsModule)],
-  exports: [PropertiesService],
-})
-export class PropertiesModule {}
+export default interface TriggeringTime {
+  hour: number
+  minute: number
+}

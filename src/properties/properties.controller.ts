@@ -17,6 +17,7 @@
 import { Controller, Get } from '@nestjs/common'
 import { BatteryVoltageDto } from './dto/battery-voltage.dto'
 import { DeviceIdDto } from './dto/device-id.dto'
+import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
 import { TimeZonesDto } from './dto/time-zones.dto'
 import { VersionDto } from './dto/version.dto'
 import { PropertiesService } from './properties.service'
@@ -39,6 +40,11 @@ export class PropertiesController {
     return {
       deviceId,
     }
+  }
+
+  @Get('sunsetAndSunrise')
+  getSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
+    return this.propertiesService.getNextSunsetAndSunrise()
   }
 
   @Get('timeZones')

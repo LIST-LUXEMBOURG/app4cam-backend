@@ -16,15 +16,28 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { SettingsService } from '../settings/settings.service'
 import { VersionDto } from './dto/version.dto'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from './interactors/system-time-zones-interactor'
 import { VersionInteractor } from './interactors/version-interactor'
 import { PropertiesService } from './properties.service'
+import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
 
 const AVAILABLE_TIME_ZONES = ['t1', 't2']
 
 const DEVICE_ID = 'a'
+
+const SUNRISE_AND_SUNSET = {
+  sunrise: {
+    hour: 1,
+    minute: 2,
+  },
+  sunset: {
+    hour: 3,
+    minute: 4,
+  },
+}
 
 const VERSION: VersionDto = {
   commitHash: 'a',
@@ -44,7 +57,7 @@ describe(PropertiesService.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ConfigService, PropertiesService],
+      providers: [ConfigService, PropertiesService, SettingsService],
     }).compile()
 
     service = module.get<PropertiesService>(PropertiesService)
@@ -54,7 +67,7 @@ describe(PropertiesService.name, () => {
     expect(service).toBeDefined()
   })
 
-  it('returns available time zones', async () => {
+  it('get the available time zones', async () => {
     const timeZones = await service.getAvailableTimeZones()
     expect(timeZones).toBe(AVAILABLE_TIME_ZONES)
   })
@@ -66,6 +79,15 @@ describe(PropertiesService.name, () => {
     const response = await service.getDeviceId()
     expect(response).toBe(DEVICE_ID)
     spyGetDeviceId.mockRestore()
+  })
+
+  it('gets the sunrise and sunset', async () => {
+    const spyCalculateSunriseAndSunset = jest
+      .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
+      .mockReturnValue(SUNRISE_AND_SUNSET)
+    const response = await service.getNextSunsetAndSunrise()
+    expect(response).toEqual(SUNRISE_AND_SUNSET)
+    spyCalculateSunriseAndSunset.mockRestore()
   })
 
   it('gets the version', async () => {

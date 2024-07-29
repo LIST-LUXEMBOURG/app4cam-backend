@@ -88,6 +88,8 @@ describe('SettingsService', () => {
     const FOCUS = 200
     const FOCUS_MAX = 500
     const FOCUS_MIN = 0
+    const LATITUDE = 1
+    const LONGITUDE = 2
     const PASSWORD = 'p'
     const SHOT_TYPES = ['pictures' as const, 'videos' as const]
     const SLEEPING_TIME = {
@@ -98,6 +100,7 @@ describe('SettingsService', () => {
     const TEMPERATURE_THRESHOLD = 10
     const TRIGGER_LIGHT_TYPE = 'infrared' as const
     const TRIGGER_SENSITIVITY_MAXIMUM = HEIGHT * WIDTH
+    const USE_SUNRISE_AND_SUNSET_TIMES = false
     const WAKING_UP_TIME = {
       hour: 10,
       minute: 17,
@@ -108,15 +111,16 @@ describe('SettingsService', () => {
     }
     const GENERAL_JSON_SETTINGS = {
       deviceName: 'd',
-      latitude: 1,
+      latitude: LATITUDE,
       locationAccuracy: 3,
-      longitude: 2,
+      longitude: LONGITUDE,
       siteName: 's',
     }
     const TRIGGERING_JSON_SETTINGS = {
       light: TRIGGER_LIGHT_TYPE,
       sleepingTime: SLEEPING_TIME,
       temperatureThreshold: TEMPERATURE_THRESHOLD,
+      useSunriseAndSunsetTimes: USE_SUNRISE_AND_SUNSET_TIMES,
       wakingUpTime: WAKING_UP_TIME,
     }
     const JSON_SETTINGS = {
@@ -219,6 +223,7 @@ describe('SettingsService', () => {
           minute: 0,
         },
         temperatureThreshold: 7,
+        useSunriseAndSunsetTimes: false,
         wakingUpTime: {
           hour: 8,
           minute: 30,
@@ -314,6 +319,7 @@ describe('SettingsService', () => {
           hour: 9,
           minute: 0,
         },
+        useSunriseAndSunsetTimes: false,
         wakingUpTime: {
           hour: 8,
           minute: 30,
@@ -450,6 +456,16 @@ describe('SettingsService', () => {
         expect(flag).toBeFalsy()
         spyGetCurrentTemperature.mockRestore()
       })
+    })
+
+    it('returns the latitude and longitude', async () => {
+      const coordinates = await service.getLatitudeAndLongitude()
+      expect(coordinates).toEqual({ latitude: LATITUDE, longitude: LONGITUDE })
+    })
+
+    it('returns the useSunriseAndSunsetTimes flag', async () => {
+      const flag = await service.getUseSunriseAndSunsetTimes()
+      expect(flag).toBe(USE_SUNRISE_AND_SUNSET_TIMES)
     })
 
     afterEach(() => {

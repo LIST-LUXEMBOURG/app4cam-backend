@@ -17,6 +17,7 @@
 import { Type } from 'class-transformer'
 import {
   IsArray,
+  IsBoolean,
   IsDateString,
   IsInt,
   IsNotEmpty,
@@ -115,6 +116,10 @@ class GeneralSettingsPatchDto {
 
 class TriggeringSettingsPatchDto {
   @IsOptional()
+  @Matches(/^(infrared|visible)$/)
+  light?: LightType
+
+  @IsOptional()
   @IsInt()
   temperatureThreshold?: number | null
 
@@ -127,11 +132,11 @@ class TriggeringSettingsPatchDto {
   sleepingTime?: TriggeringTimeDto | null
 
   @IsOptional()
-  wakingUpTime?: TriggeringTimeDto | null
+  @IsBoolean()
+  useSunriseAndSunsetTimes?: boolean
 
   @IsOptional()
-  @Matches(/^(infrared|visible)$/)
-  light?: LightType
+  wakingUpTime?: TriggeringTimeDto | null
 }
 
 export class SettingsPatchDto {
@@ -219,6 +224,9 @@ export class GeneralSettingsPutDto {
 }
 
 export class TriggeringSettingsPutDto {
+  @Matches(/^(infrared|visible)$/)
+  light: LightType
+
   @IsNotEmpty()
   @IsInt()
   temperatureThreshold: number
@@ -232,10 +240,11 @@ export class TriggeringSettingsPutDto {
   sleepingTime: TriggeringTimeDto
 
   @IsNotEmpty()
-  wakingUpTime: TriggeringTimeDto
+  @IsBoolean()
+  useSunriseAndSunsetTimes: boolean
 
-  @Matches(/^(infrared|visible)$/)
-  light: LightType
+  @IsNotEmpty()
+  wakingUpTime: TriggeringTimeDto
 }
 
 export class SettingsPutDto {
