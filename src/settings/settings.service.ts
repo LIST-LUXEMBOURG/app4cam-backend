@@ -23,6 +23,7 @@ import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClient } from '../motion-client'
 import { PropertiesService } from '../properties/properties.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
+import CoordinatesDto from './dto/coordinates.dto'
 import { SettingsPutDto, TriggeringTimeDto } from './dto/settings.dto'
 import {
   LightType,
@@ -621,6 +622,16 @@ export class SettingsService {
       } else {
         throw error
       }
+    }
+  }
+
+  async getCoordinates(): Promise<CoordinatesDto> {
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+    return {
+      accuracy: settings.general.locationAccuracy,
+      latitude: settings.general.latitude,
+      longitude: settings.general.longitude,
     }
   }
 

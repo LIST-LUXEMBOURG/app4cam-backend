@@ -30,3 +30,5 @@ then
 
     "$base_dir"/raspberry-pi/air-temperature/write-air-temperature-to-jpg-file.sh "$1" "$temp"
 fi
+
+"$base_dir"/write-coordinates-to-jpg-file.sh "$1"

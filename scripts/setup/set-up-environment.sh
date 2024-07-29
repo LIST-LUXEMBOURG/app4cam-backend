@@ -44,7 +44,7 @@ then
 fi
 
 # Install more packages needed.
-apt install gpiod -y
+apt install gpiod jq -y
 
 # Create the new user if it does not exist already.
 if id "$USERNAME" >/dev/null 2>&1; then
