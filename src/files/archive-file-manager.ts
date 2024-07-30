@@ -15,13 +15,10 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { createWriteStream } from 'fs'
-import { lstat, readdir, rm } from 'fs/promises'
-import path = require('path')
 import { LoggerService } from '@nestjs/common'
 import archiver = require('archiver')
 
 const COMPRESSION_LEVEL = 1 // 0 (no compression) to 9 (best compression), or -1 (default compression)
-const TIME_TO_LIVE_MILLISECONDS = 3600000 // 1 hour
 
 export class ArchiveFileManager {
   static async createArchive(
@@ -62,27 +59,5 @@ export class ArchiveFileManager {
     }
 
     await archive.finalize()
-  }
-
-  static async removeOldFiles(
-    folderPath: string,
-    timeToLive = TIME_TO_LIVE_MILLISECONDS,
-  ): Promise<void> {
-    const files = (await readdir(folderPath)).filter(
-      (file) => !this.isUnixHiddenPath(file),
-    )
-    for (const file of files) {
-      const filePath = path.join(folderPath, file)
-      const stats = await lstat(filePath)
-      const fileCreationTime = new Date(stats.birthtime).getTime()
-      const now = new Date().getTime()
-      if (fileCreationTime + timeToLive < now) {
-        await rm(filePath)
-      }
-    }
-  }
-
-  static isUnixHiddenPath(path): boolean {
-    return /(^|\/)\.[^/.]/g.test(path)
   }
 }

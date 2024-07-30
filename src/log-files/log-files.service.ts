@@ -17,17 +17,20 @@
 import { createReadStream } from 'fs'
 import path = require('path')
 import { Readable } from 'stream'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Cron } from '@nestjs/schedule'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
+import FolderCleaner from '../shared/folder-cleaner'
 import { LogFileInteractor } from './log-file-interactor'
 
 const TEMPORARY_APP_LOG_FILENAME = 'app.log'
 const TEMPORARY_MOTION_LOG_FILENAME = 'motion.log'
-const TEMPORARY_FOLDER_PATH = 'temp' // also used by files module
+const TEMPORARY_FOLDER_PATH = 'temp/logs'
 
 @Injectable()
 export class LogFilesService {
+  private readonly logger = new Logger(LogFilesService.name)
   private readonly serviceName: string
 
   constructor(private readonly configService: ConfigService) {
@@ -67,5 +70,11 @@ export class LogFilesService {
     }
     const stream = createReadStream(logFilePath)
     return stream
+  }
+
+  @Cron('*/5 * * * *') // every 5 minutes
+  removeOldLogs() {
+    this.logger.log('Cron job to delete old logs triggered...')
+    FolderCleaner.removeOldFiles(TEMPORARY_FOLDER_PATH)
   }
 }

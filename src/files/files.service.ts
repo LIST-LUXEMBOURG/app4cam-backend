@@ -21,6 +21,7 @@ import { Cron } from '@nestjs/schedule'
 import { MotionClient } from '../motion-client'
 import { SettingsService } from '../settings/settings.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
+import FolderCleaner from '../shared/folder-cleaner'
 import { ArchiveFileManager } from './archive-file-manager'
 import { FileDeletionResponse } from './entities/file-deletion-response.entity'
 import { File } from './entities/file.entity'
@@ -28,7 +29,7 @@ import { FileHandler } from './file-handler'
 import { FileInteractor } from './file-interactor'
 import { FileNamer } from './file-namer'
 
-const ARCHIVE_FOLDER_PATH = 'temp' // also used by log files module
+const ARCHIVE_FOLDER_PATH = 'temp/archives'
 
 @Injectable()
 export class FilesService {
@@ -128,6 +129,6 @@ export class FilesService {
   @Cron('*/5 * * * *') // every 5 minutes
   removeOldArchives() {
     this.logger.log('Cron job to delete old archives triggered...')
-    ArchiveFileManager.removeOldFiles(ARCHIVE_FOLDER_PATH)
+    FolderCleaner.removeOldFiles(ARCHIVE_FOLDER_PATH)
   }
 }
