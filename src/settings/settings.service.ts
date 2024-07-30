@@ -1065,32 +1065,33 @@ export class SettingsService {
       wakingUpTime = await this.getWakingUpTime()
       this.logger.log(`Using manually set sleeping and waking up times.`)
     }
+    if (!sleepingTime || !wakingUpTime) {
+      this.logger.log(
+        'Sleeping or waking up time not defined. Exiting cron job.',
+      )
+      return
+    }
     const sleepingTimeString = sleepingTime.hour.toString().padStart(2, '0')
     const wakingUpString = wakingUpTime.hour.toString().padStart(2, '0')
     this.logger.log(
       `Setting sleeping time ${sleepingTimeString} and waking up time ${wakingUpString}...`,
     )
-
-    if (!sleepingTime) {
-      this.logger.log('No sleeping time set.')
+    if (
+      wakingUpTime.hour === sleepingTime.hour &&
+      wakingUpTime.minute === sleepingTime.minute
+    ) {
+      this.logger.error(
+        'The waking up time cannot be the same as the sleeping time. Exiting cron job',
+      )
       return
     }
+
     const now = new Date()
     if (
       sleepingTime.hour === now.getHours() &&
       sleepingTime.minute === now.getMinutes()
     ) {
       this.logger.log('It is time to sleep. Good night!')
-      if (!wakingUpTime) {
-        this.logger.error('No waking up time set, but a sleeping time is set.')
-        return
-      }
-      if (wakingUpTime == sleepingTime) {
-        this.logger.error(
-          'The waking up time cannot be the same as the sleeping time.',
-        )
-        return
-      }
       let wakingUpDateTime = DateTime.now().set({
         hour: wakingUpTime.hour,
         minute: wakingUpTime.minute,
@@ -1106,7 +1107,7 @@ export class SettingsService {
         }
       }
     } else {
-      this.logger.log('Not time to sleep yet.')
+      this.logger.log('It is not yet time to sleep.')
     }
   }
 }
