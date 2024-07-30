@@ -20,8 +20,8 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { LogFileInteractor } from './log-file-interactor'
 import { LogFilesService } from './log-files.service'
 
-const APP_LOG_FILE_PATH = 'temp/app.log'
-const MOTION_LOG_FILE_PATH = 'temp/motion.log'
+const APP_LOG_FILE_PATH = 'temp/logs/app.log'
+const MOTION_LOG_FILE_PATH = 'temp/logs/motion.log'
 
 describe(LogFilesService.name, () => {
   let service: LogFilesService

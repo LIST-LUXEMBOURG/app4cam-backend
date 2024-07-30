@@ -21,8 +21,8 @@ import * as request from 'supertest'
 import { LogFileInteractor } from '../src/log-files/log-file-interactor'
 import { AppModule } from './../src/app.module'
 
-const APP_LOG_FILE_PATH = 'temp/app.log'
-const MOTION_LOG_FILE_PATH = 'temp/motion.log'
+const APP_LOG_FILE_PATH = 'temp/logs/app.log'
+const MOTION_LOG_FILE_PATH = 'temp/logs/motion.log'
 
 describe('LogFilesController (e2e)', () => {
   let app: INestApplication
