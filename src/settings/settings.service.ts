@@ -22,7 +22,7 @@ import {
   Logger,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Cron } from '@nestjs/schedule'
+import { Cron, CronExpression } from '@nestjs/schedule'
 import { DateTime } from 'luxon'
 import { FileNamer } from '../files/file-namer'
 import { InitialisationInteractor } from '../initialisation-interactor'
@@ -53,6 +53,7 @@ const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
 const MOTION_VIDEO_PARAMS_FOCUS_KEY = 'Focus (absolute)'
 const RASPBERRY_PI_FOCUS_DEVICE_PATH = '/dev/v4l-subdev1'
 const SETTINGS_FILE_PATH = 'settings.json'
+const SLEEPING_CRON_JOB_NAME = 'sleepingCronJob'
 
 @Injectable()
 export class SettingsService {
@@ -1043,7 +1044,7 @@ export class SettingsService {
     }
   }
 
-  @Cron('* * * * *') // every 1 minute
+  @Cron(CronExpression.EVERY_MINUTE, { name: SLEEPING_CRON_JOB_NAME }) // every 1 minute
   async sleepWhenItIsTime() {
     this.logger.log('Cron job to go to sleep when it is time triggered...')
     if (this.deviceType === 'RaspberryPi') {
