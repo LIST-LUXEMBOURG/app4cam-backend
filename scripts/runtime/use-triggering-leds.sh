@@ -18,7 +18,7 @@ if [ "$1" = "Variscite" ]
 then
   base_dir="$(dirname "$0")/variscite"
 elif [ "$1" = "RaspberryPi" ]
-then  
+then
   base_dir="$(dirname "$0")/raspberry-pi"
 fi
 
@@ -40,3 +40,14 @@ visible_leds_flag=$((1-infrared_leds_flag))
 
 "$base_dir"/light/toggle-ir-leds.sh $infrared_leds_flag
 "$base_dir"/light/toggle-visible-leds.sh $visible_leds_flag
+
+# Pause motion to prevent triggering another event by the light switch
+# when the light type is not passed, i.e. it is called by Motion.
+if [ ! "$2" ]
+then
+  echo "Pausing motion..."
+  url=http://127.0.0.1:8080/0/detection
+  curl $url/pause
+  sleep 1
+  curl $url/start
+fi
