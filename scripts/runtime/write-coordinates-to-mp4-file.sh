@@ -16,19 +16,21 @@
 
 echo "full filename: $1"
 
-base_dir="$(dirname "$0")"
+coordinates=$(curl "http://127.0.0.1:3000/settings/coordinates")
+echo "response: $coordinates"
 
-"$base_dir"/write-device-id-to-mp4-file.sh "$1"
+accuracy=$(echo "$coordinates" | jq -r '.accuracy')
+echo "accuracy: $accuracy"
 
-type=$(sed -n 's/.*DEVICE_TYPE=\([^ ]*\).*/\1/p' /home/app4cam/app4cam-backend/config/production.env)
-echo "device type: $type"
+latitude=$(echo "$coordinates" | jq -r '.latitude')
+echo "latitude: $latitude"
 
-if [ "$type" = "RaspberryPi" ]
-then
-    temp=$("$base_dir"/raspberry-pi/air-temperature/read_air_temp)
-    echo "Air temperature: $temp"
+longitude=$(echo "$coordinates" | jq -r '.longitude')
+echo "longitude: $longitude"
 
-    "$base_dir"/raspberry-pi/air-temperature/write-air-temperature-to-mp4-file.sh "$1" "$temp"
+if [ "$accuracy" = "null" ] || [ "$latitude" = "null" ] || [ "$longitude" = "null" ]; then
+  echo "The coordinates are not (completely) set."
+  exit 1
 fi
 
-"$base_dir"/write-coordinates-to-mp4-file.sh "$1"
+exiftool -overwrite_original -preserve "$1" -GPSCoordinates="$latitude $longitude" -LocationAccuracyHorizontal="$accuracy"
