@@ -45,4 +45,4 @@ else
     longitude_ref=E
 fi
 
-exiftool -overwrite_original "$1" -GPSLatitude="$latitude" -GPSLatitudeRef="$latitude_ref" -GPSLongitude="$longitude" -GPSLongitudeRef="$longitude_ref" -GPSDOP="$accuracy"
+exiftool -overwrite_original -preserve "$1" -GPSLatitude="$latitude" -GPSLatitudeRef="$latitude_ref" -GPSLongitude="$longitude" -GPSLongitudeRef="$longitude_ref" -GPSDOP="$accuracy"
