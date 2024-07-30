@@ -28,7 +28,7 @@ echo "latitude: $latitude"
 longitude=$(echo "$coordinates" | jq -r '.longitude')
 echo "longitude: $longitude"
 
-if [ "$accuracy" = "null" ] || [ "$latitude" = "null" ] || [ "$longitude" = "null" ]; then
+if [ ! "$accuracy" ] || [ "$accuracy" = "null" ] || [ ! "$latitude" ] || [ "$latitude" = "null" ] || [ ! "$longitude" ] || [ "$longitude" = "null" ]; then
   echo "The coordinates are not (completely) set."
   exit 1
 fi
