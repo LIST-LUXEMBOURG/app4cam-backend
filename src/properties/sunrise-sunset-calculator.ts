@@ -70,12 +70,14 @@ export class SunriseSunsetCalculator {
     const sunsetMinutes =
       720 - 4 * (longitude - hourAngleInDeg) - timeEquationInMin
 
+    const offsetHours = DateTime.local().offset / 60
+
     const sunrise: TriggeringTime = {
-      hour: Math.floor(sunriseMinutes / MINUTES_PER_HOUR),
+      hour: Math.floor(sunriseMinutes / MINUTES_PER_HOUR) + offsetHours,
       minute: Math.floor(sunriseMinutes % MINUTES_PER_HOUR),
     }
     const sunset: TriggeringTime = {
-      hour: Math.floor(sunsetMinutes / MINUTES_PER_HOUR),
+      hour: Math.floor(sunsetMinutes / MINUTES_PER_HOUR) + offsetHours,
       minute: Math.floor(sunsetMinutes % MINUTES_PER_HOUR),
     }
 

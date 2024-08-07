@@ -85,7 +85,8 @@ export class PropertiesService {
       coordinates.latitude,
       coordinates.longitude,
     )
-    const tomorrow = new Date(today.getDate() + 1)
+    const tomorrow = new Date()
+    tomorrow.setDate(today.getDate() + 1)
     const tomorrowsTwilights =
       SunriseSunsetCalculator.calculateSunriseAndSunset(
         tomorrow,

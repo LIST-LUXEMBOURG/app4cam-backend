@@ -15,11 +15,13 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { Settings } from 'luxon'
 import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
 
 describe(SunriseSunsetCalculator.name, () => {
   describe('calculateSunriseAndSunset', () => {
-    it('returns the correct times', () => {
+    it('returns the correct times in UTC zone', () => {
+      Settings.defaultZone = 'utc'
       expect(
         SunriseSunsetCalculator.calculateSunriseAndSunset(
           new Date('2024-07-19T10:42:00'),
@@ -36,6 +38,30 @@ describe(SunriseSunsetCalculator.name, () => {
           minute: 33,
         },
       })
+    })
+
+    it('returns the correct times in Europe/Luxembourg zone', () => {
+      Settings.defaultZone = 'Europe/Luxembourg'
+      expect(
+        SunriseSunsetCalculator.calculateSunriseAndSunset(
+          new Date('2024-07-19T10:42:00'),
+          49.50564,
+          5.94365,
+        ),
+      ).toEqual({
+        sunrise: {
+          hour: 5,
+          minute: 51,
+        },
+        sunset: {
+          hour: 21,
+          minute: 33,
+        },
+      })
+    })
+
+    afterAll(() => {
+      Settings.defaultZone = 'system'
     })
   })
 })
