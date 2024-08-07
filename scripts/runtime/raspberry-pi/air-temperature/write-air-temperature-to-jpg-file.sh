@@ -17,4 +17,6 @@
 echo "full filename: $1"
 echo "Air temperature: $2"
 
-exiftool -overwrite_original -preserve "$1" -ExifIFD:AmbientTemperature="$2"
+exiftool -preserve "$1" -ExifIFD:AmbientTemperature="$2"
+
+rm "$1"_original
