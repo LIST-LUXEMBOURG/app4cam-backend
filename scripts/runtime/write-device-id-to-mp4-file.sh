@@ -19,4 +19,6 @@ echo "full filename: $1"
 id=$(cat /home/app4cam/app4cam-backend/device-id.txt)
 echo "device ID: $id"
 
-exiftool -overwrite_original -preserve "$1" -Keys:CameraIdentifier="$id"
+exiftool -preserve "$1" -Keys:CameraIdentifier="$id"
+
+rm "$1"_original

@@ -33,4 +33,6 @@ if [ ! "$latitude" ] || [ "$latitude" = "null" ] || [ ! "$longitude" ] || [ "$lo
   exit 1
 fi
 
-exiftool -overwrite_original -preserve "$1" -GPSCoordinates="$latitude $longitude" -LocationAccuracyHorizontal="$accuracy"
+exiftool -preserve "$1" -GPSCoordinates="$latitude $longitude" -LocationAccuracyHorizontal="$accuracy"
+
+rm "$1"_original
