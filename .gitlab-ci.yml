@@ -22,7 +22,7 @@ test:
   image: node:lts-alpine
   stage: test
   tags:
-    - hdce_docker
+    - oceb
   script:
     - npm ci
     - npx prettier --check .
@@ -33,7 +33,7 @@ sast:
   stage: analyse
   when: manual
   tags:
-    - hdce_docker
+    - oceb
 
 include:
   - template: Security/SAST.gitlab-ci.yml
@@ -42,7 +42,7 @@ build:
   image: node:lts-alpine
   stage: build
   tags:
-    - hdce_docker
+    - oceb
   script:
     - apk add git
     - npm run build
@@ -60,7 +60,7 @@ build:
 deploy-raspberry-pi:
   stage: deploy
   tags:
-    - hdce_docker
+    - oceb
   environment:
     name: Raspberry Pi testing
     url: http://$RASPBERRY_PI_HOST
@@ -107,7 +107,7 @@ deploy-raspberry-pi:
 deploy-variscite-newtcam:
   stage: deploy
   tags:
-    - hdce_docker
+    - oceb
   environment:
     name: Variscite NEWTCAM testing
     url: http://$VARISCITE_NEWTCAM_HOST
