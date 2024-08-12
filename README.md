@@ -162,7 +162,7 @@ ExecStart=/usr/bin/motion -c /home/app4cam/app4cam-backend/motion/config/<device
 ```
 
 3. Reload systemd: `sudo systemctl daemon-reload`
-4. Add `motion` user to `app4cam` user group so that they can change the motion config file: `sudo useradd –G app4cam motion`
+4. Add `motion` user to `app4cam` user group so that they can change the motion config file: `sudo usermod -a -G app4cam motion`
 5. If you use auto-deployment, add motion service start and stop scripts: `sudo /home/app4cam/app4cam-backend/scripts/setup/create-motion-scripts.sh`
 
 The configuration are described in detail at https://motion-project.github.io/4.5.0/motion_config.html.
