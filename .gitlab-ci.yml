@@ -89,17 +89,20 @@ deploy-raspberry-pi:
 
     # Deploy.
     - ssh $APP4CAM_USER@$RASPBERRY_PI_HOST "
+      sudo /root/motion/stop-motion-service.sh &&
       systemctl --user stop $CI_PROJECT_NAME &&
       find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
       exit
       "
     - apk add rsync
-    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$RASPBERRY_PI_HOST:./$CI_PROJECT_NAME
+    - rsync --recursive config dist motion scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$RASPBERRY_PI_HOST:./$CI_PROJECT_NAME
     - ssh $APP4CAM_USER@$RASPBERRY_PI_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
       make -C scripts/runtime/raspberry-pi/air-temperature &&
       chmod +x scripts/runtime/raspberry-pi/air-temperature/read_air_temp &&
+      chmod g+w motion/config/DiMON/motion.conf &&
+      sudo /root/motion/start-motion-service.sh &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
@@ -133,12 +136,13 @@ deploy-variscite-newtcam:
 
     # Deploy.
     - ssh $APP4CAM_USER@$VARISCITE_NEWTCAM_HOST "
+      sudo /root/motion/stop-motion-service.sh &&
       systemctl --user stop $CI_PROJECT_NAME &&
       find $CI_PROJECT_NAME/ -mindepth 1 -maxdepth 1 \! \( -type f -name 'settings.json' \) -exec rm -rf {} + &&
       exit
       "
     - apk add rsync
-    - rsync --recursive config dist mask_files scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_NEWTCAM_HOST:./$CI_PROJECT_NAME
+    - rsync --recursive config dist motion scripts temp package.json package-lock.json version.txt $APP4CAM_USER@$VARISCITE_NEWTCAM_HOST:./$CI_PROJECT_NAME
     - ssh $APP4CAM_USER@$VARISCITE_NEWTCAM_HOST "
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
@@ -146,6 +150,8 @@ deploy-variscite-newtcam:
       make -C scripts/runtime/variscite/rtc &&
       make -C scripts/runtime/variscite/wi-fi-control &&
       chmod +x scripts/runtime/variscite/battery-monitoring/battery_monitoring scripts/runtime/variscite/rtc/sleep_until scripts/runtime/variscite/rtc/set_time scripts/runtime/variscite/rtc/get_time scripts/runtime/variscite/wi-fi-control/wifi_control &&
+      chmod g+w motion/config/NewtCAM/motion.conf &&
+      sudo /root/motion/start-motion-service.sh &&
       systemctl --user start $CI_PROJECT_NAME &&
       exit
       "
