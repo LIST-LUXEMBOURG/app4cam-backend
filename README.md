@@ -154,121 +154,18 @@ sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
 
 #### - Configuring Motion
 
-1. Open Motion config file: `sudo nano /etc/motion/motion.conf`
-2. Configure the following parameters in order of appearance:
+1. Open Motion service file: `sudo nano /lib/systemd/system/motion.service`
+2. Add the argument to the following line, with `<device-type>` being either `DiMON` or `NewtCAM`:
 
-   On Raspberry Pi (for the Raspberry camera only):
+```
+ExecStart=/usr/bin/motion -c /home/app4cam/app4cam-backend/motion/config/<device-type>/motion.conf
+```
 
-   ```
-   mmalcam_name vc.ril.camera
+3. Reload systemd: `sudo systemctl daemon-reload`
+4. Add `motion` user to `app4cam` user group so that they can change the motion config file: `sudo useradd –G app4cam motion`
+5. If you use auto-deployment, add motion service start and stop scripts: `sudo /home/app4cam/app4cam-backend/scripts/setup/create-motion-scripts.sh`
 
-   mmalcam_control_params -ex auto
-   ```
-
-   On all devices:
-
-   ```
-   daemon off
-
-   setup_mode off
-
-   log_level 5
-
-   target_dir /home/app4cam/data/
-
-   text_changes on
-
-   text_scale 2
-
-   event_gap 2
-
-   pre_capture 5
-
-   on_picture_save /home/app4cam/app4cam-backend/scripts/runtime/on-picture-save.sh %f
-
-   on_movie_end /home/app4cam/app4cam-backend/scripts/runtime/on-movie-end.sh %f
-
-   picture_output best
-
-   picture_quality 80
-
-   picture_filename %Y%m%dT%H%M%S_%q
-
-   movie_output on
-
-   movie_max_time 60
-
-   movie_quality 80
-
-   movie_codex mp4
-
-   movie_filename %Y%m%dT%H%M%S
-
-   webcontrol_localhost on
-
-   webcontrol_parms 2
-
-   stream_localhost on
-
-   snapshot_filename %Y%m%dT%H%M%S_snapshot
-   ```
-
-   Enable LED illumination on Raspberry Pi:
-
-   ```
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/runtime/use-triggering-leds.sh RaspberryPi
-
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/runtime/use-recording-leds.sh RaspberryPi
-   ```
-
-   Enable LED illumination on Variscite:
-
-   ```
-   on_event_end sudo /home/app4cam/app4cam-backend/scripts/runtime/use-triggering-leds.sh Variscite
-
-   on_motion_detected sudo /home/app4cam/app4cam-backend/scripts/runtime/use-recording-leds.sh Variscite
-   ```
-
-   Using **different illumination types** for triggering and recording (e.g. infrared for triggering and visible for recording) can induce a **fake loop phenomenon**. To prevent the light switch to trigger a fake event these parameters should be added:
-
-   ```
-   lightswitch_percent 90
-
-   lightswitch_frames 5
-   ```
-
-   **Height and Width**: Make sure to adapt them to the maximum resolution your camera supports, for example:
-
-   ```
-   width 1920
-
-   height 1080
-   ```
-
-   **USB camera settings:** disable auto-focus, fix focus value, fix brightness value. (only relevant for NEWTCAM)
-
-   ```
-   video_params "Focus, Auto"=0, "Focus (absolute)"=350, Brightness=16
-   ```
-
-   **Mask files:** If you need to add a mask file (example file for NEWTCAM), make sure your pgm file exists on the configured location.
-
-   ```
-    mask_file /home/app4cam/app4cam-backend/mask_files/NEWTCAM.pgm
-   ```
-
-   For development:
-
-   ```
-   stream_port 8081
-   ```
-
-3. Comment out the `text_left` property with a semicolon.
-4. Save the config file.
-5. Change the ownership of the configuration file: `sudo chown motion:motion /etc/motion/motion.conf`
-6. On the **Raspberry Pi** make sure `start_motion_daemon = yes` is set in `/etc/default/motion` file.
-
-A more described configuration can be found at https://motion-project.github.io/4.5.0/motion_config.html.
+The configuration are described in detail at https://motion-project.github.io/4.5.0/motion_config.html.
 
 #### - Running Motion as service
 
