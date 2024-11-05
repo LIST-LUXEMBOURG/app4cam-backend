@@ -19,6 +19,10 @@
 #include <signal.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+
 
 #ifndef	CONSUMER
 #define	CONSUMER	"Consumer"
@@ -32,9 +36,11 @@ int main(int argc, char **argv)
 	char *led_chipname = "gpiochip3";
 
 	unsigned int but_line_num = 0;		// GPIO Pin #0
-	unsigned int led_line_num = 17; 	// GPIO Pin #17
+	unsigned int led_line_num = 17; 	// GPIO Pin #17	
 
-	int pushed = 0, error;
+	int pushed = 0, error, led_value;
+	int fd;
+    struct ifreq ifr;
 
 	struct timespec ts = {5, 0};
 	time_t time0, time1;
@@ -45,7 +51,7 @@ int main(int argc, char **argv)
 	struct gpiod_line *led_line;
 
 	signal(SIGINT, SIG_DFL);
-	time(&time0); 
+	time(&time0);
 
 	but_chip = gpiod_chip_open_by_name(but_chipname);
 	if (!but_chip)
@@ -74,12 +80,41 @@ int main(int argc, char **argv)
 		goto end;
 	}
 	led_line = gpiod_chip_get_line(led_chip, led_line_num);
-	if (!led_line)	
+	if (!led_line)
 	{
 		perror("Get LED line failed\n");
 		goto close_chip;
 	}
-	if (gpiod_line_request_output(led_line, CONSUMER, gpiod_line_get_value(led_line)) < 0)
+
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (fd == -1)
+	{
+		perror("Socket error");
+	}
+
+	strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ);
+
+	// Check if the interface is up
+	if (ioctl(fd, SIOCGIFFLAGS, &ifr) == -1)
+	{
+		perror("ioctl error");
+		close(fd);
+	}
+
+	close(fd); // Close the socket
+
+	// Check the flags to determine if the interface is up
+	if (ifr.ifr_flags & IFF_UP)
+	{
+		printf("wlan0 is up\n");
+		led_value = 1;
+	} else
+	{
+		printf("wlan0 is down\n");
+		led_value = 0;
+	}
+
+	if (gpiod_line_request_output(led_line, CONSUMER, led_value))
 	{
 		perror("Request LED line as output failed\n");
 		goto release_line;
@@ -128,7 +163,7 @@ int main(int argc, char **argv)
 					system("nmcli radio wifi off");
 				}
 
-				error = gpiod_line_set_value(led_line, !gpiod_line_get_value(led_line));		
+				error = gpiod_line_set_value(led_line, !gpiod_line_get_value(led_line));
 				if (error < 0)
 				{
 					perror("Set line output failed\n");
