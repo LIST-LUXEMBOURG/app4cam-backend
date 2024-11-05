@@ -38,16 +38,23 @@ fi
 
 visible_leds_flag=$((1-infrared_leds_flag))
 
-"$base_dir"/light/toggle-ir-leds.sh $infrared_leds_flag
-"$base_dir"/light/toggle-visible-leds.sh $visible_leds_flag
-
 # Pause motion to prevent triggering another event by the light switch
 # when the light type is not passed, i.e. it is called by Motion.
+url=http://127.0.0.1:8080/0/detection
 if [ ! "$2" ]
 then
   echo "Pausing motion..."
-  url=http://127.0.0.1:8080/0/detection
   curl $url/pause
-  sleep 1
+fi
+
+"$base_dir"/light/toggle-ir-leds.sh $infrared_leds_flag
+"$base_dir"/light/toggle-visible-leds.sh $visible_leds_flag
+
+# Wait until the image is not changing anymore and resume motion
+# when the light type is not passed.
+if [ ! "$2" ]
+then
+  sleep 15
+  echo "Resuming motion..."
   curl $url/start
 fi
