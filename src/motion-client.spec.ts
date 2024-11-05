@@ -157,6 +157,13 @@ describe(MotionClient.name, () => {
     })
   })
 
+  describe(MotionClient.isCameraConnected.name, () => {
+    it('returns a value', async () => {
+      const response = await MotionClient.isCameraConnected()
+      expect(response).toBe(true)
+    })
+  })
+
   describe(MotionClient.isDetectionStatusActive.name, () => {
     it('returns a value', async () => {
       const response = await MotionClient.isDetectionStatusActive()

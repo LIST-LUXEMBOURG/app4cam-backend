@@ -23,6 +23,8 @@ import { PropertiesService } from './properties.service'
 
 const AVAILABLE_TIME_ZONES = ['a', 'b']
 
+const CAMERA_CONNECTED_FLAG = true
+
 const DEVICE_ID = 'a'
 
 const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
@@ -60,6 +62,7 @@ describe(PropertiesController.name, () => {
               .fn()
               .mockReturnValue(SUNRISE_AND_SUNSET),
             getVersion: jest.fn().mockReturnValue(VERSION),
+            isCameraConnected: jest.fn().mockReturnValue(CAMERA_CONNECTED_FLAG),
           },
         },
       ],
@@ -90,5 +93,10 @@ describe(PropertiesController.name, () => {
   it('gets the version', async () => {
     const response = await controller.getVersion()
     expect(response).toEqual(VERSION)
+  })
+
+  it('gets the camera connection flag', async () => {
+    const response = await controller.getCameraConnectionStatus()
+    expect(response).toEqual({ isCameraConnected: CAMERA_CONNECTED_FLAG })
   })
 })

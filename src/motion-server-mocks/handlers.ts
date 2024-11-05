@@ -106,6 +106,11 @@ export const handlers = [
   }),
 
   http.get(
+    baseUrl('0/detection/connection'),
+    () => new HttpResponse('Camera 0\nCamera 0 Connection OK', { status: 200 }),
+  ),
+
+  http.get(
     baseUrl('0/detection/pause'),
     () => new HttpResponse(null, { status: 200 }),
   ),

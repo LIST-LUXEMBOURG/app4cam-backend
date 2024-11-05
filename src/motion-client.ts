@@ -123,6 +123,16 @@ export class MotionClient {
     await this.setConfigurationOption('video_params', value)
   }
 
+  static async isCameraConnected(): Promise<boolean> {
+    const response = await axios.get(DETECTION_URL + 'connection')
+    const body = response.data as string
+    const lines = body.split('\n')
+    const resultLine = lines[1].trim()
+    const resultLineSplitBySpace = resultLine.split(' ')
+    const value = resultLineSplitBySpace[3]
+    return value === 'OK'
+  }
+
   static async isDetectionStatusActive(): Promise<boolean> {
     const response = await axios.get(DETECTION_URL + 'status')
     const body = response.data as string

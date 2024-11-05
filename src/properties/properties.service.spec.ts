@@ -16,6 +16,7 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { MotionClient } from '../motion-client'
 import { SettingsService } from '../settings/settings.service'
 import { VersionDto } from './dto/version.dto'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
@@ -25,6 +26,8 @@ import { PropertiesService } from './properties.service'
 import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
 
 const AVAILABLE_TIME_ZONES = ['t1', 't2']
+
+const CAMERA_CONNECTED_FLAG = true
 
 const DEVICE_ID = 'a'
 
@@ -99,6 +102,17 @@ describe(PropertiesService.name, () => {
     const response = await service.getVersion()
     expect(response).toEqual(VERSION)
     spyGetVersion.mockRestore()
+  })
+
+  it('gets the camera connection flag', async () => {
+    const spyIsCameraConnected = jest
+      .spyOn(MotionClient, 'isCameraConnected')
+      .mockImplementation(() => {
+        return Promise.resolve(CAMERA_CONNECTED_FLAG)
+      })
+    const response = await service.isCameraConnected()
+    expect(response).toEqual(CAMERA_CONNECTED_FLAG)
+    spyIsCameraConnected.mockRestore()
   })
 
   afterAll(() => {
