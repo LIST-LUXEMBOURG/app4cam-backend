@@ -16,6 +16,7 @@
  */
 import { Controller, Get } from '@nestjs/common'
 import { BatteryVoltageDto } from './dto/battery-voltage.dto'
+import { CameraConnectionStatusDto } from './dto/camera-connection-status.dto'
 import { DeviceIdDto } from './dto/device-id.dto'
 import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
 import { TimeZonesDto } from './dto/time-zones.dto'
@@ -31,6 +32,14 @@ export class PropertiesController {
     const batteryVoltage = await this.propertiesService.getBatteryVoltage()
     return {
       batteryVoltage,
+    }
+  }
+
+  @Get('cameraConnectionStatus')
+  async getCameraConnectionStatus(): Promise<CameraConnectionStatusDto> {
+    const isCameraConnected = await this.propertiesService.isCameraConnected()
+    return {
+      isCameraConnected,
     }
   }
 

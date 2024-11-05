@@ -17,6 +17,7 @@
 import { writeFile } from 'fs/promises'
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { MotionClient } from '../motion-client'
 import { SettingsService } from '../settings/settings.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
@@ -101,6 +102,10 @@ export class PropertiesService {
 
   async getVersion(): Promise<VersionDto> {
     return VersionInteractor.getVersion()
+  }
+
+  async isCameraConnected(): Promise<boolean> {
+    return MotionClient.isCameraConnected()
   }
 
   async saveDeviceIdToTextFile(): Promise<void> {
