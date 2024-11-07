@@ -11,17 +11,17 @@
    - [License notice](#license-notice)
 2. [Deployment](#deployment)
    - [1. Installing dependencies, creating user, folders and setting permissions](#1-installing-dependencies-creating-user-folders-and-setting-permissions)
-     - [Hostname configuration: sudo host](#-hostname-configuration-sudo-host)
+     - [Hostname configuration: sudo host](#--hostname-configuration-sudo-host)
    - [2. Installing Motion](#2-installing-motion)
-     - [Configuring Motion](#-configuring-motion)
-     - [Running Motion as service](#-running-motion-as-service)
-     - ["libcamerify" Motion](#-libcamerify-motion)
+     - [Configuring Motion](#--configuring-motion)
+     - [Running Motion as service](#--running-motion-as-service)
+     - ["libcamerify" Motion](#--libcamerify-motion)
    - [3. Setting up network behavior](#3-setting-up-network-behavior)
-     - [On Raspberry Pi](#-on-raspberry-pi)
-     - [On Variscite](#-on-variscite)
+     - [On Raspberry Pi](#--on-raspberry-pi)
+     - [On Variscite](#--on-variscite)
    - [4. Installing ExifTool](#4-installing-exiftool)
    - [5. Enabling user services and USB auto-mounting](#5-enabling-user-services-and-usb-auto-mounting)
-     - [Checking USB auto-mounting](#-checking-usb-auto-mounting)
+     - [Checking USB auto-mounting](#--checking-usb-auto-mounting)
    - [6. Make sure automatic time synchronisaton is disabled](#6-make-sure-automatic-time-synchronisaton-is-disabled)
    - [7. Installing Witty Pi 3 (Raspberry Pi only)](#7-installing-witty-pi-3-raspberry-pi-only)
    - [8. Adding FTP access (Raspberry Pi only)](#8-adding-ftp-access-raspberry-pi-only)
@@ -131,26 +131,32 @@ nano /etc/hosts
 **Motion** is a configurable software that monitors video signals from different types of cameras and create videos and/or saves pictures of the activity. Motion is installed from the release deb files which provides a more recent version than the one available via apt.
 The most recent versions can be downloaded here [Motion releases](https://github.com/Motion-Project/motion/releases).
 
-**Raspberry Pi** (Architecture: armhf-pi / OS: bullseye)
+**Raspberry Pi DiMON** (Architecture: armhf-pi / OS: bullseye)
 
 > pi_bullseye_motion_x.x.x-x_armhf.deb
 
-**Variscite NewtCam** (Architecture: arm64/ OS: bullseye)
+<ins>Current installed version: Motion 4.5.1</ins>
+
+**Variscite NewtCam** (Architecture: arm64 / OS: bullseye)
 
 > bullseye_motion_x.x.x-x_arm64.deb
 
-After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the RPi - Motion 4.5.1-1):
+<ins>Current installed version: Motion 4.7.0</ins>
+
+After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the <ins>RPi bullseye</ins>):
 
 ```bash
-wget https://github.com/Motion-Project/motion/releases/download/release-4.5.1/pi_bullseye_motion_4.5.1-1_armhf.deb
+wget https://github.com/Motion-Project/motion/releases/download/release-x.x.x/pi_bullseye_motion_x.x.x-x_armhf.deb
 ```
 
 Next, install the retrieved deb package. The gdebi tool will automatically retrieve any dependency packages.
 
 ```bash
 sudo apt-get install gdebi-core
-sudo gdebi pi_bullseye_motion_4.5.1-1_armhf.deb
+sudo gdebi pi_bullseye_motion_x.x.x-x_armhf.deb
 ```
+
+**Dependecies issues** If you're having dependency issues and you're certain that all requirements are fulfilled, follow this tutorial to update the dependencies file and recompile the package [Package Dependencies](https://forums.linuxmint.com/viewtopic.php?t=35136).
 
 #### - Configuring Motion
 
@@ -165,7 +171,7 @@ ExecStart=/usr/bin/motion -c /home/app4cam/app4cam-backend/motion/config/<device
 4. Add `motion` user to `app4cam` user group so that they can change the motion config file: `sudo usermod -a -G app4cam motion`
 5. If you use auto-deployment, add motion service start and stop scripts: `sudo /home/app4cam/app4cam-backend/scripts/setup/create-motion-scripts.sh`
 
-The configuration are described in detail at https://motion-project.github.io/4.5.0/motion_config.html.
+The configuration are described in detail at https://motion-project.github.io/motion_config.html).
 
 #### - Running Motion as service
 
