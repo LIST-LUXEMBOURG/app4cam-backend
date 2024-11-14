@@ -17,7 +17,7 @@
 USERNAME='app4cam'
 PASSWORD='app4cam'
 
-MINIMUM_NODE_VERSION='18'
+NODE_VERSION='22'
 
 # Determine device type.
 echo 'Specify the device type by specifying the number:'
@@ -35,11 +35,12 @@ else
   exit 1
 fi
 
-# Make sure to have Node.js installed in version >= 18.x.
-if ! command -v node &> /dev/null || node -v != v"$MINIMUM_NODE_VERSION"* 
+# Make sure to have Node.js installed in the right version.
+if ! command -v node &> /dev/null || node -v != v"$NODE_VERSION"*
 then
   apt install curl -y
-  curl -sL https://deb.nodesource.com/setup_"$MINIMUM_NODE_VERSION".x | bash -
+  curl -fsSL https://deb.nodesource.com/setup_"$NODE_VERSION".x -o nodesource_setup.sh
+  bash nodesource_setup.sh
   apt install nodejs -y
 fi
 
