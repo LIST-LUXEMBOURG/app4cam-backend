@@ -320,7 +320,15 @@ To get a complete overview of the hardware available please read the wiki [varis
 - **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/rtc/README.md).
 - **Hardware initialisation** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/hardware-initialisation/README.md).
 
-### 10. Deploying the application
+### 10. Setting up the reverse proxy for the backend
+
+Execute the setup script with root permissions:
+
+```shell
+sudo scripts/setup/set-up-reverse-proxy.sh
+```
+
+### 11. Deploying the application
 
 Before starting, install the following dependency: `sudo apt install gpiod`
 
@@ -347,7 +355,7 @@ Before starting, install the following dependency: `sudo apt install gpiod`
 
 You can check the service logs with the following command: `journalctl --user -u app4cam-backend -e`
 
-### 11. For continuous deployment (CD) only
+### 12. For continuous deployment (CD) only
 
 If you have set up the frontend already, you can just follow its [setup guide](https://git.list.lu/host/mechatronics/app4cam-frontend#3-for-continuous-deployment-cd-only).
 
