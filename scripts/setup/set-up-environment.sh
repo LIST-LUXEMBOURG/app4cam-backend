@@ -45,7 +45,7 @@ then
 fi
 
 # Install more packages needed.
-apt install gpiod jq -y
+apt install gpiod jq unzip -y
 
 # Create the new user if it does not exist already.
 if id "$USERNAME" >/dev/null 2>&1; then
@@ -59,6 +59,7 @@ JOURNALCTL_PATH="$(type -p journalctl)"
 echo "$USERNAME ALL=(ALL) NOPASSWD: $JOURNALCTL_PATH" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/timedatectl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/v4l2-ctl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/upgrade.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-recording-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
