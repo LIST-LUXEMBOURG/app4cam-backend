@@ -31,6 +31,7 @@ import { PropertiesModule } from './properties/properties.module'
 import { SettingsModule } from './settings/settings.module'
 import { SnapshotsModule } from './snapshots/snapshots.module'
 import { StorageModule } from './storage/storage.module'
+import { UpgradesModule } from './upgrades/upgrades.module'
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { StorageModule } from './storage/storage.module'
     StorageModule,
     LogFilesModule,
     MotionInteractorModule,
+    UpgradesModule,
   ],
   controllers: [AppController],
   providers: [
