@@ -48,6 +48,7 @@ import { VideoDeviceInteractor } from './interactors/video-device-interactor'
 import { MotionTextAssembler } from './motion-text-assembler'
 import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
 import { SettingsFileProvider } from './settings-file-provider'
+import { TriggeringTimeHelper } from './triggering-time-helper'
 
 const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
 const MOTION_VIDEO_PARAMS_FOCUS_KEY = 'Focus (absolute)'
@@ -1072,15 +1073,13 @@ export class SettingsService {
       )
       return
     }
-    const sleepingTimeString = sleepingTime.hour.toString().padStart(2, '0')
-    const wakingUpString = wakingUpTime.hour.toString().padStart(2, '0')
+    const sleepingTimeString =
+      TriggeringTimeHelper.convertToString(sleepingTime)
+    const wakingUpString = TriggeringTimeHelper.convertToString(wakingUpTime)
     this.logger.log(
       `Setting sleeping time ${sleepingTimeString} and waking up time ${wakingUpString}...`,
     )
-    if (
-      wakingUpTime.hour === sleepingTime.hour &&
-      wakingUpTime.minute === sleepingTime.minute
-    ) {
+    if (TriggeringTimeHelper.areTimesEqual(wakingUpTime, sleepingTime)) {
       this.logger.error(
         'The waking up time cannot be the same as the sleeping time. Exiting cron job',
       )
@@ -1097,7 +1096,7 @@ export class SettingsService {
         hour: wakingUpTime.hour,
         minute: wakingUpTime.minute,
       })
-      if (wakingUpTime < sleepingTime) {
+      if (TriggeringTimeHelper.isFirstTimeEarlier(wakingUpTime, sleepingTime)) {
         wakingUpDateTime = wakingUpDateTime.plus({ days: 1 })
       }
       try {
