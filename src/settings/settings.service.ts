@@ -285,11 +285,7 @@ export class SettingsService {
         cameraSettingsMerged.light = settings.camera.light
         isAtLeastOneJsonSettingUpdated = true
       }
-      if (
-        ('light' in settings.camera &&
-          settings.camera.light != settingsReadFromFile.camera.light) ||
-        'focus' in settings.camera
-      ) {
+      if ('focus' in settings.camera) {
         if (this.deviceType === 'RaspberryPi') {
           await this.setFocusInDriver(settings.camera.focus)
         } else {

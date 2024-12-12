@@ -174,7 +174,8 @@ export class MotionClient {
     optionName: string,
     value: string,
   ) {
-    await axios.get(`${CONFIG_SET_URL}?${optionName}=${value}`)
+    const url = encodeURI(`${CONFIG_SET_URL}?${optionName}=${value}`)
+    await axios.get(url)
     await axios.get(WRITE_URL)
   }
 }
