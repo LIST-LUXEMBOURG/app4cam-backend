@@ -21,12 +21,13 @@ describe(MotionVideoParametersWorker.name, () => {
     it('converts an average string', () => {
       expect(
         MotionVideoParametersWorker.convertStringToObject(
-          '"Focus, Auto"=0,"Focus (absolute)"=200, Brightness=16',
+          'Brightness=16,"Focus, Auto"=0,"Focus (absolute)"=200,palette=8',
         ),
       ).toStrictEqual({
+        Brightness: 16,
         'Focus, Auto': 0,
         'Focus (absolute)': 200,
-        Brightness: 16,
+        palette: 8,
       })
     })
 
