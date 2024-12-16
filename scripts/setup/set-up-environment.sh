@@ -45,7 +45,7 @@ then
 fi
 
 # Install more packages needed.
-apt install gpiod jq unzip -y
+apt install ffmpeg gpiod jq unzip -y
 
 # Create the new user if it does not exist already.
 if id "$USERNAME" >/dev/null 2>&1; then
