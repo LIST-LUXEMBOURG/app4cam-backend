@@ -21,7 +21,7 @@
 #define PULSE_SEC 3
 
 /*!
-    @usage:  ./sleep_until " 06 Feb 2024 09:37:00"
+    @usage:  ./sleep_until "06 Feb 2024 09:37:00"
     @brief   set the wake up time to the RTC and shutdown the device
 */
 int main(int argc, char **argv)
