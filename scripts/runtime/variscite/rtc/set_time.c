@@ -25,14 +25,14 @@
 int main(int argc, char **argv)
 {
     struct tm date_time;
-    const char day[7][4] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+    const char day[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     const char month[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     strptime(argv[1], "%a %d %b %Y %T", &date_time);
 
     printf("Setting date to: %s %02d %s %d %02d:%02d:%02d\n",
-           day[date_time.tm_wday - 1],
+           day[date_time.tm_wday],
            date_time.tm_mday,
            month[date_time.tm_mon],
            date_time.tm_year + 1900,

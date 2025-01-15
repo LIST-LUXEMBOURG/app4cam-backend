@@ -18,7 +18,7 @@
 
 #define I2C_BUS_NAME "/dev/i2c-2"
 
-const char dict_day[7][4] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+const char dict_day[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 const char dict_month[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
@@ -301,9 +301,9 @@ void MCP7940_adjust(int i2c_fd, struct tm date_time)
     i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCSEC, int2bcd(date_time.tm_sec));
     i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCMIN, int2bcd(date_time.tm_min));
     i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCHOUR, int2bcd(date_time.tm_hour));
-    weekday_write(i2c_fd, MCP7940_ADDRESS, date_time.tm_wday);
+    weekday_write(i2c_fd, MCP7940_ADDRESS, date_time.tm_wday + 1);
     i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCDATE, int2bcd(date_time.tm_mday));
-    i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCMTH, int2bcd(date_time.tm_mon));
+    i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCMTH, int2bcd(date_time.tm_mon + 1));
     i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_RTCYEAR, int2bcd(date_time.tm_year - 100));
 
     device_start(i2c_fd);
@@ -325,7 +325,7 @@ void MCP7940_now(int i2c_fd)
     sprintf(out_buffer, "%s %02d %s %4d %02d:%02d:%02d \n",
             dict_day[bcd2int((read_buffer[3] & 0x7)) - 1],  // Day of the week
             bcd2int(read_buffer[4] & 0x3F),                 // Day of the month
-            dict_month[bcd2int(read_buffer[5] & 0x1F)],    // Month
+            dict_month[bcd2int(read_buffer[5] & 0x1F) - 1], // Month
             bcd2int(read_buffer[6]) + 2000,                 // Year
             bcd2int(read_buffer[2] & 0x3F),                 // Hours
             bcd2int(read_buffer[1] & 0x7F),                 // Minutes
@@ -452,29 +452,29 @@ uint8_t MCP7940_set_alarm_polarity(int i2c_fd, uint8_t polarity)
     @param[in] state       Alarm state to set to (0 for "off" and 1 for "on")
     @return  Returns 0 for success otherwise 1
 */
-uint8_t MCP7940_set_alarm(int i2c_fd, uint8_t alarm_number, uint8_t alarm_type, struct tm dt, uint8_t state)
+uint8_t MCP7940_set_alarm(int i2c_fd, uint8_t alarm_number, uint8_t alarm_type, struct tm alarm_dt, uint8_t state)
 {
     uint8_t offset, wkday_register[1];
     if (alarm_number < 2 && alarm_type < 8 && alarm_type != 5 && alarm_type != 6 && device_start(i2c_fd))
     {
         clear_register_bit(i2c_fd, MCP7940_ADDRESS, MCP7940_CONTROL,
-                           alarm_number ? MCP7940_ALM1EN : MCP7940_ALM0EN); // Turn off the alarm
+                           alarm_number ? MCP7940_ALM1EN : MCP7940_ALM0EN);          // Turn off the alarm
 
         offset = 7 * alarm_number; // Offset to be applied
 
         i2c_read(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0WKDAY + offset, 1, wkday_register);
 
-        wkday_register[0] &= ((1 << MCP7940_ALM0IF) | (1 << MCP7940_ALMPOL)); // Keep ALMPOL and ALMxIF bits
-        wkday_register[0] |= alarm_type << 4;                                 // Set 3 bits from alarm_type
-        wkday_register[0] |= (dt.tm_wday & 0x07);                             // Set 3 bits for dow from date
+        wkday_register[0] &= ((1 << MCP7940_ALM0IF) | (1 << MCP7940_ALMPOL));       // Keep ALMPOL and ALMxIF bits
+        wkday_register[0] |= alarm_type << 4;                                       // Set 3 bits from alarm_type
+        wkday_register[0] |= ((alarm_dt.tm_wday + 1) & 0x07);                       // Set 3 bits for dow from date
 
         i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0WKDAY + offset, wkday_register[0]); // Write alarm mask
-        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0SEC + offset, int2bcd(dt.tm_sec));
-        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0MIN + offset, int2bcd(dt.tm_min));
-        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0HOUR + offset, int2bcd(dt.tm_hour));
+        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0SEC + offset, int2bcd(alarm_dt.tm_sec));
+        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0MIN + offset, int2bcd(alarm_dt.tm_min));
+        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0HOUR + offset, int2bcd(alarm_dt.tm_hour));
 
-        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0DATE + offset, int2bcd(dt.tm_mday));
-        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0MTH + offset, int2bcd(dt.tm_mon));
+        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0DATE + offset, int2bcd(alarm_dt.tm_mday));
+        i2c_write(i2c_fd, MCP7940_ADDRESS, MCP7940_ALM0MTH + offset, int2bcd(alarm_dt.tm_mon + 1));
 
         set_alarm_state(i2c_fd, alarm_number, state); // Set the requested alarm to state
 
