@@ -14,9 +14,10 @@ cache:
 
 workflow:
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
-    - when: always
+    - if: $CI_COMMIT_BRANCH
 
 stages:
   - test
