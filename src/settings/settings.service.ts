@@ -122,6 +122,8 @@ export class SettingsService {
         ...settingsFromFile.camera,
         focus,
         isLightEnabled: !isRaspberryPi,
+        isPictureQualityEnabled: !isRaspberryPi,
+        isShotTypesEnabled: !isRaspberryPi,
         focusMaximum,
         focusMinimum,
         pictureQuality,

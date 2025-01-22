@@ -37,6 +37,8 @@ describe('SettingsController', () => {
       focusMaximum: Number.MAX_SAFE_INTEGER,
       focusMinimum: Number.MIN_SAFE_INTEGER,
       isLightEnabled: true,
+      isPictureQualityEnabled: true,
+      isShotTypesEnabled: true,
       light: 'visible',
       pictureQuality: 90,
       shotTypes: ['pictures', 'videos'],

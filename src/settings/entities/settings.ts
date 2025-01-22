@@ -49,6 +49,8 @@ type ShotType = 'pictures' | 'videos'
 
 export interface CameraSettings extends CameraSettingsFromJsonFile {
   isLightEnabled: boolean
+  isPictureQualityEnabled: boolean
+  isShotTypesEnabled: boolean
   focus: number
   focusMaximum: number
   focusMinimum: number
