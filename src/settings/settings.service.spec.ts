@@ -135,6 +135,8 @@ describe('SettingsService', () => {
         focusMaximum: FOCUS_MAX,
         focusMinimum: FOCUS_MIN,
         isLightEnabled: true,
+        isPictureQualityEnabled: true,
+        isShotTypesEnabled: true,
         light: CAMERA_LIGHT_TYPE,
         pictureQuality: 90,
         shotTypes: SHOT_TYPES,

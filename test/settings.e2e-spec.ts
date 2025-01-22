@@ -113,6 +113,8 @@ describe('SettingsController (e2e)', () => {
       focusMaximum: FOCUS_MAX,
       focusMinimum: FOCUS_MIN,
       isLightEnabled: true,
+      isPictureQualityEnabled: true,
+      isShotTypesEnabled: true,
       light: CAMERA_LIGHT,
       pictureQuality: PICTURE_QUALITY,
       shotTypes: SHOT_TYPES,
