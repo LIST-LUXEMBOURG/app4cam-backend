@@ -217,39 +217,47 @@ export class SettingsService {
       }
 
       if (
-        'useSunriseAndSunsetTimes' in settings.triggering &&
-        settings.triggering.useSunriseAndSunsetTimes
-      ) {
-        if (
-          'sleepingTime' in settings.triggering &&
-          settings.triggering.sleepingTime !== null &&
-          'wakingUpTime' in settings.triggering &&
-          settings.triggering.wakingUpTime !== null
-        ) {
-          throw new BadRequestException(
-            'The sunrise and sunset times cannot be used together with the waking up and sleeping times. Choose one of both.',
-          )
-        }
-
-        if (
-          settingsReadFromFile.triggering.sleepingTime &&
-          settingsReadFromFile.triggering.wakingUpTime
-        ) {
-          throw new BadRequestException(
-            'The sunrise and sunset times cannot be used together with the waking up and sleeping times. Reset the latter first.',
-          )
-        }
-      }
-
-      if (
         settingsReadFromFile.triggering.useSunriseAndSunsetTimes &&
+        (!('useSunriseAndSunsetTimes' in settings.triggering) ||
+          settings.triggering.useSunriseAndSunsetTimes) &&
+        settingsReadFromFile.triggering.sleepingTime === null &&
+        settingsReadFromFile.triggering.wakingUpTime === null &&
         'sleepingTime' in settings.triggering &&
         settings.triggering.sleepingTime !== null &&
         'wakingUpTime' in settings.triggering &&
         settings.triggering.wakingUpTime !== null
       ) {
         throw new BadRequestException(
-          'The sunrise and sunset times cannot be used together with the waking up and sleeping times. Reset the former first.',
+          'The sunrise and sunset mode cannot be used together with the waking up and sleeping times. Reset the former first.',
+        )
+      }
+
+      if (
+        !settingsReadFromFile.triggering.useSunriseAndSunsetTimes &&
+        'useSunriseAndSunsetTimes' in settings.triggering &&
+        settings.triggering.useSunriseAndSunsetTimes &&
+        settingsReadFromFile.triggering.sleepingTime !== null &&
+        settingsReadFromFile.triggering.wakingUpTime !== null &&
+        (!('sleepingTime' in settings.triggering) ||
+          settings.triggering.sleepingTime !== null ||
+          !('wakingUpTime' in settings.triggering) ||
+          settings.triggering.wakingUpTime !== null)
+      ) {
+        throw new BadRequestException(
+          'The waking up and sleeping times cannot be used together with the sunrise and sunset mode. Reset the former first.',
+        )
+      }
+
+      if (
+        'useSunriseAndSunsetTimes' in settings.triggering &&
+        settings.triggering.useSunriseAndSunsetTimes &&
+        'sleepingTime' in settings.triggering &&
+        settings.triggering.sleepingTime !== null &&
+        'wakingUpTime' in settings.triggering &&
+        settings.triggering.wakingUpTime !== null
+      ) {
+        throw new BadRequestException(
+          'The sunrise and sunset mode and the waking up and sleeping times cannot be used together. Choose one of both.',
         )
       }
 

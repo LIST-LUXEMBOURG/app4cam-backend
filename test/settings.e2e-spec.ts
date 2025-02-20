@@ -643,12 +643,78 @@ describe('SettingsController (e2e)', () => {
           .expect(400)
       })
 
+      it('returns success on setting waking up and sleeping times and useSunriseAndSunsetTimes to false when useSunriseAndSunsetTimes is true already', () => {
+        const jsonSettings = {
+          camera: CAMERA_JSON_SETTINGS,
+          general: GENERAL_JSON_SETTINGS,
+          triggering: {
+            ...TRIGGERING_JSON_SETTINGS,
+            sleepingTime: null,
+            useSunriseAndSunsetTimes: true,
+            wakingUpTime: null,
+          },
+        }
+        spyReadSettingsFile = jest
+          .spyOn(SettingsFileProvider, 'readSettingsFile')
+          .mockResolvedValue(jsonSettings)
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              sleepingTime: {
+                hour: 20,
+                minute: 0,
+              },
+              useSunriseAndSunsetTimes: false,
+              wakingUpTime: {
+                hour: 6,
+                minute: 0,
+              },
+            },
+          })
+          .expect(200)
+      })
+
+      it('returns success on resetting waking up and sleeping times and setting useSunriseAndSunsetTimes to true when waking up and sleeping times are set already', () => {
+        const jsonSettings = {
+          camera: CAMERA_JSON_SETTINGS,
+          general: GENERAL_JSON_SETTINGS,
+          triggering: {
+            ...TRIGGERING_JSON_SETTINGS,
+            sleepingTime: {
+              hour: 20,
+              minute: 0,
+            },
+            useSunriseAndSunsetTimes: false,
+            wakingUpTime: {
+              hour: 6,
+              minute: 0,
+            },
+          },
+        }
+        spyReadSettingsFile = jest
+          .spyOn(SettingsFileProvider, 'readSettingsFile')
+          .mockResolvedValue(jsonSettings)
+        return request(app.getHttpServer())
+          .patch('/settings')
+          .send({
+            triggering: {
+              sleepingTime: null,
+              useSunriseAndSunsetTimes: true,
+              wakingUpTime: null,
+            },
+          })
+          .expect(200)
+      })
+
       it('returns bad request on setting waking up and sleeping times when useSunriseAndSunsetTimes is true already', () => {
         const jsonSettings = {
           camera: CAMERA_JSON_SETTINGS,
           general: GENERAL_JSON_SETTINGS,
           triggering: {
             ...TRIGGERING_JSON_SETTINGS,
+            sleepingTime: null,
+            wakingUpTime: null,
             useSunriseAndSunsetTimes: true,
           },
         }
@@ -682,6 +748,7 @@ describe('SettingsController (e2e)', () => {
               hour: 20,
               minute: 0,
             },
+            useSunriseAndSunsetTimes: false,
             wakingUpTime: {
               hour: 6,
               minute: 0,
