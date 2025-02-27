@@ -33,16 +33,16 @@ if [ ! "$latitude" ] || [ "$latitude" = "null" ] || [ ! "$longitude" ] || [ "$lo
   exit 1
 fi
 
-if (( $(echo "$latitude < 0" | bc -l) )); then
-    latitude_ref=S
+if (($(echo "$latitude < 0" | bc -l))); then
+  latitude_ref=S
 else
-    latitude_ref=N
+  latitude_ref=N
 fi
 
-if (( $(echo "$longitude < 0" | bc -l) )); then
-    longitude_ref=W
+if (($(echo "$longitude < 0" | bc -l))); then
+  longitude_ref=W
 else
-    longitude_ref=E
+  longitude_ref=E
 fi
 
 exiftool -preserve "$1" -GPSLatitude="$latitude" -GPSLatitudeRef="$latitude_ref" -GPSLongitude="$longitude" -GPSLongitudeRef="$longitude_ref" -GPSDOP="$accuracy"

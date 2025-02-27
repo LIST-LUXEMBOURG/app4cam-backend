@@ -35,7 +35,6 @@ loginctl enable-linger "$USERNAME"
 # Create directories for user services.
 su "$USERNAME" -c 'mkdir -p ~/.config/systemd/user/'
 
-
 cat << EOF
 /------------------------------/
 / Setting up USB auto-mounting /
@@ -44,8 +43,7 @@ EOF
 
 echo 'Do you want to set up USB auto-mounting? Type y or yes if you agree.'
 read -r usb_auto_mounting
-if [ "$usb_auto_mounting" = 'y' ] || [ "$usb_auto_mounting" = 'yes' ]
-then
+if [ "$usb_auto_mounting" = 'y' ] || [ "$usb_auto_mounting" = 'yes' ]; then
   echo 'Setting up USB auto-mounting...'
 
   apt install curl udisks2 udiskie -y
@@ -109,7 +107,6 @@ else
   echo 'Skipped USB auto-mounting setup.'
 fi
 
-
 cat << EOF
 /------------------------------------/
 / Setting up App4Cam backend service /
@@ -141,7 +138,6 @@ su "$USERNAME" -c 'systemctl --user daemon-reload'
 
 # Enable service.
 su "$USERNAME" -c 'systemctl --user enable app4cam-backend'
-
 
 cat << EOF
 /-----------------------------------------/

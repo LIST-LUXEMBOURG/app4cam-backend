@@ -16,8 +16,8 @@
 
 # Make sure that Apache2 binary exists.
 if ! command -v apache2 > /dev/null 2>&1; then
-    echo "Error: Apache2 is not installed or not in PATH. Please see the frontend project for installation details." >&2
-    exit 1
+  echo "Error: Apache2 is not installed or not in PATH. Please see the frontend project for installation details." >&2
+  exit 1
 fi
 
 # Enable proxy and proxy http modules.

@@ -17,7 +17,7 @@
 CONNECTION_NAME=WIFI_AP
 
 show_help() {
-cat << EOF
+  cat << EOF
 Usage: ${0##*/} [-h] [-n NAME] [-p PASSWORD]
 Turn off the WiFi access point, update the name or password, and turn it on again.
 
@@ -58,21 +58,18 @@ while getopts :hn:p: opt; do
       ;;
   esac
 done
-shift "$((OPTIND-1))"
+shift "$((OPTIND - 1))"
 
-if [[ -z $name && -z $password ]]
-then
+if [[ -z $name && -z $password ]]; then
   show_help
   exit 1
 fi
 
 nmcli con down "$CONNECTION_NAME"
-if [ -n "$name" ]
-then
+if [ -n "$name" ]; then
   nmcli con modify "$CONNECTION_NAME" ssid "$name"
 fi
-if [ -n "$password" ]
-then
+if [ -n "$password" ]; then
   nmcli con modify "$CONNECTION_NAME" 802-11-wireless-security.psk "$password"
 fi
 nmcli con up "$CONNECTION_NAME"

@@ -18,10 +18,9 @@ name="App4Cam"
 password="0123456789"
 
 # Add the MAC address aka. device ID to the Wi-Fi network name aka. SSID name.
-mac_address=`cat /sys/class/net/*/address | grep -m 1 -P '(?:[a-zA-Z0-9]{2}[:]){5}[a-zA-Z0-9]{2}'`
+mac_address=$(cat /sys/class/net/*/address | grep -m 1 -P '(?:[a-zA-Z0-9]{2}[:]){5}[a-zA-Z0-9]{2}')
 echo "MAC address found: $mac_address"
-if [ "$mac_address" ]
-then
+if [ "$mac_address" ]; then
   name="$name $mac_address"
 fi
 

@@ -14,21 +14,34 @@
 # You should have received a copy of the GNU General Public License
 # along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
 
-if [ "$1" = "Variscite" ]; then
-  base_dir="$(dirname "$0")/variscite"
-elif [ "$1" = "RaspberryPi" ]; then
-  base_dir="$(dirname "$0")/raspberry-pi"
+# check if sudo is used
+if [ "$(id -u)" != 0 ]; then
+  echo 'Sorry, you need to run this script with sudo'
+  exit 1
 fi
 
-light_type=$(curl "http://127.0.0.1:3000/settings/cameraLight")
-echo "response: $light_type"
+USER_HOME="/home/pi"
+WITTYPI_DIR="$USER_HOME/wittypi"
 
-infrared_leds_flag=0
-if [ "$light_type" = "infrared" ]; then
-  infrared_leds_flag=1
+# Check if Witty Pi 3 is connected at 0x69
+if i2cdetect -y 1 | grep -q "69"; then
+  VERSION=3
+# Check if Witty Pi 4 is connected at 0x08
+elif i2cdetect -y 1 | grep -q "08"; then
+  VERSION=4
+else
+  echo "No Witty Pi detected!"
+  exit 1
 fi
 
-visible_leds_flag=$((1 - infrared_leds_flag))
+echo "Detected Witty Pi $VERSION"
 
-"$base_dir"/light/toggle-ir-leds.sh $infrared_leds_flag
-"$base_dir"/light/toggle-visible-leds.sh $visible_leds_flag
+if [ -d "$WITTYPI_DIR" ]; then
+  echo 'Deleting existing Witty Pi folder...'
+  rm -r "$WITTYPI_DIR"
+fi
+
+mkdir -p "$WITTYPI_DIR"
+
+# The archives of both versions are available in the home folder.
+unzip wittyPi"$VERSION".zip -d "$WITTYPI_DIR" || ((ERR++))

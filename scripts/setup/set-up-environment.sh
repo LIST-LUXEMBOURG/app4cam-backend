@@ -24,11 +24,9 @@ echo 'Specify the device type by specifying the number:'
 echo '[1] Raspberry Pi'
 echo '[2] Variscite'
 read -r device_type
-if [ "$device_type" = '1' ]
-then
+if [ "$device_type" = '1' ]; then
   echo 'Raspberry Pi selected'
-elif [ "$device_type" = '2' ]
-then
+elif [ "$device_type" = '2' ]; then
   echo 'Variscite seleted'
 else
   echo 'Invalid device type selected. Please restart the script!'
@@ -36,8 +34,7 @@ else
 fi
 
 # Make sure to have Node.js installed in the right version.
-if ! command -v node &> /dev/null || node -v != v"$NODE_VERSION"*
-then
+if ! command -v node &> /dev/null || node -v != v"$NODE_VERSION"*; then
   apt install curl -y
   curl -fsSL https://deb.nodesource.com/setup_"$NODE_VERSION".x -o nodesource_setup.sh
   bash nodesource_setup.sh
@@ -48,7 +45,7 @@ fi
 apt install ffmpeg gpiod jq unzip -y
 
 # Create the new user if it does not exist already.
-if id "$USERNAME" >/dev/null 2>&1; then
+if id "$USERNAME" > /dev/null 2>&1; then
   echo "The user $USERNAME exists already."
 else
   useradd -m -s /bin/bash -p "$(openssl passwd -6 $PASSWORD)" "$USERNAME"
@@ -64,15 +61,13 @@ echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runt
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-recording-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 
-if [ "$device_type" = '1' ]
-then
+if [ "$device_type" = '1' ]; then
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/working-hours/create-working-hours-schedule.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/working-hours/remove-working-hours-schedule.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/get-input-voltage.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/set-camera-focus.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/raspberry-pi/write-system-time-to-rtc.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-elif [ "$device_type" = '2' ]
-then
+elif [ "$device_type" = '2' ]; then
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/access-point/change-access-point-name-or-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/access-point/get-access-point-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/battery-monitoring/battery_monitoring" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'

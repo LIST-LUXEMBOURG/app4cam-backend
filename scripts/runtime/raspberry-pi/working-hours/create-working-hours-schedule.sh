@@ -16,8 +16,7 @@
 
 WITTY_PI_PATH="/home/pi/wittypi"
 
-if [ ! -d "$WITTY_PI_PATH" ]
-then
+if [ ! -d "$WITTY_PI_PATH" ]; then
   echo "Witty Pi path $WITTY_PI_PATH not found!"
   exit 1
 fi
@@ -27,8 +26,7 @@ end_value="$2"
 on_value="$3"
 off_value="$4"
 
-if [ -z "$begin_value" ] || [ -z "$end_value" ] || [ -z "$on_value" ] || [ -z "$off_value" ]
-then
+if [ -z "$begin_value" ] || [ -z "$end_value" ] || [ -z "$on_value" ] || [ -z "$off_value" ]; then
   echo "One of the 4 values is missing!"
   exit 1
 fi
