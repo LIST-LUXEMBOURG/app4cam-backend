@@ -105,7 +105,16 @@ export class PropertiesService {
   }
 
   async isCameraConnected(): Promise<boolean> {
-    return MotionClient.isCameraConnected()
+    try {
+      const status = await MotionClient.isCameraConnected()
+      return status
+    } catch (error) {
+      this.logger.error(
+        `The camera connection status could not be retrieved: ${error.name}: ${error.message}`,
+        error.stack,
+      )
+      return null
+    }
   }
 
   async saveDeviceIdToTextFile(): Promise<void> {
