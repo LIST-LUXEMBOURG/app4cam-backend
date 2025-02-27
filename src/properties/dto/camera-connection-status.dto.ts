@@ -15,5 +15,5 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 export interface CameraConnectionStatusDto {
-  isCameraConnected: boolean
+  isCameraConnected: boolean | null
 }

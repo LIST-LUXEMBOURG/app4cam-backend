@@ -27,8 +27,6 @@ import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
 
 const AVAILABLE_TIME_ZONES = ['t1', 't2']
 
-const CAMERA_CONNECTED_FLAG = true
-
 const DEVICE_ID = 'a'
 
 const SUNRISE_AND_SUNSET = {
@@ -105,13 +103,25 @@ describe(PropertiesService.name, () => {
   })
 
   it('gets the camera connection flag', async () => {
+    const cameraConnectionFlag = true
     const spyIsCameraConnected = jest
       .spyOn(MotionClient, 'isCameraConnected')
       .mockImplementation(() => {
-        return Promise.resolve(CAMERA_CONNECTED_FLAG)
+        return Promise.resolve(cameraConnectionFlag)
       })
     const response = await service.isCameraConnected()
-    expect(response).toEqual(CAMERA_CONNECTED_FLAG)
+    expect(response).toEqual(cameraConnectionFlag)
+    spyIsCameraConnected.mockRestore()
+  })
+
+  it('gets the unknown camera connection flag when an error happens', async () => {
+    const spyIsCameraConnected = jest
+      .spyOn(MotionClient, 'isCameraConnected')
+      .mockImplementation(() => {
+        throw new Error()
+      })
+    const response = await service.isCameraConnected()
+    expect(response).toEqual(null)
     spyIsCameraConnected.mockRestore()
   })
 
