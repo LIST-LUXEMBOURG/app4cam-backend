@@ -17,12 +17,10 @@
 device_path="$1"
 focus="$2"
 
-if [ -z "$begin_value" ]
-then
+if [ -z "$begin_value" ]; then
   echo "The device path is not set!"
 fi
-if [ -z "$focus" ]
-then
+if [ -z "$focus" ]; then
   echo "The focus is not set!"
 fi
 

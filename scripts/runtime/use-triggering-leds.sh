@@ -14,16 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
 
-if [ "$1" = "Variscite" ]
-then
+if [ "$1" = "Variscite" ]; then
   base_dir="$(dirname "$0")/variscite"
-elif [ "$1" = "RaspberryPi" ]
-then
+elif [ "$1" = "RaspberryPi" ]; then
   base_dir="$(dirname "$0")/raspberry-pi"
 fi
 
-if [ "$2" ]
-then
+if [ "$2" ]; then
   light_type="$2"
 else
   light_type=$(curl "http://127.0.0.1:3000/settings/triggeringLight")
@@ -31,18 +28,16 @@ else
 fi
 
 infrared_leds_flag=0
-if [ "$light_type" = "infrared" ]
-then
+if [ "$light_type" = "infrared" ]; then
   infrared_leds_flag=1
 fi
 
-visible_leds_flag=$((1-infrared_leds_flag))
+visible_leds_flag=$((1 - infrared_leds_flag))
 
 # Pause motion to prevent triggering another event by the light switch
 # when the light type is not passed, i.e. it is called by Motion.
 url=http://127.0.0.1:8080/0/detection
-if [ ! "$2" ]
-then
+if [ ! "$2" ]; then
   echo "Pausing motion..."
   curl $url/pause
 fi
@@ -52,8 +47,7 @@ fi
 
 # Wait until the image is not changing anymore and resume motion
 # when the light type is not passed.
-if [ ! "$2" ]
-then
+if [ ! "$2" ]; then
   sleep 15
   echo "Resuming motion..."
   curl $url/start

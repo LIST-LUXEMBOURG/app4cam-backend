@@ -285,17 +285,21 @@ Verify the result line `NTP service` of running: `timedatectl`
 
 If it is still active, run: `timedatectl set-ntp 0`
 
-### 7. Installing Witty Pi 3 (Raspberry Pi only)
+### 7. Installing Witty Pi 4 (Raspberry Pi only)
 
-**Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences.
-On Raspberry Pi, run these two commands in your home directory:
+**Witty Pi** is a realtime clock (RTC) and power management **board** added to the Raspberry Pi. It also allows to define ON/OFF sequences. Currently we are suporting witty pi version 3 or 4.
+
+For witty pi 4, run these two commands in the raspberry pi home directory:
 
 ```bash
-wget http://www.uugear.com/repo/WittyPi3/install.sh
+wget http://www.uugear.com/repo/WittyPi4/install.sh
 sudo sh install.sh
 ```
 
-A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi/.
+A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-4/.
+
+**If using the Witty pi 3, after the above commands, run this script to make the device compatible with the HW:**  
+`sudo /home/app4cam/app4cam-backend/scripts/setup/raspberry-pi/witty-pi/select-wittypi.sh`
 
 ### 8. Adding FTP access (Raspberry Pi only)
 

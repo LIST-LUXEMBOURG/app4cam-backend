@@ -17,8 +17,7 @@
 echo "udiskie event: $1"
 echo "shots folder: $2"
 
-if [ "$1" != "device_mounted" ]
-then
+if [ "$1" != "device_mounted" ]; then
   exit 1
 fi
 

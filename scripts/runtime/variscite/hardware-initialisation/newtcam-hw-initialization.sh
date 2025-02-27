@@ -27,4 +27,4 @@ date -s "$time_var"
 gpioset gpiochip3 11=0
 
 # turn off unused spare LED 2
-gpioset gpiochip0  5=0
+gpioset gpiochip0 5=0
