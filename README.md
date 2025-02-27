@@ -207,7 +207,9 @@ We want to configure the Raspberry Pi in a way that it will **connect to a previ
 On a new terminal, run the setup script with root privileges:
 
 ```bash
-sudo scripts/setup/raspberry-pi/autohotspot/autohotspot-setup.sh
+wget https://github.com/RaspberryConnect/AutoHotspot-Installer/releases/download/v0.74/AutoHotspot-Setup.tar.xz
+tar xf AutoHotspot-Setup.tar.xz
+sudo Autohotspot/autohotspot-setup.sh
 ```
 
 You will be presented with these options:
@@ -235,6 +237,13 @@ vnc: 10.0.0.5::5900
 ```
 
 If no error messages was presented, just exit the script and reboot your device. The "network behavior" should be well configured.
+
+You can then also remove the files:
+
+```
+rm -r Autohotspot
+rm AutoHotspot-Setup.tar.xz
+```
 
 #### - On Variscite
 
