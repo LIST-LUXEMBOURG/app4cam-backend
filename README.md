@@ -193,9 +193,19 @@ libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-ar
 2. Modify the motion service `sudo nano /lib/systemd/system/motion.service` changing the ExecStart line to  
    `ExecStart=libcamerify /usr/bin/motion`
 
-3. Save and close. Follow with:  
-   `sudo systemctl daemon-reload`  
-   `sudo systemctl start motion.service`
+3. Save and close. Follow with:
+
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl start motion.service
+   ```
+
+4. Disable the autofocus of the camera. For the 64MP Hawkeye, you need to remove the key `"rpi.af"` with its value in the file `/usr/share/libcamera/ipa/rpi/vc4/arducam_64mp.json` after backing it up:
+
+   ```bash
+   sudo cp /usr/share/libcamera/ipa/rpi/vc4/arducam_64mp.json /usr/share/libcamera/ipa/rpi/vc4/arducam_64mp.json.backup
+   sudo nano /usr/share/libcamera/ipa/rpi/vc4/arducam_64mp.json
+   ```
 
 **IMPORTANT:** When using pivariety cameras (e.g. 64MP Hawkeye) do not update libcamera.
 
