@@ -14,13 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
 
-# include utilities script in same directory
-wittpy_dir="/home/pi/wittypi"
-wittpy_dir="$( (cd \"$wittpy_dir\" && pwd))"
-if [ -z "$wittpy_dir" ]; then
+WITTY_PI_PATH="/home/pi/wittypi"
+
+if [ ! -d "$WITTY_PI_PATH" ]; then
+  echo "Witty Pi path $WITTY_PI_PATH not found!"
   exit 1
 fi
-. $wittpy_dir/utilities.sh
 
-# call method in utilities.sh
+# shellcheck disable=SC1091
+source "$WITTY_PI_PATH/utilities.sh"
+
+# Call method in utilities.sh.
 system_to_rtc
