@@ -19,7 +19,7 @@ CC=cc
 LINK=-I/home/app4cam/rtc
 CFLAGS=-O -D CONSUMER=\"$(CNS)\"
 
-all: set_time get_time sleep_until
+all: set_time get_time sleep_until clear_alarms
 
 set_time: mcp7940.c set_time.c
 	$(CC) $(LINK) mcp7940.c set_time.c $(CFLAGS) -o set_time
@@ -29,6 +29,9 @@ get_time: mcp7940.c get_time.c
 
 sleep_until: mcp7940.c sleep_until.c
 	$(CC) $(LINK) mcp7940.c sleep_until.c $(CFLAGS) -o sleep_until
+
+clear_alarms: mcp7940.c clear_alarms.c
+	$(CC) $(LINK) mcp7940.c clear_alarms.c $(CFLAGS) -o clear_alarms	
 
 clean:
 	rm $(PROJ)

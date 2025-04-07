@@ -23,11 +23,13 @@
    - [5. Enabling user services and USB auto-mounting](#5-enabling-user-services-and-usb-auto-mounting)
      - [Checking USB auto-mounting](#--checking-usb-auto-mounting)
    - [6. Make sure automatic time synchronisaton is disabled](#6-make-sure-automatic-time-synchronisaton-is-disabled)
-   - [7. Installing Witty Pi 3 (Raspberry Pi only)](#7-installing-witty-pi-3-raspberry-pi-only)
+   - [7. Installing Witty Pi 4 (Raspberry Pi only)](#7-installing-witty-pi-3-raspberry-pi-only)
    - [8. Adding FTP access (Raspberry Pi only)](#8-adding-ftp-access-raspberry-pi-only)
-   - [9. Hardware Configuration (Quimesis interface board only)](#9-hardware-configuration-quimesis-interface-board-only)
-   - [10. Deploying the application](#10-deploying-the-application)
-   - [11. For continuous deployment (CD) only](#11-for-continuous-deployment-cd-only)
+   - [9. Hardware Configuration & logging (Quimesis interface board only)](#9-hardware-configuration--logging-quimesis-interface-board-only)
+     - [Setting log rotation](#--setting-log-rotation)
+   - [10. Setting up the reverse proxy for the backend](#10-setting-up-the-reverse-proxy-for-the-backend)
+   - [11. Deploying the application](#11-deploying-the-application)
+   - [12. For continuous deployment (CD) only](#12-for-continuous-deployment-cd-only)
 3. [Release procedure](#release-procedure)
 
 ## Development
@@ -334,14 +336,27 @@ The FTP access can be used as an alternative way to download multiple files with
 
 Now, you can connect via an FTP client with the device's IP address, port 21, the username created and the corresponding password.
 
-### 9. Hardware Configuration (Quimesis interface board only)
+### 9. Hardware Configuration & logging (Quimesis interface board only)
 
-To get a complete overview of the hardware available please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
+To get a complete overview of the hardware available and it's configuartion please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
 
 - **WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/wi-fi-control/README.md).
 - **Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/battery-monitoring/README.md).
 - **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/rtc/README.md).
 - **Hardware initialisation** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/hardware-initialisation/README.md).
+
+#### - Setting log rotation
+
+Part of the app4cam log file was being lost during system reboots or shutdowns. This was identified as a result of excessively long log rotation intervals. To prevent this, the rotation period was reduced from 4 weeks to 2 weeks by editing the logrotate configuration file:
+
+`nano /etc/logrotate.conf`
+
+And set rotation to 2 weeks:
+
+```
+# keep 2 weeks worth of backlogs
+rotate 2
+```
 
 ### 10. Setting up the reverse proxy for the backend
 
