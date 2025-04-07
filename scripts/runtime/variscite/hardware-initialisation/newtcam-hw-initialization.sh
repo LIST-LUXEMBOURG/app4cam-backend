@@ -23,6 +23,9 @@ time_var="$(sudo $scripts_dir/rtc/get_time)"
 # set system date
 date -s "$time_var"
 
+# clear RTC sleep alarms
+sudo $scripts_dir/rtc/clear_alarms
+
 # turn off unused spare LED 1
 gpioset gpiochip3 11=0
 
