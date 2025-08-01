@@ -23,9 +23,11 @@
    - [5. Enabling user services and USB auto-mounting](#5-enabling-user-services-and-usb-auto-mounting)
      - [Checking USB auto-mounting](#--checking-usb-auto-mounting)
    - [6. Make sure automatic time synchronisaton is disabled](#6-make-sure-automatic-time-synchronisaton-is-disabled)
-   - [7. Installing Witty Pi 4 (Raspberry Pi only)](#7-installing-witty-pi-3-raspberry-pi-only)
-   - [8. Adding FTP access (Raspberry Pi only)](#8-adding-ftp-access-raspberry-pi-only)
-   - [9. Hardware Configuration & logging (Quimesis interface board only)](#9-hardware-configuration--logging-quimesis-interface-board-only)
+   - [7. Installing Witty Pi 4 (Raspberry Pi only)](#7-installing-witty-pi-4-raspberry-pi-only)
+   - [8. Adding FTP access (Raspberry Pi only)](#8-adding-ftp-access-optional-for-raspberry-pi-only)
+   - [9. Hardware Configuration & logging](#9-hardware-configuration--logging)
+     - [DiMON temperature sensor](#--dimon-temperature-sensor)
+     - [NewtCAM interface board](#--newtcam-interface-board)
      - [Setting log rotation](#--setting-log-rotation)
    - [10. Setting up the reverse proxy for the backend](#10-setting-up-the-reverse-proxy-for-the-backend)
    - [11. Deploying the application](#11-deploying-the-application)
@@ -133,11 +135,11 @@ nano /etc/hosts
 **Motion** is a configurable software that monitors video signals from different types of cameras and create videos and/or saves pictures of the activity. Motion is installed from the release deb files which provides a more recent version than the one available via apt.
 The most recent versions can be downloaded here [Motion releases](https://github.com/Motion-Project/motion/releases).
 
-**Raspberry Pi DiMON** (Architecture: armhf-pi / OS: bullseye)
+**Raspberry Pi DiMON** (Architecture: arm64 / OS: bookworm)
 
-> pi_bullseye_motion_x.x.x-x_armhf.deb
+> bookworm_motion_x.x.x-x_arm64.deb
 
-<ins>Current installed version: Motion 4.5.1</ins>
+<ins>Current installed version: Motion 4.7.0</ins>
 
 **Variscite NewtCam** (Architecture: arm64 / OS: bullseye)
 
@@ -145,17 +147,17 @@ The most recent versions can be downloaded here [Motion releases](https://github
 
 <ins>Current installed version: Motion 4.7.0</ins>
 
-After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the <ins>RPi bullseye</ins>):
+After determining the deb file name appropriate for our distribution and platform we open up a terminal window and type (example for the <ins>arm64 bookworm</ins>):
 
 ```bash
-wget https://github.com/Motion-Project/motion/releases/download/release-x.x.x/pi_bullseye_motion_x.x.x-x_armhf.deb
+wget https://github.com/Motion-Project/motion/releases/download/release-x.x.x/bookworm_motion_x.x.x-x_arm64.deb
 ```
 
 Next, install the retrieved deb package. The gdebi tool will automatically retrieve any dependency packages.
 
 ```bash
 sudo apt-get install gdebi-core
-sudo gdebi pi_bullseye_motion_x.x.x-x_armhf.deb
+sudo gdebi bookworm_motion_x.x.x-x_arm64.deb
 ```
 
 **Dependecies issues** If you're having dependency issues and you're certain that all requirements are fulfilled, follow this tutorial to update the dependencies file and recompile the package [Package Dependencies](https://forums.linuxmint.com/viewtopic.php?t=35136).
@@ -187,10 +189,12 @@ During development, you may need to stop Motion: `sudo systemctl stop motion`
 
 #### - "libcamerify" Motion
 
-libcamerify is needed for libcamera support (used with the newer RPi cameras). In these specific cases we need to
-libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-arducam-imx519-16mp-autofocus-working-with-motion/4248).
+libcamerify is needed for rpicam support (used with the newer RPi cameras). By default rpicam-apps is already installed on the new bookworm os.
+If you get any issues libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-arducam-imx519-16mp-autofocus-working-with-motion/4248).
 
-1. Make sure libcamera-tools are installed `sudo apt install libcamera-tools`
+**Note:** Typicall issues can be solved by just doing the step Install dependencies.
+
+1. Make sure the camera is well configured and is compatible with rpicam. Get an image preview with: `rpicam-hello`
 
 2. Modify the motion service `sudo nano /lib/systemd/system/motion.service` changing the ExecStart line to  
    `ExecStart=libcamerify /usr/bin/motion`
@@ -209,7 +213,7 @@ libcamerify Motion as suggested [here](https://forum.arducam.com/t/getting-an-ar
    sudo nano /usr/share/libcamera/ipa/rpi/vc4/arducam_64mp.json
    ```
 
-**IMPORTANT:** When using pivariety cameras (e.g. 64MP Hawkeye) do not update libcamera.
+**IMPORTANT:** When using pivariety cameras (e.g. 64MP Hawkeye) do not update RPICAM.
 
 ### 3. Setting up network behavior
 
@@ -295,7 +299,7 @@ Only perform this checks if you have enabled this functionality in the setup scr
 
 Verify the result line `NTP service` of running: `timedatectl`
 
-If it is still active, run: `timedatectl set-ntp 0`
+If it is still active, run: `sudo timedatectl set-ntp 0`
 
 ### 7. Installing Witty Pi 4 (Raspberry Pi only)
 
@@ -313,7 +317,7 @@ A more extensive tutorial can be found at https://www.uugear.com/product/witty-p
 **If using the Witty pi 3, after the above commands, run this script to make the device compatible with the HW:**  
 `sudo /home/app4cam/app4cam-backend/scripts/setup/raspberry-pi/witty-pi/select-wittypi.sh`
 
-### 8. Adding FTP access (Raspberry Pi only)
+### 8. Adding FTP access (Optional for Raspberry Pi only)
 
 The FTP access can be used as an alternative way to download multiple files without the need to archive files.
 
@@ -336,7 +340,17 @@ The FTP access can be used as an alternative way to download multiple files with
 
 Now, you can connect via an FTP client with the device's IP address, port 21, the username created and the corresponding password.
 
-### 9. Hardware Configuration & logging (Quimesis interface board only)
+### 9. Hardware Configuration & logging
+
+#### - DiMON temperature sensor
+
+The [DS18B20](https://www.analog.com/en/products/ds18b20.html) is a digital temperature sensor that uses the 1-Wire communication protocol to communicate with the RPi. It provides accurate temperature readings with a resolution of up to 12 bits. Integrating the DS18B20 temperature sensor with the Witty Pi 3 on a RPi involves connecting the sensor to another than the default GPIO pin of the RPi and configuring it accordingly. Assign 1-wire to a different GPIO pin by editing the interface in: `/boot/firmware/config.txt file`.
+
+Replace the `dtoverlay=w1-gpio` if found or simply add: `dtoverlay=w1-gpio,gpiopin=18`
+
+**Note:** If the 1-Wire interface is enabled on GPIO-4 and Witty Pi’s software is installed, it might be impossible to login to the RPi because it always shuts itself down before we get the chance to login.
+
+#### - NewtCAM interface board
 
 To get a complete overview of the hardware available and it's configuartion please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
 
