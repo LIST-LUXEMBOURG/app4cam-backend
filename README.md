@@ -24,7 +24,7 @@
      - [Checking USB auto-mounting](#--checking-usb-auto-mounting)
    - [6. Make sure automatic time synchronisaton is disabled](#6-make-sure-automatic-time-synchronisaton-is-disabled)
    - [7. Installing Witty Pi 4 (Raspberry Pi only)](#7-installing-witty-pi-4-raspberry-pi-only)
-   - [8. Adding FTP access (Raspberry Pi only)](#8-adding-ftp-access-optional-for-raspberry-pi-only)
+   - [8. Adding FTP access (Optional for Raspberry Pi only)](#8-adding-ftp-access-optional-for-raspberry-pi-only)
    - [9. Hardware Configuration & logging](#9-hardware-configuration--logging)
      - [DiMON temperature sensor](#--dimon-temperature-sensor)
      - [NewtCAM interface board](#--newtcam-interface-board)
@@ -344,7 +344,7 @@ Now, you can connect via an FTP client with the device's IP address, port 21, th
 
 #### - DiMON temperature sensor
 
-The [DS18B20](https://www.analog.com/en/products/ds18b20.html) is a digital temperature sensor that uses the 1-Wire communication protocol to communicate with the RPi. It provides accurate temperature readings with a resolution of up to 12 bits. Integrating the DS18B20 temperature sensor with the Witty Pi 3 on a RPi involves connecting the sensor to another than the default GPIO pin of the RPi and configuring it accordingly. Assign 1-wire to a different GPIO pin by editing the interface in: `/boot/firmware/config.txt file`.
+The [DS18B20](https://www.analog.com/en/products/ds18b20.html) is a digital temperature sensor that uses the 1-Wire communication protocol to communicate with the RPi. It provides accurate temperature readings with a resolution of up to 12 bits. Integrating the DS18B20 temperature sensor with the Witty Pi on a RPi involves connecting the sensor to another than the default GPIO pin of the RPi and configuring it accordingly. Assign 1-wire to a different GPIO pin by editing the interface in: `/boot/firmware/config.txt file`.
 
 Replace the `dtoverlay=w1-gpio` if found or simply add: `dtoverlay=w1-gpio,gpiopin=18`
 
