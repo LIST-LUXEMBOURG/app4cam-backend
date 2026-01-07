@@ -89,6 +89,7 @@ describe('SettingsController (e2e)', () => {
   }
   const GENERAL_JSON_SETTINGS = {
     deviceName: 'd',
+    isAlternatingLightModeEnabled: false,
     latitude: 1,
     locationAccuracy: 3,
     longitude: 2,
@@ -779,6 +780,7 @@ describe('SettingsController (e2e)', () => {
       }
       const goodGeneralPutSettings: GeneralSettingsPutDto = {
         deviceName: 'd',
+        isAlternatingLightModeEnabled: false,
         latitude: 1,
         locationAccuracy: 3,
         longitude: 2,

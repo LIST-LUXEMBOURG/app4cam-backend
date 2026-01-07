@@ -81,6 +81,10 @@ class GeneralSettingsPatchDto {
   deviceName?: string
 
   @IsOptional()
+  @IsBoolean()
+  isAlternatingLightModeEnabled?: boolean
+
+  @IsOptional()
   @IsNumber()
   @Min(-90)
   @Max(90)
@@ -189,6 +193,10 @@ export class GeneralSettingsPutDto {
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9-]+$/)
   deviceName: string
+
+  @IsNotEmpty()
+  @IsBoolean()
+  isAlternatingLightModeEnabled: boolean
 
   @IsNotEmpty()
   @IsNumber()

@@ -111,6 +111,7 @@ describe('SettingsService', () => {
     }
     const GENERAL_JSON_SETTINGS = {
       deviceName: 'd',
+      isAlternatingLightModeEnabled: false,
       latitude: LATITUDE,
       locationAccuracy: 3,
       longitude: LONGITUDE,
@@ -213,6 +214,7 @@ describe('SettingsService', () => {
       }
       const generalJsonSettings = {
         deviceName: 'dd',
+        isAlternatingLightModeEnabled: true,
         latitude: 1,
         locationAccuracy: 3,
         longitude: 2,
@@ -310,6 +312,7 @@ describe('SettingsService', () => {
       }
       const generalJsonSettings = {
         deviceName: 'dd',
+        isAlternatingLightModeEnabled: true,
         latitude: 1,
         locationAccuracy: 3,
         longitude: 2,
@@ -463,6 +466,11 @@ describe('SettingsService', () => {
     it('returns the latitude and longitude', async () => {
       const coordinates = await service.getLatitudeAndLongitude()
       expect(coordinates).toEqual({ latitude: LATITUDE, longitude: LONGITUDE })
+    })
+
+    it('returns the getIsAlternatingLightModeEnabled flag', async () => {
+      const flag = await service.getIsAlternatingLightModeEnabled()
+      expect(flag).toBe(GENERAL_JSON_SETTINGS.isAlternatingLightModeEnabled)
     })
 
     it('returns the useSunriseAndSunsetTimes flag', async () => {

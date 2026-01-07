@@ -94,6 +94,7 @@ describe(SettingsFileProvider.name, () => {
         },
         general: {
           deviceName: 'd',
+          isAlternatingLightModeEnabled: false,
           siteName: 's',
         },
         triggering: {

@@ -71,9 +71,15 @@ async function bootstrap() {
       }
     }
   }
+  const isAlternatingLightModeEnabled =
+    await settingsService.getIsAlternatingLightModeEnabled()
   const lightType = await settingsService.getTriggeringLight()
   try {
-    await InitialisationInteractor.resetLights(deviceType, lightType)
+    await InitialisationInteractor.resetLights(
+      deviceType,
+      isAlternatingLightModeEnabled,
+      lightType,
+    )
   } catch (error) {
     if (!(error instanceof CommandUnavailableOnWindowsException)) {
       throw error

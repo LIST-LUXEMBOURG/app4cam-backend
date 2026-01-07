@@ -57,12 +57,13 @@ export class InitialisationInteractor {
 
   static async resetLights(
     deviceType: string,
+    isAlternatingLightModeEnabled: boolean,
     lightType: LightType,
   ): Promise<void> {
     CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentWorkingDirectory = process.cwd()
     const { stderr } = await exec(
-      `sudo ${currentWorkingDirectory}/scripts/runtime/use-triggering-leds.sh ${deviceType} ${lightType}`,
+      `sudo ${currentWorkingDirectory}/scripts/runtime/reset-lights.sh ${deviceType} ${lightType} ${isAlternatingLightModeEnabled}`,
     )
     if (stderr) {
       throw new CommandExecutionException(stderr)

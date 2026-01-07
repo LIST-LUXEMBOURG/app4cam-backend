@@ -14,6 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
 
+if [ "$3" ]; then
+  is_alternating_light_mode_enabled="$3"
+else
+  is_alternating_light_mode_enabled=$(curl "http://127.0.0.1:3000/settings/isAlternatingLightModeEnabled")
+  echo "response: $is_alternating_light_mode_enabled"
+fi
+
+# Exit when alternating light mode is enabled because light should not change.
+if [ "$is_alternating_light_mode_enabled" = "true" ]; then
+  exit 0
+fi
+
 if [ "$1" = "Variscite" ]; then
   base_dir="$(dirname "$0")/variscite"
 elif [ "$1" = "RaspberryPi" ]; then

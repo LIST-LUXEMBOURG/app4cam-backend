@@ -20,6 +20,7 @@ import { PropertiesService } from '../properties/properties.service'
 import { Settings } from './entities/settings'
 import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
+const httpMocks = require('node-mocks-http')
 
 describe('SettingsController', () => {
   const SLEEPING_TIME = {
@@ -46,6 +47,7 @@ describe('SettingsController', () => {
     },
     general: {
       deviceName: 'd',
+      isAlternatingLightModeEnabled: false,
       latitude: 1,
       locationAccuracy: 3,
       longitude: 2,
@@ -100,6 +102,12 @@ describe('SettingsController', () => {
             getShotTypes: jest.fn().mockReturnValue(SHOT_TYPES),
             getSleepingTime: jest.fn().mockReturnValue(SLEEPING_TIME),
             getWakingUpTime: jest.fn().mockReturnValue(WAKING_UP_TIME),
+            getTriggeringLight: jest
+              .fn()
+              .mockReturnValue(SETTINGS.triggering.light),
+            getIsAlternatingLightModeEnabled: jest
+              .fn()
+              .mockReturnValue(SETTINGS.general.isAlternatingLightModeEnabled),
           },
         },
       ],
@@ -135,6 +143,7 @@ describe('SettingsController', () => {
       },
       general: {
         deviceName: 'd',
+        isAlternatingLightModeEnabled: true,
         latitude: 1,
         locationAccuracy: 3,
         longitude: 2,
@@ -217,5 +226,21 @@ describe('SettingsController', () => {
   it('gets the shot types', async () => {
     const response = await controller.getShotTypes()
     expect(response).toEqual({ shotTypes: SHOT_TYPES })
+  })
+
+  it('gets triggering light', async () => {
+    const response = httpMocks.createResponse()
+    await controller.getTriggeringLight(response)
+    expect(response.getHeader('Content-Type')).toEqual('text/plain')
+    expect(response._getData()).toEqual(SETTINGS.triggering.light)
+  })
+
+  it('gets the alternating light mode flag', async () => {
+    const response = httpMocks.createResponse()
+    await controller.getIsAlternatingLightModeEnabled(response)
+    expect(response.getHeader('Content-Type')).toEqual('text/plain')
+    expect(response._getData()).toEqual(
+      SETTINGS.general.isAlternatingLightModeEnabled.toString(),
+    )
   })
 })
