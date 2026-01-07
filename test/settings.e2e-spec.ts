@@ -110,6 +110,7 @@ describe('SettingsController (e2e)', () => {
 
   const ALL_SETTINGS: Settings = {
     camera: {
+      isFocusEnabled: true,
       focus: FOCUS,
       focusMaximum: FOCUS_MAX,
       focusMinimum: FOCUS_MIN,

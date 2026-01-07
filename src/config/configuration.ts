@@ -23,4 +23,8 @@ export const configuration = () => ({
   NODE_ENV: process.env.NODE_ENV,
   port: parseInt(process.env.PORT, 10),
   serviceName: process.env.SERVICE_NAME,
+  isFixedFocus:
+    (process.env.IS_CAMERA_FOCUS_FIXED &&
+      process.env.IS_CAMERA_FOCUS_FIXED == 'true') ||
+    false,
 })
