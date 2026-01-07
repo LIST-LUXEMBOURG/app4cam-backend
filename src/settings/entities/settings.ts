@@ -49,6 +49,7 @@ class TriggeringSettingsFromJsonFile {
 type ShotType = 'pictures' | 'videos'
 
 export interface CameraSettings extends CameraSettingsFromJsonFile {
+  isFocusEnabled: boolean
   isLightEnabled: boolean
   isPictureQualityEnabled: boolean
   isShotTypesEnabled: boolean

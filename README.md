@@ -45,7 +45,8 @@
 1. Run: `npm install`
 2. Copy config file `config/sample.env` to `config/development.env`.
 3. Set `DISABLE_ACCESS_CONTROL_ALLOW_ORIGIN` to `false`.
-4. Optionally edit further options as needed.
+4. Set `IS_CAMERA_FOCUS_FIXED` to `true` or `false` according to the used hardware
+5. Optionally edit further options as needed.
 
 ### Running the app
 

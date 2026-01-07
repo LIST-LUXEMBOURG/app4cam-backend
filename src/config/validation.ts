@@ -33,6 +33,8 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   SERVICE_NAME: string
+
+  IS_CAMERA_FOCUS_FIXED: boolean
 }
 
 export function validate(config: Record<string, unknown>) {

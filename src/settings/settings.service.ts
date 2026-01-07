@@ -61,6 +61,7 @@ const ALTERNATING_LIGHT_MODE_JOB_NAME = 'alternatingLightModeCronJob'
 @Injectable()
 export class SettingsService {
   private readonly deviceType: string
+  private readonly isFixedFocus: boolean
   private readonly logger = new Logger(SettingsService.name)
 
   constructor(
@@ -69,6 +70,7 @@ export class SettingsService {
     private readonly propertiesService: PropertiesService,
   ) {
     this.deviceType = this.configService.get<string>('deviceType')
+    this.isFixedFocus = this.configService.get<boolean>('isFixedFocus')
   }
 
   async getAllSettings(): Promise<Settings> {
@@ -89,16 +91,19 @@ export class SettingsService {
     let threshold = 1
     let thresholdMaximum = Number.MAX_SAFE_INTEGER
     let videoQuality = 0
+
     try {
-      const focusValues = await this.getFocusFromDriver()
-      focusMaximum = focusValues.max
-      focusMinimum = focusValues.min
-      if (isRaspberryPi) {
-        focus = focusValues.value
-      } else {
-        focus = await this.getFocusFromMotionAdaptedToCameraLight(
-          settingsFromFile.camera.light,
-        )
+      if (!this.isFixedFocus) {
+        const focusValues = await this.getFocusFromDriver()
+        focusMaximum = focusValues.max
+        focusMinimum = focusValues.min
+        if (isRaspberryPi) {
+          focus = focusValues.value
+        } else {
+          focus = await this.getFocusFromMotionAdaptedToCameraLight(
+            settingsFromFile.camera.light,
+          )
+        }
       }
 
       pictureQuality = await MotionClient.getPictureQuality()
@@ -122,6 +127,7 @@ export class SettingsService {
     return {
       camera: {
         ...settingsFromFile.camera,
+        isFocusEnabled: !this.isFixedFocus,
         focus,
         isLightEnabled: !isRaspberryPi,
         isPictureQualityEnabled: !isRaspberryPi,
@@ -622,13 +628,15 @@ export class SettingsService {
     }
 
     try {
-      if (isRaspberryPi) {
-        await this.setFocusInDriver(settings.camera.focus)
-      } else {
-        await this.setFocusInMotionAdaptedToCameraLight(
-          settings.camera.focus,
-          settings.camera.light,
-        )
+      if (!this.isFixedFocus) {
+        if (isRaspberryPi) {
+          await this.setFocusInDriver(settings.camera.focus)
+        } else {
+          await this.setFocusInMotionAdaptedToCameraLight(
+            settings.camera.focus,
+            settings.camera.light,
+          )
+        }
       }
 
       await MotionClient.setPictureQuality(settings.camera.pictureQuality)

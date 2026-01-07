@@ -34,6 +34,7 @@ describe('SettingsController', () => {
 
   const SETTINGS: Settings = {
     camera: {
+      isFocusEnabled: true,
       focus: 200,
       focusMaximum: Number.MAX_SAFE_INTEGER,
       focusMinimum: Number.MIN_SAFE_INTEGER,
@@ -135,6 +136,7 @@ describe('SettingsController', () => {
   it('sets all settings', async () => {
     const settings = {
       camera: {
+        isFocusEnabled: true,
         focus: 200,
         light: 'visible' as const,
         pictureQuality: 40,

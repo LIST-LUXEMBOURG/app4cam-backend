@@ -61,13 +61,27 @@ const mockPropertiesService = {
   getAvailableTimeZones: jest.fn().mockReturnValue(['t1', 't2']),
 }
 
+const mockConfigService = {
+  get: jest.fn((name) => {
+    switch (name) {
+      case 'deviceType':
+        return 'Variscite'
+      case 'isFixedFocus':
+        return false
+    }
+  }),
+}
+
 describe('SettingsService', () => {
   let service: SettingsService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ConfigService,
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
         {
           provide: PropertiesService,
           useValue: mockPropertiesService,
@@ -132,6 +146,7 @@ describe('SettingsService', () => {
 
     const ALL_SETTINGS: Settings = {
       camera: {
+        isFocusEnabled: true,
         focus: FOCUS,
         focusMaximum: FOCUS_MAX,
         focusMinimum: FOCUS_MIN,
