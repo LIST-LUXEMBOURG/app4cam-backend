@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022-2024  Luxembourg Institute of Science and Technology
+# Copyright (C) 2026 Luxembourg Institute of Science and Technology
 #
 # App4Cam is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,27 +14,22 @@
 # You should have received a copy of the GNU General Public License
 # along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
 
-# Exit when alternating light mode is enabled because light should not change.
-is_alternating_light_mode_enabled=$(curl "http://127.0.0.1:3000/settings/isAlternatingLightModeEnabled")
-if [ "$is_alternating_light_mode_enabled" = "true" ]; then
-  exit 0
-fi
-
 if [ "$1" = "Variscite" ]; then
   base_dir="$(dirname "$0")/variscite"
 elif [ "$1" = "RaspberryPi" ]; then
   base_dir="$(dirname "$0")/raspberry-pi"
 fi
 
-light_type=$(curl "http://127.0.0.1:3000/settings/cameraLight")
-echo "response: $light_type"
-
-infrared_leds_flag=0
-if [ "$light_type" = "infrared" ]; then
+day_of_year=$(date +%-j)
+if [ $((day_of_year % 2)) -eq 0 ]; then
+  # Turn on visible light on even days of the year.
+  infrared_leds_flag=0
+  visible_leds_flag=1
+else
+  # Turn on infrared light on odd days of the year.
   infrared_leds_flag=1
+  visible_leds_flag=0
 fi
-
-visible_leds_flag=$((1 - infrared_leds_flag))
 
 "$base_dir"/light/toggle-ir-leds.sh $infrared_leds_flag
 "$base_dir"/light/toggle-visible-leds.sh $visible_leds_flag

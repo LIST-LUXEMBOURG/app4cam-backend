@@ -151,4 +151,12 @@ export class SettingsController {
     res.type('text/plain')
     res.send(triggeringLight)
   }
+
+  @Get('isAlternatingLightModeEnabled')
+  async getIsAlternatingLightModeEnabled(@Res() res: Response): Promise<void> {
+    const isAlternatingLightModeEnabled =
+      await this.settingsService.getIsAlternatingLightModeEnabled()
+    res.type('text/plain')
+    res.send(isAlternatingLightModeEnabled)
+  }
 }

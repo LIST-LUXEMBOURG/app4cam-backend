@@ -41,6 +41,7 @@ import {
 import { ShotTypes } from './entities/shot-types'
 import { UndefinedPathException } from './exceptions/UndefinedPathException'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
+import { AlternatingLightModeInteractor } from './interactors/alternating-light-mode-interacting'
 import { SleepInteractor } from './interactors/sleep-interactor'
 import { SystemTimeInteractor } from './interactors/system-time-interactor'
 import { TemperatureInteractor } from './interactors/temperature-interactor'
@@ -55,6 +56,7 @@ const MOTION_VIDEO_PARAMS_FOCUS_KEY = 'Focus (absolute)'
 const RASPBERRY_PI_FOCUS_DEVICE_PATH = '/dev/v4l-subdev1'
 const SETTINGS_FILE_PATH = 'settings.json'
 const SLEEPING_CRON_JOB_NAME = 'sleepingCronJob'
+const ALTERNATING_LIGHT_MODE_JOB_NAME = 'alternatingLightModeCronJob'
 
 @Injectable()
 export class SettingsService {
@@ -132,6 +134,7 @@ export class SettingsService {
       },
       general: {
         deviceName: undefined,
+        isAlternatingLightModeEnabled: undefined,
         latitude: undefined,
         locationAccuracy: undefined,
         longitude: undefined,
@@ -352,6 +355,11 @@ export class SettingsService {
         newGeneralSettings.deviceName = settings.general.deviceName
       }
 
+      if ('isAlternatingLightModeEnabled' in settings.general) {
+        newGeneralSettings.isAlternatingLightModeEnabled =
+          settings.general.isAlternatingLightModeEnabled
+      }
+
       if ('latitude' in settings.general) {
         newGeneralSettings.latitude = settings.general.latitude
       }
@@ -415,6 +423,10 @@ export class SettingsService {
       const newTriggeringSettings: Partial<SettingsFromJsonFile['triggering']> =
         {}
 
+      if ('light' in settings.triggering) {
+        newTriggeringSettings.light = settings.triggering.light
+      }
+
       if ('sleepingTime' in settings.triggering) {
         newTriggeringSettings.sleepingTime = settings.triggering.sleepingTime
       }
@@ -431,25 +443,6 @@ export class SettingsService {
 
       if ('wakingUpTime' in settings.triggering) {
         newTriggeringSettings.wakingUpTime = settings.triggering.wakingUpTime
-      }
-
-      if (
-        'light' in settings.triggering &&
-        settings.triggering.light != settingsReadFromFile.triggering.light
-      ) {
-        newTriggeringSettings.light = settings.triggering.light
-
-        const deviceType = this.configService.get<string>('deviceType')
-        try {
-          await InitialisationInteractor.resetLights(
-            deviceType,
-            newTriggeringSettings.light,
-          )
-        } catch (error) {
-          if (!(error instanceof CommandUnavailableOnWindowsException)) {
-            throw error
-          }
-        }
       }
 
       if (Object.keys(newTriggeringSettings).length > 0) {
@@ -496,6 +489,46 @@ export class SettingsService {
         SETTINGS_FILE_PATH,
       )
       await this.storeSettingsFileToShotsFolder(settingsToUpdate)
+    }
+
+    if (
+      ('general' in settings &&
+        'isAlternatingLightModeEnabled' in settings.general &&
+        settings.general.isAlternatingLightModeEnabled !=
+          settingsReadFromFile.general.isAlternatingLightModeEnabled) ||
+      ('triggering' in settings &&
+        'light' in settings.triggering &&
+        settings.triggering.light != settingsReadFromFile.triggering.light)
+    ) {
+      const deviceType = this.configService.get<string>('deviceType')
+      let isAlternatingLightModeEnabled: boolean
+      if (
+        'general' in settings &&
+        'isAlternatingLightModeEnabled' in settings.general
+      ) {
+        isAlternatingLightModeEnabled =
+          settings.general.isAlternatingLightModeEnabled
+      } else {
+        isAlternatingLightModeEnabled =
+          settingsReadFromFile.general.isAlternatingLightModeEnabled
+      }
+      let lightType: LightType
+      if ('triggering' in settings && 'light' in settings.triggering) {
+        lightType = settings.triggering.light
+      } else {
+        lightType = settingsReadFromFile.triggering.light
+      }
+      try {
+        await InitialisationInteractor.resetLights(
+          deviceType,
+          isAlternatingLightModeEnabled,
+          lightType,
+        )
+      } catch (error) {
+        if (!(error instanceof CommandUnavailableOnWindowsException)) {
+          throw error
+        }
+      }
     }
 
     return settings
@@ -610,22 +643,6 @@ export class SettingsService {
       }
     }
 
-    const currentSettings =
-      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
-    if (currentSettings.triggering.light != settings.triggering.light) {
-      const deviceType = this.configService.get<string>('deviceType')
-      try {
-        await InitialisationInteractor.resetLights(
-          deviceType,
-          settings.triggering.light,
-        )
-      } catch (error) {
-        if (!(error instanceof CommandUnavailableOnWindowsException)) {
-          throw error
-        }
-      }
-    }
-
     if (this.deviceType === 'RaspberryPi') {
       this.configureWittyPiSchedule(
         settings.triggering.sleepingTime,
@@ -635,12 +652,16 @@ export class SettingsService {
 
     this.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
 
+    const currentSettings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     const settingsToWriteToFile: SettingsFromJsonFile = {
       camera: {
         light: settings.camera.light,
       },
       general: {
         deviceName: settings.general.deviceName,
+        isAlternatingLightModeEnabled:
+          settings.general.isAlternatingLightModeEnabled,
         latitude: settings.general.latitude,
         locationAccuracy: settings.general.locationAccuracy,
         longitude: settings.general.longitude,
@@ -679,6 +700,25 @@ export class SettingsService {
       settings.general.deviceName,
       settings.general.password,
     )
+
+    if (
+      currentSettings.general.isAlternatingLightModeEnabled !==
+        settings.general.isAlternatingLightModeEnabled ||
+      currentSettings.triggering.light != settings.triggering.light
+    ) {
+      const deviceType = this.configService.get<string>('deviceType')
+      try {
+        await InitialisationInteractor.resetLights(
+          deviceType,
+          settings.general.isAlternatingLightModeEnabled,
+          settings.triggering.light,
+        )
+      } catch (error) {
+        if (!(error instanceof CommandUnavailableOnWindowsException)) {
+          throw error
+        }
+      }
+    }
   }
 
   private async getAccessPointPassword(): Promise<string> {
@@ -1021,6 +1061,15 @@ export class SettingsService {
     }
   }
 
+  async getIsAlternatingLightModeEnabled(): Promise<boolean> {
+    const settings =
+      await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+    if (settings.general.isAlternatingLightModeEnabled === undefined) {
+      return false
+    }
+    return settings.general.isAlternatingLightModeEnabled
+  }
+
   async getUseSunriseAndSunsetTimes(): Promise<boolean> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
@@ -1051,7 +1100,7 @@ export class SettingsService {
     }
   }
 
-  @Cron(CronExpression.EVERY_MINUTE, { name: SLEEPING_CRON_JOB_NAME }) // every 1 minute
+  @Cron(CronExpression.EVERY_MINUTE, { name: SLEEPING_CRON_JOB_NAME })
   async sleepWhenItIsTime() {
     this.logger.log('Cron job to go to sleep when it is time triggered...')
     if (this.deviceType === 'RaspberryPi') {
@@ -1106,7 +1155,10 @@ export class SettingsService {
         wakingUpDateTime = wakingUpDateTime.plus({ days: 1 })
       }
       try {
-        SleepInteractor.triggerSleeping(wakingUpDateTime.toISO(), this.logger)
+        await SleepInteractor.triggerSleeping(
+          wakingUpDateTime.toISO(),
+          this.logger,
+        )
       } catch (error) {
         if (!(error instanceof CommandUnavailableOnWindowsException)) {
           throw error
@@ -1114,6 +1166,27 @@ export class SettingsService {
       }
     } else {
       this.logger.log('It is not yet time to sleep.')
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+    name: ALTERNATING_LIGHT_MODE_JOB_NAME,
+  })
+  async doAlternatingLightModeChange() {
+    this.logger.log('Cron job to do alternating light mode change triggered...')
+    const isAlternatingLightModeEnabled =
+      this.getIsAlternatingLightModeEnabled()
+    if (isAlternatingLightModeEnabled) {
+      this.logger.log('Alternating light mode is enabled. Doing the change...')
+      try {
+        await AlternatingLightModeInteractor.setLights()
+      } catch (error) {
+        if (!(error instanceof CommandUnavailableOnWindowsException)) {
+          throw error
+        }
+      }
+    } else {
+      this.logger.log('Alternating light mode is disabled. Nothing to do.')
     }
   }
 }

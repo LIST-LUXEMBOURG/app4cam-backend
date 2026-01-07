@@ -31,6 +31,7 @@ interface CameraSettingsFromJsonFile {
 
 class GeneralSettingsFromJsonFile {
   deviceName: string
+  isAlternatingLightModeEnabled: boolean
   latitude: number
   locationAccuracy: number
   longitude: number
