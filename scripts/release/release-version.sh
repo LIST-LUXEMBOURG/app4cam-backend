@@ -48,3 +48,6 @@ git push --tags
 # Append -next to the version number in package files, and commit.
 npm version "$NEW_VERSION-next" --no-git-tag-version
 git commit -am "prepare next release" --no-verify
+
+# Push the commit to the remote repository without running the pipeline.
+git push -o ci.skip

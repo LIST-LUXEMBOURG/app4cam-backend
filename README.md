@@ -414,14 +414,10 @@ If you have set up the frontend already, you can just follow its [setup guide](h
 
 ## Release procedure
 
-1. Run the following script with the real version number in a Git Bash:
+Run the following script with the real version number in a Git Bash:
 
-   ```shell
-   scripts/release/release-version.sh "<version-number>"
-   ```
+```shell
+scripts/release/release-version.sh "<version-number>"
+```
 
-2. Push the pre-version commit to the remote repository once it should be shared:
-
-   ```shell
-   git push
-   ```
+At the end, the pre-version commit is pushed to the remote repository without running the pipeline.
