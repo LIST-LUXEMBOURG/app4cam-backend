@@ -105,7 +105,8 @@ deploy-raspberry-pi:
       cd $CI_PROJECT_NAME &&
       npm ci --omit=dev --ignore-scripts &&
       make -C scripts/runtime/raspberry-pi/air-temperature &&
-      chmod +x scripts/runtime/raspberry-pi/air-temperature/read_air_temp &&
+      make -C scripts/runtime/raspberry-pi/light-control &&
+      chmod +x scripts/runtime/raspberry-pi/air-temperature/read_air_temp scripts/runtime/raspberry-pi/light-control/lightctl &&
       chmod g+w motion/config/DiMON/motion.conf &&
       sudo /root/motion/start-motion-service.sh &&
       systemctl --user start $CI_PROJECT_NAME &&
@@ -154,7 +155,8 @@ deploy-variscite-newtcam:
       make -C scripts/runtime/variscite/battery-monitoring &&
       make -C scripts/runtime/variscite/rtc &&
       make -C scripts/runtime/variscite/wi-fi-control &&
-      chmod +x scripts/runtime/variscite/battery-monitoring/battery_monitoring scripts/runtime/variscite/rtc/sleep_until scripts/runtime/variscite/rtc/set_time scripts/runtime/variscite/rtc/get_time scripts/runtime/variscite/wi-fi-control/wifi_control &&
+      make -C scripts/runtime/variscite/light-control &&
+      chmod +x scripts/runtime/variscite/battery-monitoring/battery_monitoring scripts/runtime/variscite/rtc/sleep_until scripts/runtime/variscite/rtc/set_time scripts/runtime/variscite/rtc/get_time scripts/runtime/variscite/wi-fi-control/wifi_control scripts/runtime/variscite/light-control/lightd scripts/runtime/variscite/light-control/lightctl &&
       chmod g+w motion/config/NewtCAM/motion.conf &&
       sudo /root/motion/start-motion-service.sh &&
       systemctl --user start $CI_PROJECT_NAME &&

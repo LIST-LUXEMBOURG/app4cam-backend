@@ -1,5 +1,4 @@
-#!/bin/bash
-# Copyright (C) 2022-2024  Luxembourg Institute of Science and Technology
+# Copyright (C) 2022-2026  Luxembourg Institute of Science and Technology
 #
 # App4Cam is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,10 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
 
-# GPIO5_IO3
-line_nr="gpiochip4"
-pin_nr="3"
+CC      = gcc
+CFLAGS  = -Wall -Wextra -O2
+LDFLAGS = -lgpiod
 
-echo "Setting visible lights to $1"
+DAEMON  = lightd
+CLIENT  = lightctl
 
-gpioset "$line_nr" "$pin_nr"="$1"
+all: $(DAEMON) $(CLIENT)
+
+$(DAEMON): lightd.c
+	$(CC) $(CFLAGS) lightd.c -o $(DAEMON) $(LDFLAGS)
+
+$(CLIENT): lightctl.c
+	$(CC) $(CFLAGS) lightctl.c -o $(CLIENT)
+
+clean:
+	rm -f $(DAEMON) $(CLIENT)
+
+.PHONY: all clean
