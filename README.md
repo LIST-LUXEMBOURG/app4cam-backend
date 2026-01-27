@@ -355,6 +355,7 @@ Replace the `dtoverlay=w1-gpio` if found or simply add: `dtoverlay=w1-gpio,gpiop
 
 To get a complete overview of the hardware available and it's configuartion please read the wiki [variscite-guide](https://git.list.lu/host/mechatronics/app4cam-frontend/-/wikis/variscite-guide).
 
+- **Light Control** - Follow the local guide available here [Light Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/light-control/README.md).
 - **WiFi Control** - Follow the local guide available here [WiFi Control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/wi-fi-control/README.md).
 - **Battery Monitoring** - Follow the local guide available here [Battery Monitoring](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/battery-monitoring/README.md).
 - **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/rtc/README.md).

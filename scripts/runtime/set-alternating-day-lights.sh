@@ -20,16 +20,12 @@ elif [ "$1" = "RaspberryPi" ]; then
   base_dir="$(dirname "$0")/raspberry-pi"
 fi
 
+light_type="infrared"
+
 day_of_year=$(date +%-j)
 if [ $((day_of_year % 2)) -eq 0 ]; then
   # Turn on visible light on even days of the year.
-  infrared_leds_flag=0
-  visible_leds_flag=1
-else
-  # Turn on infrared light on odd days of the year.
-  infrared_leds_flag=1
-  visible_leds_flag=0
+  light_type="visible"
 fi
 
-"$base_dir"/light/toggle-ir-leds.sh $infrared_leds_flag
-"$base_dir"/light/toggle-visible-leds.sh $visible_leds_flag
+"$base_dir"/light-control/lightctl set "$light_type"
