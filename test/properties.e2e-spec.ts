@@ -21,6 +21,7 @@ import { AppModule } from '../src/app.module'
 import { SunriseAndSunsetDto } from '../src/properties/dto/sunrise-and-sunset.dto'
 import { VersionDto } from '../src/properties/dto/version.dto'
 import { BatteryInteractor } from '../src/properties/interactors/battery-interactor'
+import { LightTypeInteractor } from '../src/properties/interactors/light-type-interactor'
 import { MacAddressInteractor } from '../src/properties/interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
 import { VersionInteractor } from '../src/properties/interactors/version-interactor'
@@ -31,6 +32,7 @@ describe('PropertiesController (e2e)', () => {
   const AVAILABLE_TIME_ZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const BATTERY_VOLTAGE = 1.2
   const DEVICE_ID = 'a'
+  const LIGHT_TYPE = 'visible'
   const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
     sunrise: {
       hour: 1,
@@ -51,6 +53,7 @@ describe('PropertiesController (e2e)', () => {
   let spyGetAvailableTimeZones
   let spyGetBatteryVoltage
   let spyGetFirstMacAddress
+  let spyGetLightType
   let spyGetVersion
 
   beforeAll(() => {
@@ -66,6 +69,9 @@ describe('PropertiesController (e2e)', () => {
     spyGetFirstMacAddress = jest
       .spyOn(MacAddressInteractor, 'getFirstMacAddress')
       .mockResolvedValue(DEVICE_ID)
+    spyGetLightType = jest
+      .spyOn(LightTypeInteractor, 'getLightType')
+      .mockResolvedValue(LIGHT_TYPE)
     spyGetVersion = jest
       .spyOn(VersionInteractor, 'getVersion')
       .mockResolvedValue(USAGE)
@@ -100,6 +106,13 @@ describe('PropertiesController (e2e)', () => {
         .get('/properties/deviceId')
         .expect('Content-Type', /json/)
         .expect(200, { deviceId: DEVICE_ID })
+    })
+
+    it('/lightType (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/properties/lightType')
+        .expect('Content-Type', /json/)
+        .expect(200, { lightType: LIGHT_TYPE })
     })
 
     it('/sunsetAndSunrise (GET)', () => {
@@ -138,6 +151,7 @@ describe('PropertiesController (e2e)', () => {
     spyGetAvailableTimeZones.mockRestore()
     spyGetBatteryVoltage.mockRestore()
     spyGetFirstMacAddress.mockRestore()
+    spyGetLightType.mockRestore()
     spyGetVersion.mockRestore()
   })
 })

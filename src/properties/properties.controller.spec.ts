@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022-2024  Luxembourg Institute of Science and Technology
+ * Copyright (C) 2022-2026 Luxembourg Institute of Science and Technology
  *
  * App4Cam is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ const AVAILABLE_TIME_ZONES = ['a', 'b']
 const CAMERA_CONNECTED_FLAG = true
 
 const DEVICE_ID = 'a'
+
+const LIGHT_TYPE = 'visible'
 
 const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
   sunrise: {
@@ -58,6 +60,7 @@ describe(PropertiesController.name, () => {
               .fn()
               .mockReturnValue(AVAILABLE_TIME_ZONES),
             getDeviceId: jest.fn().mockReturnValue(DEVICE_ID),
+            getLightType: jest.fn().mockReturnValue(LIGHT_TYPE),
             getNextSunsetAndSunrise: jest
               .fn()
               .mockReturnValue(SUNRISE_AND_SUNSET),
@@ -83,6 +86,11 @@ describe(PropertiesController.name, () => {
   it('gets the device ID', async () => {
     const response = await controller.getDeviceId()
     expect(response).toEqual({ deviceId: DEVICE_ID })
+  })
+
+  it('gets the light type', async () => {
+    const response = await controller.getLightType()
+    expect(response).toEqual({ lightType: LIGHT_TYPE })
   })
 
   it('gets the sunrise and sunset', async () => {

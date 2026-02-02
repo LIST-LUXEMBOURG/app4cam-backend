@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022-2024  Luxembourg Institute of Science and Technology
+ * Copyright (C) 2022-2026 Luxembourg Institute of Science and Technology
  *
  * App4Cam is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ import { Controller, Get } from '@nestjs/common'
 import { BatteryVoltageDto } from './dto/battery-voltage.dto'
 import { CameraConnectionStatusDto } from './dto/camera-connection-status.dto'
 import { DeviceIdDto } from './dto/device-id.dto'
+import { LightTypeDto } from './dto/light-type.dto'
 import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
 import { TimeZonesDto } from './dto/time-zones.dto'
 import { VersionDto } from './dto/version.dto'
@@ -48,6 +49,22 @@ export class PropertiesController {
     const deviceId = await this.propertiesService.getDeviceId()
     return {
       deviceId,
+    }
+  }
+
+  @Get('lightType')
+  async getLightType(): Promise<LightTypeDto> {
+    const lightType = await this.propertiesService.getLightType()
+    if (
+      lightType === 'infrared' ||
+      lightType === 'visible' ||
+      lightType === 'unsupported'
+    ) {
+      return {
+        lightType,
+      }
+    } else {
+      throw Error(`Invalid light type value: ${lightType}`)
     }
   }
 
