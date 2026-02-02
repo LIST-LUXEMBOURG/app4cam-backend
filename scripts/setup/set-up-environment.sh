@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022-2024  Luxembourg Institute of Science and Technology
+# Copyright (C) 2022-2026 Luxembourg Institute of Science and Technology
 #
 # App4Cam is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@ elif [ "$device_type" = '2' ]; then
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/access-point/change-access-point-name-or-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/access-point/get-access-point-password.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/battery-monitoring/battery_monitoring" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+  echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/light-control/lightctl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/rtc/set_time" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
   echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/variscite/rtc/sleep_until" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 fi

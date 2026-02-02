@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022-2024  Luxembourg Institute of Science and Technology
+ * Copyright (C) 2022-2026 Luxembourg Institute of Science and Technology
  *
  * App4Cam is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,9 @@ import { SettingsService } from '../settings/settings.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
 import { VersionDto } from './dto/version.dto'
+import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException'
 import { BatteryInteractor } from './interactors/battery-interactor'
+import { LightTypeInteractor } from './interactors/light-type-interactor'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from './interactors/system-time-zones-interactor'
 import { VersionInteractor } from './interactors/version-interactor'
@@ -73,6 +75,22 @@ export class PropertiesService {
     } catch (error) {
       if (error instanceof CommandUnavailableOnWindowsException) {
         return '<not supported on Windows>'
+      }
+      throw error
+    }
+  }
+
+  async getLightType(): Promise<string> {
+    const deviceType = this.configService.get<string>('deviceType')
+    try {
+      const lightType = await LightTypeInteractor.getLightType(deviceType)
+      return lightType
+    } catch (error) {
+      if (
+        error instanceof CommandUnavailableOnWindowsException ||
+        error instanceof UnsupportedDeviceTypeException
+      ) {
+        return 'unsupported'
       }
       throw error
     }

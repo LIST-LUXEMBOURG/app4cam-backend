@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2022-2024  Luxembourg Institute of Science and Technology
+ * Copyright (C) 2022-2026 Luxembourg Institute of Science and Technology
  *
  * App4Cam is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,10 @@ import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MotionClient } from '../motion-client'
 import { SettingsService } from '../settings/settings.service'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { VersionDto } from './dto/version.dto'
+import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException'
+import { LightTypeInteractor } from './interactors/light-type-interactor'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from './interactors/system-time-zones-interactor'
 import { VersionInteractor } from './interactors/version-interactor'
@@ -28,6 +31,8 @@ import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
 const AVAILABLE_TIME_ZONES = ['t1', 't2']
 
 const DEVICE_ID = 'a'
+
+const LIGHT_TYPE = 'visible'
 
 const SUNRISE_AND_SUNSET = {
   sunrise: {
@@ -82,6 +87,37 @@ describe(PropertiesService.name, () => {
     spyGetDeviceId.mockRestore()
   })
 
+  it('gets the light type', async () => {
+    const spy = jest
+      .spyOn(LightTypeInteractor, 'getLightType')
+      .mockResolvedValue(LIGHT_TYPE)
+    const response = await service.getLightType()
+    expect(response).toBe(LIGHT_TYPE)
+    spy.mockRestore()
+  })
+
+  it('returns unsupported when requesting the light type on unsupported device', async () => {
+    const spy = jest
+      .spyOn(LightTypeInteractor, 'getLightType')
+      .mockImplementation(() => {
+        throw new UnsupportedDeviceTypeException('a')
+      })
+    const response = await service.getLightType()
+    expect(response).toBe('unsupported')
+    spy.mockRestore()
+  })
+
+  it('returns unsupported when requesting the light type on Windows', async () => {
+    const spy = jest
+      .spyOn(LightTypeInteractor, 'getLightType')
+      .mockImplementation(() => {
+        throw new CommandUnavailableOnWindowsException()
+      })
+    const response = await service.getLightType()
+    expect(response).toBe('unsupported')
+    spy.mockRestore()
+  })
+
   it('gets the sunrise and sunset', async () => {
     const spyCalculateSunriseAndSunset = jest
       .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
@@ -121,7 +157,7 @@ describe(PropertiesService.name, () => {
         throw new Error()
       })
     const response = await service.isCameraConnected()
-    expect(response).toEqual(null)
+    expect(response).toBeNull()
     spyIsCameraConnected.mockRestore()
   })
 
