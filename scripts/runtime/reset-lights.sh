@@ -22,7 +22,7 @@ is_alternating_light_mode_enabled="$3"
 
 # If alternating light mode is enabled, set it and nothing else.
 if [ "$is_alternating_light_mode_enabled" = "true" ]; then
-  "$base_dir"/set-alternating-day-lights.sh "$device_type"
+  "$base_dir"/set-alternating-lights.sh "$device_type"
   exit 0
 fi
 

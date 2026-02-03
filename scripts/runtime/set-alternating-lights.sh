@@ -18,14 +18,27 @@ if [ "$1" = "Variscite" ]; then
   base_dir="$(dirname "$0")/variscite"
 elif [ "$1" = "RaspberryPi" ]; then
   base_dir="$(dirname "$0")/raspberry-pi"
+else
+  echo 'Invalid or no device type given!'
+  exit 1
 fi
 
-light_type="infrared"
-
 day_of_year=$(date +%-j)
+hour=$(date +%-H)
 if [ $((day_of_year % 2)) -eq 0 ]; then
-  # Turn on visible light on even days of the year.
-  light_type="visible"
+  # even days: infrared from midday on, visible before midday
+  if [ "$hour" -ge 12 ]; then
+    light_type="infrared"
+  else
+    light_type="visible"
+  fi
+else
+  # odd days: visible from midday on, infrared before midday
+  if [ "$hour" -ge 12 ]; then
+    light_type="visible"
+  else
+    light_type="infrared"
+  fi
 fi
 
 "$base_dir"/light-control/lightctl set "$light_type"
