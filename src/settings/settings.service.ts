@@ -1177,7 +1177,7 @@ export class SettingsService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+  @Cron(CronExpression.EVERY_DAY_AT_NOON, {
     name: ALTERNATING_LIGHT_MODE_JOB_NAME,
   })
   async doAlternatingLightModeChange() {
@@ -1187,7 +1187,7 @@ export class SettingsService {
     if (isAlternatingLightModeEnabled) {
       this.logger.log('Alternating light mode is enabled. Doing the change...')
       try {
-        await AlternatingLightModeInteractor.setLights()
+        await AlternatingLightModeInteractor.setLights(this.deviceType)
       } catch (error) {
         if (!(error instanceof CommandUnavailableOnWindowsException)) {
           throw error

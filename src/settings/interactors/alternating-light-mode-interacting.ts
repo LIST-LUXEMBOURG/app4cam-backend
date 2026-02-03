@@ -22,11 +22,11 @@ import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/Co
 const exec = promisify(execSync)
 
 export class AlternatingLightModeInteractor {
-  static async setLights(): Promise<void> {
+  static async setLights(deviceType: string): Promise<void> {
     CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentWorkingDirectory = process.cwd()
     const { stderr } = await exec(
-      `sudo ${currentWorkingDirectory}/scripts/runtime/set-alternating-day-lights.sh`,
+      `sudo ${currentWorkingDirectory}/scripts/runtime/set-alternating-lights.sh ${deviceType}`,
     )
     if (stderr) {
       throw new CommandExecutionException(stderr)
