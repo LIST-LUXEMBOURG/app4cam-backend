@@ -1,6 +1,6 @@
 {
   "name": "app4cam-backend",
-  "version": "5.4.1-next",
+  "version": "5.5.0",
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist",
