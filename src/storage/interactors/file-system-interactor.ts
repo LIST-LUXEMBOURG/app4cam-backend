@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { lstat, readdir } from 'fs/promises'
-import path = require('path')
+import path from 'path'
 
 export class FileSystemInteractor {
   static async getSubdirectories(pathToRead: string): Promise<string[]> {

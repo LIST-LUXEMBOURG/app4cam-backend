@@ -14,8 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const transformer = require('@nestjs/swagger/plugin')
+import * as transformer from '@nestjs/swagger/plugin'
 
 module.exports.name = 'nestjs-swagger-transformer'
 

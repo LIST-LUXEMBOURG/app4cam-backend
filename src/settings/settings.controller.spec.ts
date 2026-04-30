@@ -16,11 +16,11 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { createResponse } from 'node-mocks-http'
 import { PropertiesService } from '../properties/properties.service'
 import { Settings } from './entities/settings'
 import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
-const httpMocks = require('node-mocks-http')
 
 describe('SettingsController', () => {
   const SLEEPING_TIME = {
@@ -231,14 +231,14 @@ describe('SettingsController', () => {
   })
 
   it('gets triggering light', async () => {
-    const response = httpMocks.createResponse()
+    const response = createResponse()
     await controller.getTriggeringLight(response)
     expect(response.getHeader('Content-Type')).toEqual('text/plain')
     expect(response._getData()).toEqual(SETTINGS.triggering.light)
   })
 
   it('gets the alternating light mode flag', async () => {
-    const response = httpMocks.createResponse()
+    const response = createResponse()
     await controller.getIsAlternatingLightModeEnabled(response)
     expect(response.getHeader('Content-Type')).toEqual('text/plain')
     expect(response._getData()).toEqual(

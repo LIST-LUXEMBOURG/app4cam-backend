@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { mkdir, readdir, readFile, rm } from 'fs/promises'
-import path = require('path')
+import path from 'path'
 import { FileSystemInteractor } from './interactors/file-system-interactor'
 import { UpgradeFileFlagHandler } from './upgrade-file-handler'
 

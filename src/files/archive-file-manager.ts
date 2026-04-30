@@ -16,7 +16,7 @@
  */
 import { createWriteStream } from 'fs'
 import { LoggerService } from '@nestjs/common'
-import archiver = require('archiver')
+import archiver from 'archiver'
 
 const COMPRESSION_LEVEL = 1 // 0 (no compression) to 9 (best compression), or -1 (default compression)
 

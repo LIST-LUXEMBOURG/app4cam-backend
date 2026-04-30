@@ -16,7 +16,7 @@
  */
 import { exec as execSync } from 'child_process'
 import { access, constants, readdir, rm, writeFile } from 'fs/promises'
-import path = require('path')
+import path from 'path'
 import { promisify } from 'util'
 import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
 import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
