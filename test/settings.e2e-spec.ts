@@ -16,7 +16,7 @@
  */
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import * as request from 'supertest'
+import request from 'supertest'
 import { InitialisationInteractor } from '../src/initialisation-interactor'
 import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
 import { AccessPointInteractor } from '../src/settings/interactors/access-point-interactor'

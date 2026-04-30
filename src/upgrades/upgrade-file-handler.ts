@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import path = require('path')
+import path from 'path'
 import { FileSystemInteractor } from './interactors/file-system-interactor'
 
 const FLAG_FILENAME = 'upgrading'
@@ -31,7 +31,7 @@ export class UpgradeFileFlagHandler {
     try {
       await FileSystemInteractor.checkWhetherFileExists(this.flagFilePath)
       return true
-    } catch (error) {
+    } catch {
       return false
     }
   }

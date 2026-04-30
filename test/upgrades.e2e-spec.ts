@@ -16,7 +16,7 @@
  */
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import * as request from 'supertest'
+import request from 'supertest'
 import { UpgradeFileCheckResultDto } from '../src/upgrades/dto/upgrade-file-check-result.dto'
 import { UpgradesService } from '../src/upgrades/upgrades.service'
 import { AppModule } from './../src/app.module'

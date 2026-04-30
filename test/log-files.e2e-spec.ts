@@ -17,7 +17,7 @@
 import { rm, writeFile } from 'fs/promises'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import * as request from 'supertest'
+import request from 'supertest'
 import { LogFileInteractor } from '../src/log-files/log-file-interactor'
 import { AppModule } from './../src/app.module'
 

@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { cp, mkdir, readdir, rm } from 'fs/promises'
-import path = require('path')
+import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MotionClient } from '../motion-client'
 import { UpgradesService } from './upgrades.service'

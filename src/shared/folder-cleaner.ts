@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { lstat, readdir, rm } from 'fs/promises'
-import path = require('path')
+import path from 'path'
 
 const TIME_TO_LIVE_MILLISECONDS = 3600000 // 1 hour
 

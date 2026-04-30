@@ -12,4 +12,9 @@ module.exports = {
   testEnvironment: 'node',
   modulePathIgnorePatterns: fixturesAndTestsToIgnore,
   watchPathIgnorePatterns: fixturesAndTestsToIgnore,
+  globals: {
+    'ts-jest': {
+      tsConfig: 'tsconfig.test.json',
+    },
+  },
 }

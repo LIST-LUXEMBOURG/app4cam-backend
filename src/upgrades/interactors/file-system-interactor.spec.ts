@@ -24,7 +24,7 @@ import {
   rm,
   writeFile,
 } from 'fs/promises'
-import path = require('path')
+import path from 'path'
 import { FileSystemInteractor } from './file-system-interactor'
 
 describe(FileSystemInteractor.name, () => {

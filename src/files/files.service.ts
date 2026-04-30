@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { lstat, readdir, rm } from 'fs/promises'
-import path = require('path')
+import path from 'path'
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { MotionClient } from '../motion-client'

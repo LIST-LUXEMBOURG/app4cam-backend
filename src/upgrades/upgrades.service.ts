@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import path = require('path')
+import path from 'path'
 import { Injectable, Logger } from '@nestjs/common'
 import { MotionClient } from '../motion-client'
 import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto'

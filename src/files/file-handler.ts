@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { createReadStream } from 'fs'
-import path = require('path')
+import path from 'path'
 import { File } from './entities/file.entity'
 import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity'
 import { MimeTypeDeterminer } from './mime-type-determiner'
