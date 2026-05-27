@@ -4,10 +4,10 @@
   "editor.formatOnSave": true,
   "editor.guides.bracketPairs": true,
   "eslint.validate": ["javascript", "typescript"],
-  "files.eol": "\n",
-  "typescript.tsdk": "node_modules/typescript/lib",
   "files.associations": {
     "mcp7940.h": "c"
   },
-  "typescript.preferences.importModuleSpecifier": "relative"
+  "files.eol": "\n",
+  "js/ts.preferences.importModuleSpecifier": "relative",
+  "js/ts.tsdk.path": "./node_modules/typescript/lib"
 }
