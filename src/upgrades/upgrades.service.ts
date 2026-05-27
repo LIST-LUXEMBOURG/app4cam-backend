@@ -150,6 +150,7 @@ export class UpgradesService {
 
   private logAndCreateNegativeUpgradeFileCheckResult(
     message: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
   ): UpgradeFileCheckResultDto {
     this.logger.error(message, error)
