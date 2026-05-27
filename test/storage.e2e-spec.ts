@@ -18,9 +18,9 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { AppModule } from '../src/app.module'
+import { StorageStatusDto } from '../src/storage/dto/storage-status.dto'
+import { StorageUsageDto } from '../src/storage/dto/storage-usage.dto'
 import { StorageUsageInteractor } from '../src/storage/interactors/storage-usage-interactor'
-import { StorageStatusDto } from 'src/storage/dto/storage-status.dto'
-import { StorageUsageDto } from 'src/storage/dto/storage-usage.dto'
 
 const FILES_FOLDER_PATH = 'src/files/fixtures/'
 

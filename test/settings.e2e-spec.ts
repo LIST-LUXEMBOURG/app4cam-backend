@@ -19,17 +19,17 @@ import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { InitialisationInteractor } from '../src/initialisation-interactor'
 import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
+import {
+  CameraSettingsPutDto,
+  GeneralSettingsPutDto,
+  TriggeringSettingsPutDto,
+} from '../src/settings/dto/settings.dto'
+import { Settings } from '../src/settings/entities/settings'
 import { AccessPointInteractor } from '../src/settings/interactors/access-point-interactor'
 import { SystemTimeInteractor } from '../src/settings/interactors/system-time-interactor'
 import { VideoDeviceInteractor } from '../src/settings/interactors/video-device-interactor'
 import { SettingsFileProvider } from '../src/settings/settings-file-provider'
 import { AppModule } from './../src/app.module'
-import {
-  CameraSettingsPutDto,
-  GeneralSettingsPutDto,
-  TriggeringSettingsPutDto,
-} from 'src/settings/dto/settings.dto'
-import { Settings } from 'src/settings/entities/settings'
 
 const HEIGHT = 2
 const MOVIE_QUALITY = 80
