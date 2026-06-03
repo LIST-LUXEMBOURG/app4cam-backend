@@ -26,7 +26,7 @@ import { Cron, CronExpression } from '@nestjs/schedule'
 import { DateTime } from 'luxon'
 import { FileNamer } from '../files/file-namer'
 import { InitialisationInteractor } from '../initialisation-interactor'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { PropertiesService } from '../properties/properties.service'
 import TriggeringTime from '../shared/entities/triggering-time'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
@@ -66,6 +66,7 @@ export class SettingsService {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly motionClientService: MotionClientService,
     @Inject(forwardRef(() => PropertiesService))
     private readonly propertiesService: PropertiesService,
   ) {
@@ -106,14 +107,14 @@ export class SettingsService {
         }
       }
 
-      pictureQuality = await MotionClient.getPictureQuality()
-      threshold = await MotionClient.getThreshold()
-      videoQuality = await MotionClient.getMovieQuality()
+      pictureQuality = await this.motionClientService.getPictureQuality()
+      threshold = await this.motionClientService.getThreshold()
+      videoQuality = await this.motionClientService.getMovieQuality()
 
       shotTypes = await this.getShotTypes()
 
-      const height = await MotionClient.getHeight()
-      const width = await MotionClient.getWidth()
+      const height = await this.motionClientService.getHeight()
+      const width = await this.motionClientService.getWidth()
       thresholdMaximum = height * width
     } catch (error) {
       if (error.config && error.config.url) {
@@ -271,8 +272,8 @@ export class SettingsService {
       }
 
       if ('threshold' in settings.triggering) {
-        const height = await MotionClient.getHeight()
-        const width = await MotionClient.getWidth()
+        const height = await this.motionClientService.getHeight()
+        const width = await this.motionClientService.getWidth()
         if (settings.triggering.threshold > height * width) {
           throw new BadRequestException(
             'The threshold must be smaller or equal to the resolution.',
@@ -316,23 +317,27 @@ export class SettingsService {
       }
 
       if ('pictureQuality' in settings.camera) {
-        await MotionClient.setPictureQuality(settings.camera.pictureQuality)
+        await this.motionClientService.setPictureQuality(
+          settings.camera.pictureQuality,
+        )
       }
       if ('videoQuality' in settings.camera) {
-        await MotionClient.setMovieQuality(settings.camera.videoQuality)
+        await this.motionClientService.setMovieQuality(
+          settings.camera.videoQuality,
+        )
       }
 
       if ('shotTypes' in settings.camera) {
         try {
           if (settings.camera.shotTypes.includes('pictures')) {
-            await MotionClient.setPictureOutput('best')
+            await this.motionClientService.setPictureOutput('best')
           } else {
-            await MotionClient.setPictureOutput('off')
+            await this.motionClientService.setPictureOutput('off')
           }
           if (settings.camera.shotTypes.includes('videos')) {
-            await MotionClient.setMovieOutput('on')
+            await this.motionClientService.setMovieOutput('on')
           } else {
-            await MotionClient.setMovieOutput('off')
+            await this.motionClientService.setMovieOutput('off')
           }
         } catch (error) {
           if (error.config && error.config.url) {
@@ -402,7 +407,7 @@ export class SettingsService {
           generalSettingsMerged.deviceName,
           timeZone,
         )
-        await MotionClient.setFilename(filename)
+        await this.motionClientService.setFilename(filename)
 
         if (
           'deviceName' in settings.general ||
@@ -412,7 +417,7 @@ export class SettingsService {
             generalSettingsMerged.siteName,
             generalSettingsMerged.deviceName,
           )
-          await MotionClient.setLeftTextOnImage(imageText)
+          await this.motionClientService.setLeftTextOnImage(imageText)
         }
       }
 
@@ -472,7 +477,9 @@ export class SettingsService {
 
       if ('threshold' in settings.triggering) {
         try {
-          await MotionClient.setThreshold(settings.triggering.threshold)
+          await this.motionClientService.setThreshold(
+            settings.triggering.threshold,
+          )
         } catch (error) {
           if (error.config && error.config.url) {
             this.logger.error(`Could not connect to ${error.config.url}`)
@@ -578,8 +585,8 @@ export class SettingsService {
     }
 
     if ('threshold' in settings.triggering) {
-      const height = await MotionClient.getHeight()
-      const width = await MotionClient.getWidth()
+      const height = await this.motionClientService.getHeight()
+      const width = await this.motionClientService.getWidth()
       if (settings.triggering.threshold > height * width) {
         throw new BadRequestException(
           'The threshold must be smaller or equal to the resolution.',
@@ -608,14 +615,14 @@ export class SettingsService {
     if ('shotTypes' in settings.camera) {
       try {
         if (settings.camera.shotTypes.includes('pictures')) {
-          await MotionClient.setPictureOutput('best')
+          await this.motionClientService.setPictureOutput('best')
         } else {
-          await MotionClient.setPictureOutput('off')
+          await this.motionClientService.setPictureOutput('off')
         }
         if (settings.camera.shotTypes.includes('videos')) {
-          await MotionClient.setMovieOutput('on')
+          await this.motionClientService.setMovieOutput('on')
         } else {
-          await MotionClient.setMovieOutput('off')
+          await this.motionClientService.setMovieOutput('off')
         }
       } catch (error) {
         if (error.config && error.config.url) {
@@ -639,9 +646,13 @@ export class SettingsService {
         }
       }
 
-      await MotionClient.setPictureQuality(settings.camera.pictureQuality)
-      await MotionClient.setMovieQuality(settings.camera.videoQuality)
-      await MotionClient.setThreshold(settings.triggering.threshold)
+      await this.motionClientService.setPictureQuality(
+        settings.camera.pictureQuality,
+      )
+      await this.motionClientService.setMovieQuality(
+        settings.camera.videoQuality,
+      )
+      await this.motionClientService.setThreshold(settings.triggering.threshold)
     } catch (error) {
       if (error.config && error.config.url) {
         this.logger.error(`Could not connect to ${error.config.url}`)
@@ -694,13 +705,13 @@ export class SettingsService {
       settings.general.deviceName,
       settings.general.timeZone,
     )
-    await MotionClient.setFilename(filename)
+    await this.motionClientService.setFilename(filename)
 
     const imageText = MotionTextAssembler.createImageText(
       settings.general.siteName,
       settings.general.deviceName,
     )
-    await MotionClient.setLeftTextOnImage(imageText)
+    await this.motionClientService.setLeftTextOnImage(imageText)
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
@@ -772,7 +783,8 @@ export class SettingsService {
   private async getFocusFromMotionAdaptedToCameraLight(
     light: LightType,
   ): Promise<number> {
-    const videoParametersString = await MotionClient.getVideoParams()
+    const videoParametersString =
+      await this.motionClientService.getVideoParams()
     const videoParameters = MotionVideoParametersWorker.convertStringToObject(
       videoParametersString,
     )
@@ -800,20 +812,21 @@ export class SettingsService {
     if (light === 'infrared') {
       focusAdaptedToLight -= MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS
     }
-    const videoParametersString = await MotionClient.getVideoParams()
+    const videoParametersString =
+      await this.motionClientService.getVideoParams()
     const videoParameters = MotionVideoParametersWorker.convertStringToObject(
       videoParametersString,
     )
     videoParameters[MOTION_VIDEO_PARAMS_FOCUS_KEY] = focusAdaptedToLight
     const newVideoParametersString =
       MotionVideoParametersWorker.convertObjectToString(videoParameters)
-    await MotionClient.setVideoParams(newVideoParametersString)
+    await this.motionClientService.setVideoParams(newVideoParametersString)
   }
 
   private async getFocusFromDriver() {
     let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
     if (this.deviceType !== 'RaspberryPi') {
-      devicePath = await MotionClient.getVideoDevice()
+      devicePath = await this.motionClientService.getVideoDevice()
     }
     try {
       const focus = await VideoDeviceInteractor.getFocus(devicePath)
@@ -829,7 +842,7 @@ export class SettingsService {
   private async setFocusInDriver(focus: number) {
     let devicePath = RASPBERRY_PI_FOCUS_DEVICE_PATH
     if (this.deviceType !== 'RaspberryPi') {
-      devicePath = await MotionClient.getVideoDevice()
+      devicePath = await this.motionClientService.getVideoDevice()
     }
     try {
       await VideoDeviceInteractor.setFocus(devicePath, focus)
@@ -864,11 +877,11 @@ export class SettingsService {
 
   async getShotTypes(): Promise<ShotTypes> {
     const shotTypes: ShotTypes = new Set()
-    const pictureOutput = await MotionClient.getPictureOutput()
+    const pictureOutput = await this.motionClientService.getPictureOutput()
     if (pictureOutput === 'best') {
       shotTypes.add('pictures')
     }
-    const movieOutput = await MotionClient.getMovieOutput()
+    const movieOutput = await this.motionClientService.getMovieOutput()
     if (movieOutput === 'on') {
       shotTypes.add('videos')
     }
@@ -892,12 +905,12 @@ export class SettingsService {
       settings.general.deviceName,
       timeZone,
     )
-    await MotionClient.setFilename(filename)
+    await this.motionClientService.setFilename(filename)
     const imageText = MotionTextAssembler.createImageText(
       siteName,
       settings.general.deviceName,
     )
-    await MotionClient.setLeftTextOnImage(imageText)
+    await this.motionClientService.setLeftTextOnImage(imageText)
   }
 
   async getDeviceName(): Promise<string> {
@@ -918,13 +931,13 @@ export class SettingsService {
       deviceName,
       timeZone,
     )
-    await MotionClient.setFilename(filename)
+    await this.motionClientService.setFilename(filename)
 
     const imageText = MotionTextAssembler.createImageText(
       settings.general.siteName,
       deviceName,
     )
-    await MotionClient.setLeftTextOnImage(imageText)
+    await this.motionClientService.setLeftTextOnImage(imageText)
 
     await this.setAccessPointNameOrPassword(deviceName)
   }
@@ -1008,11 +1021,11 @@ export class SettingsService {
       settings.general.deviceName,
       timeZone,
     )
-    await MotionClient.setFilename(filename)
+    await this.motionClientService.setFilename(filename)
   }
 
   async getShotsFolder(): Promise<string> {
-    const shotsFolder = await MotionClient.getTargetDir()
+    const shotsFolder = await this.motionClientService.getTargetDir()
     return shotsFolder
   }
 
@@ -1021,7 +1034,7 @@ export class SettingsService {
       this.logger.warn('The path to set as shots folder is not defined.')
       throw new UndefinedPathException()
     }
-    await MotionClient.setTargetDir(path)
+    await this.motionClientService.setTargetDir(path)
   }
 
   async getCameraLight(): Promise<LightType> {

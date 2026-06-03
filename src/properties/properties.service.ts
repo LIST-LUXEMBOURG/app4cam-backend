@@ -17,7 +17,7 @@
 import { writeFile } from 'fs/promises'
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
@@ -38,6 +38,7 @@ export class PropertiesService {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly motionClientService: MotionClientService,
     @Inject(forwardRef(() => SettingsService))
     private readonly settingsService: SettingsService,
   ) {}
@@ -124,7 +125,7 @@ export class PropertiesService {
 
   async isCameraConnected(): Promise<boolean> {
     try {
-      const status = await MotionClient.isCameraConnected()
+      const status = await this.motionClientService.isCameraConnected()
       return status
     } catch (error) {
       this.logger.error(

@@ -5,7 +5,7 @@ import { defineConfig } from 'eslint/config'
 import eslintConfigPrettier from 'eslint-config-prettier/flat'
 import importPlugin from 'eslint-plugin-import'
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
-import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
+import vitest from '@vitest/eslint-plugin'
 
 export default defineConfig([
   {
@@ -17,7 +17,7 @@ export default defineConfig([
   tseslint.configs.recommended,
   importPlugin.flatConfigs.recommended,
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.ts'],
     extends: [
       importPlugin.flatConfigs.recommended,
       importPlugin.flatConfigs.typescript,
@@ -33,21 +33,31 @@ export default defineConfig([
   eslintPluginPrettierRecommended,
   {
     settings: {
-      'import-x/resolver-next': [
-        createTypeScriptImportResolver({
-          alwaysTryTypes: true,
+      'import/resolver': {
+        typescript: {
           project: './tsconfig.build.json',
-        }),
-      ],
+        },
+      },
     },
   },
   {
-    files: ['eslint.config.mjs'],
+    files: ['**/*{.e2e-spec,.spec}.ts'],
+    plugins: {
+      vitest,
+    },
     rules: {
-      'import-x/no-unresolved': [
+      ...vitest.configs.recommended.rules,
+      'vitest/expect-expect': [
         'error',
-        { ignore: ['typescript-eslint', 'eslint/config'] },
+        { assertFunctionNames: ['expect', '**.expect'] },
       ],
+      'vitest/no-standalone-expect': [
+        'error',
+        {
+          additionalTestBlockFunctions: ['itIfNotWindows'],
+        },
+      ],
+      'vitest/valid-title': ['error', { ignoreTypeOfDescribeName: true }],
     },
   },
 ])

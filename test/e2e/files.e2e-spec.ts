@@ -18,35 +18,32 @@ import { rm, writeFile } from 'fs/promises'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { SettingsService } from '../src/settings/settings.service'
-import { AppModule } from './../src/app.module'
-
-const FILES_FOLDER_PATH = 'src/files/fixtures/'
-
-jest.mock('../src/motion-client', () => ({
-  MotionClient: {
-    getTargetDir: () => FILES_FOLDER_PATH,
-  },
-}))
+import { AppModule } from '../../src/app.module'
+import { MotionClientService } from '../../src/motion-client.service'
+import { SettingsService } from '../../src/settings/settings.service'
 
 describe('FilesController (e2e)', () => {
+  const FILES_FOLDER_PATH = 'src/files/fixtures/'
+
   let app: INestApplication
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
+      .overrideProvider(MotionClientService)
+      .useValue({
+        getTargetDir: () => FILES_FOLDER_PATH,
+      })
       .overrideProvider(SettingsService)
       .useValue({
-        getAllSettings: jest.fn().mockResolvedValue({
+        getAllSettings: () => ({
           general: {
             deviceName: 'd',
             siteName: 's',
           },
         }),
-        getShotTypes: jest
-          .fn()
-          .mockResolvedValue(new Set(['pictures', 'videos'])),
+        getShotTypes: () => new Set(['pictures', 'videos']),
       })
       .compile()
 

@@ -17,7 +17,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
 import { StorageService } from '../storage/storage.service'
 
@@ -27,26 +27,29 @@ export class MotionInteractorService {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly motionClientService: MotionClientService,
     private readonly settingsService: SettingsService,
     private readonly storageService: StorageService,
   ) {}
 
   async pauseDetectionIfActive() {
-    const isDetectionActive = await MotionClient.isDetectionStatusActive()
+    const isDetectionActive =
+      await this.motionClientService.isDetectionStatusActive()
     this.logger.log(`Detection active status: ${isDetectionActive}`)
     if (isDetectionActive) {
       this.logger.log('Trying to pause detection...')
-      await MotionClient.pauseDetection()
+      await this.motionClientService.pauseDetection()
       this.logger.log('Detection paused!')
     }
   }
 
   async startDetectionIfNotActive() {
-    const isDetectionActive = await MotionClient.isDetectionStatusActive()
+    const isDetectionActive =
+      await this.motionClientService.isDetectionStatusActive()
     this.logger.log(`Detection active status: ${isDetectionActive}`)
     if (!isDetectionActive) {
       this.logger.log('Trying to start detection...')
-      await MotionClient.startDetection()
+      await this.motionClientService.startDetection()
       this.logger.log('Detection started!')
     }
   }

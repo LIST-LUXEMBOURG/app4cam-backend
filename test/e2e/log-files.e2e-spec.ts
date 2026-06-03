@@ -18,24 +18,25 @@ import { rm, writeFile } from 'fs/promises'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { LogFileInteractor } from '../src/log-files/log-file-interactor'
-import { AppModule } from './../src/app.module'
-
-const APP_LOG_FILE_PATH = 'temp/logs/app.log'
-const MOTION_LOG_FILE_PATH = 'temp/logs/motion.log'
+import { Mock, vi } from 'vitest'
+import { AppModule } from '../../src/app.module'
+import { LogFileInteractor } from '../../src/log-files/log-file-interactor'
 
 describe('LogFilesController (e2e)', () => {
+  const APP_LOG_FILE_PATH = 'temp/logs/app.log'
+  const MOTION_LOG_FILE_PATH = 'temp/logs/motion.log'
+
   let app: INestApplication
 
-  let spyWriteAppLogFileToDisk
-  let spyWriteMotionLogFileToDisk
+  let spyWriteAppLogFileToDisk: Mock
+  let spyWriteMotionLogFileToDisk: Mock
 
   beforeAll(async () => {
-    spyWriteAppLogFileToDisk = jest
+    spyWriteAppLogFileToDisk = vi
       .spyOn(LogFileInteractor, 'writeAppLogFileToDisk')
       .mockResolvedValue()
     await writeFile(APP_LOG_FILE_PATH, 'b')
-    spyWriteMotionLogFileToDisk = jest
+    spyWriteMotionLogFileToDisk = vi
       .spyOn(LogFileInteractor, 'writeMotionLogFileToDisk')
       .mockResolvedValue()
     await writeFile(MOTION_LOG_FILE_PATH, 'c')

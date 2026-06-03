@@ -15,18 +15,14 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Test, TestingModule } from '@nestjs/testing'
+import { vi } from 'vitest'
+import { MotionClientService } from '../motion-client.service'
 import { StorageUsageDto } from './dto/storage-usage.dto'
 import { FileSystemInteractor } from './interactors/file-system-interactor'
 import { StorageUsageInteractor } from './interactors/storage-usage-interactor'
 import { StorageService } from './storage.service'
 
 const FILES_FOLDER_PATH = 'src/files/fixtures/'
-
-jest.mock('../motion-client', () => ({
-  MotionClient: {
-    getTargetDir: () => FILES_FOLDER_PATH,
-  },
-}))
 
 describe(StorageService.name, () => {
   const STORAGE_USAGE: StorageUsageDto = {
@@ -38,8 +34,13 @@ describe(StorageService.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [StorageService],
-    }).compile()
+      providers: [MotionClientService, StorageService],
+    })
+      .overrideProvider(MotionClientService)
+      .useValue({
+        getTargetDir: () => Promise.resolve(FILES_FOLDER_PATH),
+      })
+      .compile()
 
     service = module.get<StorageService>(StorageService)
   })
@@ -48,19 +49,19 @@ describe(StorageService.name, () => {
     expect(service).toBeDefined()
   })
 
-  describe('getStorageStatus', () => {
+  describe(StorageService.prototype.getStorageStatus.name, () => {
     let spyGetSubdirectories
     let spyGetUnixFilePermissions
 
     beforeAll(() => {
-      spyGetSubdirectories = jest
+      spyGetSubdirectories = vi
         .spyOn(FileSystemInteractor, 'getSubdirectories')
         .mockResolvedValue([])
     })
 
     describe('when the path is accessible and writable', () => {
       beforeAll(() => {
-        spyGetUnixFilePermissions = jest
+        spyGetUnixFilePermissions = vi
           .spyOn(FileSystemInteractor, 'getUnixFilePermissions')
           .mockResolvedValue('0777') // 3rd digit is relevant.
       })
@@ -76,13 +77,13 @@ describe(StorageService.name, () => {
 
     describe('when the path is accessible and not writable', () => {
       beforeAll(() => {
-        spyGetUnixFilePermissions = jest
+        spyGetUnixFilePermissions = vi
           .spyOn(FileSystemInteractor, 'getUnixFilePermissions')
           .mockResolvedValue('0757') // 3rd digit is relevant.
       })
 
       it('says so', async () => {
-        spyGetSubdirectories = jest
+        spyGetSubdirectories = vi
           .spyOn(FileSystemInteractor, 'getSubdirectories')
           .mockResolvedValue([])
 
@@ -96,7 +97,7 @@ describe(StorageService.name, () => {
 
     describe('when the path access produces an unknown error', () => {
       beforeAll(() => {
-        spyGetUnixFilePermissions = jest
+        spyGetUnixFilePermissions = vi
           .spyOn(FileSystemInteractor, 'getUnixFilePermissions')
           .mockImplementation(() => {
             throw new Error('a')
@@ -104,7 +105,7 @@ describe(StorageService.name, () => {
       })
 
       it('says so', async () => {
-        spyGetSubdirectories = jest
+        spyGetSubdirectories = vi
           .spyOn(FileSystemInteractor, 'getSubdirectories')
           .mockResolvedValue([])
 
@@ -125,9 +126,9 @@ describe(StorageService.name, () => {
     })
   })
 
-  describe('getStorageUsage', () => {
+  describe(StorageService.prototype.getStorageUsage.name, () => {
     it('gets the details', async () => {
-      const spyGetStorageUsage = jest
+      const spyGetStorageUsage = vi
         .spyOn(StorageUsageInteractor, 'getStorageUsage')
         .mockImplementation(() => {
           return Promise.resolve(STORAGE_USAGE)
@@ -138,9 +139,9 @@ describe(StorageService.name, () => {
     })
   })
 
-  describe('isDiskSpaceUsageAboveThreshold', () => {
+  describe(StorageService.prototype.isDiskSpaceUsageAboveThreshold.name, () => {
     it('returns true when above threshold', async () => {
-      const spyGetStorageUsage = jest
+      const spyGetStorageUsage = vi
         .spyOn(StorageUsageInteractor, 'getStorageUsage')
         .mockImplementation(() => {
           return Promise.resolve({
@@ -154,7 +155,7 @@ describe(StorageService.name, () => {
     })
 
     it('returns false when below threshold', async () => {
-      const spyGetStorageUsage = jest
+      const spyGetStorageUsage = vi
         .spyOn(StorageUsageInteractor, 'getStorageUsage')
         .mockImplementation(() => {
           return Promise.resolve({

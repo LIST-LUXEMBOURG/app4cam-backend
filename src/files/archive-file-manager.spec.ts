@@ -22,7 +22,7 @@ import { ArchiveFileManager } from './archive-file-manager'
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 
 describe(ArchiveFileManager.name, () => {
-  describe('createArchive', () => {
+  describe(ArchiveFileManager.createArchive.name, () => {
     const testFolderPath = 'src/files/test-archive-file-creation'
 
     class MockupLogger implements LoggerService {

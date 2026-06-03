@@ -17,6 +17,7 @@
 import { rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Mock, vi } from 'vitest'
 import { LogFileInteractor } from './log-file-interactor'
 import { LogFilesService } from './log-files.service'
 
@@ -35,12 +36,12 @@ describe(LogFilesService.name, () => {
     expect(service).toBeDefined()
   })
 
-  describe('getAppLogFileStream', () => {
+  describe(LogFilesService.prototype.getAppLogFileStream.name, () => {
     let service: LogFilesService
-    let spyWriteAppLogFileToDisk
+    let spyWriteAppLogFileToDisk: Mock
 
     beforeAll(async () => {
-      spyWriteAppLogFileToDisk = jest
+      spyWriteAppLogFileToDisk = vi
         .spyOn(LogFileInteractor, 'writeAppLogFileToDisk')
         .mockResolvedValue()
       await writeFile(APP_LOG_FILE_PATH, 'b')
@@ -65,12 +66,12 @@ describe(LogFilesService.name, () => {
     })
   })
 
-  describe('getMotionLogFileStream', () => {
+  describe(LogFilesService.prototype.getMotionLogFileStream.name, () => {
     let service: LogFilesService
-    let spyWriteMotionLogFileToDisk
+    let spyWriteMotionLogFileToDisk: Mock
 
     beforeAll(async () => {
-      spyWriteMotionLogFileToDisk = jest
+      spyWriteMotionLogFileToDisk = vi
         .spyOn(LogFileInteractor, 'writeMotionLogFileToDisk')
         .mockResolvedValue()
       await writeFile(MOTION_LOG_FILE_PATH, 'c')

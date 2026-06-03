@@ -17,7 +17,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { FilesService } from '../files/files.service'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { FileSystemInteractor } from './file-system-interactor'
 
 const BEFORE_OPENING_SNAPSHOT_WAITING_TIME_MS = 500
@@ -30,10 +30,11 @@ export class SnapshotsService {
   constructor(
     private readonly configService: ConfigService,
     private readonly filesService: FilesService,
+    private readonly motionClientService: MotionClientService,
   ) {}
 
   async takeSnapshot() {
-    await MotionClient.takeSnapshot()
+    await this.motionClientService.takeSnapshot()
 
     const deviceType = this.configService.get<string>('deviceType')
     let waitingTimeMs = BEFORE_OPENING_SNAPSHOT_WAITING_TIME_MS
@@ -43,7 +44,7 @@ export class SnapshotsService {
     // Workaround for not opening snapshot directly as saving file takes some time.
     await new Promise((resolve) => setTimeout(resolve, waitingTimeMs))
 
-    const fileFolderPath = await MotionClient.getTargetDir()
+    const fileFolderPath = await this.motionClientService.getTargetDir()
     const filename =
       await FileSystemInteractor.getNameOfMostRecentlyModifiedFile(
         fileFolderPath,

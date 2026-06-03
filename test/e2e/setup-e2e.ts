@@ -1,5 +1,5 @@
 /**
- * Copyright (C) since 2022 Luxembourg Institute of Science and Technology
+ * Copyright (C) since 2026 Luxembourg Institute of Science and Technology
  *
  * App4Cam is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,18 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import * as transformer from '@nestjs/swagger/plugin'
+import dotenv from 'dotenv'
 
-module.exports.name = 'nestjs-swagger-transformer'
-
-// you should change the version number anytime you change the configuration below - otherwise, jest will not detect changes
-module.exports.version = 1
-
-module.exports.factory = (cs) => {
-  return transformer.before(
-    {
-      // @nestjs/swagger/plugin options (can be empty)
-    },
-    cs.program,
-  )
-}
+dotenv.config({ path: './config/e2e-tests.env' })

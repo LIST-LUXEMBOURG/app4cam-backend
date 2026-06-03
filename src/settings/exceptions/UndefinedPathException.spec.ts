@@ -18,10 +18,8 @@ import { UndefinedPathException } from './UndefinedPathException'
 
 describe(UndefinedPathException.name, () => {
   it(`should be an instance of '${UndefinedPathException.name}'`, () => {
-    try {
+    expect(() => {
       throw new UndefinedPathException()
-    } catch (e) {
-      expect(e).toBeInstanceOf(UndefinedPathException)
-    }
+    }).toThrow(UndefinedPathException)
   })
 })

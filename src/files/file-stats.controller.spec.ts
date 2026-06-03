@@ -15,6 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Test, TestingModule } from '@nestjs/testing'
+import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
 import { FileStatsController } from './file-stats.controller'
 import { FileStatsService } from './file-stats.service'
@@ -34,10 +35,11 @@ describe(FileStatsController.name, () => {
           provide: SettingsService,
           useValue: {},
         },
+        MotionClientService,
         {
           provide: FileStatsService,
           useValue: {
-            getNumberShotsPerHoursOfDay: jest.fn().mockResolvedValue(counts),
+            getNumberShotsPerHoursOfDay: () => counts,
           },
         },
       ],

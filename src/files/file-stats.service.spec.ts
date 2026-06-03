@@ -16,7 +16,7 @@
  */
 import { mkdir, rm, writeFile } from 'fs/promises'
 import { Test, TestingModule } from '@nestjs/testing'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
 import { FileStatsService } from './file-stats.service'
 import { FilesService } from './files.service'
@@ -25,31 +25,28 @@ describe(FileStatsService.name, () => {
   const testFolder = 'src/files/test-file-stats-service'
 
   const mockSettingsService = {
-    getShotTypes: jest.fn().mockResolvedValue(new Set(['pictures', 'videos'])),
+    getShotTypes: () => new Set(['pictures', 'videos']),
   }
 
   let service: FileStatsService
-  let spyGetTargetDir
-
-  beforeAll(async () => {
-    spyGetTargetDir = jest
-      .spyOn(MotionClient, 'getTargetDir')
-      .mockImplementation(() => {
-        return Promise.resolve(testFolder)
-      })
-  })
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         FilesService,
         FileStatsService,
+        MotionClientService,
         {
           provide: SettingsService,
           useValue: mockSettingsService,
         },
       ],
-    }).compile()
+    })
+      .overrideProvider(MotionClientService)
+      .useValue({
+        getTargetDir: () => testFolder,
+      })
+      .compile()
     service = module.get<FileStatsService>(FileStatsService)
   })
 
@@ -57,7 +54,7 @@ describe(FileStatsService.name, () => {
     expect(service).toBeDefined()
   })
 
-  describe('getNumberShotsPerHoursOfDay', () => {
+  describe(FileStatsService.prototype.getNumberShotsPerHoursOfDay.name, () => {
     beforeAll(async () => {
       await mkdir(testFolder)
     })
@@ -99,7 +96,7 @@ describe(FileStatsService.name, () => {
       let spy
 
       beforeAll(() => {
-        spy = jest
+        spy = vi
           .spyOn(mockSettingsService, 'getShotTypes')
           .mockResolvedValue(new Set(['pictures']))
       })
@@ -144,7 +141,7 @@ describe(FileStatsService.name, () => {
       let spy
 
       beforeAll(() => {
-        spy = jest
+        spy = vi
           .spyOn(mockSettingsService, 'getShotTypes')
           .mockResolvedValue(new Set(['videos']))
       })
@@ -188,9 +185,5 @@ describe(FileStatsService.name, () => {
     afterAll(async () => {
       await rm(testFolder, { recursive: true, force: true })
     })
-  })
-
-  afterAll(async () => {
-    spyGetTargetDir.mockRestore()
   })
 })

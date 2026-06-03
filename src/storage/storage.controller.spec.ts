@@ -40,8 +40,8 @@ describe(StorageController.name, () => {
         {
           provide: StorageService,
           useValue: {
-            getStorageStatus: jest.fn().mockResolvedValue(STORAGE_STATUS),
-            getStorageUsage: jest.fn().mockReturnValue(STORAGE_USAGE),
+            getStorageStatus: () => STORAGE_STATUS,
+            getStorageUsage: () => STORAGE_USAGE,
           },
         },
       ],
@@ -54,7 +54,7 @@ describe(StorageController.name, () => {
     expect(controller).toBeDefined()
   })
 
-  describe('getStorage', () => {
+  describe(StorageController.prototype.getStorage.name, () => {
     it('gets the details', async () => {
       const response = await controller.getStorage()
       expect(response).toEqual({
@@ -64,14 +64,14 @@ describe(StorageController.name, () => {
     })
   })
 
-  describe('getStorageStatus', () => {
+  describe(StorageController.prototype.getStorageStatus.name, () => {
     it('gets the details', async () => {
       const response = await controller.getStorageStatus()
       expect(response).toEqual(STORAGE_STATUS)
     })
   })
 
-  describe('getStorageUsage', () => {
+  describe(StorageController.prototype.getStorageUsage.name, () => {
     it('gets the details', async () => {
       const response = await controller.getStorageUsage()
       expect(response).toEqual(STORAGE_USAGE)

@@ -16,7 +16,7 @@
  */
 import path from 'path'
 import { Injectable, Logger } from '@nestjs/common'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto'
 import { FileSystemInteractor } from './interactors/file-system-interactor'
 import { UpgradeInteractor } from './interactors/upgrade-interactor'
@@ -32,13 +32,15 @@ export class UpgradesService {
   private flagHandler = new UpgradeFileFlagHandler('')
   private readonly logger = new Logger(UpgradesService.name)
 
+  constructor(private readonly motionClientService: MotionClientService) {}
+
   async isUpgradeInProgress(): Promise<boolean> {
     return this.flagHandler.isFlagSet()
   }
 
   async performUpgrade(): Promise<void> {
     await this.flagHandler.setFlag()
-    const devicePath = await MotionClient.getTargetDir()
+    const devicePath = await this.motionClientService.getTargetDir()
     const upgradeFilePath = path.join(devicePath, UPGRADE_FILENAME)
     await FileSystemInteractor.extractZipArchive(
       upgradeFilePath,
@@ -50,7 +52,7 @@ export class UpgradesService {
   }
 
   async verifyUpgradeFile(): Promise<UpgradeFileCheckResultDto> {
-    const devicePath = await MotionClient.getTargetDir()
+    const devicePath = await this.motionClientService.getTargetDir()
     const upgradeFilePath = path.join(devicePath, UPGRADE_FILENAME)
 
     try {

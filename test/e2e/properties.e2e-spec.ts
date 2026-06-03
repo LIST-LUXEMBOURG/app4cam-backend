@@ -17,16 +17,17 @@
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { AppModule } from '../src/app.module'
-import { SunriseAndSunsetDto } from '../src/properties/dto/sunrise-and-sunset.dto'
-import { VersionDto } from '../src/properties/dto/version.dto'
-import { BatteryInteractor } from '../src/properties/interactors/battery-interactor'
-import { LightTypeInteractor } from '../src/properties/interactors/light-type-interactor'
-import { MacAddressInteractor } from '../src/properties/interactors/mac-address-interactor'
-import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
-import { VersionInteractor } from '../src/properties/interactors/version-interactor'
-import { SunriseSunsetCalculator } from '../src/properties/sunrise-sunset-calculator'
-import { SettingsService } from '../src/settings/settings.service'
+import { Mock, vi } from 'vitest'
+import { AppModule } from '../../src/app.module'
+import { SunriseAndSunsetDto } from '../../src/properties/dto/sunrise-and-sunset.dto'
+import { VersionDto } from '../../src/properties/dto/version.dto'
+import { BatteryInteractor } from '../../src/properties/interactors/battery-interactor'
+import { LightTypeInteractor } from '../../src/properties/interactors/light-type-interactor'
+import { MacAddressInteractor } from '../../src/properties/interactors/mac-address-interactor'
+import { SystemTimeZonesInteractor } from '../../src/properties/interactors/system-time-zones-interactor'
+import { VersionInteractor } from '../../src/properties/interactors/version-interactor'
+import { SunriseSunsetCalculator } from '../../src/properties/sunrise-sunset-calculator'
+import { SettingsService } from '../../src/settings/settings.service'
 
 describe('PropertiesController (e2e)', () => {
   const AVAILABLE_TIME_ZONES = ['Europe/Luxembourg', 'Europe/Paris']
@@ -49,30 +50,30 @@ describe('PropertiesController (e2e)', () => {
   }
 
   let app: INestApplication
-  let spyCalculateSunriseAndSunset
-  let spyGetAvailableTimeZones
-  let spyGetBatteryVoltage
-  let spyGetFirstMacAddress
-  let spyGetLightType
-  let spyGetVersion
+  let spyCalculateSunriseAndSunset: Mock
+  let spyGetAvailableTimeZones: Mock
+  let spyGetBatteryVoltage: Mock
+  let spyGetFirstMacAddress: Mock
+  let spyGetLightType: Mock
+  let spyGetVersion: Mock
 
   beforeAll(() => {
-    spyCalculateSunriseAndSunset = jest
+    spyCalculateSunriseAndSunset = vi
       .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
       .mockReturnValue(SUNRISE_AND_SUNSET)
-    spyGetAvailableTimeZones = jest
+    spyGetAvailableTimeZones = vi
       .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
       .mockResolvedValue(AVAILABLE_TIME_ZONES)
-    spyGetBatteryVoltage = jest
+    spyGetBatteryVoltage = vi
       .spyOn(BatteryInteractor, 'getBatteryVoltage')
       .mockResolvedValue(BATTERY_VOLTAGE)
-    spyGetFirstMacAddress = jest
+    spyGetFirstMacAddress = vi
       .spyOn(MacAddressInteractor, 'getFirstMacAddress')
       .mockResolvedValue(DEVICE_ID)
-    spyGetLightType = jest
+    spyGetLightType = vi
       .spyOn(LightTypeInteractor, 'getLightType')
       .mockResolvedValue(LIGHT_TYPE)
-    spyGetVersion = jest
+    spyGetVersion = vi
       .spyOn(VersionInteractor, 'getVersion')
       .mockResolvedValue(USAGE)
   })
@@ -83,9 +84,7 @@ describe('PropertiesController (e2e)', () => {
     })
       .overrideProvider(SettingsService)
       .useValue({
-        getLatitudeAndLongitude: jest
-          .fn()
-          .mockResolvedValue({ latitude: 1, longitude: 2 }),
+        getLatitudeAndLongitude: () => ({ latitude: 1, longitude: 2 }),
       })
       .compile()
 

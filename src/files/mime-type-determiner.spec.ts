@@ -16,8 +16,8 @@
  */
 import { MimeTypeDeterminer } from './mime-type-determiner'
 
-describe('MimeTypeDeterminer', () => {
-  describe('getContentType', () => {
+describe(MimeTypeDeterminer.name, () => {
+  describe(MimeTypeDeterminer.getContentType.name, () => {
     it('returns content type for .txt', () => {
       expect(MimeTypeDeterminer.getContentType('.txt')).toEqual('text/plain')
     })

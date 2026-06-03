@@ -56,16 +56,12 @@ describe(PropertiesController.name, () => {
         {
           provide: PropertiesService,
           useValue: {
-            getAvailableTimeZones: jest
-              .fn()
-              .mockReturnValue(AVAILABLE_TIME_ZONES),
-            getDeviceId: jest.fn().mockReturnValue(DEVICE_ID),
-            getLightType: jest.fn().mockReturnValue(LIGHT_TYPE),
-            getNextSunsetAndSunrise: jest
-              .fn()
-              .mockReturnValue(SUNRISE_AND_SUNSET),
-            getVersion: jest.fn().mockReturnValue(VERSION),
-            isCameraConnected: jest.fn().mockReturnValue(CAMERA_CONNECTED_FLAG),
+            getAvailableTimeZones: () => AVAILABLE_TIME_ZONES,
+            getDeviceId: () => DEVICE_ID,
+            getLightType: () => LIGHT_TYPE,
+            getNextSunsetAndSunrise: () => SUNRISE_AND_SUNSET,
+            getVersion: () => VERSION,
+            isCameraConnected: () => CAMERA_CONNECTED_FLAG,
           },
         },
       ],

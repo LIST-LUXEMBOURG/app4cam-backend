@@ -18,10 +18,8 @@ import { UnsupportedDeviceTypeException } from './UnsupportedDeviceTypeException
 
 describe(UnsupportedDeviceTypeException.name, () => {
   it(`should be an instance of '${UnsupportedDeviceTypeException.name}'`, () => {
-    try {
+    expect(() => {
       throw new UnsupportedDeviceTypeException('a')
-    } catch (e) {
-      expect(e).toBeInstanceOf(UnsupportedDeviceTypeException)
-    }
+    }).toThrow(UnsupportedDeviceTypeException)
   })
 })

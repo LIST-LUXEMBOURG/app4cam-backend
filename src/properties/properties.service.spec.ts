@@ -16,7 +16,8 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { MotionClient } from '../motion-client'
+import { Mock, vi } from 'vitest'
+import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { VersionDto } from './dto/version.dto'
@@ -51,20 +52,31 @@ const VERSION: VersionDto = {
 }
 
 describe(PropertiesService.name, () => {
-  let service: PropertiesService
+  const spyIsCameraConnected = vi.fn()
 
-  let spyGetAvailableTimeZones
+  let service: PropertiesService
+  let spyGetAvailableTimeZones: Mock
 
   beforeAll(() => {
-    spyGetAvailableTimeZones = jest
+    spyGetAvailableTimeZones = vi
       .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
-      .mockImplementation(() => Promise.resolve(AVAILABLE_TIME_ZONES))
+      .mockResolvedValue(AVAILABLE_TIME_ZONES)
   })
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ConfigService, PropertiesService, SettingsService],
-    }).compile()
+      providers: [
+        ConfigService,
+        MotionClientService,
+        PropertiesService,
+        SettingsService,
+      ],
+    })
+      .overrideProvider(MotionClientService)
+      .useValue({
+        isCameraConnected: spyIsCameraConnected,
+      })
+      .compile()
 
     service = module.get<PropertiesService>(PropertiesService)
   })
@@ -79,7 +91,7 @@ describe(PropertiesService.name, () => {
   })
 
   it('gets the device ID', async () => {
-    const spyGetDeviceId = jest
+    const spyGetDeviceId = vi
       .spyOn(MacAddressInteractor, 'getFirstMacAddress')
       .mockResolvedValue(DEVICE_ID)
     const response = await service.getDeviceId()
@@ -88,7 +100,7 @@ describe(PropertiesService.name, () => {
   })
 
   it('gets the light type', async () => {
-    const spy = jest
+    const spy = vi
       .spyOn(LightTypeInteractor, 'getLightType')
       .mockResolvedValue(LIGHT_TYPE)
     const response = await service.getLightType()
@@ -97,7 +109,7 @@ describe(PropertiesService.name, () => {
   })
 
   it('returns unsupported when requesting the light type on unsupported device', async () => {
-    const spy = jest
+    const spy = vi
       .spyOn(LightTypeInteractor, 'getLightType')
       .mockImplementation(() => {
         throw new UnsupportedDeviceTypeException('a')
@@ -108,7 +120,7 @@ describe(PropertiesService.name, () => {
   })
 
   it('returns unsupported when requesting the light type on Windows', async () => {
-    const spy = jest
+    const spy = vi
       .spyOn(LightTypeInteractor, 'getLightType')
       .mockImplementation(() => {
         throw new CommandUnavailableOnWindowsException()
@@ -119,7 +131,7 @@ describe(PropertiesService.name, () => {
   })
 
   it('gets the sunrise and sunset', async () => {
-    const spyCalculateSunriseAndSunset = jest
+    const spyCalculateSunriseAndSunset = vi
       .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
       .mockReturnValue(SUNRISE_AND_SUNSET)
     const response = await service.getNextSunsetAndSunrise()
@@ -128,7 +140,7 @@ describe(PropertiesService.name, () => {
   })
 
   it('gets the version', async () => {
-    const spyGetVersion = jest
+    const spyGetVersion = vi
       .spyOn(VersionInteractor, 'getVersion')
       .mockImplementation(() => {
         return Promise.resolve(VERSION)
@@ -140,22 +152,18 @@ describe(PropertiesService.name, () => {
 
   it('gets the camera connection flag', async () => {
     const cameraConnectionFlag = true
-    const spyIsCameraConnected = jest
-      .spyOn(MotionClient, 'isCameraConnected')
-      .mockImplementation(() => {
-        return Promise.resolve(cameraConnectionFlag)
-      })
+    spyIsCameraConnected.mockImplementation(() => {
+      return Promise.resolve(cameraConnectionFlag)
+    })
     const response = await service.isCameraConnected()
     expect(response).toEqual(cameraConnectionFlag)
     spyIsCameraConnected.mockRestore()
   })
 
   it('gets the unknown camera connection flag when an error happens', async () => {
-    const spyIsCameraConnected = jest
-      .spyOn(MotionClient, 'isCameraConnected')
-      .mockImplementation(() => {
-        throw new Error()
-      })
+    spyIsCameraConnected.mockImplementation(() => {
+      throw new Error()
+    })
     const response = await service.isCameraConnected()
     expect(response).toBeNull()
     spyIsCameraConnected.mockRestore()

@@ -15,12 +15,13 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Module } from '@nestjs/common'
+import { MotionClientService } from '../motion-client.service'
 import { StorageController } from './storage.controller'
 import { StorageService } from './storage.service'
 
 @Module({
   controllers: [StorageController],
-  providers: [StorageService],
+  providers: [MotionClientService, StorageService],
   exports: [StorageService],
 })
 export class StorageModule {}
