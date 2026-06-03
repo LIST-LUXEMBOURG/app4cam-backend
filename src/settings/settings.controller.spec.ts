@@ -17,6 +17,8 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { createResponse } from 'node-mocks-http'
+import { vi } from 'vitest'
+import { MotionClientService } from '../motion-client.service'
 import { PropertiesService } from '../properties/properties.service'
 import { Settings } from './entities/settings'
 import { SettingsController } from './settings.controller'
@@ -79,36 +81,30 @@ describe('SettingsController', () => {
       controllers: [SettingsController],
       providers: [
         ConfigService,
+        MotionClientService,
         PropertiesService,
         {
           provide: SettingsService,
           useValue: {
-            getAllSettings: jest.fn().mockReturnValue(SETTINGS),
-            updateSettings: jest.fn(),
-            updateAllSettings: jest.fn(),
-            getSiteName: jest.fn().mockReturnValue(SETTINGS.general.siteName),
-            setSiteName: jest.fn(),
-            getDeviceName: jest
-              .fn()
-              .mockReturnValue(SETTINGS.general.deviceName),
-            setDeviceName: jest.fn(),
-            getSystemTime: jest
-              .fn()
-              .mockReturnValue(SETTINGS.general.systemTime),
-            setSystemTime: jest.fn(),
-            getTimeZone: jest.fn().mockReturnValue(SETTINGS.general.timeZone),
-            setTimeZone: jest.fn(),
-            getShotsFolder: jest.fn().mockReturnValue(SHOTS_FOLDER),
-            setShotsFolder: jest.fn(),
-            getShotTypes: jest.fn().mockReturnValue(SHOT_TYPES),
-            getSleepingTime: jest.fn().mockReturnValue(SLEEPING_TIME),
-            getWakingUpTime: jest.fn().mockReturnValue(WAKING_UP_TIME),
-            getTriggeringLight: jest
-              .fn()
-              .mockReturnValue(SETTINGS.triggering.light),
-            getIsAlternatingLightModeEnabled: jest
-              .fn()
-              .mockReturnValue(SETTINGS.general.isAlternatingLightModeEnabled),
+            getAllSettings: () => SETTINGS,
+            updateSettings: vi.fn(),
+            updateAllSettings: vi.fn(),
+            getSiteName: () => SETTINGS.general.siteName,
+            setSiteName: vi.fn(),
+            getDeviceName: () => SETTINGS.general.deviceName,
+            setDeviceName: vi.fn(),
+            getSystemTime: () => SETTINGS.general.systemTime,
+            setSystemTime: vi.fn(),
+            getTimeZone: () => SETTINGS.general.timeZone,
+            setTimeZone: vi.fn(),
+            getShotsFolder: () => SHOTS_FOLDER,
+            setShotsFolder: vi.fn(),
+            getShotTypes: () => SHOT_TYPES,
+            getSleepingTime: () => SLEEPING_TIME,
+            getWakingUpTime: () => WAKING_UP_TIME,
+            getTriggeringLight: () => SETTINGS.triggering.light,
+            getIsAlternatingLightModeEnabled: () =>
+              SETTINGS.general.isAlternatingLightModeEnabled,
           },
         },
       ],

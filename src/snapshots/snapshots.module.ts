@@ -17,12 +17,13 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { FilesModule } from '../files/files.module'
+import { MotionClientService } from '../motion-client.service'
 import { SnapshotsController } from './snapshots.controller'
 import { SnapshotsService } from './snapshots.service'
 
 @Module({
   controllers: [SnapshotsController],
-  providers: [ConfigService, SnapshotsService],
+  providers: [ConfigService, MotionClientService, SnapshotsService],
   imports: [ConfigModule, FilesModule],
 })
 export class SnapshotsModule {}

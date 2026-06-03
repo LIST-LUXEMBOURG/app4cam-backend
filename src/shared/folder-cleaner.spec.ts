@@ -19,7 +19,7 @@ import { writeFile, mkdir, rm } from 'fs/promises'
 import FolderCleaner from './folder-cleaner'
 
 describe(FolderCleaner.name, () => {
-  describe('removeOldFiles', () => {
+  describe(FolderCleaner.removeOldFiles, () => {
     const testFolderPath = 'src/shared/test-folder-file-deletion'
 
     beforeAll(async () => {
@@ -47,7 +47,7 @@ describe(FolderCleaner.name, () => {
     })
   })
 
-  describe('isUnixHiddenPath', () => {
+  describe(FolderCleaner.isUnixHiddenPath, () => {
     it('returns true on hidden file', () => {
       expect(FolderCleaner.isUnixHiddenPath('.a')).toBeTruthy()
     })

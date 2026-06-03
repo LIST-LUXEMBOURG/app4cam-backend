@@ -17,7 +17,7 @@
 import { cp, mkdir, readdir, rm } from 'fs/promises'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { UpgradesService } from './upgrades.service'
 
 describe(UpgradesService.name, () => {
@@ -28,20 +28,16 @@ describe(UpgradesService.name, () => {
   const itIfNotWindows = () => (process.platform !== 'win32' ? it : it.skip)
 
   let service: UpgradesService
-  let spyGetTargetDir
-
-  beforeAll(async () => {
-    spyGetTargetDir = jest
-      .spyOn(MotionClient, 'getTargetDir')
-      .mockImplementation(() => {
-        return Promise.resolve(DATA_FOLDER)
-      })
-  })
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UpgradesService],
-    }).compile()
+      providers: [MotionClientService, UpgradesService],
+    })
+      .overrideProvider(MotionClientService)
+      .useValue({
+        getTargetDir: () => Promise.resolve(DATA_FOLDER),
+      })
+      .compile()
 
     service = module.get<UpgradesService>(UpgradesService)
   })
@@ -54,7 +50,7 @@ describe(UpgradesService.name, () => {
     expect(service).toBeDefined()
   })
 
-  describe('getUpgradeFileCheckResult', () => {
+  describe(UpgradesService.prototype.verifyUpgradeFile.name, () => {
     describe('when the upgrade archive does not exist', () => {
       it('returns an error message', async () => {
         const result = await service.verifyUpgradeFile()
@@ -220,9 +216,5 @@ describe(UpgradesService.name, () => {
 
   afterEach(async () => {
     await rm(DATA_FOLDER, { recursive: true, force: true })
-  })
-
-  afterAll(async () => {
-    spyGetTargetDir.mockRestore()
   })
 })

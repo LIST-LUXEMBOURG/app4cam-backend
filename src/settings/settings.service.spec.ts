@@ -16,7 +16,9 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Mock, vi } from 'vitest'
 import { InitialisationInteractor } from '../initialisation-interactor'
+import { MotionClientService } from '../motion-client.service'
 import { PropertiesService } from '../properties/properties.service'
 import { SettingsPutDto } from './dto/settings.dto'
 import { PatchableSettings, Settings } from './entities/settings'
@@ -33,43 +35,40 @@ const HEIGHT = 2
 const TRIGGER_SENSITIVITY = 5
 const WIDTH = 3
 
-jest.mock('../motion-client', () => ({
-  MotionClient: {
-    getHeight: () => HEIGHT,
-    getWidth: () => WIDTH,
-    setFilename: jest.fn(),
-    setLeftTextOnImage: jest.fn(),
-    getMovieQuality: () => 60,
-    setMovieQuality: jest.fn(),
-    getMovieOutput: () => 'on',
-    setMovieOutput: jest.fn(),
-    getPictureQuality: () => 90,
-    setPictureQuality: jest.fn(),
-    getPictureOutput: () => 'best',
-    setPictureOutput: jest.fn(),
-    getThreshold: () => TRIGGER_SENSITIVITY,
-    setThreshold: jest.fn(),
-    getTargetDir: () => SHOTS_FOLDER,
-    getVideoDevice: () => '',
-    getVideoParams: () =>
-      '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
-    setVideoParams: jest.fn(),
-  },
-}))
-
-const mockPropertiesService = {
-  getAvailableTimeZones: jest.fn().mockReturnValue(['t1', 't2']),
-}
-
 const mockConfigService = {
-  get: jest.fn((name) => {
+  get: (name) => {
     switch (name) {
       case 'deviceType':
         return 'Variscite'
       case 'isFixedFocus':
         return false
     }
-  }),
+  },
+}
+
+const mockMotionClientService = {
+  getHeight: () => HEIGHT,
+  getWidth: () => WIDTH,
+  setFilename: () => {},
+  setLeftTextOnImage: () => {},
+  getMovieQuality: () => 60,
+  setMovieQuality: () => {},
+  getMovieOutput: () => 'on',
+  setMovieOutput: () => {},
+  getPictureQuality: () => 90,
+  setPictureQuality: () => {},
+  getPictureOutput: () => 'best',
+  setPictureOutput: () => {},
+  getThreshold: () => TRIGGER_SENSITIVITY,
+  setThreshold: () => {},
+  getTargetDir: () => SHOTS_FOLDER,
+  getVideoDevice: () => '',
+  getVideoParams: () => '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
+  setVideoParams: () => {},
+}
+
+const mockPropertiesService = {
+  getAvailableTimeZones: () => ['t1', 't2'],
 }
 
 describe('SettingsService', () => {
@@ -81,6 +80,10 @@ describe('SettingsService', () => {
         {
           provide: ConfigService,
           useValue: mockConfigService,
+        },
+        {
+          provide: MotionClientService,
+          useValue: mockMotionClientService,
         },
         {
           provide: PropertiesService,
@@ -173,46 +176,46 @@ describe('SettingsService', () => {
       },
     }
 
-    let spyReadSettingsFile
-    let spyWriteSettingsFile
-    let spyGetSystemTime
-    let spySetSystemAndRtcTime
-    let spyGetTimeZone
-    let spySetTimeZone
-    let spyInitializeLights
-    let spySetAccessPointNameOrPassword
-    let spyGetAccessPointPassword
-    let spyGetFocus
+    let spyReadSettingsFile: Mock
+    let spyWriteSettingsFile: Mock
+    let spyGetSystemTime: Mock
+    let spySetSystemAndRtcTime: Mock
+    let spyGetTimeZone: Mock
+    let spySetTimeZone: Mock
+    let spyInitializeLights: Mock
+    let spySetAccessPointNameOrPassword: Mock
+    let spyGetAccessPointPassword: Mock
+    let spyGetFocus: Mock
 
     beforeAll(() => {
-      spyReadSettingsFile = jest
+      spyReadSettingsFile = vi
         .spyOn(SettingsFileProvider, 'readSettingsFile')
         .mockResolvedValue(JSON_SETTINGS)
-      spyWriteSettingsFile = jest
+      spyWriteSettingsFile = vi
         .spyOn(SettingsFileProvider, 'writeSettingsToFile')
         .mockResolvedValue()
-      spyGetSystemTime = jest
+      spyGetSystemTime = vi
         .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
         .mockResolvedValue(SYSTEM_TIME)
-      spySetSystemAndRtcTime = jest
+      spySetSystemAndRtcTime = vi
         .spyOn(SystemTimeInteractor, 'setSystemAndRtcTimeInIso8601Format')
         .mockResolvedValue()
-      spyGetTimeZone = jest
+      spyGetTimeZone = vi
         .spyOn(SystemTimeInteractor, 'getTimeZone')
         .mockResolvedValue(ALL_SETTINGS.general.timeZone)
-      spySetTimeZone = jest
+      spySetTimeZone = vi
         .spyOn(SystemTimeInteractor, 'setTimeZone')
         .mockResolvedValue()
-      spyInitializeLights = jest
+      spyInitializeLights = vi
         .spyOn(InitialisationInteractor, 'resetLights')
         .mockResolvedValue()
-      spySetAccessPointNameOrPassword = jest
+      spySetAccessPointNameOrPassword = vi
         .spyOn(AccessPointInteractor, 'setAccessPointNameOrPassword')
         .mockResolvedValue()
-      spyGetAccessPointPassword = jest
+      spyGetAccessPointPassword = vi
         .spyOn(AccessPointInteractor, 'getAccessPointPassword')
         .mockResolvedValue(PASSWORD)
-      spyGetFocus = jest
+      spyGetFocus = vi
         .spyOn(VideoDeviceInteractor, 'getFocus')
         .mockResolvedValue({ min: FOCUS_MIN, max: FOCUS_MAX })
     })
@@ -460,7 +463,7 @@ describe('SettingsService', () => {
 
     describe('isTemperatureBelowThreshold', () => {
       it('returns true when above threshold', async () => {
-        const spyGetCurrentTemperature = jest
+        const spyGetCurrentTemperature = vi
           .spyOn(TemperatureInteractor, 'getCurrentTemperature')
           .mockResolvedValue(-1)
         const flag = await service.isTemperatureBelowThreshold()
@@ -469,7 +472,7 @@ describe('SettingsService', () => {
       })
 
       it('returns false when below threshold', async () => {
-        const spyGetCurrentTemperature = jest
+        const spyGetCurrentTemperature = vi
           .spyOn(TemperatureInteractor, 'getCurrentTemperature')
           .mockResolvedValue(18)
         const flag = await service.isTemperatureBelowThreshold()

@@ -18,10 +18,8 @@ import { UnknownMimeTypeException } from './UnknownMimeTypeException'
 
 describe(UnknownMimeTypeException.name, () => {
   it(`should be an instance of '${UnknownMimeTypeException.name}'`, () => {
-    try {
+    expect(() => {
       throw new UnknownMimeTypeException('a')
-    } catch (e) {
-      expect(e).toBeInstanceOf(UnknownMimeTypeException)
-    }
+    }).toThrow(UnknownMimeTypeException)
   })
 })

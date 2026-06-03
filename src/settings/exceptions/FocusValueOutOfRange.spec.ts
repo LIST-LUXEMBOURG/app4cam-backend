@@ -18,10 +18,8 @@ import { FocusValueOutOfRange } from './FocusValueOutOfRange'
 
 describe(FocusValueOutOfRange.name, () => {
   it(`should be an instance of '${FocusValueOutOfRange.name}'`, () => {
-    try {
+    expect(() => {
       throw new FocusValueOutOfRange('a')
-    } catch (e) {
-      expect(e).toBeInstanceOf(FocusValueOutOfRange)
-    }
+    }).toThrow(FocusValueOutOfRange)
   })
 })

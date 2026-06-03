@@ -26,6 +26,7 @@ import { validate } from './config/validation'
 import { FilesModule } from './files/files.module'
 import { LogFilesModule } from './log-files/log-files.module'
 import { LoggerMiddleware } from './logger.middleware'
+import { MotionClientService } from './motion-client.service'
 import { MotionInteractorModule } from './motion-interactor/motion-interactor.module'
 import { PropertiesModule } from './properties/properties.module'
 import { SettingsModule } from './settings/settings.module'
@@ -57,6 +58,7 @@ import { UpgradesModule } from './upgrades/upgrades.module'
       provide: APP_INTERCEPTOR,
       useClass: AccessControlAllowOriginInterceptor,
     },
+    MotionClientService,
   ],
 })
 export class AppModule implements NestModule {

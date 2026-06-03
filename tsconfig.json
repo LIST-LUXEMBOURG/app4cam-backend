@@ -18,6 +18,13 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
-    "types": ["archiver", "express", "jest", "luxon", "node", "supertest"]
+    "types": [
+      "archiver",
+      "express",
+      "luxon",
+      "node",
+      "supertest",
+      "vitest/globals"
+    ]
   }
 }

@@ -17,19 +17,21 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { InitialisationInteractor } from '../src/initialisation-interactor'
-import { SystemTimeZonesInteractor } from '../src/properties/interactors/system-time-zones-interactor'
+import { Mock, vi } from 'vitest'
+import { AppModule } from '../../src/app.module'
+import { InitialisationInteractor } from '../../src/initialisation-interactor'
+import { MotionClientService } from '../../src/motion-client.service'
+import { SystemTimeZonesInteractor } from '../../src/properties/interactors/system-time-zones-interactor'
 import {
   CameraSettingsPutDto,
   GeneralSettingsPutDto,
   TriggeringSettingsPutDto,
-} from '../src/settings/dto/settings.dto'
-import { Settings } from '../src/settings/entities/settings'
-import { AccessPointInteractor } from '../src/settings/interactors/access-point-interactor'
-import { SystemTimeInteractor } from '../src/settings/interactors/system-time-interactor'
-import { VideoDeviceInteractor } from '../src/settings/interactors/video-device-interactor'
-import { SettingsFileProvider } from '../src/settings/settings-file-provider'
-import { AppModule } from './../src/app.module'
+} from '../../src/settings/dto/settings.dto'
+import { Settings } from '../../src/settings/entities/settings'
+import { AccessPointInteractor } from '../../src/settings/interactors/access-point-interactor'
+import { SystemTimeInteractor } from '../../src/settings/interactors/system-time-interactor'
+import { VideoDeviceInteractor } from '../../src/settings/interactors/video-device-interactor'
+import { SettingsFileProvider } from '../../src/settings/settings-file-provider'
 
 const HEIGHT = 2
 const MOVIE_QUALITY = 80
@@ -38,30 +40,27 @@ const SHOTS_FOLDER = '/a'
 const TRIGGER_THRESHOLD = 5
 const WIDTH = 3
 
-jest.mock('../src/motion-client', () => ({
-  MotionClient: {
-    getHeight: () => HEIGHT,
-    getWidth: () => WIDTH,
-    setFilename: jest.fn(),
-    setLeftTextOnImage: jest.fn(),
-    getMovieQuality: () => MOVIE_QUALITY,
-    setMovieQuality: jest.fn(),
-    getMovieOutput: () => 'on',
-    setMovieOutput: jest.fn(),
-    getPictureQuality: () => PICTURE_QUALITY,
-    setPictureQuality: jest.fn(),
-    getPictureOutput: () => 'best',
-    setPictureOutput: jest.fn(),
-    setTargetDir: jest.fn(),
-    getThreshold: () => TRIGGER_THRESHOLD,
-    setThreshold: jest.fn(),
-    getTargetDir: () => SHOTS_FOLDER,
-    getVideoDevice: () => '',
-    getVideoParams: () =>
-      '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
-    setVideoParams: jest.fn(),
-  },
-}))
+const mockMotionClientService = {
+  getHeight: () => HEIGHT,
+  getWidth: () => WIDTH,
+  setFilename: () => {},
+  setLeftTextOnImage: () => {},
+  getMovieQuality: () => MOVIE_QUALITY,
+  setMovieQuality: () => {},
+  getMovieOutput: () => 'on',
+  setMovieOutput: () => {},
+  getPictureQuality: () => PICTURE_QUALITY,
+  setPictureQuality: () => {},
+  getPictureOutput: () => 'best',
+  setPictureOutput: () => {},
+  setTargetDir: () => {},
+  getThreshold: () => TRIGGER_THRESHOLD,
+  setThreshold: () => {},
+  getTargetDir: () => SHOTS_FOLDER,
+  getVideoDevice: () => '',
+  getVideoParams: () => '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
+  setVideoParams: () => {},
+}
 
 describe('SettingsController (e2e)', () => {
   const AVAILABLE_TIMEZONES = ['Europe/Luxembourg', 'Europe/Paris']
@@ -138,50 +137,50 @@ describe('SettingsController (e2e)', () => {
   }
 
   let app: INestApplication
-  let spyReadSettingsFile
-  let spyWriteSettingsFile
-  let spyGetSystemTime
-  let spySetSystemAndRtcTime
-  let spyGetAvailableTimeZones
-  let spyGetTimeZone
-  let spySetTimeZone
-  let spyInitializeLights
-  let spySetAccessPointNameOrPassword
-  let spyGetAccessPointPassword
-  let spyGetFocus
+  let spyReadSettingsFile: Mock
+  let spyWriteSettingsFile: Mock
+  let spyGetSystemTime: Mock
+  let spySetSystemAndRtcTime: Mock
+  let spyGetAvailableTimeZones: Mock
+  let spyGetTimeZone: Mock
+  let spySetTimeZone: Mock
+  let spyInitializeLights: Mock
+  let spySetAccessPointNameOrPassword: Mock
+  let spyGetAccessPointPassword: Mock
+  let spyGetFocus: Mock
 
   beforeEach(() => {
-    spyReadSettingsFile = jest
+    spyReadSettingsFile = vi
       .spyOn(SettingsFileProvider, 'readSettingsFile')
-      .mockImplementation(() => Promise.resolve(JSON_SETTINGS))
-    spyWriteSettingsFile = jest
+      .mockResolvedValue(JSON_SETTINGS)
+    spyWriteSettingsFile = vi
       .spyOn(SettingsFileProvider, 'writeSettingsToFile')
-      .mockImplementation(() => Promise.resolve())
-    spyGetSystemTime = jest
+      .mockResolvedValue()
+    spyGetSystemTime = vi
       .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
-      .mockImplementation(() => Promise.resolve(SYSTEM_TIME))
-    spySetSystemAndRtcTime = jest
+      .mockResolvedValue(SYSTEM_TIME)
+    spySetSystemAndRtcTime = vi
       .spyOn(SystemTimeInteractor, 'setSystemAndRtcTimeInIso8601Format')
-      .mockImplementation(() => Promise.resolve())
-    spyGetAvailableTimeZones = jest
+      .mockResolvedValue()
+    spyGetAvailableTimeZones = vi
       .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
-      .mockImplementation(() => Promise.resolve(AVAILABLE_TIMEZONES))
-    spyGetTimeZone = jest
+      .mockResolvedValue(AVAILABLE_TIMEZONES)
+    spyGetTimeZone = vi
       .spyOn(SystemTimeInteractor, 'getTimeZone')
-      .mockImplementation(() => Promise.resolve(ALL_SETTINGS.general.timeZone))
-    spySetTimeZone = jest
+      .mockResolvedValue(ALL_SETTINGS.general.timeZone)
+    spySetTimeZone = vi
       .spyOn(SystemTimeInteractor, 'setTimeZone')
-      .mockImplementation(() => Promise.resolve())
-    spyInitializeLights = jest
+      .mockResolvedValue()
+    spyInitializeLights = vi
       .spyOn(InitialisationInteractor, 'resetLights')
       .mockResolvedValue()
-    spySetAccessPointNameOrPassword = jest
+    spySetAccessPointNameOrPassword = vi
       .spyOn(AccessPointInteractor, 'setAccessPointNameOrPassword')
       .mockResolvedValue()
-    spyGetAccessPointPassword = jest
+    spyGetAccessPointPassword = vi
       .spyOn(AccessPointInteractor, 'getAccessPointPassword')
       .mockResolvedValue(PASSWORD)
-    spyGetFocus = jest
+    spyGetFocus = vi
       .spyOn(VideoDeviceInteractor, 'getFocus')
       .mockResolvedValue({ min: FOCUS_MIN, max: FOCUS_MAX })
   })
@@ -189,7 +188,10 @@ describe('SettingsController (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile()
+    })
+      .overrideProvider(MotionClientService)
+      .useValue(mockMotionClientService)
+      .compile()
 
     app = moduleFixture.createNestApplication()
     app.useGlobalPipes(new ValidationPipe())
@@ -229,7 +231,7 @@ describe('SettingsController (e2e)', () => {
           .expect(400)
       })
 
-      it('returns bad request on string focus value', () => {
+      it('returns bad request on focus value passing the maximum', () => {
         return request(app.getHttpServer())
           .patch('/settings')
           .send({ camera: { focus: 700 } })
@@ -468,7 +470,7 @@ describe('SettingsController (e2e)', () => {
           general: GENERAL_JSON_SETTINGS,
           triggering: { light: TRIGGERING_LIGHT },
         }
-        spyReadSettingsFile = jest
+        spyReadSettingsFile = vi
           .spyOn(SettingsFileProvider, 'readSettingsFile')
           .mockImplementation(() =>
             Promise.resolve(jsonSettingsWithoutTriggeringHours),
@@ -493,7 +495,7 @@ describe('SettingsController (e2e)', () => {
           general: GENERAL_JSON_SETTINGS,
           triggering: { light: TRIGGERING_LIGHT },
         }
-        spyReadSettingsFile = jest
+        spyReadSettingsFile = vi
           .spyOn(SettingsFileProvider, 'readSettingsFile')
           .mockImplementation(() =>
             Promise.resolve(jsonSettingsWithoutTriggeringHours),
@@ -656,7 +658,7 @@ describe('SettingsController (e2e)', () => {
             wakingUpTime: null,
           },
         }
-        spyReadSettingsFile = jest
+        spyReadSettingsFile = vi
           .spyOn(SettingsFileProvider, 'readSettingsFile')
           .mockResolvedValue(jsonSettings)
         return request(app.getHttpServer())
@@ -694,7 +696,7 @@ describe('SettingsController (e2e)', () => {
             },
           },
         }
-        spyReadSettingsFile = jest
+        spyReadSettingsFile = vi
           .spyOn(SettingsFileProvider, 'readSettingsFile')
           .mockResolvedValue(jsonSettings)
         return request(app.getHttpServer())
@@ -720,7 +722,7 @@ describe('SettingsController (e2e)', () => {
             useSunriseAndSunsetTimes: true,
           },
         }
-        spyReadSettingsFile = jest
+        spyReadSettingsFile = vi
           .spyOn(SettingsFileProvider, 'readSettingsFile')
           .mockResolvedValue(jsonSettings)
         return request(app.getHttpServer())
@@ -757,7 +759,7 @@ describe('SettingsController (e2e)', () => {
             },
           },
         }
-        spyReadSettingsFile = jest
+        spyReadSettingsFile = vi
           .spyOn(SettingsFileProvider, 'readSettingsFile')
           .mockResolvedValue(jsonSettings)
         return request(app.getHttpServer())

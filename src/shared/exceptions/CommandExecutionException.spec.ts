@@ -18,10 +18,8 @@ import { CommandExecutionException } from './CommandExecutionException'
 
 describe(CommandExecutionException.name, () => {
   it(`should be an instance of '${CommandExecutionException.name}'`, () => {
-    try {
+    expect(() => {
       throw new CommandExecutionException('a')
-    } catch (e) {
-      expect(e).toBeInstanceOf(CommandExecutionException)
-    }
+    }).toThrow(CommandExecutionException)
   })
 })

@@ -17,20 +17,15 @@
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { AppModule } from '../src/app.module'
-import { StorageStatusDto } from '../src/storage/dto/storage-status.dto'
-import { StorageUsageDto } from '../src/storage/dto/storage-usage.dto'
-import { StorageUsageInteractor } from '../src/storage/interactors/storage-usage-interactor'
-
-const FILES_FOLDER_PATH = 'src/files/fixtures/'
-
-jest.mock('../src/motion-client', () => ({
-  MotionClient: {
-    getTargetDir: () => FILES_FOLDER_PATH,
-  },
-}))
+import { vi } from 'vitest'
+import { AppModule } from '../../src/app.module'
+import { MotionClientService } from '../../src/motion-client.service'
+import { StorageStatusDto } from '../../src/storage/dto/storage-status.dto'
+import { StorageUsageDto } from '../../src/storage/dto/storage-usage.dto'
+import { StorageUsageInteractor } from '../../src/storage/interactors/storage-usage-interactor'
 
 describe('StorageController (e2e)', () => {
+  const FILES_FOLDER_PATH = 'src/files/fixtures/'
   const STATUS: StorageStatusDto = {
     isAvailable: true,
     message: `The path ${FILES_FOLDER_PATH} is accessible and writable.`,
@@ -44,15 +39,20 @@ describe('StorageController (e2e)', () => {
   let spyGetStorageUsage
 
   beforeAll(() => {
-    spyGetStorageUsage = jest
+    spyGetStorageUsage = vi
       .spyOn(StorageUsageInteractor, 'getStorageUsage')
-      .mockImplementation(() => Promise.resolve(USAGE))
+      .mockResolvedValue(USAGE)
   })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile()
+    })
+      .overrideProvider(MotionClientService)
+      .useValue({
+        getTargetDir: () => FILES_FOLDER_PATH,
+      })
+      .compile()
 
     app = moduleFixture.createNestApplication()
     await app.init()

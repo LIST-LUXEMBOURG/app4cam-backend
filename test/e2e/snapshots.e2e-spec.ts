@@ -17,24 +17,24 @@
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { AppModule } from '../src/app.module'
-
-const FILES_FOLDER_PATH = 'src/snapshots/fixtures/'
-
-jest.mock('../src/motion-client', () => ({
-  MotionClient: {
-    getTargetDir: () => FILES_FOLDER_PATH,
-    takeSnapshot: () => jest.fn(),
-  },
-}))
+import { AppModule } from '../../src/app.module'
+import { MotionClientService } from '../../src/motion-client.service'
 
 describe('SnapshotsController (e2e)', () => {
+  const FILES_FOLDER_PATH = 'src/snapshots/fixtures/'
+
   let app: INestApplication
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile()
+    })
+      .overrideProvider(MotionClientService)
+      .useValue({
+        getTargetDir: () => FILES_FOLDER_PATH,
+        takeSnapshot: () => {},
+      })
+      .compile()
 
     app = moduleFixture.createNestApplication()
     await app.init()

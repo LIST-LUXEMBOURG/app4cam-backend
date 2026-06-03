@@ -16,6 +16,7 @@
  */
 import { forwardRef, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { MotionClientService } from '../motion-client.service'
 import { SettingsModule } from '../settings/settings.module'
 import { SettingsService } from '../settings/settings.service'
 import { PropertiesController } from './properties.controller'
@@ -23,7 +24,12 @@ import { PropertiesService } from './properties.service'
 
 @Module({
   controllers: [PropertiesController],
-  providers: [ConfigService, PropertiesService, SettingsService],
+  providers: [
+    ConfigService,
+    MotionClientService,
+    PropertiesService,
+    SettingsService,
+  ],
   imports: [ConfigModule, forwardRef(() => SettingsModule)],
   exports: [PropertiesService],
 })

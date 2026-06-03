@@ -34,7 +34,7 @@ describe(UpgradesController.name, () => {
         {
           provide: UpgradesService,
           useValue: {
-            verifyUpgradeFile: jest.fn().mockResolvedValue(MESSAGE),
+            verifyUpgradeFile: () => MESSAGE,
           },
         },
       ],
@@ -47,7 +47,7 @@ describe(UpgradesController.name, () => {
     expect(controller).toBeDefined()
   })
 
-  describe('getUpgradeFileCheckResult', () => {
+  describe(UpgradesController.prototype.getUpgradeFileCheckResult.name, () => {
     it('gets a message', async () => {
       const response = await controller.getUpgradeFileCheckResult()
       expect(response).toEqual(MESSAGE)

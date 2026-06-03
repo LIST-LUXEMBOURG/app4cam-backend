@@ -18,10 +18,8 @@ import { CommandUnavailableOnWindowsException } from './CommandUnavailableOnWind
 
 describe(CommandUnavailableOnWindowsException.name, () => {
   it(`should be an instance of '${CommandUnavailableOnWindowsException.name}'`, () => {
-    try {
+    expect(() => {
       throw new CommandUnavailableOnWindowsException()
-    } catch (e) {
-      expect(e).toBeInstanceOf(CommandUnavailableOnWindowsException)
-    }
+    }).toThrow(CommandUnavailableOnWindowsException)
   })
 })

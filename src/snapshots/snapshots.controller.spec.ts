@@ -17,7 +17,9 @@
 import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { vi } from 'vitest'
 import { FilesService } from '../files/files.service'
+import { MotionClientService } from '../motion-client.service'
 import { PropertiesService } from '../properties/properties.service'
 import { SettingsService } from '../settings/settings.service'
 import { SnapshotsController } from './snapshots.controller'
@@ -34,12 +36,13 @@ describe(SnapshotsController.name, () => {
       providers: [
         ConfigService,
         FilesService,
+        MotionClientService,
         PropertiesService,
         SettingsService,
         {
           provide: SnapshotsService,
           useValue: {
-            takeSnapshot: jest.fn(() => ({
+            takeSnapshot: vi.fn(() => ({
               contentType: mockSnapshotContentType,
               stream: new PassThrough(),
             })),
@@ -56,10 +59,10 @@ describe(SnapshotsController.name, () => {
     expect(controller).toBeDefined()
   })
 
-  describe('takeSnapshot', () => {
+  describe(SnapshotsController.prototype.takeSnapshot.name, () => {
     it('asks for taking a snapshot and sets the response', async () => {
       const mockResponse = {
-        set: jest.fn(),
+        set: vi.fn(),
       }
       await controller.takeSnapshot(mockResponse)
       expect(service.takeSnapshot).toHaveBeenCalledWith()

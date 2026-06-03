@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Injectable, Logger } from '@nestjs/common'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { StorageStatusDto } from './dto/storage-status.dto'
 import { StorageUsageDto } from './dto/storage-usage.dto'
@@ -30,8 +30,10 @@ const WRITE_PERMISSION_MASK = 2
 export class StorageService {
   private readonly logger = new Logger(StorageService.name)
 
+  constructor(private readonly motionClientService: MotionClientService) {}
+
   async getStorageStatus(): Promise<StorageStatusDto> {
-    const devicePath = await MotionClient.getTargetDir()
+    const devicePath = await this.motionClientService.getTargetDir()
 
     let isAvailable = false
     let message: string
@@ -85,7 +87,7 @@ export class StorageService {
   }
 
   async getStorageUsage(): Promise<StorageUsageDto> {
-    const devicePath = await MotionClient.getTargetDir()
+    const devicePath = await this.motionClientService.getTargetDir()
     try {
       const usage = StorageUsageInteractor.getStorageUsage(devicePath)
       return usage

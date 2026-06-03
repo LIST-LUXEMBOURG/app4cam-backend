@@ -18,7 +18,7 @@ import { lstat, readdir, rm } from 'fs/promises'
 import path from 'path'
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import FolderCleaner from '../shared/folder-cleaner'
@@ -35,10 +35,13 @@ const ARCHIVE_FOLDER_PATH = 'temp/archives'
 export class FilesService {
   private readonly logger = new Logger(FilesService.name)
 
-  constructor(private readonly settingsService: SettingsService) {}
+  constructor(
+    private readonly motionClientService: MotionClientService,
+    private readonly settingsService: SettingsService,
+  ) {}
 
   async findAll(): Promise<File[]> {
-    const fileFolderPath = await MotionClient.getTargetDir()
+    const fileFolderPath = await this.motionClientService.getTargetDir()
     const elements = await readdir(fileFolderPath)
     const elementPromises = elements.map(async (elementName) => {
       const filePath = path.join(fileFolderPath, elementName)
@@ -66,7 +69,7 @@ export class FilesService {
   }
 
   async getStreamableFile(filename: string) {
-    const fileFolderPath = await MotionClient.getTargetDir()
+    const fileFolderPath = await this.motionClientService.getTargetDir()
     const filePath = path.join(fileFolderPath, filename)
     return FileHandler.createStreamWithContentType(filePath)
   }
@@ -82,7 +85,7 @@ export class FilesService {
       settings.general.timeZone,
     )
     const archiveFilePath = path.join(ARCHIVE_FOLDER_PATH, archiveFilename)
-    const fileFolderPath = await MotionClient.getTargetDir()
+    const fileFolderPath = await this.motionClientService.getTargetDir()
     const filePaths = filenames.map((filename) =>
       path.join(fileFolderPath, filename),
     )
@@ -97,7 +100,7 @@ export class FilesService {
   }
 
   async removeFile(filename: string): Promise<void> {
-    const fileFolderPath = await MotionClient.getTargetDir()
+    const fileFolderPath = await this.motionClientService.getTargetDir()
     const filePath = path.join(fileFolderPath, filename)
     await rm(filePath)
   }
@@ -116,7 +119,7 @@ export class FilesService {
   }
 
   async removeAllFiles(): Promise<void> {
-    const fileFolderPath = await MotionClient.getTargetDir()
+    const fileFolderPath = await this.motionClientService.getTargetDir()
     try {
       FileInteractor.removeAllFilesInDirectory(fileFolderPath)
     } catch (error) {

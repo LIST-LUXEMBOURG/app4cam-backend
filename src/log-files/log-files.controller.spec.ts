@@ -16,6 +16,7 @@
  */
 import { PassThrough } from 'stream'
 import { Test, TestingModule } from '@nestjs/testing'
+import { vi } from 'vitest'
 import { LogFilesController } from './log-files.controller'
 import { LogFilesService } from './log-files.service'
 
@@ -30,8 +31,8 @@ describe(LogFilesController.name, () => {
         {
           provide: LogFilesService,
           useValue: {
-            getAppLogFileStream: jest.fn(() => new PassThrough()),
-            getMotionLogFileStream: jest.fn(() => new PassThrough()),
+            getAppLogFileStream: vi.fn(() => new PassThrough()),
+            getMotionLogFileStream: vi.fn(() => new PassThrough()),
           },
         },
       ],
@@ -45,10 +46,10 @@ describe(LogFilesController.name, () => {
     expect(controller).toBeDefined()
   })
 
-  describe('downloadAppLogFile', () => {
+  describe(LogFilesController.prototype.downloadAppLogFile.name, () => {
     it('asks for the streamable file and sets the response', async () => {
       const mockResponse = {
-        set: jest.fn(),
+        set: vi.fn(),
       }
       await controller.downloadAppLogFile(mockResponse)
       expect(service.getAppLogFileStream).toHaveBeenCalled()
@@ -56,10 +57,10 @@ describe(LogFilesController.name, () => {
     })
   })
 
-  describe('downloadMotionLogFile', () => {
+  describe(LogFilesController.prototype.downloadMotionLogFile.name, () => {
     it('asks for the streamable file and sets the response', async () => {
       const mockResponse = {
-        set: jest.fn(),
+        set: vi.fn(),
       }
       await controller.downloadMotionLogFile(mockResponse)
       expect(service.getMotionLogFileStream).toHaveBeenCalled()

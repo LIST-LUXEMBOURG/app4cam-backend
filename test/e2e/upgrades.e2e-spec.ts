@@ -17,9 +17,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
-import { UpgradeFileCheckResultDto } from '../src/upgrades/dto/upgrade-file-check-result.dto'
-import { UpgradesService } from '../src/upgrades/upgrades.service'
-import { AppModule } from './../src/app.module'
+import { AppModule } from '../../src/app.module'
+import { UpgradeFileCheckResultDto } from '../../src/upgrades/dto/upgrade-file-check-result.dto'
+import { UpgradesService } from '../../src/upgrades/upgrades.service'
 
 describe('FilesController (e2e)', () => {
   const FILE_CHECK_RESULT: UpgradeFileCheckResultDto = {
@@ -36,9 +36,9 @@ describe('FilesController (e2e)', () => {
     })
       .overrideProvider(UpgradesService)
       .useValue({
-        isUpgradeInProgress: jest.fn().mockResolvedValue(STATUS),
-        performUpgrade: jest.fn(),
-        verifyUpgradeFile: jest.fn().mockResolvedValue(FILE_CHECK_RESULT),
+        isUpgradeInProgress: () => STATUS,
+        performUpgrade: () => {},
+        verifyUpgradeFile: () => FILE_CHECK_RESULT,
       })
       .compile()
 

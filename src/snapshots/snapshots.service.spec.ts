@@ -16,36 +16,37 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Mock, vi } from 'vitest'
 import { FilesService } from '../files/files.service'
 import { InitialisationInteractor } from '../initialisation-interactor'
-import { MotionClient } from '../motion-client'
+import { MotionClientService } from '../motion-client.service'
 import { FileSystemInteractor } from './file-system-interactor'
 import { SnapshotsService } from './snapshots.service'
 
 const mockFileService = {
-  getStreamableFile: jest.fn(),
+  getStreamableFile: vi.fn(),
 }
 
 describe(SnapshotsService.name, () => {
   const MOST_RECENT_FILENAME = 'a'
 
+  const spyGetTargetDir = vi.fn().mockResolvedValue('')
+  const spyTakeSnapshot = vi.fn()
+
+  const mockMotionClientService = {
+    getTargetDir: spyGetTargetDir,
+    takeSnapshot: spyTakeSnapshot,
+  }
+
   let service: SnapshotsService
-  let spyGetTargetDir
-  let spyGetNameOfMostRecentFile
-  let spyTakeSnapshot
-  let spyInitializeLights
+  let spyGetNameOfMostRecentFile: Mock
+  let spyInitializeLights: Mock
 
   beforeAll(() => {
-    spyGetTargetDir = jest
-      .spyOn(MotionClient, 'getTargetDir')
-      .mockResolvedValue('')
-    spyGetNameOfMostRecentFile = jest
+    spyGetNameOfMostRecentFile = vi
       .spyOn(FileSystemInteractor, 'getNameOfMostRecentlyModifiedFile')
       .mockResolvedValue(MOST_RECENT_FILENAME)
-    spyTakeSnapshot = jest
-      .spyOn(MotionClient, 'takeSnapshot')
-      .mockResolvedValue()
-    spyInitializeLights = jest
+    spyInitializeLights = vi
       .spyOn(InitialisationInteractor, 'resetLights')
       .mockResolvedValue()
   })
@@ -58,6 +59,10 @@ describe(SnapshotsService.name, () => {
           provide: FilesService,
           useValue: mockFileService,
         },
+        {
+          provide: MotionClientService,
+          useValue: mockMotionClientService,
+        },
         SnapshotsService,
       ],
     }).compile()
@@ -69,7 +74,7 @@ describe(SnapshotsService.name, () => {
     expect(service).toBeDefined()
   })
 
-  describe('takeSnapshot', () => {
+  describe(SnapshotsService.prototype.takeSnapshot.name, () => {
     it('calls the API and retrieves the snapshot', async () => {
       await service.takeSnapshot()
       expect(spyTakeSnapshot).toHaveBeenCalled()

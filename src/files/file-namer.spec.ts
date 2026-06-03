@@ -21,7 +21,7 @@ const SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS = '20220118T144837'
 const TIME_ZONE = 'Europe/Luxembourg'
 
 describe(FileNamer.name, () => {
-  describe('createFilename', () => {
+  describe(FileNamer.createFilename.name, () => {
     it('returns complete name', () => {
       const dateTime = new Date(SYSTEM_TIME_ISO)
       const suffix = 'a'

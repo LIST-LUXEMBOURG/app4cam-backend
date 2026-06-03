@@ -17,12 +17,14 @@
 import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { vi } from 'vitest'
+import { MotionClientService } from '../motion-client.service'
 import { PropertiesService } from '../properties/properties.service'
 import { SettingsService } from '../settings/settings.service'
 import { FilesController } from './files.controller'
 import { FilesService } from './files.service'
 
-describe('FilesController', () => {
+describe(FilesController.name, () => {
   let controller: FilesController
   let service: FilesService
 
@@ -34,20 +36,21 @@ describe('FilesController', () => {
         {
           provide: FilesService,
           useValue: {
-            findAll: jest.fn(),
-            getStreamableFile: jest.fn(() => ({
+            findAll: vi.fn(),
+            getStreamableFile: vi.fn(() => ({
               contentType: 'c',
               stream: new PassThrough(),
             })),
-            getStreamableFiles: jest.fn(() => ({
+            getStreamableFiles: vi.fn(() => ({
               contentType: 'c',
               filename: 'f',
               stream: new PassThrough(),
             })),
-            removeFile: jest.fn(),
-            removeFiles: jest.fn(() => ({ a: true, b: true })),
+            removeFile: vi.fn(),
+            removeFiles: vi.fn(() => ({ a: true, b: true })),
           },
         },
+        MotionClientService,
         PropertiesService,
         SettingsService,
       ],
@@ -61,14 +64,14 @@ describe('FilesController', () => {
     expect(controller).toBeDefined()
   })
 
-  describe('findAll', () => {
+  describe(FilesController.prototype.findAll.name, () => {
     it('asks for all files', () => {
       controller.findAll()
       expect(service.findAll).toHaveBeenCalled()
     })
   })
 
-  describe('deleteFile', () => {
+  describe(FilesController.prototype.deleteFile.name, () => {
     it('asks for removing the file', async () => {
       const filename = 'a'
       await controller.deleteFile(filename)
@@ -76,7 +79,7 @@ describe('FilesController', () => {
     })
   })
 
-  describe('deleteFiles', () => {
+  describe(FilesController.prototype.deleteFiles.name, () => {
     it('asks for removing the files', async () => {
       const filenames = ['a', 'b']
       const result = await controller.deleteFiles({ filenames })
@@ -89,11 +92,11 @@ describe('FilesController', () => {
     })
   })
 
-  describe('downloadFile', () => {
+  describe(FilesController.prototype.downloadFile.name, () => {
     it('asks for the streamable file and sets the response', async () => {
       const filename = 'a'
       const mockResponse = {
-        set: jest.fn(),
+        set: vi.fn(),
       }
       await controller.downloadFile(filename, mockResponse)
       expect(service.getStreamableFile).toHaveBeenCalledWith(filename)
@@ -101,11 +104,11 @@ describe('FilesController', () => {
     })
   })
 
-  describe('downloadFiles', () => {
+  describe(FilesController.prototype.downloadFiles.name, () => {
     it('asks for the streamable file and sets the response', async () => {
       const filenames = ['a']
       const mockResponse = {
-        set: jest.fn(),
+        set: vi.fn(),
       }
       await controller.downloadFiles({ filenames: filenames }, mockResponse)
       expect(service.getStreamableFiles).toHaveBeenCalledWith(filenames)
