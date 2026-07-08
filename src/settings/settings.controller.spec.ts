@@ -21,8 +21,10 @@ import { vi } from 'vitest'
 import { MotionClientService } from '../motion-client.service'
 import { PropertiesService } from '../properties/properties.service'
 import { Settings } from './entities/settings'
+import { ShotTypes } from './entities/shot-types'
 import { SettingsController } from './settings.controller'
 import { SettingsService } from './settings.service'
+import { ISettingsService } from './settings.service.interface'
 
 describe('SettingsController', () => {
   const SLEEPING_TIME = {
@@ -73,6 +75,29 @@ describe('SettingsController', () => {
   }
   const SHOT_TYPES = ['pictures', 'videos']
   const SHOTS_FOLDER = '/a'
+
+  class MockSettingsService implements Partial<ISettingsService> {
+    getAllSettings = async () => SETTINGS
+    updateSettings = vi.fn()
+    updateAllSettings = vi.fn()
+    getSiteName = async () => SETTINGS.general.siteName
+    setSiteName = vi.fn()
+    getDeviceName = async () => SETTINGS.general.deviceName
+    setDeviceName = vi.fn()
+    getSystemTime = async () => SETTINGS.general.systemTime
+    setSystemTime = vi.fn()
+    getTimeZone = async () => SETTINGS.general.timeZone
+    setTimeZone = vi.fn()
+    getShotsFolder = async () => SHOTS_FOLDER
+    setShotsFolder = vi.fn()
+    getShotTypes = async () => new Set(SHOT_TYPES) as ShotTypes
+    getSleepingTime = async () => SLEEPING_TIME
+    getWakingUpTime = async () => WAKING_UP_TIME
+    getTriggeringLight = async () => SETTINGS.triggering.light
+    getIsAlternatingLightModeEnabled = async () =>
+      SETTINGS.general.isAlternatingLightModeEnabled
+  }
+
   let controller: SettingsController
   let service: SettingsService
 
@@ -83,30 +108,7 @@ describe('SettingsController', () => {
         ConfigService,
         MotionClientService,
         PropertiesService,
-        {
-          provide: SettingsService,
-          useValue: {
-            getAllSettings: () => SETTINGS,
-            updateSettings: vi.fn(),
-            updateAllSettings: vi.fn(),
-            getSiteName: () => SETTINGS.general.siteName,
-            setSiteName: vi.fn(),
-            getDeviceName: () => SETTINGS.general.deviceName,
-            setDeviceName: vi.fn(),
-            getSystemTime: () => SETTINGS.general.systemTime,
-            setSystemTime: vi.fn(),
-            getTimeZone: () => SETTINGS.general.timeZone,
-            setTimeZone: vi.fn(),
-            getShotsFolder: () => SHOTS_FOLDER,
-            setShotsFolder: vi.fn(),
-            getShotTypes: () => SHOT_TYPES,
-            getSleepingTime: () => SLEEPING_TIME,
-            getWakingUpTime: () => WAKING_UP_TIME,
-            getTriggeringLight: () => SETTINGS.triggering.light,
-            getIsAlternatingLightModeEnabled: () =>
-              SETTINGS.general.isAlternatingLightModeEnabled,
-          },
-        },
+        { provide: SettingsService, useClass: MockSettingsService },
       ],
     }).compile()
 

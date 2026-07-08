@@ -18,24 +18,25 @@ import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Mock, vi } from 'vitest'
 import { FilesService } from '../files/files.service'
+import { IFilesService } from '../files/files.service.interface'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClientService } from '../motion-client.service'
+import { IMotionClientService } from '../motion-client.service.interface'
 import { FileSystemInteractor } from './file-system-interactor'
 import { SnapshotsService } from './snapshots.service'
-
-const mockFileService = {
-  getStreamableFile: vi.fn(),
-}
 
 describe(SnapshotsService.name, () => {
   const MOST_RECENT_FILENAME = 'a'
 
-  const spyGetTargetDir = vi.fn().mockResolvedValue('')
+  const spyGetStreamableFile = vi.fn()
   const spyTakeSnapshot = vi.fn()
 
-  const mockMotionClientService = {
-    getTargetDir: spyGetTargetDir,
-    takeSnapshot: spyTakeSnapshot,
+  class MockFilesService implements Partial<IFilesService> {
+    getStreamableFile = spyGetStreamableFile
+  }
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    getTargetDir = async () => ''
+    takeSnapshot = spyTakeSnapshot
   }
 
   let service: SnapshotsService
@@ -55,14 +56,8 @@ describe(SnapshotsService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ConfigService,
-        {
-          provide: FilesService,
-          useValue: mockFileService,
-        },
-        {
-          provide: MotionClientService,
-          useValue: mockMotionClientService,
-        },
+        { provide: FilesService, useClass: MockFilesService },
+        { provide: MotionClientService, useClass: MockMotionClientService },
         SnapshotsService,
       ],
     }).compile()
@@ -78,14 +73,11 @@ describe(SnapshotsService.name, () => {
     it('calls the API and retrieves the snapshot', async () => {
       await service.takeSnapshot()
       expect(spyTakeSnapshot).toHaveBeenCalled()
-      expect(mockFileService.getStreamableFile).toHaveBeenCalledWith(
-        MOST_RECENT_FILENAME,
-      )
+      expect(spyGetStreamableFile).toHaveBeenCalledWith(MOST_RECENT_FILENAME)
     })
   })
 
   afterAll(() => {
-    spyGetTargetDir.mockRestore()
     spyGetNameOfMostRecentFile.mockRestore()
     spyTakeSnapshot.mockRestore()
     spyInitializeLights.mockRestore()

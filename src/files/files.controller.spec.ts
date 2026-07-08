@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
+import { ReadStream } from 'fs'
 import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -23,6 +24,26 @@ import { PropertiesService } from '../properties/properties.service'
 import { SettingsService } from '../settings/settings.service'
 import { FilesController } from './files.controller'
 import { FilesService } from './files.service'
+import { IFilesService } from './files.service.interface'
+
+class MockFilesService implements Partial<IFilesService> {
+  findAll = vi.fn()
+  getStreamableFile = vi.fn(() =>
+    Promise.resolve({
+      contentType: 'c',
+      stream: new PassThrough() as unknown as ReadStream,
+    }),
+  )
+  getStreamableFiles = vi.fn(() =>
+    Promise.resolve({
+      contentType: 'c',
+      filename: 'f',
+      stream: new PassThrough() as unknown as ReadStream,
+    }),
+  )
+  removeFile = vi.fn()
+  removeFiles = vi.fn(() => Promise.resolve({ a: true, b: true }))
+}
 
 describe(FilesController.name, () => {
   let controller: FilesController
@@ -33,23 +54,7 @@ describe(FilesController.name, () => {
       controllers: [FilesController],
       providers: [
         ConfigService,
-        {
-          provide: FilesService,
-          useValue: {
-            findAll: vi.fn(),
-            getStreamableFile: vi.fn(() => ({
-              contentType: 'c',
-              stream: new PassThrough(),
-            })),
-            getStreamableFiles: vi.fn(() => ({
-              contentType: 'c',
-              filename: 'f',
-              stream: new PassThrough(),
-            })),
-            removeFile: vi.fn(),
-            removeFiles: vi.fn(() => ({ a: true, b: true })),
-          },
-        },
+        { provide: FilesService, useClass: MockFilesService },
         MotionClientService,
         PropertiesService,
         SettingsService,

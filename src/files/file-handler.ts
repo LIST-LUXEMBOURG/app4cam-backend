@@ -16,12 +16,13 @@
  */
 import { createReadStream } from 'fs'
 import path from 'path'
+import { StreamWithContentType } from '../shared/entities/stream-with-content-type'
 import { File } from './entities/file.entity'
 import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity'
 import { MimeTypeDeterminer } from './mime-type-determiner'
 
 export class FileHandler {
-  static createStreamWithContentType(filePath: string) {
+  static createStreamWithContentType(filePath: string): StreamWithContentType {
     const fileExtension = path.extname(filePath)
     const contentType = MimeTypeDeterminer.getContentType(fileExtension)
     const stream = createReadStream(filePath)

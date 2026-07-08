@@ -49,6 +49,7 @@ import { VideoDeviceInteractor } from './interactors/video-device-interactor'
 import { MotionTextAssembler } from './motion-text-assembler'
 import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
 import { SettingsFileProvider } from './settings-file-provider'
+import { ISettingsService } from './settings.service.interface'
 import { TriggeringTimeHelper } from './triggering-time-helper'
 
 const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
@@ -59,7 +60,7 @@ const SLEEPING_CRON_JOB_NAME = 'sleepingCronJob'
 const ALTERNATING_LIGHT_MODE_JOB_NAME = 'alternatingLightModeCronJob'
 
 @Injectable()
-export class SettingsService {
+export class SettingsService implements ISettingsService {
   private readonly deviceType: string
   private readonly isFixedFocus: boolean
   private readonly logger = new Logger(SettingsService.name)

@@ -18,6 +18,7 @@ import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Mock, vi } from 'vitest'
 import { MotionClientService } from '../motion-client.service'
+import { IMotionClientService } from '../motion-client.service.interface'
 import { SettingsService } from '../settings/settings.service'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import { VersionDto } from './dto/version.dto'
@@ -54,6 +55,10 @@ const VERSION: VersionDto = {
 describe(PropertiesService.name, () => {
   const spyIsCameraConnected = vi.fn()
 
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    isCameraConnected = spyIsCameraConnected
+  }
+
   let service: PropertiesService
   let spyGetAvailableTimeZones: Mock
 
@@ -67,16 +72,11 @@ describe(PropertiesService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ConfigService,
-        MotionClientService,
+        { provide: MotionClientService, useClass: MockMotionClientService },
         PropertiesService,
         SettingsService,
       ],
-    })
-      .overrideProvider(MotionClientService)
-      .useValue({
-        isCameraConnected: spyIsCameraConnected,
-      })
-      .compile()
+    }).compile()
 
     service = module.get<PropertiesService>(PropertiesService)
   })

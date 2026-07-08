@@ -19,9 +19,15 @@ import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { AppModule } from '../../src/app.module'
 import { MotionClientService } from '../../src/motion-client.service'
+import { IMotionClientService } from '../../src/motion-client.service.interface'
 
 describe('SnapshotsController (e2e)', () => {
   const FILES_FOLDER_PATH = 'src/snapshots/fixtures/'
+
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    getTargetDir = async () => FILES_FOLDER_PATH
+    takeSnapshot = async () => {}
+  }
 
   let app: INestApplication
 
@@ -30,10 +36,7 @@ describe('SnapshotsController (e2e)', () => {
       imports: [AppModule],
     })
       .overrideProvider(MotionClientService)
-      .useValue({
-        getTargetDir: () => FILES_FOLDER_PATH,
-        takeSnapshot: () => {},
-      })
+      .useClass(MockMotionClientService)
       .compile()
 
     app = moduleFixture.createNestApplication()

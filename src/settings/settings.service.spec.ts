@@ -19,7 +19,13 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { Mock, vi } from 'vitest'
 import { InitialisationInteractor } from '../initialisation-interactor'
 import { MotionClientService } from '../motion-client.service'
+import {
+  IMotionClientService,
+  MovieOutputValue,
+  PictureOutputValue,
+} from '../motion-client.service.interface'
 import { PropertiesService } from '../properties/properties.service'
+import { IPropertiesService } from '../properties/properties.service.interface'
 import { SettingsPutDto } from './dto/settings.dto'
 import { PatchableSettings, Settings } from './entities/settings'
 import { AccessPointInteractor } from './interactors/access-point-interactor'
@@ -46,29 +52,30 @@ const mockConfigService = {
   },
 }
 
-const mockMotionClientService = {
-  getHeight: () => HEIGHT,
-  getWidth: () => WIDTH,
-  setFilename: () => {},
-  setLeftTextOnImage: () => {},
-  getMovieQuality: () => 60,
-  setMovieQuality: () => {},
-  getMovieOutput: () => 'on',
-  setMovieOutput: () => {},
-  getPictureQuality: () => 90,
-  setPictureQuality: () => {},
-  getPictureOutput: () => 'best',
-  setPictureOutput: () => {},
-  getThreshold: () => TRIGGER_SENSITIVITY,
-  setThreshold: () => {},
-  getTargetDir: () => SHOTS_FOLDER,
-  getVideoDevice: () => '',
-  getVideoParams: () => '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
-  setVideoParams: () => {},
+class MockMotionClientService implements Partial<IMotionClientService> {
+  getHeight = async () => HEIGHT
+  getWidth = async () => WIDTH
+  setFilename = async () => {}
+  setLeftTextOnImage = async () => {}
+  getMovieQuality = async () => 60
+  setMovieQuality = async () => {}
+  getMovieOutput = async () => 'on' as MovieOutputValue
+  setMovieOutput = async () => {}
+  getPictureQuality = async () => 90
+  setPictureQuality = async () => {}
+  getPictureOutput = async () => 'best' as PictureOutputValue
+  setPictureOutput = async () => {}
+  getThreshold = async () => TRIGGER_SENSITIVITY
+  setThreshold = async () => {}
+  getTargetDir = async () => SHOTS_FOLDER
+  getVideoDevice = async () => ''
+  getVideoParams = async () =>
+    '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16'
+  setVideoParams = async () => {}
 }
 
-const mockPropertiesService = {
-  getAvailableTimeZones: () => ['t1', 't2'],
+class MockPropertiesService implements Partial<IPropertiesService> {
+  getAvailableTimeZones = async () => ['t1', 't2']
 }
 
 describe('SettingsService', () => {
@@ -81,14 +88,8 @@ describe('SettingsService', () => {
           provide: ConfigService,
           useValue: mockConfigService,
         },
-        {
-          provide: MotionClientService,
-          useValue: mockMotionClientService,
-        },
-        {
-          provide: PropertiesService,
-          useValue: mockPropertiesService,
-        },
+        { provide: MotionClientService, useClass: MockMotionClientService },
+        { provide: PropertiesService, useClass: MockPropertiesService },
         SettingsService,
       ],
     }).compile()

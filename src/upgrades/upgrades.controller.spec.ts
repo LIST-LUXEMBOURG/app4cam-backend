@@ -18,6 +18,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto'
 import { UpgradesController } from './upgrades.controller'
 import { UpgradesService } from './upgrades.service'
+import { IUpgradesService } from './upgrades.service.interface'
 
 describe(UpgradesController.name, () => {
   const MESSAGE: UpgradeFileCheckResultDto = {
@@ -25,19 +26,16 @@ describe(UpgradesController.name, () => {
     message: 'a',
   }
 
+  class MockUpgradesService implements Partial<IUpgradesService> {
+    verifyUpgradeFile = () => Promise.resolve(MESSAGE)
+  }
+
   let controller: UpgradesController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UpgradesController],
-      providers: [
-        {
-          provide: UpgradesService,
-          useValue: {
-            verifyUpgradeFile: () => MESSAGE,
-          },
-        },
-      ],
+      providers: [{ provide: UpgradesService, useClass: MockUpgradesService }],
     }).compile()
 
     controller = module.get<UpgradesController>(UpgradesController)

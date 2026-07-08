@@ -19,12 +19,13 @@ import { ConfigService } from '@nestjs/config'
 import { FilesService } from '../files/files.service'
 import { MotionClientService } from '../motion-client.service'
 import { FileSystemInteractor } from './file-system-interactor'
+import { ISnapshotsService } from './snapshots.service.interface'
 
 const BEFORE_OPENING_SNAPSHOT_WAITING_TIME_MS = 500
 const RASPBERRY_PI_FACTOR = 4
 
 @Injectable()
-export class SnapshotsService {
+export class SnapshotsService implements ISnapshotsService {
   private readonly logger = new Logger(SnapshotsService.name)
 
   constructor(

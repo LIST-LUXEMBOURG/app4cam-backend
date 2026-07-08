@@ -23,13 +23,14 @@ import { Cron } from '@nestjs/schedule'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import FolderCleaner from '../shared/folder-cleaner'
 import { LogFileInteractor } from './log-file-interactor'
+import { ILogFilesService } from './log-files.service.interface'
 
 const TEMPORARY_APP_LOG_FILENAME = 'app.log'
 const TEMPORARY_MOTION_LOG_FILENAME = 'motion.log'
 const TEMPORARY_FOLDER_PATH = 'temp/logs'
 
 @Injectable()
-export class LogFilesService {
+export class LogFilesService implements ILogFilesService {
   private readonly logger = new Logger(LogFilesService.name)
   private readonly serviceName: string
 
@@ -73,8 +74,8 @@ export class LogFilesService {
   }
 
   @Cron('*/5 * * * *') // every 5 minutes
-  removeOldLogs() {
+  async removeOldLogs() {
     this.logger.log('Cron job to delete old logs triggered...')
-    FolderCleaner.removeOldFiles(TEMPORARY_FOLDER_PATH)
+    await FolderCleaner.removeOldFiles(TEMPORARY_FOLDER_PATH)
   }
 }

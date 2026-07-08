@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
+import { ReadStream } from 'fs'
 import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -24,11 +25,21 @@ import { PropertiesService } from '../properties/properties.service'
 import { SettingsService } from '../settings/settings.service'
 import { SnapshotsController } from './snapshots.controller'
 import { SnapshotsService } from './snapshots.service'
+import { ISnapshotsService } from './snapshots.service.interface'
 
 describe(SnapshotsController.name, () => {
   const mockSnapshotContentType = 'a'
   let controller: SnapshotsController
   let service: SnapshotsService
+
+  class MockSnapshotsService implements ISnapshotsService {
+    takeSnapshot = vi.fn(() =>
+      Promise.resolve({
+        contentType: mockSnapshotContentType,
+        stream: new PassThrough() as unknown as ReadStream,
+      }),
+    )
+  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -39,15 +50,7 @@ describe(SnapshotsController.name, () => {
         MotionClientService,
         PropertiesService,
         SettingsService,
-        {
-          provide: SnapshotsService,
-          useValue: {
-            takeSnapshot: vi.fn(() => ({
-              contentType: mockSnapshotContentType,
-              stream: new PassThrough(),
-            })),
-          },
-        },
+        { provide: SnapshotsService, useClass: MockSnapshotsService },
       ],
     }).compile()
 

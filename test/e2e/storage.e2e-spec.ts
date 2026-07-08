@@ -20,6 +20,7 @@ import request from 'supertest'
 import { vi } from 'vitest'
 import { AppModule } from '../../src/app.module'
 import { MotionClientService } from '../../src/motion-client.service'
+import { IMotionClientService } from '../../src/motion-client.service.interface'
 import { StorageStatusDto } from '../../src/storage/dto/storage-status.dto'
 import { StorageUsageDto } from '../../src/storage/dto/storage-usage.dto'
 import { StorageUsageInteractor } from '../../src/storage/interactors/storage-usage-interactor'
@@ -33,6 +34,10 @@ describe('StorageController (e2e)', () => {
   const USAGE: StorageUsageDto = {
     capacityKb: 1,
     usedPercentage: 2,
+  }
+
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    getTargetDir = async () => FILES_FOLDER_PATH
   }
 
   let app: INestApplication
@@ -49,9 +54,7 @@ describe('StorageController (e2e)', () => {
       imports: [AppModule],
     })
       .overrideProvider(MotionClientService)
-      .useValue({
-        getTargetDir: () => FILES_FOLDER_PATH,
-      })
+      .useClass(MockMotionClientService)
       .compile()
 
     app = moduleFixture.createNestApplication()

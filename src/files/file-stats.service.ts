@@ -19,10 +19,11 @@ import { SettingsService } from '../settings/settings.service'
 import { File } from './entities/file.entity'
 import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity'
 import { FileHandler } from './file-handler'
+import { IFileStatsService } from './file-stats.service.interface'
 import { FilesService } from './files.service'
 
 @Injectable()
-export class FileStatsService {
+export class FileStatsService implements IFileStatsService {
   constructor(
     private readonly settingsService: SettingsService,
     private readonly filesService: FilesService,

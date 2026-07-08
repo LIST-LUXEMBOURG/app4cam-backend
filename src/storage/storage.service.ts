@@ -21,13 +21,14 @@ import { StorageStatusDto } from './dto/storage-status.dto'
 import { StorageUsageDto } from './dto/storage-usage.dto'
 import { FileSystemInteractor } from './interactors/file-system-interactor'
 import { StorageUsageInteractor } from './interactors/storage-usage-interactor'
+import { IStorageService } from './storage.service.interface'
 
 const MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE = 95
 const STORAGE_MOUNT_PATH = '/media'
 const WRITE_PERMISSION_MASK = 2
 
 @Injectable()
-export class StorageService {
+export class StorageService implements IStorageService {
   private readonly logger = new Logger(StorageService.name)
 
   constructor(private readonly motionClientService: MotionClientService) {}

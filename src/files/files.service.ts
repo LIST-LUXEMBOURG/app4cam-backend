@@ -20,19 +20,22 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
+import { StreamWithContentType } from '../shared/entities/stream-with-content-type'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
 import FolderCleaner from '../shared/folder-cleaner'
 import { ArchiveFileManager } from './archive-file-manager'
 import { FileDeletionResponse } from './entities/file-deletion-response.entity'
 import { File } from './entities/file.entity'
+import { StreamWithContentTypeAndFilename } from './entities/stream-with-content-type-and-filename.entity.'
 import { FileHandler } from './file-handler'
 import { FileInteractor } from './file-interactor'
 import { FileNamer } from './file-namer'
+import { IFilesService } from './files.service.interface'
 
 const ARCHIVE_FOLDER_PATH = 'temp/archives'
 
 @Injectable()
-export class FilesService {
+export class FilesService implements IFilesService {
   private readonly logger = new Logger(FilesService.name)
 
   constructor(
@@ -68,13 +71,15 @@ export class FilesService {
       )
   }
 
-  async getStreamableFile(filename: string) {
+  async getStreamableFile(filename: string): Promise<StreamWithContentType> {
     const fileFolderPath = await this.motionClientService.getTargetDir()
     const filePath = path.join(fileFolderPath, filename)
     return FileHandler.createStreamWithContentType(filePath)
   }
 
-  async getStreamableFiles(filenames: string[]) {
+  async getStreamableFiles(
+    filenames: string[],
+  ): Promise<StreamWithContentTypeAndFilename> {
     const now = new Date()
     const settings = await this.settingsService.getAllSettings()
     const archiveFilename = FileNamer.createFilename(
@@ -130,8 +135,8 @@ export class FilesService {
   }
 
   @Cron('*/5 * * * *') // every 5 minutes
-  removeOldArchives() {
+  async removeOldArchives() {
     this.logger.log('Cron job to delete old archives triggered...')
-    FolderCleaner.removeOldFiles(ARCHIVE_FOLDER_PATH)
+    await FolderCleaner.removeOldFiles(ARCHIVE_FOLDER_PATH)
   }
 }

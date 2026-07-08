@@ -17,15 +17,24 @@
 import { mkdir, rm, writeFile } from 'fs/promises'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MotionClientService } from '../motion-client.service'
+import { IMotionClientService } from '../motion-client.service.interface'
 import { SettingsService } from '../settings/settings.service'
+import { ISettingsService } from '../settings/settings.service.interface'
 import { FileStatsService } from './file-stats.service'
 import { FilesService } from './files.service'
 
 describe(FileStatsService.name, () => {
   const testFolder = 'src/files/test-file-stats-service'
+  const spyGetShotTypes = vi
+    .fn()
+    .mockResolvedValue(new Set(['pictures', 'videos']))
 
-  const mockSettingsService = {
-    getShotTypes: () => new Set(['pictures', 'videos']),
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    getTargetDir = () => Promise.resolve(testFolder)
+  }
+
+  class MockSettingsService implements Partial<ISettingsService> {
+    getShotTypes = spyGetShotTypes
   }
 
   let service: FileStatsService
@@ -35,18 +44,10 @@ describe(FileStatsService.name, () => {
       providers: [
         FilesService,
         FileStatsService,
-        MotionClientService,
-        {
-          provide: SettingsService,
-          useValue: mockSettingsService,
-        },
+        { provide: MotionClientService, useClass: MockMotionClientService },
+        { provide: SettingsService, useClass: MockSettingsService },
       ],
-    })
-      .overrideProvider(MotionClientService)
-      .useValue({
-        getTargetDir: () => testFolder,
-      })
-      .compile()
+    }).compile()
     service = module.get<FileStatsService>(FileStatsService)
   })
 
@@ -93,12 +94,8 @@ describe(FileStatsService.name, () => {
     })
 
     describe('when pictures only are taken', () => {
-      let spy
-
       beforeAll(() => {
-        spy = vi
-          .spyOn(mockSettingsService, 'getShotTypes')
-          .mockResolvedValue(new Set(['pictures']))
+        spyGetShotTypes.mockResolvedValue(new Set(['pictures']))
       })
 
       it('returns only zeros with an empty folder', async () => {
@@ -133,17 +130,13 @@ describe(FileStatsService.name, () => {
       })
 
       afterAll(() => {
-        spy.mockReset()
+        spyGetShotTypes.mockReset()
       })
     })
 
     describe('when videos only are taken', () => {
-      let spy
-
       beforeAll(() => {
-        spy = vi
-          .spyOn(mockSettingsService, 'getShotTypes')
-          .mockResolvedValue(new Set(['videos']))
+        spyGetShotTypes.mockResolvedValue(new Set(['videos']))
       })
 
       it('returns only zeros with an empty folder', async () => {
@@ -178,7 +171,7 @@ describe(FileStatsService.name, () => {
       })
 
       afterAll(() => {
-        spy.mockReset()
+        spyGetShotTypes.mockReset()
       })
     })
 

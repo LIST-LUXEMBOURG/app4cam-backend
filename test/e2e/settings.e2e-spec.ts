@@ -21,6 +21,11 @@ import { Mock, vi } from 'vitest'
 import { AppModule } from '../../src/app.module'
 import { InitialisationInteractor } from '../../src/initialisation-interactor'
 import { MotionClientService } from '../../src/motion-client.service'
+import {
+  IMotionClientService,
+  MovieOutputValue,
+  PictureOutputValue,
+} from '../../src/motion-client.service.interface'
 import { SystemTimeZonesInteractor } from '../../src/properties/interactors/system-time-zones-interactor'
 import {
   CameraSettingsPutDto,
@@ -40,26 +45,27 @@ const SHOTS_FOLDER = '/a'
 const TRIGGER_THRESHOLD = 5
 const WIDTH = 3
 
-const mockMotionClientService = {
-  getHeight: () => HEIGHT,
-  getWidth: () => WIDTH,
-  setFilename: () => {},
-  setLeftTextOnImage: () => {},
-  getMovieQuality: () => MOVIE_QUALITY,
-  setMovieQuality: () => {},
-  getMovieOutput: () => 'on',
-  setMovieOutput: () => {},
-  getPictureQuality: () => PICTURE_QUALITY,
-  setPictureQuality: () => {},
-  getPictureOutput: () => 'best',
-  setPictureOutput: () => {},
-  setTargetDir: () => {},
-  getThreshold: () => TRIGGER_THRESHOLD,
-  setThreshold: () => {},
-  getTargetDir: () => SHOTS_FOLDER,
-  getVideoDevice: () => '',
-  getVideoParams: () => '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16',
-  setVideoParams: () => {},
+class MockMotionClientService implements Partial<IMotionClientService> {
+  getHeight = async () => HEIGHT
+  getWidth = async () => WIDTH
+  setFilename = async () => {}
+  setLeftTextOnImage = async () => {}
+  getMovieQuality = async () => MOVIE_QUALITY
+  setMovieQuality = async () => {}
+  getMovieOutput = async () => 'on' as MovieOutputValue
+  setMovieOutput = async () => {}
+  getPictureQuality = async () => PICTURE_QUALITY
+  setPictureQuality = async () => {}
+  getPictureOutput = async () => 'best' as PictureOutputValue
+  setPictureOutput = async () => {}
+  setTargetDir = async () => {}
+  getThreshold = async () => TRIGGER_THRESHOLD
+  setThreshold = async () => {}
+  getTargetDir = async () => SHOTS_FOLDER
+  getVideoDevice = async () => ''
+  getVideoParams = async () =>
+    '"Focus, Auto"=0,"Focus (absolute)"=200,Brightness=16'
+  setVideoParams = async () => {}
 }
 
 describe('SettingsController (e2e)', () => {
@@ -190,7 +196,7 @@ describe('SettingsController (e2e)', () => {
       imports: [AppModule],
     })
       .overrideProvider(MotionClientService)
-      .useValue(mockMotionClientService)
+      .useClass(MockMotionClientService)
       .compile()
 
     app = moduleFixture.createNestApplication()

@@ -28,6 +28,7 @@ import { SystemTimeZonesInteractor } from '../../src/properties/interactors/syst
 import { VersionInteractor } from '../../src/properties/interactors/version-interactor'
 import { SunriseSunsetCalculator } from '../../src/properties/sunrise-sunset-calculator'
 import { SettingsService } from '../../src/settings/settings.service'
+import { ISettingsService } from '../../src/settings/settings.service.interface'
 
 describe('PropertiesController (e2e)', () => {
   const AVAILABLE_TIME_ZONES = ['Europe/Luxembourg', 'Europe/Paris']
@@ -47,6 +48,10 @@ describe('PropertiesController (e2e)', () => {
   const USAGE: VersionDto = {
     commitHash: 'abcd',
     version: '1.0.0',
+  }
+
+  class MockSettingsService implements Partial<ISettingsService> {
+    getLatitudeAndLongitude = async () => ({ latitude: 1, longitude: 2 })
   }
 
   let app: INestApplication
@@ -83,9 +88,7 @@ describe('PropertiesController (e2e)', () => {
       imports: [AppModule],
     })
       .overrideProvider(SettingsService)
-      .useValue({
-        getLatitudeAndLongitude: () => ({ latitude: 1, longitude: 2 }),
-      })
+      .useClass(MockSettingsService)
       .compile()
 
     app = moduleFixture.createNestApplication()

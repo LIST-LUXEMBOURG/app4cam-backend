@@ -17,12 +17,20 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
+import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity'
 import { FileStatsController } from './file-stats.controller'
 import { FileStatsService } from './file-stats.service'
+import { IFileStatsService } from './file-stats.service.interface'
 import { FilesService } from './files.service'
 
 describe(FileStatsController.name, () => {
-  const counts = new Array(24).fill(0)
+  const counts: HoursOfDayCounts = Object.fromEntries(
+    Array.from({ length: 24 }, (_, i) => [i, 0]),
+  ) as HoursOfDayCounts
+
+  class MockFileStatsService implements IFileStatsService {
+    getNumberShotsPerHoursOfDay = async () => counts
+  }
 
   let controller: FileStatsController
 
@@ -32,16 +40,14 @@ describe(FileStatsController.name, () => {
       providers: [
         FilesService,
         {
+          provide: FileStatsService,
+          useClass: MockFileStatsService,
+        },
+        {
           provide: SettingsService,
           useValue: {},
         },
         MotionClientService,
-        {
-          provide: FileStatsService,
-          useValue: {
-            getNumberShotsPerHoursOfDay: () => counts,
-          },
-        },
       ],
     }).compile()
 

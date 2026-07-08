@@ -14,11 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
+import { ReadStream } from 'fs'
 import { PassThrough } from 'stream'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
 import { LogFilesController } from './log-files.controller'
 import { LogFilesService } from './log-files.service'
+import { ILogFilesService } from './log-files.service.interface'
+
+class MockLogFilesService implements Partial<ILogFilesService> {
+  getAppLogFileStream = vi.fn(() =>
+    Promise.resolve(new PassThrough() as unknown as ReadStream),
+  )
+  getMotionLogFileStream = vi.fn(() =>
+    Promise.resolve(new PassThrough() as unknown as ReadStream),
+  )
+}
 
 describe(LogFilesController.name, () => {
   let controller: LogFilesController
@@ -27,15 +38,7 @@ describe(LogFilesController.name, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [LogFilesController],
-      providers: [
-        {
-          provide: LogFilesService,
-          useValue: {
-            getAppLogFileStream: vi.fn(() => new PassThrough()),
-            getMotionLogFileStream: vi.fn(() => new PassThrough()),
-          },
-        },
-      ],
+      providers: [{ provide: LogFilesService, useClass: MockLogFilesService }],
     }).compile()
 
     controller = module.get<LogFilesController>(LogFilesController)

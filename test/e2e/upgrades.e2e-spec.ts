@@ -20,6 +20,7 @@ import request from 'supertest'
 import { AppModule } from '../../src/app.module'
 import { UpgradeFileCheckResultDto } from '../../src/upgrades/dto/upgrade-file-check-result.dto'
 import { UpgradesService } from '../../src/upgrades/upgrades.service'
+import { IUpgradesService } from '../../src/upgrades/upgrades.service.interface'
 
 describe('FilesController (e2e)', () => {
   const FILE_CHECK_RESULT: UpgradeFileCheckResultDto = {
@@ -28,6 +29,12 @@ describe('FilesController (e2e)', () => {
   }
   const STATUS = true
 
+  class MockUpgradesService implements IUpgradesService {
+    isUpgradeInProgress = async () => STATUS
+    performUpgrade = async () => {}
+    verifyUpgradeFile = async () => FILE_CHECK_RESULT
+  }
+
   let app: INestApplication
 
   beforeEach(async () => {
@@ -35,11 +42,7 @@ describe('FilesController (e2e)', () => {
       imports: [AppModule],
     })
       .overrideProvider(UpgradesService)
-      .useValue({
-        isUpgradeInProgress: () => STATUS,
-        performUpgrade: () => {},
-        verifyUpgradeFile: () => FILE_CHECK_RESULT,
-      })
+      .useClass(MockUpgradesService)
       .compile()
 
     app = moduleFixture.createNestApplication()
