@@ -17,6 +17,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
 import { MotionClientService } from '../motion-client.service'
+import { IMotionClientService } from '../motion-client.service.interface'
 import { StorageUsageDto } from './dto/storage-usage.dto'
 import { FileSystemInteractor } from './interactors/file-system-interactor'
 import { StorageUsageInteractor } from './interactors/storage-usage-interactor'
@@ -30,17 +31,19 @@ describe(StorageService.name, () => {
     usedPercentage: 2,
   }
 
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    getTargetDir = () => Promise.resolve(FILES_FOLDER_PATH)
+  }
+
   let service: StorageService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MotionClientService, StorageService],
-    })
-      .overrideProvider(MotionClientService)
-      .useValue({
-        getTargetDir: () => Promise.resolve(FILES_FOLDER_PATH),
-      })
-      .compile()
+      providers: [
+        { provide: MotionClientService, useClass: MockMotionClientService },
+        StorageService,
+      ],
+    }).compile()
 
     service = module.get<StorageService>(StorageService)
   })

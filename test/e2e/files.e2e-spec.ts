@@ -20,10 +20,59 @@ import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { AppModule } from '../../src/app.module'
 import { MotionClientService } from '../../src/motion-client.service'
+import { IMotionClientService } from '../../src/motion-client.service.interface'
+import { ShotTypes } from '../../src/settings/entities/shot-types'
 import { SettingsService } from '../../src/settings/settings.service'
+import { ISettingsService } from '../../src/settings/settings.service.interface'
 
 describe('FilesController (e2e)', () => {
   const FILES_FOLDER_PATH = 'src/files/fixtures/'
+
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    getTargetDir = async () => FILES_FOLDER_PATH
+  }
+
+  class MockSettingsService implements Partial<ISettingsService> {
+    getAllSettings = async () => ({
+      camera: {
+        focus: 0,
+        focusMaximum: 0,
+        focusMinimum: 0,
+        isFocusEnabled: false,
+        isLightEnabled: false,
+        isPictureQualityEnabled: false,
+        isShotTypesEnabled: false,
+        light: 'visible' as const,
+        pictureQuality: 0,
+        shotTypes: [],
+        videoQuality: 0,
+      },
+      general: {
+        deviceName: 'd',
+        isAlternatingLightModeEnabled: false,
+        latitude: 0,
+        locationAccuracy: 0,
+        longitude: 0,
+        password: '',
+        siteName: 's',
+        systemTime: '2022-01-18T14:48:37+01:00',
+        timeZone: 'Europe/Luxembourg',
+      },
+      triggering: {
+        isLightEnabled: false,
+        isTemperatureThresholdEnabled: false,
+        light: 'visible' as const,
+        sleepingTime: { hour: 0, minute: 0 },
+        temperatureThreshold: 0,
+        threshold: 0,
+        thresholdMaximum: 0,
+        thresholdMinimum: 0,
+        useSunriseAndSunsetTimes: false,
+        wakingUpTime: { hour: 0, minute: 0 },
+      },
+    })
+    getShotTypes = async () => new Set(['pictures', 'videos']) as ShotTypes
+  }
 
   let app: INestApplication
 
@@ -32,19 +81,9 @@ describe('FilesController (e2e)', () => {
       imports: [AppModule],
     })
       .overrideProvider(MotionClientService)
-      .useValue({
-        getTargetDir: () => FILES_FOLDER_PATH,
-      })
+      .useClass(MockMotionClientService)
       .overrideProvider(SettingsService)
-      .useValue({
-        getAllSettings: () => ({
-          general: {
-            deviceName: 'd',
-            siteName: 's',
-          },
-        }),
-        getShotTypes: () => new Set(['pictures', 'videos']),
-      })
+      .useClass(MockSettingsService)
       .compile()
 
     app = moduleFixture.createNestApplication()

@@ -20,6 +20,7 @@ import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
 import { MotionClientService } from '../motion-client.service'
+import { IMotionClientService } from '../motion-client.service.interface'
 import { PropertiesService } from '../properties/properties.service'
 import { SettingsModule } from '../settings/settings.module'
 import { FileHandler } from './file-handler'
@@ -32,6 +33,10 @@ describe(FilesService.name, () => {
   describe('TODO', () => {
     const spyGetTargetDir = vi.fn().mockResolvedValue('')
 
+    class MockMotionClientService implements Partial<IMotionClientService> {
+      getTargetDir = spyGetTargetDir
+    }
+
     let service: FilesService
 
     beforeEach(async () => {
@@ -39,16 +44,11 @@ describe(FilesService.name, () => {
         providers: [
           ConfigService,
           FilesService,
-          MotionClientService,
+          { provide: MotionClientService, useClass: MockMotionClientService },
           PropertiesService,
         ],
         imports: [SettingsModule],
-      })
-        .overrideProvider(MotionClientService)
-        .useValue({
-          getTargetDir: spyGetTargetDir,
-        })
-        .compile()
+      }).compile()
 
       service = module.get<FilesService>(FilesService)
     })

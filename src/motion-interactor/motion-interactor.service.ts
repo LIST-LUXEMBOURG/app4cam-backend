@@ -20,9 +20,10 @@ import { Cron } from '@nestjs/schedule'
 import { MotionClientService } from '../motion-client.service'
 import { SettingsService } from '../settings/settings.service'
 import { StorageService } from '../storage/storage.service'
+import { IMotionInteractorService } from './motion-interactor.service.interface'
 
 @Injectable()
-export class MotionInteractorService {
+export class MotionInteractorService implements IMotionInteractorService {
   private readonly logger = new Logger(MotionInteractorService.name)
 
   constructor(

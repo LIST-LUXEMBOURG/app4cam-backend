@@ -18,6 +18,7 @@ import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
 import { MotionClientService } from '../motion-client.service'
+import { IMotionClientService } from '../motion-client.service.interface'
 import { PropertiesService } from '../properties/properties.service'
 import { SettingsModule } from '../settings/settings.module'
 import { SettingsService } from '../settings/settings.service'
@@ -30,10 +31,10 @@ describe(MotionInteractorService.name, () => {
   const spyPauseDetection = vi.fn()
   const spyStartDetection = vi.fn()
 
-  const mockMotionClientService = {
-    isDetectionStatusActive: spyIsDetectionStatusActive,
-    pauseDetection: spyPauseDetection,
-    startDetection: spyStartDetection,
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    isDetectionStatusActive = spyIsDetectionStatusActive
+    pauseDetection = spyPauseDetection
+    startDetection = spyStartDetection
   }
 
   let service: MotionInteractorService
@@ -42,10 +43,7 @@ describe(MotionInteractorService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ConfigService,
-        {
-          provide: MotionClientService,
-          useValue: mockMotionClientService,
-        },
+        { provide: MotionClientService, useClass: MockMotionClientService },
         MotionInteractorService,
         PropertiesService,
         SettingsService,

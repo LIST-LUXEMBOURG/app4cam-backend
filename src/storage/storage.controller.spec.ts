@@ -19,6 +19,7 @@ import { StorageStatusDto } from './dto/storage-status.dto'
 import { StorageUsageDto } from './dto/storage-usage.dto'
 import { StorageController } from './storage.controller'
 import { StorageService } from './storage.service'
+import { IStorageService } from './storage.service.interface'
 
 describe(StorageController.name, () => {
   const STORAGE_STATUS: StorageStatusDto = {
@@ -31,20 +32,17 @@ describe(StorageController.name, () => {
     usedPercentage: 2,
   }
 
+  class MockStorageService implements Partial<IStorageService> {
+    getStorageStatus = () => Promise.resolve(STORAGE_STATUS)
+    getStorageUsage = () => Promise.resolve(STORAGE_USAGE)
+  }
+
   let controller: StorageController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [StorageController],
-      providers: [
-        {
-          provide: StorageService,
-          useValue: {
-            getStorageStatus: () => STORAGE_STATUS,
-            getStorageUsage: () => STORAGE_USAGE,
-          },
-        },
-      ],
+      providers: [{ provide: StorageService, useClass: MockStorageService }],
     }).compile()
 
     controller = module.get<StorageController>(StorageController)

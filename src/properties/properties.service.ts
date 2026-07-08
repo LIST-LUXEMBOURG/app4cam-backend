@@ -28,12 +28,13 @@ import { LightTypeInteractor } from './interactors/light-type-interactor'
 import { MacAddressInteractor } from './interactors/mac-address-interactor'
 import { SystemTimeZonesInteractor } from './interactors/system-time-zones-interactor'
 import { VersionInteractor } from './interactors/version-interactor'
+import { IPropertiesService } from './properties.service.interface'
 import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
 
 const DEVICE_ID_FILENAME = 'device-id.txt'
 
 @Injectable()
-export class PropertiesService {
+export class PropertiesService implements IPropertiesService {
   private readonly logger = new Logger(PropertiesService.name)
 
   constructor(

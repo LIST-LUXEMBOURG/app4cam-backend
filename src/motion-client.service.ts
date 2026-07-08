@@ -16,6 +16,11 @@
  */
 import { Injectable } from '@nestjs/common'
 import axios from 'axios'
+import {
+  IMotionClientService,
+  MovieOutputValue,
+  PictureOutputValue,
+} from './motion-client.service.interface'
 
 const BASE_URL = 'http://127.0.0.1:8080/'
 const ACTION_URL = BASE_URL + '0/action/'
@@ -28,11 +33,8 @@ const WRITE_URL = BASE_URL + 'action/config/write'
 const POST_PICTURE_FILENAME = '_%q'
 const POST_SNAPSHOT_FILENAME = '_snapshot'
 
-type MovieOutputValue = 'on' | 'off'
-type PictureOutputValue = 'on' | 'off' | 'first' | 'best'
-
 @Injectable()
-export class MotionClientService {
+export class MotionClientService implements IMotionClientService {
   async getHeight(): Promise<number> {
     const value = await this.getConfigurationOption('height')
     return parseFloat(value)

@@ -18,6 +18,7 @@ import { cp, mkdir, readdir, rm } from 'fs/promises'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MotionClientService } from '../motion-client.service'
+import { IMotionClientService } from '../motion-client.service.interface'
 import { UpgradesService } from './upgrades.service'
 
 describe(UpgradesService.name, () => {
@@ -27,17 +28,19 @@ describe(UpgradesService.name, () => {
 
   const itIfNotWindows = () => (process.platform !== 'win32' ? it : it.skip)
 
+  class MockMotionClientService implements Partial<IMotionClientService> {
+    getTargetDir = () => Promise.resolve(DATA_FOLDER)
+  }
+
   let service: UpgradesService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MotionClientService, UpgradesService],
-    })
-      .overrideProvider(MotionClientService)
-      .useValue({
-        getTargetDir: () => Promise.resolve(DATA_FOLDER),
-      })
-      .compile()
+      providers: [
+        { provide: MotionClientService, useClass: MockMotionClientService },
+        UpgradesService,
+      ],
+    }).compile()
 
     service = module.get<UpgradesService>(UpgradesService)
   })
