@@ -52,6 +52,7 @@ build:
     - apk add git
     - npm run build
     - cp config/sample.env config/production.env
+    - sed -i '/^DISABLE_ACCESS_POINT_UPDATE=/s/=.*/=true/' config/production.env
   artifacts:
     paths:
       - config/

@@ -27,4 +27,8 @@ export const configuration = () => ({
     (process.env.IS_CAMERA_FOCUS_FIXED &&
       process.env.IS_CAMERA_FOCUS_FIXED == 'true') ||
     false,
+  disableAccessPointUpdate:
+    (process.env.DISABLE_ACCESS_POINT_UPDATE &&
+      process.env.DISABLE_ACCESS_POINT_UPDATE == 'true') ||
+    false,
 })

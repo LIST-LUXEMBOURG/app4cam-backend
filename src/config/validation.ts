@@ -35,6 +35,8 @@ class EnvironmentVariables {
   SERVICE_NAME: string
 
   IS_CAMERA_FOCUS_FIXED: boolean
+
+  DISABLE_ACCESS_POINT_UPDATE: boolean
 }
 
 export function validate(config: Record<string, unknown>) {

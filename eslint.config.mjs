@@ -57,6 +57,9 @@ export default defineConfig([
           additionalTestBlockFunctions: ['itIfNotWindows'],
         },
       ],
+      // Workaround: The plugin misidentifies expect.any() etc. as invalid.
+      // Disable until a plugin version fixes this.
+      'vitest/valid-expect': 'off',
       'vitest/valid-title': ['error', { ignoreTypeOfDescribeName: true }],
     },
   },

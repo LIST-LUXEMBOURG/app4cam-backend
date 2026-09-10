@@ -31,6 +31,7 @@
      - [Setting log rotation](#--setting-log-rotation)
    - [10. Setting up the reverse proxy for the backend](#10-setting-up-the-reverse-proxy-for-the-backend)
    - [11. Deploying the application](#11-deploying-the-application)
+     - [Access point update behavior](#--access-point-update-behavior)
    - [12. For continuous deployment (CD) only](#12-for-continuous-deployment-cd-only)
 3. [Release procedure](#release-procedure)
 
@@ -408,6 +409,21 @@ Before starting, install the following dependency: `sudo apt install gpiod`
 3. Verify the service is running: `systemctl --user status app4cam-backend`
 
 You can check the service logs with the following command: `journalctl --user -u app4cam-backend -e`
+
+#### Access point update behavior
+
+When the device name or password is changed via the application, it normally recreates the WiFi access point so the AP name matches the device name. On test devices that are accessed over a local network, this is undesirable because recreating the AP disconnects the device.
+
+The `DISABLE_ACCESS_POINT_UPDATE` variable in `config/production.env` controls this behavior:
+
+- `false` (default) — the access point is recreated on every device name or password change. Use this for field deployments where the user connects via the device's own access point.
+- `true` — the access point update is skipped entirely. Use this on test devices that are reached over the local network.
+
+To change the value after deployment:
+
+1. Edit the configuration file: `nano config/production.env`
+2. Set `DISABLE_ACCESS_POINT_UPDATE` to `true` or `false` as needed.
+3. Restart the service: `systemctl --user restart app4cam-backend`
 
 ### 12. For continuous deployment (CD) only
 
