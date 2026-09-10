@@ -947,6 +947,12 @@ export class SettingsService implements ISettingsService {
     name: string,
     password: string = undefined,
   ): Promise<void> {
+    const isAccessPointUpdateDisabled = this.configService.get<boolean>(
+      'disableAccessPointUpdate',
+    )
+    if (isAccessPointUpdateDisabled) {
+      return
+    }
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
     try {
       await AccessPointInteractor.setAccessPointNameOrPassword(

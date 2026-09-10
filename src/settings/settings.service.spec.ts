@@ -517,4 +517,164 @@ describe('SettingsService', () => {
       spyGetFocus.mockRestore()
     })
   })
+
+  describe('with access point update disabled', () => {
+    let serviceWithDisabledAp: SettingsService
+
+    const mockConfigServiceWithDisabledAp = {
+      get: (name) => {
+        switch (name) {
+          case 'deviceType':
+            return 'Variscite'
+          case 'isFixedFocus':
+            return false
+          case 'disableAccessPointUpdate':
+            return true
+        }
+      },
+    }
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          {
+            provide: ConfigService,
+            useValue: mockConfigServiceWithDisabledAp,
+          },
+          { provide: MotionClientService, useClass: MockMotionClientService },
+          { provide: PropertiesService, useClass: MockPropertiesService },
+          SettingsService,
+        ],
+      }).compile()
+
+      serviceWithDisabledAp = module.get<SettingsService>(SettingsService)
+    })
+
+    describe('with mocked SettingsFileProvider and AccessPointInteractor', () => {
+      let spyReadSettingsFile: Mock
+      let spyWriteSettingsFile: Mock
+      let spySetAccessPointNameOrPassword: Mock
+      let spyGetAccessPointPassword: Mock
+      let spyGetSystemTime: Mock
+      let spySetSystemAndRtcTime: Mock
+      let spyGetTimeZone: Mock
+      let spySetTimeZone: Mock
+      let spyInitializeLights: Mock
+      let spyGetFocus: Mock
+
+      beforeAll(() => {
+        spyReadSettingsFile = vi
+          .spyOn(SettingsFileProvider, 'readSettingsFile')
+          .mockResolvedValue({
+            camera: { light: 'visible' as const },
+            general: {
+              deviceName: 'd',
+              isAlternatingLightModeEnabled: false,
+              latitude: 1,
+              locationAccuracy: 3,
+              longitude: 2,
+              siteName: 's',
+            },
+            triggering: {
+              light: 'infrared' as const,
+              sleepingTime: { hour: 10, minute: 12 },
+              temperatureThreshold: 10,
+              useSunriseAndSunsetTimes: false,
+              wakingUpTime: { hour: 10, minute: 17 },
+            },
+          })
+        spyWriteSettingsFile = vi
+          .spyOn(SettingsFileProvider, 'writeSettingsToFile')
+          .mockResolvedValue()
+        spySetAccessPointNameOrPassword = vi
+          .spyOn(AccessPointInteractor, 'setAccessPointNameOrPassword')
+          .mockResolvedValue()
+        spyGetAccessPointPassword = vi
+          .spyOn(AccessPointInteractor, 'getAccessPointPassword')
+          .mockResolvedValue('p')
+        spyGetSystemTime = vi
+          .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
+          .mockResolvedValue('2022-01-18T14:48:37+01:00')
+        spySetSystemAndRtcTime = vi
+          .spyOn(SystemTimeInteractor, 'setSystemAndRtcTimeInIso8601Format')
+          .mockResolvedValue()
+        spyGetTimeZone = vi
+          .spyOn(SystemTimeInteractor, 'getTimeZone')
+          .mockResolvedValue('t1')
+        spySetTimeZone = vi
+          .spyOn(SystemTimeInteractor, 'setTimeZone')
+          .mockResolvedValue()
+        spyInitializeLights = vi
+          .spyOn(InitialisationInteractor, 'resetLights')
+          .mockResolvedValue()
+        spyGetFocus = vi
+          .spyOn(VideoDeviceInteractor, 'getFocus')
+          .mockResolvedValue({ min: 0, max: 500 })
+      })
+
+      afterEach(() => {
+        spySetAccessPointNameOrPassword.mockClear()
+        spyWriteSettingsFile.mockClear()
+      })
+
+      afterAll(() => {
+        spyReadSettingsFile.mockRestore()
+        spyWriteSettingsFile.mockRestore()
+        spySetAccessPointNameOrPassword.mockRestore()
+        spyGetAccessPointPassword.mockRestore()
+        spyGetSystemTime.mockRestore()
+        spySetSystemAndRtcTime.mockRestore()
+        spyGetTimeZone.mockRestore()
+        spySetTimeZone.mockRestore()
+        spyInitializeLights.mockRestore()
+        spyGetFocus.mockRestore()
+      })
+
+      it('does not update the access point when setting the device name', async () => {
+        await serviceWithDisabledAp.setDeviceName('new-name')
+        expect(spySetAccessPointNameOrPassword).not.toHaveBeenCalled()
+      })
+
+      it('does not update the access point when patching settings with a device name', async () => {
+        const settingsToUpdate: PatchableSettings = {
+          general: { deviceName: 'new-name' },
+        }
+        await serviceWithDisabledAp.updateSettings(settingsToUpdate)
+        expect(spySetAccessPointNameOrPassword).not.toHaveBeenCalled()
+      })
+
+      it('does not update the access point when replacing all settings', async () => {
+        const settings: SettingsPutDto = {
+          camera: {
+            focus: 200,
+            light: 'visible',
+            pictureQuality: 90,
+            shotTypes: ['pictures', 'videos'],
+            videoQuality: 60,
+          },
+          general: {
+            deviceName: 'new-name',
+            isAlternatingLightModeEnabled: false,
+            latitude: 1,
+            locationAccuracy: 3,
+            longitude: 2,
+            password: 'pw',
+            siteName: 's',
+            systemTime: '2022-01-18T14:48:37+01:00',
+            timeZone: 't1',
+          },
+          triggering: {
+            light: 'infrared',
+            sleepingTime: { hour: 9, minute: 0 },
+            temperatureThreshold: 1,
+            threshold: 5,
+            useSunriseAndSunsetTimes: false,
+            wakingUpTime: { hour: 8, minute: 30 },
+          },
+        }
+        await serviceWithDisabledAp.updateAllSettings(settings)
+        expect(spySetAccessPointNameOrPassword).not.toHaveBeenCalled()
+      })
+    })
+  })
 })
