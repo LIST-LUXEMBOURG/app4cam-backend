@@ -16,7 +16,9 @@
  */
 import { cp, mkdir, readdir, rm } from 'fs/promises'
 import path from 'path'
+import { Logger } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Mock, vi } from 'vitest'
 import { IMotionClientService } from '../motion-client.service.interface.js'
 import { MotionClientService } from '../motion-client.service.js'
 import { UpgradesService } from './upgrades.service.js'
@@ -54,6 +56,14 @@ describe(UpgradesService.name, () => {
   })
 
   describe(UpgradesService.prototype.verifyUpgradeFile.name, () => {
+    let spyLoggerError: Mock
+
+    beforeAll(() => {
+      spyLoggerError = vi
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation(() => undefined)
+    })
+
     describe('when the upgrade archive does not exist', () => {
       it('returns an error message', async () => {
         const result = await service.verifyUpgradeFile()
@@ -214,6 +224,10 @@ describe(UpgradesService.name, () => {
           folderContents.filter((name) => name !== '.gitkeep'),
         ).toHaveLength(0)
       })
+    })
+
+    afterAll(() => {
+      spyLoggerError.mockRestore()
     })
   })
 

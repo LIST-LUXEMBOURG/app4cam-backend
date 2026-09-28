@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
+import { Logger } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Mock, vi } from 'vitest'
 import { IMotionClientService } from '../motion-client.service.interface.js'
@@ -55,11 +56,15 @@ describe(StorageService.name, () => {
   describe(StorageService.prototype.getStorageStatus.name, () => {
     let spyGetSubdirectories: Mock
     let spyGetUnixFilePermissions: Mock
+    let spyLoggerError: Mock
 
     beforeAll(() => {
       spyGetSubdirectories = vi
         .spyOn(FileSystemInteractor, 'getSubdirectories')
         .mockResolvedValue([])
+      spyLoggerError = vi
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation(() => undefined)
     })
 
     describe('when the path is accessible and writable', () => {
@@ -126,6 +131,7 @@ describe(StorageService.name, () => {
 
     afterAll(() => {
       spyGetSubdirectories.mockRestore()
+      spyLoggerError.mockRestore()
     })
   })
 

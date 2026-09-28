@@ -54,7 +54,7 @@ export class StorageService implements IStorageService {
         this.logger.error(message)
       }
     } catch (error) {
-      Logger.error(error)
+      this.logger.error(error)
       if (
         error instanceof Error &&
         'code' in error &&
@@ -66,7 +66,7 @@ export class StorageService implements IStorageService {
           subdirectories =
             await FileSystemInteractor.getSubdirectories(STORAGE_MOUNT_PATH)
         } catch (error) {
-          Logger.warn(error)
+          this.logger.warn(error)
         }
 
         message = `The path ${devicePath} does not exist`
