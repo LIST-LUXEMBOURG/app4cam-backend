@@ -18,9 +18,9 @@ import { exec as execSync } from 'child_process'
 import { lstat, readdir } from 'fs/promises'
 import path from 'path'
 import { promisify } from 'util'
-import { LightType } from './settings/entities/settings'
-import { CommandExecutionException } from './shared/exceptions/CommandExecutionException'
-import { CommandUnavailableOnWindowsException } from './shared/exceptions/CommandUnavailableOnWindowsException'
+import { LightType } from './settings/entities/settings.js'
+import { CommandExecutionException } from './shared/exceptions/CommandExecutionException.js'
+import { CommandUnavailableOnWindowsException } from './shared/exceptions/CommandUnavailableOnWindowsException.js'
 
 const exec = promisify(execSync)
 

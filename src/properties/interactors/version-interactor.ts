@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { readFile } from 'fs/promises'
-import { VersionDto } from '../dto/version.dto'
+import { VersionDto } from '../dto/version.dto.js'
 
 const COMMIT_HASH_FILE = 'version.txt'
 

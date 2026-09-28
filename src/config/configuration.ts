@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+const DEFAULT_PORT_NUMBER = 3000
+
 export const configuration = () => ({
   deviceType: process.env.DEVICE_TYPE,
   disableAccessControlAllowOrigin:
@@ -21,7 +24,7 @@ export const configuration = () => ({
       process.env.DISABLE_ACCESS_CONTROL_ALLOW_ORIGIN == 'true') ||
     false,
   NODE_ENV: process.env.NODE_ENV,
-  port: parseInt(process.env.PORT, 10),
+  port: process.env.PORT ? parseInt(process.env.PORT, 10) : DEFAULT_PORT_NUMBER,
   serviceName: process.env.SERVICE_NAME,
   isFixedFocus:
     (process.env.IS_CAMERA_FOCUS_FIXED &&

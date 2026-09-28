@@ -45,7 +45,10 @@ describe('LogFilesController (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile()
+    })
+      .overrideProvider('SCHEDULE_MODULE_OPTIONS')
+      .useValue({ cronJobs: false, intervals: false, timeouts: false })
+      .compile()
 
     app = moduleFixture.createNestApplication()
     app.useGlobalPipes(new ValidationPipe())
@@ -70,8 +73,8 @@ describe('LogFilesController (e2e)', () => {
       .responseType('blob')
   })
 
-  afterEach(() => {
-    app.close()
+  afterEach(async () => {
+    await app.close()
   })
 
   afterAll(async () => {

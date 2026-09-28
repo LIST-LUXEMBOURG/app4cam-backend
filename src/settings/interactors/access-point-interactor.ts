@@ -17,15 +17,15 @@
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
 import { Logger } from '@nestjs/common'
-import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
-import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException.js'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException.js'
 
 const exec = promisify(execSync)
 
 export class AccessPointInteractor {
   static async setAccessPointNameOrPassword(
-    name: string,
-    password: string,
+    name: string | undefined,
+    password: string | undefined,
     isRaspberryPi: boolean,
     logger: Logger,
   ): Promise<void> {
@@ -59,7 +59,7 @@ export class AccessPointInteractor {
       logger.error(
         'AccessPointInteractor does not currently support Raspberry Pi for changing the access point name.',
       )
-      return
+      return ''
     }
     const currentWorkingDirectory = process.cwd()
     const command = `sudo ${currentWorkingDirectory}/scripts/runtime/variscite/access-point/get-access-point-password.sh`

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { MimeTypeDeterminer } from './mime-type-determiner'
+import { MimeTypeDeterminer } from './mime-type-determiner.js'
 
 describe(MimeTypeDeterminer.name, () => {
   describe(MimeTypeDeterminer.getContentType.name, () => {

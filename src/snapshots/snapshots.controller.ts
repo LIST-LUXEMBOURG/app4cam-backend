@@ -15,7 +15,8 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Controller, Get, Res, StreamableFile } from '@nestjs/common'
-import { SnapshotsService } from './snapshots.service'
+import type { Response } from 'express'
+import { SnapshotsService } from './snapshots.service.js'
 
 const LATEST_SNAPSHOT_FILENAME = 'latest_snapshot.jpg'
 
@@ -24,7 +25,9 @@ export class SnapshotsController {
   constructor(private readonly snapshotsService: SnapshotsService) {}
 
   @Get()
-  async takeSnapshot(@Res({ passthrough: true }) res): Promise<StreamableFile> {
+  async takeSnapshot(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
     const snapshot = await this.snapshotsService.takeSnapshot()
     res.set({
       'Content-Type': snapshot.contentType,

@@ -15,9 +15,9 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Module } from '@nestjs/common'
-import { MotionClientService } from '../motion-client.service'
-import { UpgradesController } from './upgrades.controller'
-import { UpgradesService } from './upgrades.service'
+import { MotionClientService } from '../motion-client.service.js'
+import { UpgradesController } from './upgrades.controller.js'
+import { UpgradesService } from './upgrades.service.js'
 
 @Module({
   controllers: [UpgradesController],

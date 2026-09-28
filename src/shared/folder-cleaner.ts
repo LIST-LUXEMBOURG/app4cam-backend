@@ -38,7 +38,7 @@ export default class FolderCleaner {
     }
   }
 
-  static isUnixHiddenPath(path): boolean {
+  static isUnixHiddenPath(path: string): boolean {
     return /(^|\/)\.[^/.]/g.test(path)
   }
 }

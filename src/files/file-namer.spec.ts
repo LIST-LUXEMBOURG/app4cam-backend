@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { FileNamer } from './file-namer'
+import { FileNamer } from './file-namer.js'
 
 const SYSTEM_TIME_ISO = '2022-01-18T13:48:37.000Z'
 const SYSTEM_TIME_ISO_WITHOUT_SPECIAL_CHARS = '20220118T144837'

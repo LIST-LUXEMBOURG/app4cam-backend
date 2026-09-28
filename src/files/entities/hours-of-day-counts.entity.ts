@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-export type HoursOfDayCounts = Record<
+export type HourOfDay =
   | 0
   | 1
+  | 2
   | 3
   | 4
   | 5
@@ -37,6 +38,5 @@ export type HoursOfDayCounts = Record<
   | 20
   | 21
   | 22
-  | 23,
-  number
->
+  | 23
+export type HoursOfDayCounts = Record<HourOfDay, number>

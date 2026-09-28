@@ -15,11 +15,11 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Test, TestingModule } from '@nestjs/testing'
-import { StorageStatusDto } from './dto/storage-status.dto'
-import { StorageUsageDto } from './dto/storage-usage.dto'
-import { StorageController } from './storage.controller'
-import { StorageService } from './storage.service'
-import { IStorageService } from './storage.service.interface'
+import { StorageStatusDto } from './dto/storage-status.dto.js'
+import { StorageUsageDto } from './dto/storage-usage.dto.js'
+import { StorageController } from './storage.controller.js'
+import { IStorageService } from './storage.service.interface.js'
+import { StorageService } from './storage.service.js'
 
 describe(StorageController.name, () => {
   const STORAGE_STATUS: StorageStatusDto = {

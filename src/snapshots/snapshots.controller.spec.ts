@@ -19,13 +19,14 @@ import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
-import { FilesService } from '../files/files.service'
-import { MotionClientService } from '../motion-client.service'
-import { PropertiesService } from '../properties/properties.service'
-import { SettingsService } from '../settings/settings.service'
-import { SnapshotsController } from './snapshots.controller'
-import { SnapshotsService } from './snapshots.service'
-import { ISnapshotsService } from './snapshots.service.interface'
+import { createMockConfigService } from '../../test/unit/config-service.mock.js'
+import { FilesService } from '../files/files.service.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { PropertiesService } from '../properties/properties.service.js'
+import { SettingsService } from '../settings/settings.service.js'
+import { SnapshotsController } from './snapshots.controller.js'
+import { ISnapshotsService } from './snapshots.service.interface.js'
+import { SnapshotsService } from './snapshots.service.js'
 
 describe(SnapshotsController.name, () => {
   const mockSnapshotContentType = 'a'
@@ -45,7 +46,7 @@ describe(SnapshotsController.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SnapshotsController],
       providers: [
-        ConfigService,
+        { provide: ConfigService, useValue: createMockConfigService() },
         FilesService,
         MotionClientService,
         PropertiesService,

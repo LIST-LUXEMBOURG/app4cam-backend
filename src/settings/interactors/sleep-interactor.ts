@@ -18,9 +18,9 @@ import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
 import { Logger } from '@nestjs/common'
 import { DateTime } from 'luxon'
-import TriggeringTime from '../../shared/entities/triggering-time'
-import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
-import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
+import TriggeringTime from '../../shared/entities/triggering-time.js'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException.js'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException.js'
 
 const exec = promisify(execSync)
 
@@ -47,8 +47,8 @@ export class SleepInteractor {
   }
 
   static async configureWittyPiSchedule(
-    sleepingTime: TriggeringTime,
-    wakingUpTime: TriggeringTime,
+    sleepingTime: TriggeringTime | null,
+    wakingUpTime: TriggeringTime | null,
   ): Promise<void> {
     CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentWorkingDirectory = process.cwd()
@@ -82,10 +82,10 @@ export class SleepInteractor {
     if (difference.minutes) {
       onValue += ` M${difference.minutes}`
     }
-    let difference_to_24_h_hours = 24 - difference.hours
+    let difference_to_24_h_hours = 24 - (difference.hours ?? 0)
     let difference_to_24_h_minutes = 0
     if (difference.minutes !== 0) {
-      difference_to_24_h_minutes = 60 - difference.minutes
+      difference_to_24_h_minutes = 60 - (difference.minutes ?? 0)
       difference_to_24_h_hours -= 1
     }
     let offValue = `H${difference_to_24_h_hours}`

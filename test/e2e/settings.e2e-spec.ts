@@ -26,7 +26,6 @@ import {
   MovieOutputValue,
   PictureOutputValue,
 } from '../../src/motion-client.service.interface'
-import { SystemTimeZonesInteractor } from '../../src/properties/interactors/system-time-zones-interactor'
 import {
   CameraSettingsPutDto,
   GeneralSettingsPutDto,
@@ -37,6 +36,7 @@ import { AccessPointInteractor } from '../../src/settings/interactors/access-poi
 import { SystemTimeInteractor } from '../../src/settings/interactors/system-time-interactor'
 import { VideoDeviceInteractor } from '../../src/settings/interactors/video-device-interactor'
 import { SettingsFileProvider } from '../../src/settings/settings-file-provider'
+import { SystemTimeZonesInteractor } from '../../src/shared/interactors/system-time-zones-interactor'
 
 const HEIGHT = 2
 const MOVIE_QUALITY = 80
@@ -197,6 +197,8 @@ describe('SettingsController (e2e)', () => {
     })
       .overrideProvider(MotionClientService)
       .useClass(MockMotionClientService)
+      .overrideProvider('SCHEDULE_MODULE_OPTIONS')
+      .useValue({ cronJobs: false, intervals: false, timeouts: false })
       .compile()
 
     app = moduleFixture.createNestApplication()
@@ -1331,8 +1333,8 @@ describe('SettingsController (e2e)', () => {
     })
   })
 
-  afterEach(() => {
-    app.close()
+  afterEach(async () => {
+    await app.close()
   })
 
   afterAll(() => {

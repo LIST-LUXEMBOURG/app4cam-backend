@@ -17,7 +17,7 @@
 import { existsSync } from 'fs'
 import { mkdir, rm } from 'fs/promises'
 import { LoggerService } from '@nestjs/common'
-import { ArchiveFileManager } from './archive-file-manager'
+import { ArchiveFileManager } from './archive-file-manager.js'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 

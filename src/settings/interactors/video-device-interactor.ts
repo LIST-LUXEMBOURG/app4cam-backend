@@ -16,18 +16,15 @@
  */
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
-import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
-import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
-import { FocusValueOutOfRange } from '../exceptions/FocusValueOutOfRange'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException.js'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException.js'
+import { FocusValueOutOfRange } from '../exceptions/FocusValueOutOfRange.js'
 
 const exec = promisify(execSync)
 
-interface FocusDetails {
-  default?: number
-  min?: number
-  max?: number
-  value?: number
-}
+const FOCUS_DETAILS_KEYS = ['default', 'min', 'max', 'value'] as const
+
+type FocusDetails = Partial<Record<(typeof FOCUS_DETAILS_KEYS)[number], number>>
 
 export class VideoDeviceInteractor {
   static async getFocus(devicePath: string): Promise<FocusDetails> {
@@ -45,15 +42,24 @@ export class VideoDeviceInteractor {
       const mapping = focusMapping.split('=')
       const key = mapping[0]
       const value = mapping[1]
-      focusMappingsAsObject[key] = parseInt(value)
+      if (this.isFocusDetailsKey(key)) {
+        focusMappingsAsObject[key] = parseInt(value)
+      }
     }
     return focusMappingsAsObject
+  }
+
+  static isFocusDetailsKey(key: string): key is keyof FocusDetails {
+    return (FOCUS_DETAILS_KEYS as readonly string[]).includes(key)
   }
 
   static async setFocus(devicePath: string, focus: number): Promise<void> {
     CommandUnavailableOnWindowsException.throwIfOnWindows()
     const currentFocus = await this.getFocus(devicePath)
-    if (focus < currentFocus.min || currentFocus.max < focus) {
+    if (
+      (currentFocus.min !== undefined && focus < currentFocus.min) ||
+      (currentFocus.max !== undefined && currentFocus.max < focus)
+    ) {
       throw new FocusValueOutOfRange(
         `Focus value ${focus} not between ${currentFocus.min} and ${currentFocus.max}!`,
       )

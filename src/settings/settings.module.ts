@@ -14,17 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { forwardRef, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { MotionClientService } from '../motion-client.service'
-import { PropertiesModule } from '../properties/properties.module'
-import { SettingsController } from './settings.controller'
-import { SettingsService } from './settings.service'
+import { MotionClientService } from '../motion-client.service.js'
+import { SettingsController } from './settings.controller.js'
+import { SettingsService } from './settings.service.js'
 
 @Module({
   controllers: [SettingsController],
   providers: [ConfigService, MotionClientService, SettingsService],
-  imports: [ConfigModule, forwardRef(() => PropertiesModule)],
+  imports: [ConfigModule],
   exports: [SettingsService],
 })
 export class SettingsModule {}

@@ -29,9 +29,8 @@ export class AccessControlAllowOriginInterceptor implements NestInterceptor {
   disableAccessControlAllowOrigin: boolean
 
   constructor(private configService: ConfigService) {
-    this.disableAccessControlAllowOrigin = this.configService.get<boolean>(
-      'disableAccessControlAllowOrigin',
-    )
+    this.disableAccessControlAllowOrigin =
+      this.configService.getOrThrow<boolean>('disableAccessControlAllowOrigin')
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

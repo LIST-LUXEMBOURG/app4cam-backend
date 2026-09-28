@@ -1,13 +1,13 @@
-import TriggeringTime from '../shared/entities/triggering-time'
-import CoordinatesDto from './dto/coordinates.dto'
-import { SettingsPutDto } from './dto/settings.dto'
+import TriggeringTime from '../shared/entities/triggering-time.js'
+import CoordinatesDto from './dto/coordinates.dto.js'
+import { SettingsPutDto } from './dto/settings.dto.js'
 import {
   LightType,
   PatchableSettings,
   Settings,
   SettingsFromJsonFile,
-} from './entities/settings'
-import { ShotTypes } from './entities/shot-types'
+} from './entities/settings.js'
+import { ShotTypes } from './entities/shot-types.js'
 
 export interface ISettingsService {
   getAllSettings: () => Promise<Settings>
@@ -31,8 +31,8 @@ export interface ISettingsService {
   setShotsFolder(path: string): Promise<void>
   getCameraLight: () => Promise<LightType>
   getTriggeringLight: () => Promise<LightType>
-  getSleepingTime: () => Promise<TriggeringTime>
-  getWakingUpTime: () => Promise<TriggeringTime>
+  getSleepingTime: () => Promise<TriggeringTime | null>
+  getWakingUpTime: () => Promise<TriggeringTime | null>
   isTemperatureBelowThreshold(): Promise<boolean>
   getLatitudeAndLongitude: () => Promise<{
     latitude: number

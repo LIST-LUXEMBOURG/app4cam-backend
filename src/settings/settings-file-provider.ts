@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { readFile, writeFile } from 'fs/promises'
-import { LightType, SettingsFromJsonFile } from './entities/settings'
+import { LightType, SettingsFromJsonFile } from './entities/settings.js'
 
 const DEFAULT_CAMERA_LIGHT: LightType = 'visible'
 const DEFAULT_TRIGGERING_LIGHT: LightType = 'visible'
@@ -31,6 +31,10 @@ export const JSON_SETTINGS_WITH_NONE_SET: SettingsFromJsonFile = {
   },
 }
 
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && 'code' in error
+}
+
 export class SettingsFileProvider {
   static async readSettingsFile(
     filePath: string,
@@ -44,11 +48,15 @@ export class SettingsFileProvider {
         ...loadedSettings,
       }
       return mergedSettings
-    } catch (err) {
-      if (err.code !== 'ENOENT' && err.name !== 'SyntaxError') {
-        throw err
+    } catch (error) {
+      if (
+        (isNodeError(error) && error.code === 'ENOENT') ||
+        error instanceof SyntaxError
+      ) {
+        return JSON_SETTINGS_WITH_NONE_SET
+      } else {
+        throw error
       }
-      return JSON_SETTINGS_WITH_NONE_SET
     }
   }
 

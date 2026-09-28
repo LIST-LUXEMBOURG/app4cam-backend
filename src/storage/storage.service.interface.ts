@@ -1,5 +1,5 @@
-import { StorageStatusDto } from './dto/storage-status.dto'
-import { StorageUsageDto } from './dto/storage-usage.dto'
+import { StorageStatusDto } from './dto/storage-status.dto.js'
+import { StorageUsageDto } from './dto/storage-usage.dto.js'
 
 export interface IStorageService {
   getStorageStatus: () => Promise<StorageStatusDto>

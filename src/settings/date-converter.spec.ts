@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Settings } from 'luxon'
-import { DateConverter } from './date-converter'
+import { DateConverter } from './date-converter.js'
 
 describe(DateConverter.name, () => {
   beforeAll(() => {

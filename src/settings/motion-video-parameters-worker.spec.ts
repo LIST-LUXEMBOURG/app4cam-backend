@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
+import { MotionVideoParametersWorker } from './motion-video-parameters-worker.js'
 
 describe(MotionVideoParametersWorker.name, () => {
   describe(MotionVideoParametersWorker.convertStringToObject.name, () => {

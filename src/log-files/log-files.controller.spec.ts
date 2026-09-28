@@ -18,9 +18,9 @@ import { ReadStream } from 'fs'
 import { PassThrough } from 'stream'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
-import { LogFilesController } from './log-files.controller'
-import { LogFilesService } from './log-files.service'
-import { ILogFilesService } from './log-files.service.interface'
+import { LogFilesController } from './log-files.controller.js'
+import { ILogFilesService } from './log-files.service.interface.js'
+import { LogFilesService } from './log-files.service.js'
 
 class MockLogFilesService implements Partial<ILogFilesService> {
   getAppLogFileStream = vi.fn(() =>

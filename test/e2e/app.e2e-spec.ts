@@ -25,7 +25,10 @@ describe('AppController (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile()
+    })
+      .overrideProvider('SCHEDULE_MODULE_OPTIONS')
+      .useValue({ cronJobs: false, intervals: false, timeouts: false })
+      .compile()
 
     app = moduleFixture.createNestApplication()
     await app.init()
@@ -38,7 +41,7 @@ describe('AppController (e2e)', () => {
       .expect('Hello World!')
   })
 
-  afterEach(() => {
-    app.close()
+  afterEach(async () => {
+    await app.close()
   })
 })

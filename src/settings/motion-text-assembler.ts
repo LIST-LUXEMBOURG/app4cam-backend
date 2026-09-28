@@ -18,9 +18,9 @@ const DATE_TIME_FILENAME_PART = '%Y%m%dT%H%M%S'
 
 export class MotionTextAssembler {
   static createFilename(
-    siteName: string,
-    deviceName: string,
-    timeZone: string,
+    siteName: string | undefined,
+    deviceName: string | undefined,
+    timeZone: string | undefined,
   ): string {
     let name = ''
     if (siteName) {
@@ -36,7 +36,10 @@ export class MotionTextAssembler {
     return name
   }
 
-  static createImageText(siteName: string, deviceName: string) {
+  static createImageText(
+    siteName: string | undefined,
+    deviceName: string | undefined,
+  ) {
     let text = ''
     if (siteName) {
       text += siteName

@@ -15,13 +15,13 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Test, TestingModule } from '@nestjs/testing'
-import { MotionClientService } from '../motion-client.service'
-import { SettingsService } from '../settings/settings.service'
-import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity'
-import { FileStatsController } from './file-stats.controller'
-import { FileStatsService } from './file-stats.service'
-import { IFileStatsService } from './file-stats.service.interface'
-import { FilesService } from './files.service'
+import { MotionClientService } from '../motion-client.service.js'
+import { SettingsService } from '../settings/settings.service.js'
+import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity.js'
+import { FileStatsController } from './file-stats.controller.js'
+import { IFileStatsService } from './file-stats.service.interface.js'
+import { FileStatsService } from './file-stats.service.js'
+import { FilesService } from './files.service.js'
 
 describe(FileStatsController.name, () => {
   const counts: HoursOfDayCounts = Object.fromEntries(

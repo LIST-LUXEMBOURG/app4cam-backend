@@ -16,7 +16,7 @@
  */
 
 import { Settings } from 'luxon'
-import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
+import { SunriseSunsetCalculator } from './sunrise-sunset-calculator.js'
 
 describe(SunriseSunsetCalculator.name, () => {
   describe('calculateSunriseAndSunset', () => {
@@ -58,6 +58,37 @@ describe(SunriseSunsetCalculator.name, () => {
           minute: 33,
         },
       })
+    })
+
+    afterAll(() => {
+      Settings.defaultZone = 'system'
+    })
+  })
+
+  describe('calculateNextSunsetAndSunrise', () => {
+    it("returns today's sunset and tomorrow's sunrise", () => {
+      Settings.defaultZone = 'utc'
+      const todaySunset = { hour: 19, minute: 33 }
+      const tomorrowSunrise = { hour: 3, minute: 52 }
+      const spy = vi
+        .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
+        .mockReturnValueOnce({
+          sunrise: { hour: 3, minute: 51 },
+          sunset: todaySunset,
+        })
+        .mockReturnValueOnce({
+          sunrise: tomorrowSunrise,
+          sunset: { hour: 19, minute: 34 },
+        })
+
+      const result = SunriseSunsetCalculator.calculateNextSunsetAndSunrise(
+        49.50564,
+        5.94365,
+      )
+
+      expect(result).toEqual({ sunset: todaySunset, sunrise: tomorrowSunrise })
+      expect(spy).toHaveBeenCalledTimes(2)
+      spy.mockRestore()
     })
 
     afterAll(() => {

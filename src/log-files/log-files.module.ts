@@ -16,8 +16,8 @@
  */
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { LogFilesController } from './log-files.controller'
-import { LogFilesService } from './log-files.service'
+import { LogFilesController } from './log-files.controller.js'
+import { LogFilesService } from './log-files.service.js'
 
 @Module({
   controllers: [LogFilesController],

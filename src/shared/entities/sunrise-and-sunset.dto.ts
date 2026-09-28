@@ -14,21 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { exec as execSync } from 'child_process'
-import { promisify } from 'util'
-import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
-import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
+import TriggeringTime from './triggering-time.js'
 
-const exec = promisify(execSync)
-
-export class SystemTimeZonesInteractor {
-  static async getAvailableTimeZones(): Promise<string[]> {
-    CommandUnavailableOnWindowsException.throwIfOnWindows()
-    const { stdout, stderr } = await exec('timedatectl list-timezones')
-    if (stderr) {
-      throw new CommandExecutionException(stderr)
-    }
-    const timeZones = stdout.trimEnd().split('\n')
-    return timeZones
-  }
+export interface SunriseAndSunsetDto {
+  sunrise: TriggeringTime
+  sunset: TriggeringTime
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { HoursOfDayCounts } from '../entities/hours-of-day-counts.entity'
+import { HoursOfDayCounts } from '../entities/hours-of-day-counts.entity.js'
 
 export class HoursOfDayCountsDto {
   hoursOfDayCounts: HoursOfDayCounts

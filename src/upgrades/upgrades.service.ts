@@ -16,11 +16,11 @@
  */
 import path from 'path'
 import { Injectable, Logger } from '@nestjs/common'
-import { MotionClientService } from '../motion-client.service'
-import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto'
-import { FileSystemInteractor } from './interactors/file-system-interactor'
-import { UpgradeInteractor } from './interactors/upgrade-interactor'
-import { UpgradeFileFlagHandler } from './upgrade-file-handler'
+import { MotionClientService } from '../motion-client.service.js'
+import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto.js'
+import { FileSystemInteractor } from './interactors/file-system-interactor.js'
+import { UpgradeInteractor } from './interactors/upgrade-interactor.js'
+import { UpgradeFileFlagHandler } from './upgrade-file-handler.js'
 
 const EXTRACTION_FOLDER_PATH = 'temp/upgrade'
 const PACKAGED_CHECKSUM_FILENAME = 'checksums.sha256'

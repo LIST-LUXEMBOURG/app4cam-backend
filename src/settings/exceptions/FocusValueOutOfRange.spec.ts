@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { FocusValueOutOfRange } from './FocusValueOutOfRange'
+import { FocusValueOutOfRange } from './FocusValueOutOfRange.js'
 
 describe(FocusValueOutOfRange.name, () => {
   it(`should be an instance of '${FocusValueOutOfRange.name}'`, () => {

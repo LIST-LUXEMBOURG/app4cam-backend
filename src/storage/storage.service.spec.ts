@@ -15,13 +15,13 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Test, TestingModule } from '@nestjs/testing'
-import { vi } from 'vitest'
-import { MotionClientService } from '../motion-client.service'
-import { IMotionClientService } from '../motion-client.service.interface'
-import { StorageUsageDto } from './dto/storage-usage.dto'
-import { FileSystemInteractor } from './interactors/file-system-interactor'
-import { StorageUsageInteractor } from './interactors/storage-usage-interactor'
-import { StorageService } from './storage.service'
+import { Mock, vi } from 'vitest'
+import { IMotionClientService } from '../motion-client.service.interface.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { StorageUsageDto } from './dto/storage-usage.dto.js'
+import { FileSystemInteractor } from './interactors/file-system-interactor.js'
+import { StorageUsageInteractor } from './interactors/storage-usage-interactor.js'
+import { StorageService } from './storage.service.js'
 
 const FILES_FOLDER_PATH = 'src/files/fixtures/'
 
@@ -53,8 +53,8 @@ describe(StorageService.name, () => {
   })
 
   describe(StorageService.prototype.getStorageStatus.name, () => {
-    let spyGetSubdirectories
-    let spyGetUnixFilePermissions
+    let spyGetSubdirectories: Mock
+    let spyGetUnixFilePermissions: Mock
 
     beforeAll(() => {
       spyGetSubdirectories = vi

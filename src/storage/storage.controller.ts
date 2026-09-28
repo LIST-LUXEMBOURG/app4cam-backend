@@ -15,10 +15,10 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Controller, Get } from '@nestjs/common'
-import { StorageStatusDto } from './dto/storage-status.dto'
-import { StorageUsageDto } from './dto/storage-usage.dto'
-import { StorageDto } from './dto/storage.dto'
-import { StorageService } from './storage.service'
+import { StorageStatusDto } from './dto/storage-status.dto.js'
+import { StorageUsageDto } from './dto/storage-usage.dto.js'
+import { StorageDto } from './dto/storage.dto.js'
+import { StorageService } from './storage.service.js'
 
 @Controller('storage')
 export class StorageController {

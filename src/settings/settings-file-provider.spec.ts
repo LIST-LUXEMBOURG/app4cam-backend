@@ -15,11 +15,11 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { mkdir, rm } from 'fs/promises'
-import { SettingsFromJsonFile } from './entities/settings'
+import { SettingsFromJsonFile } from './entities/settings.js'
 import {
   JSON_SETTINGS_WITH_NONE_SET,
   SettingsFileProvider,
-} from './settings-file-provider'
+} from './settings-file-provider.js'
 
 const FIXTURE_FOLDER_PATH = 'src/settings/fixtures'
 const TEST_FOLDER_PATH = 'src/settings/test'

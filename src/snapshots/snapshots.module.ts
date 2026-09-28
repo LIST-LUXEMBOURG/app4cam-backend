@@ -16,10 +16,10 @@
  */
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { FilesModule } from '../files/files.module'
-import { MotionClientService } from '../motion-client.service'
-import { SnapshotsController } from './snapshots.controller'
-import { SnapshotsService } from './snapshots.service'
+import { FilesModule } from '../files/files.module.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { SnapshotsController } from './snapshots.controller.js'
+import { SnapshotsService } from './snapshots.service.js'
 
 @Module({
   controllers: [SnapshotsController],

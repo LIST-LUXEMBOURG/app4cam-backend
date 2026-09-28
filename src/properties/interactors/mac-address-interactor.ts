@@ -16,8 +16,9 @@
  */
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
-import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
-import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException.js'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException.js'
+import { NoAddressFoundException } from '../exceptions/NoAddressFoundException.js'
 
 const exec = promisify(execSync)
 
@@ -31,6 +32,9 @@ export class MacAddressInteractor {
     const firstAddressMatch = stdout.match(
       /((?:[a-zA-Z0-9]{2}[:-]){5}[a-zA-Z0-9]{2})/m,
     )
+    if (firstAddressMatch === null) {
+      throw new NoAddressFoundException()
+    }
     const firstAddress = firstAddressMatch[0]
     return firstAddress
   }

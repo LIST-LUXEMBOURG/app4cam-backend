@@ -17,18 +17,19 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Mock, vi } from 'vitest'
-import { MotionClientService } from '../motion-client.service'
-import { IMotionClientService } from '../motion-client.service.interface'
-import { SettingsService } from '../settings/settings.service'
-import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
-import { VersionDto } from './dto/version.dto'
-import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException'
-import { LightTypeInteractor } from './interactors/light-type-interactor'
-import { MacAddressInteractor } from './interactors/mac-address-interactor'
-import { SystemTimeZonesInteractor } from './interactors/system-time-zones-interactor'
-import { VersionInteractor } from './interactors/version-interactor'
-import { PropertiesService } from './properties.service'
-import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
+import { createMockConfigService } from '../../test/unit/config-service.mock.js'
+import { IMotionClientService } from '../motion-client.service.interface.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { SettingsService } from '../settings/settings.service.js'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
+import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
+import { SunriseSunsetCalculator } from '../shared/sunrise-sunset-calculator.js'
+import { VersionDto } from './dto/version.dto.js'
+import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException.js'
+import { LightTypeInteractor } from './interactors/light-type-interactor.js'
+import { MacAddressInteractor } from './interactors/mac-address-interactor.js'
+import { VersionInteractor } from './interactors/version-interactor.js'
+import { PropertiesService } from './properties.service.js'
 
 const AVAILABLE_TIME_ZONES = ['t1', 't2']
 
@@ -71,7 +72,7 @@ describe(PropertiesService.name, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ConfigService,
+        { provide: ConfigService, useValue: createMockConfigService() },
         { provide: MotionClientService, useClass: MockMotionClientService },
         PropertiesService,
         SettingsService,
@@ -131,12 +132,16 @@ describe(PropertiesService.name, () => {
   })
 
   it('gets the sunrise and sunset', async () => {
+    const spyGetLatitudeAndLongitude = vi
+      .spyOn(SettingsService.prototype, 'getLatitudeAndLongitude')
+      .mockResolvedValue({ latitude: 1, longitude: 2 })
     const spyCalculateSunriseAndSunset = vi
       .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
       .mockReturnValue(SUNRISE_AND_SUNSET)
     const response = await service.getNextSunsetAndSunrise()
     expect(response).toEqual(SUNRISE_AND_SUNSET)
     spyCalculateSunriseAndSunset.mockRestore()
+    spyGetLatitudeAndLongitude.mockRestore()
   })
 
   it('gets the version', async () => {

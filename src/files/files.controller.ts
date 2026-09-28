@@ -26,10 +26,11 @@ import {
   Res,
   StreamableFile,
 } from '@nestjs/common'
-import { FilesDto } from './dto/files.dto'
-import { FileDeletionResponse } from './entities/file-deletion-response.entity'
-import { File } from './entities/file.entity'
-import { FilesService } from './files.service'
+import type { Response } from 'express'
+import { FilesDto } from './dto/files.dto.js'
+import { FileDeletionResponse } from './entities/file-deletion-response.entity.js'
+import { File } from './entities/file.entity.js'
+import { FilesService } from './files.service.js'
 
 @Controller('files')
 export class FilesController {
@@ -38,7 +39,7 @@ export class FilesController {
   @Post()
   async downloadFiles(
     @Body() filesDto: FilesDto,
-    @Res({ passthrough: true }) res,
+    @Res({ passthrough: true }) res: Response,
   ) {
     if (filesDto.filenames.some((filename) => filename.includes('../'))) {
       throw new ForbiddenException()
@@ -47,7 +48,7 @@ export class FilesController {
     try {
       archive = await this.filesService.getStreamableFiles(filesDto.filenames)
     } catch (error) {
-      if (error.message.includes('File not found')) {
+      if (error instanceof Error && error.message.includes('File not found')) {
         throw new NotFoundException(error.message)
       } else {
         throw error
@@ -97,7 +98,7 @@ export class FilesController {
   @Get(':id')
   async downloadFile(
     @Param('id') filename: string,
-    @Res({ passthrough: true }) res,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const file = await this.filesService.getStreamableFile(filename)
     res.set({
@@ -112,7 +113,11 @@ export class FilesController {
     try {
       await this.filesService.removeFile(filename)
     } catch (error) {
-      if (error.code !== 'ENOENT') {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        error.code !== 'ENOENT'
+      ) {
         throw error
       }
       throw new NotFoundException()

@@ -16,7 +16,7 @@
  */
 import { existsSync } from 'fs'
 import { writeFile, mkdir, rm } from 'fs/promises'
-import FolderCleaner from './folder-cleaner'
+import FolderCleaner from './folder-cleaner.js'
 
 describe(FolderCleaner.name, () => {
   describe(FolderCleaner.removeOldFiles, () => {

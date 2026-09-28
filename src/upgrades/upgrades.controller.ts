@@ -15,9 +15,9 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Controller, Get, Post } from '@nestjs/common'
-import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto'
-import { UpgradeStatusDto } from './dto/upgrade-status.dto'
-import { UpgradesService } from './upgrades.service'
+import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto.js'
+import { UpgradeStatusDto } from './dto/upgrade-status.dto.js'
+import { UpgradesService } from './upgrades.service.js'
 
 @Controller('upgrades')
 export class UpgradesController {

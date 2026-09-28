@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import TriggeringTime from '../../shared/entities/triggering-time'
+import TriggeringTime from '../../shared/entities/triggering-time.js'
 
 export class SettingsFromJsonFile {
   camera: CameraSettingsFromJsonFile
@@ -32,18 +32,18 @@ interface CameraSettingsFromJsonFile {
 class GeneralSettingsFromJsonFile {
   deviceName: string
   isAlternatingLightModeEnabled: boolean
-  latitude: number
-  locationAccuracy: number
-  longitude: number
+  latitude: number | null
+  locationAccuracy: number | null
+  longitude: number | null
   siteName: string
 }
 
 class TriggeringSettingsFromJsonFile {
   light: LightType
-  sleepingTime: TriggeringTime
-  temperatureThreshold: number
+  sleepingTime: TriggeringTime | null
+  temperatureThreshold: number | null
   useSunriseAndSunsetTimes: boolean
-  wakingUpTime: TriggeringTime
+  wakingUpTime: TriggeringTime | null
 }
 
 type ShotType = 'pictures' | 'videos'

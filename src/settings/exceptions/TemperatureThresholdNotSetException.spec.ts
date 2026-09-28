@@ -1,5 +1,5 @@
 /**
- * Copyright (C) since 2022 Luxembourg Institute of Science and Technology
+ * Copyright (C) since 2026 Luxembourg Institute of Science and Technology
  *
  * App4Cam is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,9 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import TriggeringTime from '../../shared/entities/triggering-time'
+import { TemperatureThresholdNotSet } from './TemperatureThresholdNotSetException.js'
 
-export interface SunriseAndSunsetDto {
-  sunrise: TriggeringTime
-  sunset: TriggeringTime
-}
+describe(TemperatureThresholdNotSet.name, () => {
+  it(`should be an instance of '${TemperatureThresholdNotSet.name}'`, () => {
+    expect(() => {
+      throw new TemperatureThresholdNotSet()
+    }).toThrow(TemperatureThresholdNotSet)
+  })
+})
