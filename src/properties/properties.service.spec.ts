@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
+import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Mock, vi } from 'vitest'
@@ -166,12 +167,16 @@ describe(PropertiesService.name, () => {
   })
 
   it('gets the unknown camera connection flag when an error happens', async () => {
+    const spyLoggerError = vi
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => undefined)
     spyIsCameraConnected.mockImplementation(() => {
       throw new Error()
     })
     const response = await service.isCameraConnected()
     expect(response).toBeNull()
     spyIsCameraConnected.mockRestore()
+    spyLoggerError.mockRestore()
   })
 
   afterAll(() => {
