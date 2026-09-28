@@ -18,8 +18,9 @@ import { rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Mock, vi } from 'vitest'
-import { LogFileInteractor } from './log-file-interactor'
-import { LogFilesService } from './log-files.service'
+import { createMockConfigService } from '../../test/unit/config-service.mock.js'
+import { LogFileInteractor } from './log-file-interactor.js'
+import { LogFilesService } from './log-files.service.js'
 
 const APP_LOG_FILE_PATH = 'temp/logs/app.log'
 const MOTION_LOG_FILE_PATH = 'temp/logs/motion.log'
@@ -29,7 +30,10 @@ describe(LogFilesService.name, () => {
 
   it('should be defined', async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ConfigService, LogFilesService],
+      providers: [
+        { provide: ConfigService, useValue: createMockConfigService() },
+        LogFilesService,
+      ],
     }).compile()
 
     service = module.get<LogFilesService>(LogFilesService)
@@ -49,7 +53,10 @@ describe(LogFilesService.name, () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [ConfigService, LogFilesService],
+        providers: [
+          { provide: ConfigService, useValue: createMockConfigService() },
+          LogFilesService,
+        ],
       }).compile()
 
       service = module.get<LogFilesService>(LogFilesService)
@@ -79,7 +86,10 @@ describe(LogFilesService.name, () => {
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [ConfigService, LogFilesService],
+        providers: [
+          { provide: ConfigService, useValue: createMockConfigService() },
+          LogFilesService,
+        ],
       }).compile()
 
       service = module.get<LogFilesService>(LogFilesService)

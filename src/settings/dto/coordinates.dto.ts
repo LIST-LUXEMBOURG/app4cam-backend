@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 export default interface CoordinatesDto {
-  accuracy: number
-  latitude: number
-  longitude: number
+  accuracy: number | null
+  latitude: number | null
+  longitude: number | null
 }

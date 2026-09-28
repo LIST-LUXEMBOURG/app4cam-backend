@@ -15,10 +15,10 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Test, TestingModule } from '@nestjs/testing'
-import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto'
-import { UpgradesController } from './upgrades.controller'
-import { UpgradesService } from './upgrades.service'
-import { IUpgradesService } from './upgrades.service.interface'
+import { UpgradeFileCheckResultDto } from './dto/upgrade-file-check-result.dto.js'
+import { UpgradesController } from './upgrades.controller.js'
+import { IUpgradesService } from './upgrades.service.interface.js'
+import { UpgradesService } from './upgrades.service.js'
 
 describe(UpgradesController.name, () => {
   const MESSAGE: UpgradeFileCheckResultDto = {

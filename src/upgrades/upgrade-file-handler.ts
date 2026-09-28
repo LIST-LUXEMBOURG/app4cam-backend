@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import path from 'path'
-import { FileSystemInteractor } from './interactors/file-system-interactor'
+import { FileSystemInteractor } from './interactors/file-system-interactor.js'
 
 const FLAG_FILENAME = 'upgrading'
 const FLAG_FILE_CONTENT = 'true'

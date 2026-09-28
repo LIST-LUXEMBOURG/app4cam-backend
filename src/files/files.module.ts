@@ -16,12 +16,12 @@
  */
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { MotionClientService } from '../motion-client.service'
-import { SettingsModule } from '../settings/settings.module'
-import { FileStatsController } from './file-stats.controller'
-import { FileStatsService } from './file-stats.service'
-import { FilesController } from './files.controller'
-import { FilesService } from './files.service'
+import { MotionClientService } from '../motion-client.service.js'
+import { SettingsModule } from '../settings/settings.module.js'
+import { FileStatsController } from './file-stats.controller.js'
+import { FileStatsService } from './file-stats.service.js'
+import { FilesController } from './files.controller.js'
+import { FilesService } from './files.service.js'
 
 @Module({
   controllers: [FilesController, FileStatsController],

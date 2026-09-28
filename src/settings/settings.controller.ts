@@ -23,17 +23,17 @@ import {
   ForbiddenException,
   Res,
 } from '@nestjs/common'
-import { Response } from 'express'
-import CoordinatesDto from './dto/coordinates.dto'
-import { DeviceNameDto } from './dto/device-name.dto'
-import { SettingsPatchDto, SettingsPutDto } from './dto/settings.dto'
-import { ShotTypesDto } from './dto/shot-types.dto'
-import { ShotsFolderDto } from './dto/shots-folder.dto'
-import { SiteNameDto } from './dto/site-name.dto'
-import { SystemTimeDto } from './dto/system-time.dto'
-import { TimeZoneDto } from './dto/time-zone.dto'
-import { Settings } from './entities/settings'
-import { SettingsService } from './settings.service'
+import type { Response } from 'express'
+import CoordinatesDto from './dto/coordinates.dto.js'
+import { DeviceNameDto } from './dto/device-name.dto.js'
+import { SettingsPatchDto, SettingsPutDto } from './dto/settings.dto.js'
+import { ShotTypesDto } from './dto/shot-types.dto.js'
+import { ShotsFolderDto } from './dto/shots-folder.dto.js'
+import { SiteNameDto } from './dto/site-name.dto.js'
+import { SystemTimeDto } from './dto/system-time.dto.js'
+import { TimeZoneDto } from './dto/time-zone.dto.js'
+import { Settings } from './entities/settings.js'
+import { SettingsService } from './settings.service.js'
 
 @Controller('settings')
 export class SettingsController {

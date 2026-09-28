@@ -17,9 +17,9 @@
 import { cp, mkdir, readdir, rm } from 'fs/promises'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
-import { MotionClientService } from '../motion-client.service'
-import { IMotionClientService } from '../motion-client.service.interface'
-import { UpgradesService } from './upgrades.service'
+import { IMotionClientService } from '../motion-client.service.interface.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { UpgradesService } from './upgrades.service.js'
 
 describe(UpgradesService.name, () => {
   const DATA_FOLDER = 'src/upgrades/test-upgrade-service-data'

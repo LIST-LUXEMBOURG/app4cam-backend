@@ -16,12 +16,12 @@
  */
 import { mkdir, rm, writeFile } from 'fs/promises'
 import { Test, TestingModule } from '@nestjs/testing'
-import { MotionClientService } from '../motion-client.service'
-import { IMotionClientService } from '../motion-client.service.interface'
-import { SettingsService } from '../settings/settings.service'
-import { ISettingsService } from '../settings/settings.service.interface'
-import { FileStatsService } from './file-stats.service'
-import { FilesService } from './files.service'
+import { IMotionClientService } from '../motion-client.service.interface.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { ISettingsService } from '../settings/settings.service.interface.js'
+import { SettingsService } from '../settings/settings.service.js'
+import { FileStatsService } from './file-stats.service.js'
+import { FilesService } from './files.service.js'
 
 describe(FileStatsService.name, () => {
   const testFolder = 'src/files/test-file-stats-service'

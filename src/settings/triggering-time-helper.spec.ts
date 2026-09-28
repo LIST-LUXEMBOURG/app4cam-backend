@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { TriggeringTimeHelper } from './triggering-time-helper'
+import { TriggeringTimeHelper } from './triggering-time-helper.js'
 
 describe(TriggeringTimeHelper.name, () => {
   describe(TriggeringTimeHelper.areTimesEqual.name, () => {

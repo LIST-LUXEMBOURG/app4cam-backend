@@ -16,10 +16,10 @@
  */
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { FilesService } from '../files/files.service'
-import { MotionClientService } from '../motion-client.service'
-import { FileSystemInteractor } from './file-system-interactor'
-import { ISnapshotsService } from './snapshots.service.interface'
+import { FilesService } from '../files/files.service.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { FileSystemInteractor } from './file-system-interactor.js'
+import { ISnapshotsService } from './snapshots.service.interface.js'
 
 const BEFORE_OPENING_SNAPSHOT_WAITING_TIME_MS = 500
 const RASPBERRY_PI_FACTOR = 4

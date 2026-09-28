@@ -16,8 +16,8 @@
  */
 import { mkdir, readdir, readFile, rm } from 'fs/promises'
 import path from 'path'
-import { FileSystemInteractor } from './interactors/file-system-interactor'
-import { UpgradeFileFlagHandler } from './upgrade-file-handler'
+import { FileSystemInteractor } from './interactors/file-system-interactor.js'
+import { UpgradeFileFlagHandler } from './upgrade-file-handler.js'
 
 describe(FileSystemInteractor.name, () => {
   const TEST_FOLDER = 'src/upgrades/test-upgrade-file-handler'

@@ -16,10 +16,10 @@
  */
 import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
-import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException'
-import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException'
-import { StorageUsageDto } from '../dto/storage-usage.dto'
-import { NumberUtils } from '../number-utils'
+import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException.js'
+import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException.js'
+import { StorageUsageDto } from '../dto/storage-usage.dto.js'
+import { NumberUtils } from '../number-utils.js'
 
 const exec = promisify(execSync)
 

@@ -20,10 +20,10 @@ import { Readable } from 'stream'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
-import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
-import FolderCleaner from '../shared/folder-cleaner'
-import { LogFileInteractor } from './log-file-interactor'
-import { ILogFilesService } from './log-files.service.interface'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
+import FolderCleaner from '../shared/folder-cleaner.js'
+import { LogFileInteractor } from './log-file-interactor.js'
+import { ILogFilesService } from './log-files.service.interface.js'
 
 const TEMPORARY_APP_LOG_FILENAME = 'app.log'
 const TEMPORARY_MOTION_LOG_FILENAME = 'motion.log'
@@ -35,7 +35,7 @@ export class LogFilesService implements ILogFilesService {
   private readonly serviceName: string
 
   constructor(private readonly configService: ConfigService) {
-    this.serviceName = this.configService.get<string>('serviceName')
+    this.serviceName = this.configService.getOrThrow<string>('serviceName')
   }
 
   async getAppLogFileStream(): Promise<Readable> {

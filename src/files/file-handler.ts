@@ -16,10 +16,13 @@
  */
 import { createReadStream } from 'fs'
 import path from 'path'
-import { StreamWithContentType } from '../shared/entities/stream-with-content-type'
-import { File } from './entities/file.entity'
-import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity'
-import { MimeTypeDeterminer } from './mime-type-determiner'
+import { StreamWithContentType } from '../shared/entities/stream-with-content-type.js'
+import { File } from './entities/file.entity.js'
+import {
+  HourOfDay,
+  HoursOfDayCounts,
+} from './entities/hours-of-day-counts.entity.js'
+import { MimeTypeDeterminer } from './mime-type-determiner.js'
 
 export class FileHandler {
   static createStreamWithContentType(filePath: string): StreamWithContentType {
@@ -47,7 +50,7 @@ export class FileHandler {
     ]
     for (const file of files) {
       const h = file.creationTime.getHours()
-      counts[h] += 1
+      counts[h as HourOfDay] += 1
     }
     return counts
   }

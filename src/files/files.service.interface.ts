@@ -1,7 +1,7 @@
-import { StreamWithContentType } from '../shared/entities/stream-with-content-type'
-import { FileDeletionResponse } from './entities/file-deletion-response.entity'
-import { File } from './entities/file.entity'
-import { StreamWithContentTypeAndFilename } from './entities/stream-with-content-type-and-filename.entity.'
+import { StreamWithContentType } from '../shared/entities/stream-with-content-type.js'
+import { FileDeletionResponse } from './entities/file-deletion-response.entity.js'
+import { File } from './entities/file.entity.js'
+import { StreamWithContentTypeAndFilename } from './entities/stream-with-content-type-and-filename.entity..js'
 
 export interface IFilesService {
   findAll: () => Promise<File[]>

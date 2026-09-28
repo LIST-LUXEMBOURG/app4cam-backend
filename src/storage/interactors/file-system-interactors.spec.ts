@@ -16,7 +16,7 @@
  */
 import { chmodSync } from 'fs'
 import { mkdir, rm, writeFile } from 'fs/promises'
-import { FileSystemInteractor } from './file-system-interactor'
+import { FileSystemInteractor } from './file-system-interactor.js'
 
 describe(FileSystemInteractor.name, () => {
   describe(FileSystemInteractor.getSubdirectories.name, () => {

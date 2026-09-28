@@ -17,10 +17,11 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
-import { MotionClientService } from '../motion-client.service'
-import { SettingsService } from '../settings/settings.service'
-import { StorageService } from '../storage/storage.service'
-import { IMotionInteractorService } from './motion-interactor.service.interface'
+import { MotionClientService } from '../motion-client.service.js'
+import { TemperatureThresholdNotSet } from '../settings/exceptions/TemperatureThresholdNotSetException.js'
+import { SettingsService } from '../settings/settings.service.js'
+import { StorageService } from '../storage/storage.service.js'
+import { IMotionInteractorService } from './motion-interactor.service.interface.js'
 
 @Injectable()
 export class MotionInteractorService implements IMotionInteractorService {
@@ -66,17 +67,30 @@ export class MotionInteractorService implements IMotionInteractorService {
     )
 
     const deviceType = this.configService.get<string>('deviceType')
+    let isTemperatureThresholdSet = true
     let isTemperatureBelowThreshold = false
     if (deviceType === 'RaspberryPi') {
       // Reading the temperature is currently only supported on Raspberry Pi.
-      isTemperatureBelowThreshold =
-        await this.settingsService.isTemperatureBelowThreshold()
-      this.logger.log(
-        `Temperature below threshold: ${isTemperatureBelowThreshold}`,
-      )
+      try {
+        isTemperatureBelowThreshold =
+          await this.settingsService.isTemperatureBelowThreshold()
+        this.logger.log(
+          `Temperature below threshold: ${isTemperatureBelowThreshold}`,
+        )
+      } catch (error) {
+        if (error instanceof TemperatureThresholdNotSet) {
+          this.logger.log('Temperature threshold is not set.')
+          isTemperatureThresholdSet = false
+        } else {
+          throw error
+        }
+      }
     }
 
-    if (isDiskSpaceUsageAboveThreshold || isTemperatureBelowThreshold) {
+    if (
+      isDiskSpaceUsageAboveThreshold ||
+      (isTemperatureThresholdSet && isTemperatureBelowThreshold)
+    ) {
       await this.pauseDetectionIfActive()
     } else {
       await this.startDetectionIfNotActive()

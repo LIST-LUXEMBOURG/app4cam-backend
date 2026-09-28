@@ -19,13 +19,14 @@ import { mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
-import { MotionClientService } from '../motion-client.service'
-import { IMotionClientService } from '../motion-client.service.interface'
-import { PropertiesService } from '../properties/properties.service'
-import { SettingsModule } from '../settings/settings.module'
-import { FileHandler } from './file-handler'
-import { FileInteractor } from './file-interactor'
-import { FilesService } from './files.service'
+import { createMockConfigService } from '../../test/unit/config-service.mock.js'
+import { IMotionClientService } from '../motion-client.service.interface.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { PropertiesService } from '../properties/properties.service.js'
+import { SettingsModule } from '../settings/settings.module.js'
+import { FileHandler } from './file-handler.js'
+import { FileInteractor } from './file-interactor.js'
+import { FilesService } from './files.service.js'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 
@@ -42,13 +43,16 @@ describe(FilesService.name, () => {
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
         providers: [
-          ConfigService,
+          { provide: ConfigService, useValue: createMockConfigService() },
           FilesService,
           { provide: MotionClientService, useClass: MockMotionClientService },
           PropertiesService,
         ],
         imports: [SettingsModule],
-      }).compile()
+      })
+        .overrideProvider(ConfigService)
+        .useValue(createMockConfigService())
+        .compile()
 
       service = module.get<FilesService>(FilesService)
     })

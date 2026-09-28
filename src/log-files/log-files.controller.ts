@@ -15,7 +15,8 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Controller, Get, Res, StreamableFile } from '@nestjs/common'
-import { LogFilesService } from './log-files.service'
+import type { Response } from 'express'
+import { LogFilesService } from './log-files.service.js'
 
 const APP_LOG_FILENAME = 'app.log'
 const LOG_FILE_CONTENT_TYPE = 'text/plain'
@@ -26,7 +27,7 @@ export class LogFilesController {
   constructor(private readonly logFilesService: LogFilesService) {}
 
   @Get('app')
-  async downloadAppLogFile(@Res({ passthrough: true }) res) {
+  async downloadAppLogFile(@Res({ passthrough: true }) res: Response) {
     const stream = await this.logFilesService.getAppLogFileStream()
     res.set({
       'Content-Type': LOG_FILE_CONTENT_TYPE,
@@ -36,7 +37,7 @@ export class LogFilesController {
   }
 
   @Get('motion')
-  async downloadMotionLogFile(@Res({ passthrough: true }) res) {
+  async downloadMotionLogFile(@Res({ passthrough: true }) res: Response) {
     const stream = await this.logFilesService.getMotionLogFileStream()
     res.set({
       'Content-Type': LOG_FILE_CONTENT_TYPE,

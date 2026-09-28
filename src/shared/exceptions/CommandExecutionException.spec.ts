@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { CommandExecutionException } from './CommandExecutionException'
+import { CommandExecutionException } from './CommandExecutionException.js'
 
 describe(CommandExecutionException.name, () => {
   it(`should be an instance of '${CommandExecutionException.name}'`, () => {

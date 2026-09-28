@@ -16,8 +16,8 @@
  */
 
 import { DateTime } from 'luxon'
-import TriggeringTime from '../shared/entities/triggering-time'
-import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
+import { SunriseAndSunsetDto } from './entities/sunrise-and-sunset.dto.js'
+import TriggeringTime from './entities/triggering-time.js'
 
 const DAYS_PER_ORDINARY_YEAR = 365
 const DAYS_PER_LEAP_YEAR = 366
@@ -84,6 +84,30 @@ export class SunriseSunsetCalculator {
     return {
       sunrise,
       sunset,
+    }
+  }
+
+  static calculateNextSunsetAndSunrise(
+    latitude: number,
+    longitude: number,
+  ): SunriseAndSunsetDto {
+    const today = new Date()
+    const todaysTwilights = SunriseSunsetCalculator.calculateSunriseAndSunset(
+      today,
+      latitude,
+      longitude,
+    )
+    const tomorrow = new Date()
+    tomorrow.setDate(today.getDate() + 1)
+    const tomorrowsTwilights =
+      SunriseSunsetCalculator.calculateSunriseAndSunset(
+        tomorrow,
+        latitude,
+        longitude,
+      )
+    return {
+      sunset: todaysTwilights.sunset,
+      sunrise: tomorrowsTwilights.sunrise,
     }
   }
 }

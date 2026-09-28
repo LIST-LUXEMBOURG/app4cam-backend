@@ -15,8 +15,8 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Controller, Get } from '@nestjs/common'
-import { HoursOfDayCountsDto } from './dto/hours-of-day-counts.dto'
-import { FileStatsService } from './file-stats.service'
+import { HoursOfDayCountsDto } from './dto/hours-of-day-counts.dto.js'
+import { FileStatsService } from './file-stats.service.js'
 
 @Controller('file-stats')
 export class FileStatsController {

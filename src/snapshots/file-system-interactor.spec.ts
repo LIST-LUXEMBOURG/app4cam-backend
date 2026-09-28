@@ -15,7 +15,7 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { mkdir, rm, writeFile } from 'fs/promises'
-import { FileSystemInteractor } from './file-system-interactor'
+import { FileSystemInteractor } from './file-system-interactor.js'
 
 describe(FileSystemInteractor.name, () => {
   describe(FileSystemInteractor.getNameOfMostRecentlyModifiedFile.name, () => {

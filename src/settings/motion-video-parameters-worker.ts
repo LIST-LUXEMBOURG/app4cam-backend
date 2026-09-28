@@ -23,7 +23,7 @@ export class MotionVideoParametersWorker {
     }
     return input
       .split(/,+(?=(?:(?:[^"]*"){2})*[^"]*$)/g)
-      .reduce((result, parameterString) => {
+      .reduce<VideoParameters>((result, parameterString) => {
         const parts = parameterString.split('=')
         const key = parts[0].trim().replaceAll('"', '')
         const value = parseInt(parts[1].trim())

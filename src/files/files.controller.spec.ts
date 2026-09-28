@@ -19,12 +19,13 @@ import { PassThrough } from 'stream'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
-import { MotionClientService } from '../motion-client.service'
-import { PropertiesService } from '../properties/properties.service'
-import { SettingsService } from '../settings/settings.service'
-import { FilesController } from './files.controller'
-import { FilesService } from './files.service'
-import { IFilesService } from './files.service.interface'
+import { createMockConfigService } from '../../test/unit/config-service.mock.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { PropertiesService } from '../properties/properties.service.js'
+import { SettingsService } from '../settings/settings.service.js'
+import { FilesController } from './files.controller.js'
+import { IFilesService } from './files.service.interface.js'
+import { FilesService } from './files.service.js'
 
 class MockFilesService implements Partial<IFilesService> {
   findAll = vi.fn()
@@ -53,7 +54,7 @@ describe(FilesController.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [FilesController],
       providers: [
-        ConfigService,
+        { provide: ConfigService, useValue: createMockConfigService() },
         { provide: FilesService, useClass: MockFilesService },
         MotionClientService,
         PropertiesService,

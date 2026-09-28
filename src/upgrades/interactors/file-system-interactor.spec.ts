@@ -25,7 +25,7 @@ import {
   writeFile,
 } from 'fs/promises'
 import path from 'path'
-import { FileSystemInteractor } from './file-system-interactor'
+import { FileSystemInteractor } from './file-system-interactor.js'
 
 describe(FileSystemInteractor.name, () => {
   const FIXTURES_FOLDER = 'src/upgrades/fixtures'

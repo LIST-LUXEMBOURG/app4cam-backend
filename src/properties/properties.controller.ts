@@ -15,14 +15,14 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Controller, Get } from '@nestjs/common'
-import { BatteryVoltageDto } from './dto/battery-voltage.dto'
-import { CameraConnectionStatusDto } from './dto/camera-connection-status.dto'
-import { DeviceIdDto } from './dto/device-id.dto'
-import { LightTypeDto } from './dto/light-type.dto'
-import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
-import { TimeZonesDto } from './dto/time-zones.dto'
-import { VersionDto } from './dto/version.dto'
-import { PropertiesService } from './properties.service'
+import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
+import { BatteryVoltageDto } from './dto/battery-voltage.dto.js'
+import { CameraConnectionStatusDto } from './dto/camera-connection-status.dto.js'
+import { DeviceIdDto } from './dto/device-id.dto.js'
+import { LightTypeDto } from './dto/light-type.dto.js'
+import { TimeZonesDto } from './dto/time-zones.dto.js'
+import { VersionDto } from './dto/version.dto.js'
+import { PropertiesService } from './properties.service.js'
 
 @Controller('properties')
 export class PropertiesController {

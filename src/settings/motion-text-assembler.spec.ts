@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { MotionTextAssembler } from './motion-text-assembler'
+import { MotionTextAssembler } from './motion-text-assembler.js'
 
 describe(MotionTextAssembler.name, () => {
   describe(MotionTextAssembler.createFilename.name, () => {

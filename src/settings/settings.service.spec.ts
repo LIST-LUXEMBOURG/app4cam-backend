@@ -17,40 +17,29 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Mock, vi } from 'vitest'
-import { InitialisationInteractor } from '../initialisation-interactor'
-import { MotionClientService } from '../motion-client.service'
+import { createMockConfigService } from '../../test/unit/config-service.mock.js'
+import { InitialisationInteractor } from '../initialisation-interactor.js'
 import {
   IMotionClientService,
   MovieOutputValue,
   PictureOutputValue,
-} from '../motion-client.service.interface'
-import { PropertiesService } from '../properties/properties.service'
-import { IPropertiesService } from '../properties/properties.service.interface'
-import { SettingsPutDto } from './dto/settings.dto'
-import { PatchableSettings, Settings } from './entities/settings'
-import { AccessPointInteractor } from './interactors/access-point-interactor'
-import { SystemTimeInteractor } from './interactors/system-time-interactor'
-import { TemperatureInteractor } from './interactors/temperature-interactor'
-import { VideoDeviceInteractor } from './interactors/video-device-interactor'
-import { SettingsFileProvider } from './settings-file-provider'
-import { SettingsService } from './settings.service'
+} from '../motion-client.service.interface.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
+import { SettingsPutDto } from './dto/settings.dto.js'
+import { PatchableSettings, Settings } from './entities/settings.js'
+import { AccessPointInteractor } from './interactors/access-point-interactor.js'
+import { SystemTimeInteractor } from './interactors/system-time-interactor.js'
+import { TemperatureInteractor } from './interactors/temperature-interactor.js'
+import { VideoDeviceInteractor } from './interactors/video-device-interactor.js'
+import { SettingsFileProvider } from './settings-file-provider.js'
+import { SettingsService } from './settings.service.js'
 
 const SHOTS_FOLDER = '/a'
 
 const HEIGHT = 2
 const TRIGGER_SENSITIVITY = 5
 const WIDTH = 3
-
-const mockConfigService = {
-  get: (name) => {
-    switch (name) {
-      case 'deviceType':
-        return 'Variscite'
-      case 'isFixedFocus':
-        return false
-    }
-  },
-}
 
 class MockMotionClientService implements Partial<IMotionClientService> {
   getHeight = async () => HEIGHT
@@ -74,22 +63,14 @@ class MockMotionClientService implements Partial<IMotionClientService> {
   setVideoParams = async () => {}
 }
 
-class MockPropertiesService implements Partial<IPropertiesService> {
-  getAvailableTimeZones = async () => ['t1', 't2']
-}
-
 describe('SettingsService', () => {
   let service: SettingsService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        {
-          provide: ConfigService,
-          useValue: mockConfigService,
-        },
+        { provide: ConfigService, useValue: createMockConfigService() },
         { provide: MotionClientService, useClass: MockMotionClientService },
-        { provide: PropertiesService, useClass: MockPropertiesService },
         SettingsService,
       ],
     }).compile()
@@ -179,6 +160,7 @@ describe('SettingsService', () => {
 
     let spyReadSettingsFile: Mock
     let spyWriteSettingsFile: Mock
+    let spyGetAvailableTimeZones: Mock
     let spyGetSystemTime: Mock
     let spySetSystemAndRtcTime: Mock
     let spyGetTimeZone: Mock
@@ -195,6 +177,9 @@ describe('SettingsService', () => {
       spyWriteSettingsFile = vi
         .spyOn(SettingsFileProvider, 'writeSettingsToFile')
         .mockResolvedValue()
+      spyGetAvailableTimeZones = vi
+        .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
+        .mockResolvedValue(['t1', 't2'])
       spyGetSystemTime = vi
         .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
         .mockResolvedValue(SYSTEM_TIME)
@@ -507,6 +492,7 @@ describe('SettingsService', () => {
     afterAll(() => {
       spyReadSettingsFile.mockRestore()
       spyWriteSettingsFile.mockRestore()
+      spyGetAvailableTimeZones.mockRestore()
       spyGetSystemTime.mockRestore()
       spySetSystemAndRtcTime.mockRestore()
       spyGetTimeZone.mockRestore()
@@ -521,28 +507,14 @@ describe('SettingsService', () => {
   describe('with access point update disabled', () => {
     let serviceWithDisabledAp: SettingsService
 
-    const mockConfigServiceWithDisabledAp = {
-      get: (name) => {
-        switch (name) {
-          case 'deviceType':
-            return 'Variscite'
-          case 'isFixedFocus':
-            return false
-          case 'disableAccessPointUpdate':
-            return true
-        }
-      },
-    }
-
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
         providers: [
           {
             provide: ConfigService,
-            useValue: mockConfigServiceWithDisabledAp,
+            useValue: createMockConfigService(),
           },
           { provide: MotionClientService, useClass: MockMotionClientService },
-          { provide: PropertiesService, useClass: MockPropertiesService },
           SettingsService,
         ],
       }).compile()
@@ -553,6 +525,7 @@ describe('SettingsService', () => {
     describe('with mocked SettingsFileProvider and AccessPointInteractor', () => {
       let spyReadSettingsFile: Mock
       let spyWriteSettingsFile: Mock
+      let spyGetAvailableTimeZones: Mock
       let spySetAccessPointNameOrPassword: Mock
       let spyGetAccessPointPassword: Mock
       let spyGetSystemTime: Mock
@@ -586,6 +559,9 @@ describe('SettingsService', () => {
         spyWriteSettingsFile = vi
           .spyOn(SettingsFileProvider, 'writeSettingsToFile')
           .mockResolvedValue()
+        spyGetAvailableTimeZones = vi
+          .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
+          .mockResolvedValue(['t1', 't2'])
         spySetAccessPointNameOrPassword = vi
           .spyOn(AccessPointInteractor, 'setAccessPointNameOrPassword')
           .mockResolvedValue()
@@ -620,6 +596,7 @@ describe('SettingsService', () => {
       afterAll(() => {
         spyReadSettingsFile.mockRestore()
         spyWriteSettingsFile.mockRestore()
+        spyGetAvailableTimeZones.mockRestore()
         spySetAccessPointNameOrPassword.mockRestore()
         spyGetAccessPointPassword.mockRestore()
         spyGetSystemTime.mockRestore()

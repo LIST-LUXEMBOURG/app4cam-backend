@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { UnknownMimeTypeException } from './exception/UnknownMimeTypeException'
+import { UnknownMimeTypeException } from './exception/UnknownMimeTypeException.js'
 
 export class MimeTypeDeterminer {
   static getContentType(fileExtension: string): string {

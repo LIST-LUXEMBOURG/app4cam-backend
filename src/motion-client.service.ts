@@ -20,7 +20,7 @@ import {
   IMotionClientService,
   MovieOutputValue,
   PictureOutputValue,
-} from './motion-client.service.interface'
+} from './motion-client.service.interface.js'
 
 const BASE_URL = 'http://127.0.0.1:8080/'
 const ACTION_URL = BASE_URL + '0/action/'

@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { StorageStatusDto } from './storage-status.dto'
-import { StorageUsageDto } from './storage-usage.dto'
+import { StorageStatusDto } from './storage-status.dto.js'
+import { StorageUsageDto } from './storage-usage.dto.js'
 
 export interface StorageDto {
   status: StorageStatusDto

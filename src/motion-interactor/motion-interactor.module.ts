@@ -16,10 +16,10 @@
  */
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { MotionClientService } from '../motion-client.service'
-import { SettingsModule } from '../settings/settings.module'
-import { StorageModule } from '../storage/storage.module'
-import { MotionInteractorService } from './motion-interactor.service'
+import { MotionClientService } from '../motion-client.service.js'
+import { SettingsModule } from '../settings/settings.module.js'
+import { StorageModule } from '../storage/storage.module.js'
+import { MotionInteractorService } from './motion-interactor.service.js'
 
 @Module({
   providers: [MotionClientService, MotionInteractorService],

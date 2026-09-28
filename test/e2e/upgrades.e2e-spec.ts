@@ -43,6 +43,8 @@ describe('FilesController (e2e)', () => {
     })
       .overrideProvider(UpgradesService)
       .useClass(MockUpgradesService)
+      .overrideProvider('SCHEDULE_MODULE_OPTIONS')
+      .useValue({ cronJobs: false, intervals: false, timeouts: false })
       .compile()
 
     app = moduleFixture.createNestApplication()
@@ -70,7 +72,7 @@ describe('FilesController (e2e)', () => {
     })
   })
 
-  afterEach(() => {
-    app.close()
+  afterEach(async () => {
+    await app.close()
   })
 })

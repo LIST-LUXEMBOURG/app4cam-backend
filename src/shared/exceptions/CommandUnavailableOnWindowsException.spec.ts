@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { CommandUnavailableOnWindowsException } from './CommandUnavailableOnWindowsException'
+import { CommandUnavailableOnWindowsException } from './CommandUnavailableOnWindowsException.js'
 
 describe(CommandUnavailableOnWindowsException.name, () => {
   it(`should be an instance of '${CommandUnavailableOnWindowsException.name}'`, () => {

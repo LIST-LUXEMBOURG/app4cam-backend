@@ -17,14 +17,13 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
-import { MotionClientService } from '../motion-client.service'
-import { IMotionClientService } from '../motion-client.service.interface'
-import { PropertiesService } from '../properties/properties.service'
-import { SettingsModule } from '../settings/settings.module'
-import { SettingsService } from '../settings/settings.service'
-import { StorageModule } from '../storage/storage.module'
-import { StorageService } from '../storage/storage.service'
-import { MotionInteractorService } from './motion-interactor.service'
+import { createMockConfigService } from '../../test/unit/config-service.mock.js'
+import { IMotionClientService } from '../motion-client.service.interface.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { PropertiesService } from '../properties/properties.service.js'
+import { SettingsService } from '../settings/settings.service.js'
+import { StorageService } from '../storage/storage.service.js'
+import { MotionInteractorService } from './motion-interactor.service.js'
 
 describe(MotionInteractorService.name, () => {
   const spyIsDetectionStatusActive = vi.fn()
@@ -42,14 +41,13 @@ describe(MotionInteractorService.name, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ConfigService,
+        { provide: ConfigService, useValue: createMockConfigService() },
         { provide: MotionClientService, useClass: MockMotionClientService },
         MotionInteractorService,
         PropertiesService,
         SettingsService,
         StorageService,
       ],
-      imports: [SettingsModule, StorageModule],
     }).compile()
 
     service = module.get<MotionInteractorService>(MotionInteractorService)

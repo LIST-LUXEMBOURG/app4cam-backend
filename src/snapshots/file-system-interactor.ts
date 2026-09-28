@@ -16,6 +16,7 @@
  */
 import { lstat, readdir } from 'fs/promises'
 import path from 'path'
+import { NoFileFoundException } from './exceptions/NoFileFoundException.js'
 
 export class FileSystemInteractor {
   static async getNameOfMostRecentlyModifiedFile(
@@ -31,7 +32,7 @@ export class FileSystemInteractor {
       }
     })
     const elementsWithStats = await Promise.all(elementPromises)
-    return elementsWithStats
+    const filename = elementsWithStats
       .filter((element) => element.stats.isFile())
       .sort((a, b) => {
         return b.stats.mtime.getTime() - a.stats.mtime.getTime()
@@ -40,5 +41,9 @@ export class FileSystemInteractor {
         return file.name
       })
       .at(0)
+    if (filename === undefined) {
+      throw new NoFileFoundException()
+    }
+    return filename
   }
 }

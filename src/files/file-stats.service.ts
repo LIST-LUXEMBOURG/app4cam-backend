@@ -15,12 +15,12 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Injectable } from '@nestjs/common'
-import { SettingsService } from '../settings/settings.service'
-import { File } from './entities/file.entity'
-import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity'
-import { FileHandler } from './file-handler'
-import { IFileStatsService } from './file-stats.service.interface'
-import { FilesService } from './files.service'
+import { SettingsService } from '../settings/settings.service.js'
+import { File } from './entities/file.entity.js'
+import { HoursOfDayCounts } from './entities/hours-of-day-counts.entity.js'
+import { FileHandler } from './file-handler.js'
+import { IFileStatsService } from './file-stats.service.interface.js'
+import { FilesService } from './files.service.js'
 
 @Injectable()
 export class FileStatsService implements IFileStatsService {

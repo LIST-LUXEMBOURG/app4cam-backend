@@ -29,9 +29,10 @@ import {
   Matches,
   Max,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator'
-import { LightType } from '../entities/settings'
+import type { LightType } from '../entities/settings.js'
 
 type ShotType = 'pictures' | 'videos'
 
@@ -85,21 +86,24 @@ class GeneralSettingsPatchDto {
   isAlternatingLightModeEnabled?: boolean
 
   @IsOptional()
+  @ValidateIf((o) => o.latitude !== null)
   @IsNumber()
   @Min(-90)
   @Max(90)
-  latitude?: number
+  latitude?: number | null
 
   @IsOptional()
+  @ValidateIf((o) => o.locationAccuracy !== null)
   @IsNumber()
   @Min(0)
-  locationAccuracy?: number
+  locationAccuracy?: number | null
 
   @IsOptional()
+  @ValidateIf((o) => o.longitude !== null)
   @IsNumber()
   @Min(-180)
   @Max(180)
-  longitude?: number
+  longitude?: number | null
 
   @IsOptional()
   @Matches(/^[ -~]{8,63}$/)

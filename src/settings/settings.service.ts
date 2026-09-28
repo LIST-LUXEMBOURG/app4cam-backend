@@ -14,43 +14,42 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
+import { AxiosError } from 'axios'
 import { DateTime } from 'luxon'
-import { FileNamer } from '../files/file-namer'
-import { InitialisationInteractor } from '../initialisation-interactor'
-import { MotionClientService } from '../motion-client.service'
-import { PropertiesService } from '../properties/properties.service'
-import TriggeringTime from '../shared/entities/triggering-time'
-import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
-import CoordinatesDto from './dto/coordinates.dto'
-import { SettingsPutDto, TriggeringTimeDto } from './dto/settings.dto'
+import { FileNamer } from '../files/file-namer.js'
+import { InitialisationInteractor } from '../initialisation-interactor.js'
+import { MotionClientService } from '../motion-client.service.js'
+import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
+import TriggeringTime from '../shared/entities/triggering-time.js'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
+import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
+import { SunriseSunsetCalculator } from '../shared/sunrise-sunset-calculator.js'
+import CoordinatesDto from './dto/coordinates.dto.js'
+import { SettingsPutDto, TriggeringTimeDto } from './dto/settings.dto.js'
 import {
   LightType,
   PatchableSettings,
   Settings,
   SettingsFromJsonFile,
-} from './entities/settings'
-import { ShotTypes } from './entities/shot-types'
-import { UndefinedPathException } from './exceptions/UndefinedPathException'
-import { AccessPointInteractor } from './interactors/access-point-interactor'
-import { AlternatingLightModeInteractor } from './interactors/alternating-light-mode-interacting'
-import { SleepInteractor } from './interactors/sleep-interactor'
-import { SystemTimeInteractor } from './interactors/system-time-interactor'
-import { TemperatureInteractor } from './interactors/temperature-interactor'
-import { VideoDeviceInteractor } from './interactors/video-device-interactor'
-import { MotionTextAssembler } from './motion-text-assembler'
-import { MotionVideoParametersWorker } from './motion-video-parameters-worker'
-import { SettingsFileProvider } from './settings-file-provider'
-import { ISettingsService } from './settings.service.interface'
-import { TriggeringTimeHelper } from './triggering-time-helper'
+} from './entities/settings.js'
+import { ShotTypes } from './entities/shot-types.js'
+import { CoordinatesNotSetException } from './exceptions/CoordinatesNotSetException.js'
+import { TemperatureThresholdNotSet } from './exceptions/TemperatureThresholdNotSetException.js'
+import { UndefinedPathException } from './exceptions/UndefinedPathException.js'
+import { AccessPointInteractor } from './interactors/access-point-interactor.js'
+import { AlternatingLightModeInteractor } from './interactors/alternating-light-mode-interacting.js'
+import { SleepInteractor } from './interactors/sleep-interactor.js'
+import { SystemTimeInteractor } from './interactors/system-time-interactor.js'
+import { TemperatureInteractor } from './interactors/temperature-interactor.js'
+import { VideoDeviceInteractor } from './interactors/video-device-interactor.js'
+import { MotionTextAssembler } from './motion-text-assembler.js'
+import { MotionVideoParametersWorker } from './motion-video-parameters-worker.js'
+import { SettingsFileProvider } from './settings-file-provider.js'
+import { ISettingsService } from './settings.service.interface.js'
+import { TriggeringTimeHelper } from './triggering-time-helper.js'
 
 const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
 const MOTION_VIDEO_PARAMS_FOCUS_KEY = 'Focus (absolute)'
@@ -68,11 +67,9 @@ export class SettingsService implements ISettingsService {
   constructor(
     private readonly configService: ConfigService,
     private readonly motionClientService: MotionClientService,
-    @Inject(forwardRef(() => PropertiesService))
-    private readonly propertiesService: PropertiesService,
   ) {
-    this.deviceType = this.configService.get<string>('deviceType')
-    this.isFixedFocus = this.configService.get<boolean>('isFixedFocus')
+    this.deviceType = this.configService.getOrThrow<string>('deviceType')
+    this.isFixedFocus = this.configService.getOrThrow<boolean>('isFixedFocus')
   }
 
   async getAllSettings(): Promise<Settings> {
@@ -97,10 +94,10 @@ export class SettingsService implements ISettingsService {
     try {
       if (!this.isFixedFocus) {
         const focusValues = await this.getFocusFromDriver()
-        focusMaximum = focusValues.max
-        focusMinimum = focusValues.min
+        focusMaximum = focusValues.max ?? Number.MAX_SAFE_INTEGER
+        focusMinimum = focusValues.min ?? Number.MIN_SAFE_INTEGER
         if (isRaspberryPi) {
-          focus = focusValues.value
+          focus = focusValues.value ?? 0
         } else {
           focus = await this.getFocusFromMotionAdaptedToCameraLight(
             settingsFromFile.camera.light,
@@ -118,10 +115,14 @@ export class SettingsService implements ISettingsService {
       const width = await this.motionClientService.getWidth()
       thresholdMaximum = height * width
     } catch (error) {
-      if (error.config && error.config.url) {
-        this.logger.error(`Could not connect to ${error.config.url}`)
-      }
-      if (error.code !== 'ECONNREFUSED') {
+      if (error instanceof AxiosError) {
+        if (error.config && error.config.url) {
+          this.logger.error(`Could not connect to ${error.config.url}`)
+        }
+        if (error.code !== 'ECONNREFUSED') {
+          throw error
+        }
+      } else {
         throw error
       }
     }
@@ -141,22 +142,22 @@ export class SettingsService implements ISettingsService {
         videoQuality,
       },
       general: {
-        deviceName: undefined,
-        isAlternatingLightModeEnabled: undefined,
-        latitude: undefined,
-        locationAccuracy: undefined,
-        longitude: undefined,
-        siteName: undefined,
+        deviceName: '',
+        isAlternatingLightModeEnabled: false,
+        latitude: null,
+        locationAccuracy: null,
+        longitude: null,
+        siteName: '',
         ...settingsFromFile.general,
         password,
         systemTime,
         timeZone,
       },
       triggering: {
-        sleepingTime: undefined,
-        temperatureThreshold: undefined,
-        useSunriseAndSunsetTimes: undefined,
-        wakingUpTime: undefined,
+        sleepingTime: null,
+        temperatureThreshold: null,
+        useSunriseAndSunsetTimes: false,
+        wakingUpTime: null,
         ...settingsFromFile.triggering,
         isLightEnabled: !isRaspberryPi,
         isTemperatureThresholdEnabled: isRaspberryPi,
@@ -171,7 +172,9 @@ export class SettingsService implements ISettingsService {
   ): Promise<PatchableSettings> {
     if (
       'camera' in settings &&
+      settings.camera !== undefined &&
       'triggering' in settings &&
+      settings.triggering !== undefined &&
       'light' in settings.camera &&
       'light' in settings.triggering &&
       settings.camera.light === 'infrared' &&
@@ -182,9 +185,13 @@ export class SettingsService implements ISettingsService {
       )
     }
 
-    if ('general' in settings && 'timeZone' in settings.general) {
-      const supportedTimeZones =
-        await this.propertiesService.getAvailableTimeZones()
+    if (
+      'general' in settings &&
+      settings.general !== undefined &&
+      'timeZone' in settings.general &&
+      settings.general.timeZone !== undefined
+    ) {
+      const supportedTimeZones = await this.getAvailableTimeZones()
       if (!supportedTimeZones.includes(settings.general.timeZone)) {
         throw new BadRequestException(
           `The time zone '${settings.general.timeZone}' is not supported.`,
@@ -195,7 +202,7 @@ export class SettingsService implements ISettingsService {
     const settingsReadFromFile =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
 
-    if ('triggering' in settings) {
+    if ('triggering' in settings && settings.triggering !== undefined) {
       if (
         ('sleepingTime' in settings.triggering &&
           'wakingUpTime' in settings.triggering &&
@@ -272,7 +279,10 @@ export class SettingsService implements ISettingsService {
         )
       }
 
-      if ('threshold' in settings.triggering) {
+      if (
+        'threshold' in settings.triggering &&
+        settings.triggering.threshold !== undefined
+      ) {
         const height = await this.motionClientService.getHeight()
         const width = await this.motionClientService.getWidth()
         if (settings.triggering.threshold > height * width) {
@@ -286,12 +296,14 @@ export class SettingsService implements ISettingsService {
     let isAtLeastOneJsonSettingUpdated = false
 
     const cameraSettingsMerged = settingsReadFromFile.camera
-    if ('camera' in settings) {
-      if ('focus' in settings.camera) {
+    if ('camera' in settings && settings.camera !== undefined) {
+      if ('focus' in settings.camera && settings.camera.focus !== undefined) {
         const focusValues = await this.getFocusFromDriver()
         if (
-          settings.camera.focus < focusValues.min ||
-          settings.camera.focus > focusValues.max
+          (focusValues.min !== undefined &&
+            settings.camera.focus < focusValues.min) ||
+          (focusValues.max !== undefined &&
+            settings.camera.focus > focusValues.max)
         ) {
           throw new BadRequestException(
             `The focus value must be in the range ${focusValues.min} to ${focusValues.max}.`,
@@ -303,10 +315,10 @@ export class SettingsService implements ISettingsService {
         'light' in settings.camera &&
         settings.camera.light != settingsReadFromFile.camera.light
       ) {
-        cameraSettingsMerged.light = settings.camera.light
+        cameraSettingsMerged.light = settings.camera.light!
         isAtLeastOneJsonSettingUpdated = true
       }
-      if ('focus' in settings.camera) {
+      if ('focus' in settings.camera && settings.camera.focus !== undefined) {
         if (this.deviceType === 'RaspberryPi') {
           await this.setFocusInDriver(settings.camera.focus)
         } else {
@@ -317,18 +329,27 @@ export class SettingsService implements ISettingsService {
         }
       }
 
-      if ('pictureQuality' in settings.camera) {
+      if (
+        'pictureQuality' in settings.camera &&
+        settings.camera.pictureQuality !== undefined
+      ) {
         await this.motionClientService.setPictureQuality(
           settings.camera.pictureQuality,
         )
       }
-      if ('videoQuality' in settings.camera) {
+      if (
+        'videoQuality' in settings.camera &&
+        settings.camera.videoQuality !== undefined
+      ) {
         await this.motionClientService.setMovieQuality(
           settings.camera.videoQuality,
         )
       }
 
-      if ('shotTypes' in settings.camera) {
+      if (
+        'shotTypes' in settings.camera &&
+        settings.camera.shotTypes !== undefined
+      ) {
         try {
           if (settings.camera.shotTypes.includes('pictures')) {
             await this.motionClientService.setPictureOutput('best')
@@ -341,10 +362,14 @@ export class SettingsService implements ISettingsService {
             await this.motionClientService.setMovieOutput('off')
           }
         } catch (error) {
-          if (error.config && error.config.url) {
-            this.logger.error(`Could not connect to ${error.config.url}`)
-          }
-          if (error.code !== 'ECONNREFUSED') {
+          if (error instanceof AxiosError) {
+            if (error.config && error.config.url) {
+              this.logger.error(`Could not connect to ${error.config.url}`)
+            }
+            if (error.code !== 'ECONNREFUSED') {
+              throw error
+            }
+          } else {
             throw error
           }
         }
@@ -352,12 +377,18 @@ export class SettingsService implements ISettingsService {
     }
 
     let generalSettingsMerged = settingsReadFromFile.general
-    if ('general' in settings) {
-      if ('systemTime' in settings.general) {
+    if ('general' in settings && settings.general !== undefined) {
+      if (
+        'systemTime' in settings.general &&
+        settings.general.systemTime !== undefined
+      ) {
         await this.setSystemTime(settings.general.systemTime)
       }
 
-      if ('timeZone' in settings.general) {
+      if (
+        'timeZone' in settings.general &&
+        settings.general.timeZone !== undefined
+      ) {
         await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
       }
 
@@ -431,7 +462,7 @@ export class SettingsService implements ISettingsService {
     }
 
     let triggeringSettingsMerged = settingsReadFromFile.triggering
-    if ('triggering' in settings) {
+    if ('triggering' in settings && settings.triggering !== undefined) {
       const newTriggeringSettings: Partial<SettingsFromJsonFile['triggering']> =
         {}
 
@@ -469,23 +500,30 @@ export class SettingsService implements ISettingsService {
 
       if (this.deviceType === 'RaspberryPi') {
         this.configureWittyPiSchedule(
-          triggeringSettingsMerged.sleepingTime,
-          triggeringSettingsMerged.wakingUpTime,
+          triggeringSettingsMerged.sleepingTime ?? null,
+          triggeringSettingsMerged.wakingUpTime ?? null,
         )
       }
 
       this.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
 
-      if ('threshold' in settings.triggering) {
+      if (
+        'threshold' in settings.triggering &&
+        settings.triggering.threshold !== undefined
+      ) {
         try {
           await this.motionClientService.setThreshold(
             settings.triggering.threshold,
           )
         } catch (error) {
-          if (error.config && error.config.url) {
-            this.logger.error(`Could not connect to ${error.config.url}`)
-          }
-          if (error.code !== 'ECONNREFUSED') {
+          if (error instanceof AxiosError) {
+            if (error.config && error.config.url) {
+              this.logger.error(`Could not connect to ${error.config.url}`)
+            }
+            if (error.code !== 'ECONNREFUSED') {
+              throw error
+            }
+          } else {
             throw error
           }
         }
@@ -507,27 +545,36 @@ export class SettingsService implements ISettingsService {
 
     if (
       ('general' in settings &&
+        settings.general !== undefined &&
         'isAlternatingLightModeEnabled' in settings.general &&
         settings.general.isAlternatingLightModeEnabled !=
           settingsReadFromFile.general.isAlternatingLightModeEnabled) ||
       ('triggering' in settings &&
+        settings.triggering !== undefined &&
         'light' in settings.triggering &&
         settings.triggering.light != settingsReadFromFile.triggering.light)
     ) {
-      const deviceType = this.configService.get<string>('deviceType')
+      const deviceType = this.configService.getOrThrow<string>('deviceType')
       let isAlternatingLightModeEnabled: boolean
       if (
         'general' in settings &&
-        'isAlternatingLightModeEnabled' in settings.general
+        settings.general !== undefined &&
+        'isAlternatingLightModeEnabled' in settings.general &&
+        settings.general.isAlternatingLightModeEnabled !== undefined
       ) {
         isAlternatingLightModeEnabled =
           settings.general.isAlternatingLightModeEnabled
       } else {
         isAlternatingLightModeEnabled =
-          settingsReadFromFile.general.isAlternatingLightModeEnabled
+          settingsReadFromFile.general.isAlternatingLightModeEnabled ?? false
       }
       let lightType: LightType
-      if ('triggering' in settings && 'light' in settings.triggering) {
+      if (
+        'triggering' in settings &&
+        settings.triggering !== undefined &&
+        'light' in settings.triggering &&
+        settings.triggering.light !== undefined
+      ) {
         lightType = settings.triggering.light
       } else {
         lightType = settingsReadFromFile.triggering.light
@@ -558,8 +605,7 @@ export class SettingsService implements ISettingsService {
       )
     }
 
-    const supportedTimeZones =
-      await this.propertiesService.getAvailableTimeZones()
+    const supportedTimeZones = await this.getAvailableTimeZones()
     if (!supportedTimeZones.includes(settings.general.timeZone)) {
       throw new BadRequestException(
         `The time zone '${settings.general.timeZone}' is not supported.`,
@@ -600,8 +646,10 @@ export class SettingsService implements ISettingsService {
     if ('camera' in settings && 'focus' in settings.camera) {
       const focusValues = await this.getFocusFromDriver()
       if (
-        settings.camera.focus < focusValues.min ||
-        settings.camera.focus > focusValues.max
+        (focusValues.min !== undefined &&
+          settings.camera.focus < focusValues.min) ||
+        (focusValues.max !== undefined &&
+          settings.camera.focus > focusValues.max)
       ) {
         throw new BadRequestException(
           `The focus value must be in the range ${focusValues.min} to ${focusValues.max}.`,
@@ -626,10 +674,14 @@ export class SettingsService implements ISettingsService {
           await this.motionClientService.setMovieOutput('off')
         }
       } catch (error) {
-        if (error.config && error.config.url) {
-          this.logger.error(`Could not connect to ${error.config.url}`)
-        }
-        if (error.code !== 'ECONNREFUSED') {
+        if (error instanceof AxiosError) {
+          if (error.config && error.config.url) {
+            this.logger.error(`Could not connect to ${error.config.url}`)
+          }
+          if (error.code !== 'ECONNREFUSED') {
+            throw error
+          }
+        } else {
           throw error
         }
       }
@@ -655,10 +707,14 @@ export class SettingsService implements ISettingsService {
       )
       await this.motionClientService.setThreshold(settings.triggering.threshold)
     } catch (error) {
-      if (error.config && error.config.url) {
-        this.logger.error(`Could not connect to ${error.config.url}`)
-      }
-      if (error.code !== 'ECONNREFUSED') {
+      if (error instanceof AxiosError) {
+        if (error.config && error.config.url) {
+          this.logger.error(`Could not connect to ${error.config.url}`)
+        }
+        if (error.code !== 'ECONNREFUSED') {
+          throw error
+        }
+      } else {
         throw error
       }
     }
@@ -726,7 +782,7 @@ export class SettingsService implements ISettingsService {
         settings.general.isAlternatingLightModeEnabled ||
       currentSettings.triggering.light != settings.triggering.light
     ) {
-      const deviceType = this.configService.get<string>('deviceType')
+      const deviceType = this.configService.getOrThrow<string>('deviceType')
       try {
         await InitialisationInteractor.resetLights(
           deviceType,
@@ -762,15 +818,15 @@ export class SettingsService implements ISettingsService {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
     return {
-      accuracy: settings.general.locationAccuracy,
-      latitude: settings.general.latitude,
-      longitude: settings.general.longitude,
+      accuracy: settings.general.locationAccuracy ?? null,
+      latitude: settings.general.latitude ?? null,
+      longitude: settings.general.longitude ?? null,
     }
   }
 
   private async configureWittyPiSchedule(
-    sleepingTime: TriggeringTimeDto,
-    wakingUpTime: TriggeringTimeDto,
+    sleepingTime: TriggeringTimeDto | null,
+    wakingUpTime: TriggeringTimeDto | null,
   ): Promise<void> {
     try {
       await SleepInteractor.configureWittyPiSchedule(sleepingTime, wakingUpTime)
@@ -892,7 +948,7 @@ export class SettingsService implements ISettingsService {
   async getSiteName(): Promise<string> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
-    return settings.general.siteName
+    return settings.general.siteName ?? ''
   }
 
   async setSiteName(siteName: string): Promise<void> {
@@ -917,7 +973,7 @@ export class SettingsService implements ISettingsService {
   async getDeviceName(): Promise<string> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
-    return settings.general.deviceName
+    return settings.general.deviceName ?? ''
   }
 
   async setDeviceName(deviceName: string): Promise<void> {
@@ -944,10 +1000,10 @@ export class SettingsService implements ISettingsService {
   }
 
   async setAccessPointNameOrPassword(
-    name: string,
-    password: string = undefined,
+    name: string | undefined,
+    password: string | undefined = undefined,
   ): Promise<void> {
-    const isAccessPointUpdateDisabled = this.configService.get<boolean>(
+    const isAccessPointUpdateDisabled = this.configService.getOrThrow<boolean>(
       'disableAccessPointUpdate',
     )
     if (isAccessPointUpdateDisabled) {
@@ -1006,9 +1062,27 @@ export class SettingsService implements ISettingsService {
     }
   }
 
+  private async getAvailableTimeZones(): Promise<string[]> {
+    try {
+      return await SystemTimeZonesInteractor.getAvailableTimeZones()
+    } catch (error) {
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return []
+      }
+      throw error
+    }
+  }
+
+  private async getNextSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
+    const { latitude, longitude } = await this.getLatitudeAndLongitude()
+    return SunriseSunsetCalculator.calculateNextSunsetAndSunrise(
+      latitude,
+      longitude,
+    )
+  }
+
   async setTimeZone(timeZone: string): Promise<void> {
-    const supportedTimeZones =
-      await this.propertiesService.getAvailableTimeZones()
+    const supportedTimeZones = await this.getAvailableTimeZones()
     if (!supportedTimeZones.includes(timeZone)) {
       throw new BadRequestException(
         `The time zone '${timeZone}' is not supported.`,
@@ -1036,7 +1110,7 @@ export class SettingsService implements ISettingsService {
     return shotsFolder
   }
 
-  async setShotsFolder(path: string): Promise<void> {
+  async setShotsFolder(path?: string): Promise<void> {
     if (!path) {
       this.logger.warn('The path to set as shots folder is not defined.')
       throw new UndefinedPathException()
@@ -1056,16 +1130,16 @@ export class SettingsService implements ISettingsService {
     return settings.triggering.light
   }
 
-  async getSleepingTime(): Promise<TriggeringTime> {
+  async getSleepingTime(): Promise<TriggeringTime | null> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
-    return settings.triggering.sleepingTime
+    return settings.triggering.sleepingTime ?? null
   }
 
-  async getWakingUpTime(): Promise<TriggeringTime> {
+  async getWakingUpTime(): Promise<TriggeringTime | null> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
-    return settings.triggering.wakingUpTime
+    return settings.triggering.wakingUpTime ?? null
   }
 
   async isTemperatureBelowThreshold(): Promise<boolean> {
@@ -1074,6 +1148,9 @@ export class SettingsService implements ISettingsService {
     const threshold = settings.triggering.temperatureThreshold
     const currentTemperature =
       await TemperatureInteractor.getCurrentTemperature()
+    if (threshold == null) {
+      throw new TemperatureThresholdNotSet()
+    }
     return currentTemperature < threshold
   }
 
@@ -1083,6 +1160,9 @@ export class SettingsService implements ISettingsService {
   }> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
+    if (!settings.general.latitude || !settings.general.longitude) {
+      throw new CoordinatesNotSetException()
+    }
     return {
       latitude: settings.general.latitude,
       longitude: settings.general.longitude,
@@ -1101,7 +1181,7 @@ export class SettingsService implements ISettingsService {
   async getUseSunriseAndSunsetTimes(): Promise<boolean> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
-    return settings.triggering.useSunriseAndSunsetTimes
+    return settings.triggering.useSunriseAndSunsetTimes ?? false
   }
 
   async setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi() {
@@ -1110,21 +1190,31 @@ export class SettingsService implements ISettingsService {
     }
     const useSunriseAndSunsetTimes = await this.getUseSunriseAndSunsetTimes()
     if (useSunriseAndSunsetTimes) {
-      const sunsetAndSunrise =
-        await this.propertiesService.getNextSunsetAndSunrise()
-      const sunriseString = sunsetAndSunrise.sunrise.hour
-        .toString()
-        .padStart(2, '0')
-      const sunsetString = sunsetAndSunrise.sunset.hour
-        .toString()
-        .padStart(2, '0')
-      this.logger.log(
-        `Sending sunrise ${sunriseString} and sunset ${sunsetString} to Witty Pi...`,
-      )
-      await this.configureWittyPiSchedule(
-        sunsetAndSunrise.sunset,
-        sunsetAndSunrise.sunrise,
-      )
+      try {
+        const sunsetAndSunrise = await this.getNextSunsetAndSunrise()
+        const sunriseString = sunsetAndSunrise.sunrise.hour
+          .toString()
+          .padStart(2, '0')
+        const sunsetString = sunsetAndSunrise.sunset.hour
+          .toString()
+          .padStart(2, '0')
+        this.logger.log(
+          `Sending sunrise ${sunriseString} and sunset ${sunsetString} to Witty Pi...`,
+        )
+        await this.configureWittyPiSchedule(
+          sunsetAndSunrise.sunset,
+          sunsetAndSunrise.sunrise,
+        )
+      } catch (error) {
+        if (error instanceof CoordinatesNotSetException) {
+          this.logger.log(
+            'Coordinates not set. Skipping Witty Pi configuration.',
+          )
+          return
+        } else {
+          throw error
+        }
+      }
     }
   }
 
@@ -1137,13 +1227,21 @@ export class SettingsService implements ISettingsService {
     }
 
     const useSunriseAndSunsetTimes = await this.getUseSunriseAndSunsetTimes()
-    let sleepingTime: TriggeringTime
-    let wakingUpTime: TriggeringTime
+    let sleepingTime: TriggeringTime | null
+    let wakingUpTime: TriggeringTime | null
     if (useSunriseAndSunsetTimes) {
-      const sunsetAndSunrise =
-        await this.propertiesService.getNextSunsetAndSunrise()
-      sleepingTime = sunsetAndSunrise.sunset
-      wakingUpTime = sunsetAndSunrise.sunrise
+      try {
+        const sunsetAndSunrise = await this.getNextSunsetAndSunrise()
+        sleepingTime = sunsetAndSunrise.sunset
+        wakingUpTime = sunsetAndSunrise.sunrise
+      } catch (error) {
+        if (error instanceof CoordinatesNotSetException) {
+          this.logger.log('Coordinates not set. Exiting cron job.')
+          return
+        } else {
+          throw error
+        }
+      }
       this.logger.log(`Using next sunset and sunrise times.`)
     } else {
       sleepingTime = await this.getSleepingTime()
@@ -1203,7 +1301,7 @@ export class SettingsService implements ISettingsService {
   async doAlternatingLightModeChange() {
     this.logger.log('Cron job to do alternating light mode change triggered...')
     const isAlternatingLightModeEnabled =
-      this.getIsAlternatingLightModeEnabled()
+      await this.getIsAlternatingLightModeEnabled()
     if (isAlternatingLightModeEnabled) {
       this.logger.log('Alternating light mode is enabled. Doing the change...')
       try {

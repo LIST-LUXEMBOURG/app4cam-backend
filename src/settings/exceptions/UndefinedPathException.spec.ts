@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { UndefinedPathException } from './UndefinedPathException'
+import { UndefinedPathException } from './UndefinedPathException.js'
 
 describe(UndefinedPathException.name, () => {
   it(`should be an instance of '${UndefinedPathException.name}'`, () => {

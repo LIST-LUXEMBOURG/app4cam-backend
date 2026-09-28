@@ -16,10 +16,10 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
-import { VersionDto } from './dto/version.dto'
-import { PropertiesController } from './properties.controller'
-import { PropertiesService } from './properties.service'
+import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
+import { VersionDto } from './dto/version.dto.js'
+import { PropertiesController } from './properties.controller.js'
+import { PropertiesService } from './properties.service.js'
 
 const AVAILABLE_TIME_ZONES = ['a', 'b']
 

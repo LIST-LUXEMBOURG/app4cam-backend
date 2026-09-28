@@ -15,8 +15,8 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { ReadStream } from 'fs'
-import { File } from './entities/file.entity'
-import { FileHandler } from './file-handler'
+import { File } from './entities/file.entity.js'
+import { FileHandler } from './file-handler.js'
 
 const FIXTURE_FOLDER_PATH = 'src/files/fixtures'
 

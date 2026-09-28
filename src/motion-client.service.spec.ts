@@ -15,8 +15,8 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Test, TestingModule } from '@nestjs/testing'
-import { server } from '../test/unit/motion-server-mocks/server'
-import { MotionClientService } from './motion-client.service'
+import { server } from '../test/unit/motion-server-mocks/server.js'
+import { MotionClientService } from './motion-client.service.js'
 
 describe(MotionClientService.name, () => {
   // Establish API mocking before all tests.

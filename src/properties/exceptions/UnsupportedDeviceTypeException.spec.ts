@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { UnsupportedDeviceTypeException } from './UnsupportedDeviceTypeException'
+import { UnsupportedDeviceTypeException } from './UnsupportedDeviceTypeException.js'
 
 describe(UnsupportedDeviceTypeException.name, () => {
   it(`should be an instance of '${UnsupportedDeviceTypeException.name}'`, () => {

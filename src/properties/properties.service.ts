@@ -15,21 +15,21 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { writeFile } from 'fs/promises'
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { MotionClientService } from '../motion-client.service'
-import { SettingsService } from '../settings/settings.service'
-import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
-import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto'
-import { VersionDto } from './dto/version.dto'
-import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException'
-import { BatteryInteractor } from './interactors/battery-interactor'
-import { LightTypeInteractor } from './interactors/light-type-interactor'
-import { MacAddressInteractor } from './interactors/mac-address-interactor'
-import { SystemTimeZonesInteractor } from './interactors/system-time-zones-interactor'
-import { VersionInteractor } from './interactors/version-interactor'
-import { IPropertiesService } from './properties.service.interface'
-import { SunriseSunsetCalculator } from './sunrise-sunset-calculator'
+import { MotionClientService } from '../motion-client.service.js'
+import { SettingsService } from '../settings/settings.service.js'
+import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
+import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
+import { SunriseSunsetCalculator } from '../shared/sunrise-sunset-calculator.js'
+import { VersionDto } from './dto/version.dto.js'
+import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException.js'
+import { BatteryInteractor } from './interactors/battery-interactor.js'
+import { LightTypeInteractor } from './interactors/light-type-interactor.js'
+import { MacAddressInteractor } from './interactors/mac-address-interactor.js'
+import { VersionInteractor } from './interactors/version-interactor.js'
+import { IPropertiesService } from './properties.service.interface.js'
 
 const DEVICE_ID_FILENAME = 'device-id.txt'
 
@@ -40,12 +40,11 @@ export class PropertiesService implements IPropertiesService {
   constructor(
     private readonly configService: ConfigService,
     private readonly motionClientService: MotionClientService,
-    @Inject(forwardRef(() => SettingsService))
     private readonly settingsService: SettingsService,
   ) {}
 
   async getBatteryVoltage(): Promise<number> {
-    const deviceType = this.configService.get<string>('deviceType')
+    const deviceType = this.configService.getOrThrow<string>('deviceType')
     try {
       const batteryVoltage =
         await BatteryInteractor.getBatteryVoltage(deviceType)
@@ -64,7 +63,7 @@ export class PropertiesService implements IPropertiesService {
       return timeZones
     } catch (error) {
       if (error instanceof CommandUnavailableOnWindowsException) {
-        return Promise.resolve([''])
+        return []
       }
       throw error
     }
@@ -83,7 +82,7 @@ export class PropertiesService implements IPropertiesService {
   }
 
   async getLightType(): Promise<string> {
-    const deviceType = this.configService.get<string>('deviceType')
+    const deviceType = this.configService.getOrThrow<string>('deviceType')
     try {
       const lightType = await LightTypeInteractor.getLightType(deviceType)
       return lightType
@@ -99,40 +98,30 @@ export class PropertiesService implements IPropertiesService {
   }
 
   async getNextSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
-    const coordinates = await this.settingsService.getLatitudeAndLongitude()
-    const today = new Date()
-    const todaysTwilights = SunriseSunsetCalculator.calculateSunriseAndSunset(
-      today,
-      coordinates.latitude,
-      coordinates.longitude,
+    const { latitude, longitude } =
+      await this.settingsService.getLatitudeAndLongitude()
+    return SunriseSunsetCalculator.calculateNextSunsetAndSunrise(
+      latitude,
+      longitude,
     )
-    const tomorrow = new Date()
-    tomorrow.setDate(today.getDate() + 1)
-    const tomorrowsTwilights =
-      SunriseSunsetCalculator.calculateSunriseAndSunset(
-        tomorrow,
-        coordinates.latitude,
-        coordinates.longitude,
-      )
-    return {
-      sunset: todaysTwilights.sunset,
-      sunrise: tomorrowsTwilights.sunrise,
-    }
   }
 
   async getVersion(): Promise<VersionDto> {
     return VersionInteractor.getVersion()
   }
 
-  async isCameraConnected(): Promise<boolean> {
+  async isCameraConnected(): Promise<boolean | null> {
     try {
       const status = await this.motionClientService.isCameraConnected()
       return status
     } catch (error) {
-      this.logger.error(
-        `The camera connection status could not be retrieved: ${error.name}: ${error.message}`,
-        error.stack,
-      )
+      let message = 'The camera connection status could not be retrieved:'
+      let stack = undefined
+      if (error instanceof Error) {
+        message += ` ${error.name}: ${error.message}`
+        stack = error.stack
+      }
+      this.logger.error(message, stack)
       return null
     }
   }

@@ -15,13 +15,13 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Injectable, Logger } from '@nestjs/common'
-import { MotionClientService } from '../motion-client.service'
-import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException'
-import { StorageStatusDto } from './dto/storage-status.dto'
-import { StorageUsageDto } from './dto/storage-usage.dto'
-import { FileSystemInteractor } from './interactors/file-system-interactor'
-import { StorageUsageInteractor } from './interactors/storage-usage-interactor'
-import { IStorageService } from './storage.service.interface'
+import { MotionClientService } from '../motion-client.service.js'
+import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
+import { StorageStatusDto } from './dto/storage-status.dto.js'
+import { StorageUsageDto } from './dto/storage-usage.dto.js'
+import { FileSystemInteractor } from './interactors/file-system-interactor.js'
+import { StorageUsageInteractor } from './interactors/storage-usage-interactor.js'
+import { IStorageService } from './storage.service.interface.js'
 
 const MOTION_PAUSE_DISK_SPACE_USAGE_THRESHOLD_PERCENTAGE = 95
 const STORAGE_MOUNT_PATH = '/media'
@@ -56,6 +56,8 @@ export class StorageService implements IStorageService {
     } catch (error) {
       Logger.error(error)
       if (
+        error instanceof Error &&
+        'code' in error &&
         error.code === 'ENOENT' &&
         devicePath.startsWith(STORAGE_MOUNT_PATH)
       ) {
@@ -76,7 +78,12 @@ export class StorageService implements IStorageService {
           )}`
         }
       } else {
-        message = `Accessing the path ${devicePath} resulted in the following error: ${error.message}`
+        message = `Accessing the path ${devicePath} resulted in the following error:`
+        if (error instanceof Error) {
+          message += ` ${error.message}`
+        } else {
+          message += ' unknown'
+        }
       }
       this.logger.error(message)
     }

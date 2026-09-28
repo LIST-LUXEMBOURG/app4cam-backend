@@ -19,13 +19,13 @@ import { ConfigService } from '@nestjs/config'
 import { HttpAdapterHost, NestFactory } from '@nestjs/core'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
-import { AllExceptionsFilter } from './all-exceptions.filter'
-import { AppModule } from './app.module'
-import { InitialisationInteractor } from './initialisation-interactor'
-import { PropertiesService } from './properties/properties.service'
-import { UndefinedPathException } from './settings/exceptions/UndefinedPathException'
-import { SettingsService } from './settings/settings.service'
-import { CommandUnavailableOnWindowsException } from './shared/exceptions/CommandUnavailableOnWindowsException'
+import { AllExceptionsFilter } from './all-exceptions.filter.js'
+import { AppModule } from './app.module.js'
+import { InitialisationInteractor } from './initialisation-interactor.js'
+import { PropertiesService } from './properties/properties.service.js'
+import { UndefinedPathException } from './settings/exceptions/UndefinedPathException.js'
+import { SettingsService } from './settings/settings.service.js'
+import { CommandUnavailableOnWindowsException } from './shared/exceptions/CommandUnavailableOnWindowsException.js'
 
 const PAYLOAD_LIMIT = '1mb'
 
@@ -54,7 +54,7 @@ async function bootstrap() {
   const settingsService = app.get(SettingsService)
 
   const configService = app.get(ConfigService)
-  const deviceType = configService.get<string>('deviceType')
+  const deviceType = configService.getOrThrow<string>('deviceType')
 
   if (process.platform === 'win32') {
     logger.warn(
