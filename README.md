@@ -362,19 +362,6 @@ To get a complete overview of the hardware available and it's configuartion plea
 - **RTC control** - Follow the local guide available here [RTC control](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/rtc/README.md).
 - **Hardware initialisation** - Follow the local guide available here [Hardware initialization](https://git.list.lu/host/mechatronics/app4cam-backend/-/blob/main/scripts/runtime/variscite/hardware-initialisation/README.md).
 
-#### - Setting log rotation
-
-Part of the app4cam log file was being lost during system reboots or shutdowns. This was identified as a result of excessively long log rotation intervals. To prevent this, the rotation period was reduced from 4 weeks to 2 weeks by editing the logrotate configuration file:
-
-`nano /etc/logrotate.conf`
-
-And set rotation to 2 weeks:
-
-```
-# keep 2 weeks worth of backlogs
-rotate 2
-```
-
 ### 10. Setting up the reverse proxy for the backend
 
 Execute the setup script with root permissions:

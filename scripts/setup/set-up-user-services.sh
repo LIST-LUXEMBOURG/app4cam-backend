@@ -26,6 +26,10 @@ EOF
 # shellcheck disable=SC2016
 sed -i -e '/^#\?\(\s*Storage\s*=\s*\).*/{s//\1persistent/;:a;n;ba;q}' -e '$aStorage=persistent' /etc/systemd/journald.conf
 
+# Flush in-memory journal data to disk every 5 s.
+# shellcheck disable=SC2016
+sed -i -e '/^#\?\(\s*SyncIntervalSec\s*=\s*\).*/{s//\15s/;:a;n;ba;q}' -e '$aSyncIntervalSec=5s' /etc/systemd/journald.conf
+
 # Restart journald service.
 systemctl restart systemd-journald
 
