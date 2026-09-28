@@ -97,7 +97,7 @@ export class StorageService implements IStorageService {
   async getStorageUsage(): Promise<StorageUsageDto> {
     const devicePath = await this.motionClientService.getTargetDir()
     try {
-      const usage = StorageUsageInteractor.getStorageUsage(devicePath)
+      const usage = await StorageUsageInteractor.getStorageUsage(devicePath)
       return usage
     } catch (error) {
       if (error instanceof CommandUnavailableOnWindowsException) {

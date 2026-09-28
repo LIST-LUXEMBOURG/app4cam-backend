@@ -126,7 +126,7 @@ export class FilesService implements IFilesService {
   async removeAllFiles(): Promise<void> {
     const fileFolderPath = await this.motionClientService.getTargetDir()
     try {
-      FileInteractor.removeAllFilesInDirectory(fileFolderPath)
+      await FileInteractor.removeAllFilesInDirectory(fileFolderPath)
     } catch (error) {
       if (!(error instanceof CommandUnavailableOnWindowsException)) {
         throw error
