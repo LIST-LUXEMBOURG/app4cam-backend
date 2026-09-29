@@ -137,6 +137,8 @@ class TriggeringSettingsPatchDto {
   threshold?: number
 
   @IsOptional()
+  @Type(() => TriggeringTimeDto)
+  @ValidateNested()
   sleepingTime?: TriggeringTimeDto | null
 
   @IsOptional()
@@ -144,6 +146,8 @@ class TriggeringSettingsPatchDto {
   useSunriseAndSunsetTimes?: boolean
 
   @IsOptional()
+  @Type(() => TriggeringTimeDto)
+  @ValidateNested()
   wakingUpTime?: TriggeringTimeDto | null
 }
 
@@ -248,34 +252,37 @@ export class TriggeringSettingsPutDto {
   @Min(1)
   threshold: number
 
-  @IsNotEmpty()
+  @IsObject()
+  @IsNotEmptyObject()
+  @Type(() => TriggeringTimeDto)
+  @ValidateNested()
   sleepingTime: TriggeringTimeDto
 
   @IsNotEmpty()
   @IsBoolean()
   useSunriseAndSunsetTimes: boolean
 
-  @IsNotEmpty()
+  @IsObject()
+  @IsNotEmptyObject()
+  @Type(() => TriggeringTimeDto)
+  @ValidateNested()
   wakingUpTime: TriggeringTimeDto
 }
 
 export class SettingsPutDto {
   @IsObject()
-  @IsNotEmpty()
   @IsNotEmptyObject()
   @Type(() => CameraSettingsPutDto)
   @ValidateNested()
   camera: CameraSettingsPutDto
 
   @IsObject()
-  @IsNotEmpty()
   @IsNotEmptyObject()
   @Type(() => GeneralSettingsPutDto)
   @ValidateNested()
   general: GeneralSettingsPutDto
 
   @IsObject()
-  @IsNotEmpty()
   @IsNotEmptyObject()
   @Type(() => TriggeringSettingsPutDto)
   @ValidateNested()
