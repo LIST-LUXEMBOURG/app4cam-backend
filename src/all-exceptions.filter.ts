@@ -19,11 +19,12 @@ import { BaseExceptionFilter } from '@nestjs/core'
 
 @Catch()
 export class AllExceptionsFilter extends BaseExceptionFilter {
+  private readonly logger = new Logger(AllExceptionsFilter.name)
+
   catch(exception: Error, host: ArgumentsHost) {
     super.catch(exception, host)
     if ('stack' in exception) {
-      const logger = new Logger(AllExceptionsFilter.name)
-      logger.error(exception.stack)
+      this.logger.error(exception.stack)
     }
   }
 }
