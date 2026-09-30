@@ -60,7 +60,7 @@ describe('LogFilesController (e2e)', () => {
       .get('/log-files/app')
       .expect(200)
       .expect('Content-Type', /text\/plain/)
-      .expect('Content-Disposition', `attachment; filename="app.log"`)
+      .expect('Content-Disposition', `attachment; filename*=UTF-8''app.log`)
       .responseType('blob')
   })
 
@@ -69,7 +69,7 @@ describe('LogFilesController (e2e)', () => {
       .get('/log-files/motion')
       .expect(200)
       .expect('Content-Type', /text\/plain/)
-      .expect('Content-Disposition', `attachment; filename="motion.log"`)
+      .expect('Content-Disposition', `attachment; filename*=UTF-8''motion.log`)
       .responseType('blob')
   })
 

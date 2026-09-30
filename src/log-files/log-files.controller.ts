@@ -16,6 +16,7 @@
  */
 import { Controller, Get, Res, StreamableFile } from '@nestjs/common'
 import type { Response } from 'express'
+import { buildAttachmentContentDisposition } from '../shared/content-disposition.js'
 import { LogFilesService } from './log-files.service.js'
 
 const APP_LOG_FILENAME = 'app.log'
@@ -31,7 +32,8 @@ export class LogFilesController {
     const stream = await this.logFilesService.getAppLogFileStream()
     res.set({
       'Content-Type': LOG_FILE_CONTENT_TYPE,
-      'Content-Disposition': `attachment; filename="${APP_LOG_FILENAME}"`,
+      'Content-Disposition':
+        buildAttachmentContentDisposition(APP_LOG_FILENAME),
     })
     return new StreamableFile(stream)
   }
@@ -41,7 +43,8 @@ export class LogFilesController {
     const stream = await this.logFilesService.getMotionLogFileStream()
     res.set({
       'Content-Type': LOG_FILE_CONTENT_TYPE,
-      'Content-Disposition': `attachment; filename="${MOTION_LOG_FILENAME}"`,
+      'Content-Disposition':
+        buildAttachmentContentDisposition(MOTION_LOG_FILENAME),
     })
     return new StreamableFile(stream)
   }

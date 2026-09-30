@@ -52,7 +52,7 @@ describe('SnapshotsController (e2e)', () => {
       .expect('Content-Type', 'image/jpeg')
       .expect(
         'Content-Disposition',
-        'attachment; filename="latest_snapshot.jpg"',
+        "attachment; filename*=UTF-8''latest_snapshot.jpg",
       )
       .responseType('blob')
   })

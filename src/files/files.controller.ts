@@ -27,6 +27,7 @@ import {
   StreamableFile,
 } from '@nestjs/common'
 import type { Response } from 'express'
+import { buildAttachmentContentDisposition } from '../shared/content-disposition.js'
 import { FilesDto } from './dto/files.dto.js'
 import { FileDeletionResponse } from './entities/file-deletion-response.entity.js'
 import { File } from './entities/file.entity.js'
@@ -56,7 +57,9 @@ export class FilesController {
     }
     res.set({
       'Content-Type': archive.contentType,
-      'Content-Disposition': 'attachment; filename="' + archive.filename + '"',
+      'Content-Disposition': buildAttachmentContentDisposition(
+        archive.filename,
+      ),
     })
     return new StreamableFile(archive.stream)
   }
@@ -79,7 +82,7 @@ export class FilesController {
     const file = await this.filesService.getStreamableFile(filename)
     res.set({
       'Content-Type': file.contentType,
-      'Content-Disposition': 'attachment; filename="' + filename + '"',
+      'Content-Disposition': buildAttachmentContentDisposition(filename),
     })
     return new StreamableFile(file.stream)
   }

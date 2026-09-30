@@ -16,6 +16,7 @@
  */
 import { Controller, Get, Res, StreamableFile } from '@nestjs/common'
 import type { Response } from 'express'
+import { buildAttachmentContentDisposition } from '../shared/content-disposition.js'
 import { SnapshotsService } from './snapshots.service.js'
 
 const LATEST_SNAPSHOT_FILENAME = 'latest_snapshot.jpg'
@@ -31,8 +32,9 @@ export class SnapshotsController {
     const snapshot = await this.snapshotsService.takeSnapshot()
     res.set({
       'Content-Type': snapshot.contentType,
-      'Content-Disposition':
-        'attachment; filename="' + LATEST_SNAPSHOT_FILENAME + '"',
+      'Content-Disposition': buildAttachmentContentDisposition(
+        LATEST_SNAPSHOT_FILENAME,
+      ),
     })
     return new StreamableFile(snapshot.stream)
   }
