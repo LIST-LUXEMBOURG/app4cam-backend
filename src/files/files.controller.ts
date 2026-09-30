@@ -68,31 +68,7 @@ export class FilesController {
 
   @Delete()
   async deleteFiles(@Body() filesDto: FilesDto): Promise<FileDeletionResponse> {
-    if (filesDto.filenames.some((filename) => filename.includes('../'))) {
-      throw new ForbiddenException()
-    }
-
-    if (filesDto.filenames.length === 1 && filesDto.filenames[0] === '*') {
-      await this.filesService.removeAllFiles()
-      return {
-        '*': true,
-      }
-    }
-
-    const filesWithDeletedState = await this.filesService.removeFiles(
-      filesDto.filenames,
-    )
-    let isNoFileAtAllDeleted = true
-    for (const item in filesWithDeletedState) {
-      if (filesWithDeletedState[item]) {
-        isNoFileAtAllDeleted = false
-        break
-      }
-    }
-    if (isNoFileAtAllDeleted) {
-      throw new NotFoundException()
-    }
-    return filesWithDeletedState
+    return this.filesService.deleteFiles(filesDto.filenames)
   }
 
   @Get(':id')

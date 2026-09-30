@@ -16,7 +16,12 @@
  */
 import { lstat, readdir, rm } from 'fs/promises'
 import path from 'path'
-import { Injectable, Logger } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { MotionClientService } from '../motion-client.service.js'
 import { SettingsService } from '../settings/settings.service.js'
@@ -42,6 +47,22 @@ export class FilesService implements IFilesService {
     private readonly motionClientService: MotionClientService,
     private readonly settingsService: SettingsService,
   ) {}
+
+  async deleteFiles(filenames: string[]): Promise<FileDeletionResponse> {
+    if (filenames.some((filename) => filename.includes('../'))) {
+      throw new ForbiddenException()
+    }
+    if (filenames.length === 1 && filenames[0] === '*') {
+      await this.removeAllFiles()
+      return { '*': true }
+    }
+    const filesWithDeletedState = await this.removeFiles(filenames)
+    const isAnyFileDeleted = Object.values(filesWithDeletedState).some(Boolean)
+    if (!isAnyFileDeleted) {
+      throw new NotFoundException()
+    }
+    return filesWithDeletedState
+  }
 
   async findAll(): Promise<File[]> {
     const fileFolderPath = await this.motionClientService.getTargetDir()
