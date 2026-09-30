@@ -25,6 +25,6 @@ import { PropertiesService } from './properties.service.js'
   controllers: [PropertiesController],
   providers: [ConfigService, MotionClientService, PropertiesService],
   imports: [ConfigModule, SettingsModule],
-  exports: [PropertiesService],
+  exports: [],
 })
 export class PropertiesModule {}

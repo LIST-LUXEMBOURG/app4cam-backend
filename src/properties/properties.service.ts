@@ -109,7 +109,7 @@ export class PropertiesService implements IPropertiesService {
   }
 
   async getVersion(): Promise<VersionDto> {
-    return VersionInteractor.getVersion()
+    return await VersionInteractor.getVersion()
   }
 
   async isCameraConnected(): Promise<boolean | null> {

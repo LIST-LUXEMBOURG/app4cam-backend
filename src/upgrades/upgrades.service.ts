@@ -35,7 +35,7 @@ export class UpgradesService {
   constructor(private readonly motionClientService: MotionClientService) {}
 
   async isUpgradeInProgress(): Promise<boolean> {
-    return this.flagHandler.isFlagSet()
+    return await this.flagHandler.isFlagSet()
   }
 
   async performUpgrade(): Promise<void> {
