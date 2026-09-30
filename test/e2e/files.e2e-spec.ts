@@ -100,7 +100,7 @@ describe('FilesController (e2e)', () => {
       .expect('Content-Type', /application\/zip/)
       .expect(
         'Content-Disposition',
-        /attachment; filename="[A-Za-z0-9]+_[A-Za-z0-9]+_[TZ0-9]+.zip"/,
+        /attachment; filename\*=UTF-8''[A-Za-z0-9]+_[A-Za-z0-9]+_[TZ0-9]+.zip/,
       )
       .responseType('blob')
   })
@@ -180,7 +180,7 @@ describe('FilesController (e2e)', () => {
     expect(response.status).toBe(200)
     expect(response.headers['content-type']).toMatch(/text\/plain/)
     expect(response.headers['content-disposition']).toBe(
-      `attachment; filename="${filename}"`,
+      `attachment; filename*=UTF-8''${filename}`,
     )
     await rm(filePath)
   })

@@ -72,7 +72,8 @@ describe(SnapshotsController.name, () => {
       expect(service.takeSnapshot).toHaveBeenCalledWith()
       expect(mockResponse.set).toHaveBeenCalledWith({
         'Content-Type': mockSnapshotContentType,
-        'Content-Disposition': 'attachment; filename="latest_snapshot.jpg"',
+        'Content-Disposition':
+          "attachment; filename*=UTF-8''latest_snapshot.jpg",
       })
     })
   })
