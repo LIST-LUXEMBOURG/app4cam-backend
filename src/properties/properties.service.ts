@@ -27,6 +27,7 @@ import { SunriseSunsetCalculator } from '../shared/sunrise-sunset-calculator.js'
 import { VersionDto } from './dto/version.dto.js'
 import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException.js'
 import { BatteryInteractor } from './interactors/battery-interactor.js'
+import { CpuTemperatureInteractor } from './interactors/cpu-temperature-interfactor.js'
 import { LightTypeInteractor } from './interactors/light-type-interactor.js'
 import { MacAddressInteractor } from './interactors/mac-address-interactor.js'
 import { VersionInteractor } from './interactors/version-interactor.js'
@@ -146,9 +147,21 @@ export class PropertiesService implements IPropertiesService {
   async logBatteryVoltageRegularly(): Promise<void> {
     const deviceType = this.configService.getOrThrow<string>('deviceType')
     try {
-      const batteryVoltage =
-        await BatteryInteractor.getBatteryVoltage(deviceType)
-      this.logger.log(`Current battery voltage: ${batteryVoltage}`)
+      const voltage = await BatteryInteractor.getBatteryVoltage(deviceType)
+      this.logger.log(`Current battery status [V]: ${voltage}`)
+    } catch (error) {
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return
+      }
+      throw error
+    }
+  }
+
+  @Cron('*/15 * * * *') // every 15 minutes
+  async logCpuTemperatureRegularly(): Promise<void> {
+    try {
+      const temperature = await CpuTemperatureInteractor.getCpuTemperature()
+      this.logger.log(`Current CPU temperature [°C]: ${temperature}`)
     } catch (error) {
       if (error instanceof CommandUnavailableOnWindowsException) {
         return
