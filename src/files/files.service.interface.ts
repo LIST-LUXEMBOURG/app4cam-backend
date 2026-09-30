@@ -4,6 +4,7 @@ import { File } from './entities/file.entity.js'
 import { StreamWithContentTypeAndFilename } from './entities/stream-with-content-type-and-filename.entity..js'
 
 export interface IFilesService {
+  deleteFiles: (filenames: string[]) => Promise<FileDeletionResponse>
   findAll: () => Promise<File[]>
   getStreamableFile: (filename: string) => Promise<StreamWithContentType>
   getStreamableFiles: (

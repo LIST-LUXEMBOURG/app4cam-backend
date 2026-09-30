@@ -42,8 +42,8 @@ class MockFilesService implements Partial<IFilesService> {
       stream: new PassThrough() as unknown as ReadStream,
     }),
   )
+  deleteFiles = vi.fn(() => Promise.resolve({ a: true, b: true }))
   removeFile = vi.fn()
-  removeFiles = vi.fn(() => Promise.resolve({ a: true, b: true }))
 }
 
 describe(FilesController.name, () => {
@@ -86,15 +86,11 @@ describe(FilesController.name, () => {
   })
 
   describe(FilesController.prototype.deleteFiles.name, () => {
-    it('asks for removing the files', async () => {
+    it('delegates to the service', async () => {
       const filenames = ['a', 'b']
       const result = await controller.deleteFiles({ filenames })
-      expect(service.removeFiles).toHaveBeenCalledWith(filenames)
-      const expectedResult = Object.assign(
-        {},
-        ...filenames.map((filename) => ({ [filename]: true })),
-      )
-      expect(result).toEqual(expectedResult)
+      expect(service.deleteFiles).toHaveBeenCalledWith(filenames)
+      expect(result).toEqual({ a: true, b: true })
     })
   })
 

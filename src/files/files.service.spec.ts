@@ -16,6 +16,7 @@
  */
 import { existsSync } from 'fs'
 import { mkdir, readdir, rm, writeFile } from 'fs/promises'
+import { ForbiddenException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { vi } from 'vitest'
@@ -59,6 +60,58 @@ describe(FilesService.name, () => {
 
     it('is defined', async () => {
       expect(service).toBeDefined()
+    })
+
+    describe(FilesService.prototype.deleteFiles.name, () => {
+      const testFolder = 'src/files/test-delete-files'
+
+      beforeAll(async () => {
+        await mkdir(testFolder)
+        spyGetTargetDir.mockResolvedValue(testFolder)
+      })
+
+      it('throws ForbiddenException for path traversal', async () => {
+        await expect(service.deleteFiles(['../secret.txt'])).rejects.toThrow(
+          ForbiddenException,
+        )
+      })
+
+      it('removes all files when wildcard is given', async () => {
+        const spy = vi
+          .spyOn(FileInteractor, 'removeAllFilesInDirectory')
+          .mockResolvedValue()
+        const result = await service.deleteFiles(['*'])
+        expect(spy).toHaveBeenCalled()
+        expect(result).toEqual({ '*': true })
+        spy.mockRestore()
+      })
+
+      it('returns deletion state map for specific filenames', async () => {
+        const filenames = ['e.txt', 'f.txt']
+        const filePaths = filenames.map(
+          (filename) => testFolder + '/' + filename,
+        )
+        for (const filePath of filePaths) {
+          await writeFile(filePath, 'b')
+        }
+        const result = await service.deleteFiles(filenames)
+        const expectedResult = Object.assign(
+          {},
+          ...filenames.map((filename) => ({ [filename]: true })),
+        )
+        expect(result).toEqual(expectedResult)
+      })
+
+      it('throws NotFoundException when no file is deleted', async () => {
+        await expect(service.deleteFiles(['nonexistent.txt'])).rejects.toThrow(
+          NotFoundException,
+        )
+      })
+
+      afterAll(async () => {
+        await rm(testFolder, { recursive: true, force: true })
+        spyGetTargetDir.mockRestore()
+      })
     })
 
     describe(FilesService.prototype.findAll.name, () => {
