@@ -31,8 +31,12 @@ test:
   script:
     - npm ci
     - npx prettier --check .
+    - npx nestjs-doctor@0.9.9 . --format gitlab --blocking error --output gl-code-quality-report.json
     - npm run test
     - npm run test:e2e
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
 
 sast:
   stage: analyse

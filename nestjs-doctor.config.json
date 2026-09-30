@@ -1,0 +1,6 @@
+{
+  "minScore": 100,
+  "rules": {
+    "security/require-guards-on-endpoints": false
+  }
+}

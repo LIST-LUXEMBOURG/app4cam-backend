@@ -499,13 +499,13 @@ export class SettingsService implements ISettingsService {
       }
 
       if (this.deviceType === 'RaspberryPi') {
-        this.configureWittyPiSchedule(
+        await this.configureWittyPiSchedule(
           triggeringSettingsMerged.sleepingTime ?? null,
           triggeringSettingsMerged.wakingUpTime ?? null,
         )
       }
 
-      this.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
+      await this.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
 
       if (
         'threshold' in settings.triggering &&
@@ -720,13 +720,13 @@ export class SettingsService implements ISettingsService {
     }
 
     if (this.deviceType === 'RaspberryPi') {
-      this.configureWittyPiSchedule(
+      await this.configureWittyPiSchedule(
         settings.triggering.sleepingTime,
         settings.triggering.wakingUpTime,
       )
     }
 
-    this.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
+    await this.setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi()
 
     const currentSettings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)

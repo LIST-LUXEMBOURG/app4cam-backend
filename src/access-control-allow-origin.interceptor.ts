@@ -28,7 +28,7 @@ import { Observable } from 'rxjs'
 export class AccessControlAllowOriginInterceptor implements NestInterceptor {
   disableAccessControlAllowOrigin: boolean
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     this.disableAccessControlAllowOrigin =
       this.configService.getOrThrow<boolean>('disableAccessControlAllowOrigin')
   }
