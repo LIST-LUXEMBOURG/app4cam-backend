@@ -17,6 +17,7 @@
 import { writeFile } from 'fs/promises'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Cron } from '@nestjs/schedule'
 import { MotionClientService } from '../motion-client.service.js'
 import { SettingsService } from '../settings/settings.service.js'
 import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
@@ -139,5 +140,20 @@ export class PropertiesService implements IPropertiesService {
     this.logger.log(
       `App4Cam version ${version.version} - ${version.commitHash}`,
     )
+  }
+
+  @Cron('*/15 * * * *') // every 15 minutes
+  async logBatteryVoltageRegularly(): Promise<void> {
+    const deviceType = this.configService.getOrThrow<string>('deviceType')
+    try {
+      const batteryVoltage =
+        await BatteryInteractor.getBatteryVoltage(deviceType)
+      this.logger.log(`Current battery voltage: ${batteryVoltage}`)
+    } catch (error) {
+      if (error instanceof CommandUnavailableOnWindowsException) {
+        return
+      }
+      throw error
+    }
   }
 }
