@@ -27,7 +27,7 @@ export class DeviceController {
     return this.deviceService.reboot()
   }
 
-  @Post('shutdown')
+  @Post('shutDown')
   @HttpCode(200)
   shutDown(): Promise<void> {
     return this.deviceService.shutDown()

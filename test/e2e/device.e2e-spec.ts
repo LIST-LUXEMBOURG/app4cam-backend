@@ -49,8 +49,8 @@ describe('DeviceController (e2e)', () => {
       return request(app.getHttpServer()).post('/device/reboot').expect(200)
     })
 
-    it('/shutdown (POST)', () => {
-      return request(app.getHttpServer()).post('/device/shutdown').expect(200)
+    it('/shutDown (POST)', () => {
+      return request(app.getHttpServer()).post('/device/shutDown').expect(200)
     })
   })
 
