@@ -23,6 +23,7 @@ import { AppController } from './app.controller.js'
 import { AppService } from './app.service.js'
 import { configuration } from './config/configuration.js'
 import { validate } from './config/validation.js'
+import { DeviceModule } from './device/device.module.js'
 import { FilesModule } from './files/files.module.js'
 import { LogFilesModule } from './log-files/log-files.module.js'
 import { LoggerMiddleware } from './logger.middleware.js'
@@ -41,6 +42,7 @@ import { UpgradesModule } from './upgrades/upgrades.module.js'
       load: [configuration],
       validate,
     }),
+    DeviceModule,
     FilesModule,
     PropertiesModule,
     SettingsModule,
