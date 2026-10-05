@@ -62,7 +62,7 @@ export class SleepInteractor {
       return
     }
     const now = DateTime.now()
-    const sleepingDateTime = now.set({
+    let sleepingDateTime = now.set({
       hour: sleepingTime.hour,
       minute: sleepingTime.minute,
     })
@@ -74,6 +74,10 @@ export class SleepInteractor {
     const endValue = `${wakingUpDateTime
       .plus({ years: WITTY_PI_END_YEARS_FROM_NOW })
       .toFormat('yyyy')}-12-31 23:59:59`
+    // Prevent that diff returns a negative duration.
+    if (sleepingDateTime < wakingUpDateTime) {
+      sleepingDateTime = sleepingDateTime.plus({ hours: 24 })
+    }
     const difference = sleepingDateTime
       // The seconds are only requested to not get the minutes as a decimal.
       .diff(wakingUpDateTime, ['hours', 'minutes', 'seconds'])
