@@ -1303,7 +1303,10 @@ export class SettingsService implements ISettingsService {
   }> {
     const settings =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
-    if (!settings.general.latitude || !settings.general.longitude) {
+    if (
+      settings.general.latitude == null ||
+      settings.general.longitude == null
+    ) {
       throw new CoordinatesNotSetException()
     }
     return {
