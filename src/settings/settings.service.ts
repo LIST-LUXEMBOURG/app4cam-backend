@@ -27,14 +27,12 @@ import { DateTime } from 'luxon'
 import { FileNamer } from '../files/file-namer.js'
 import { InitialisationInteractor } from '../initialisation-interactor.js'
 import { MotionClientService } from '../motion-client.service.js'
-import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
-import TriggeringTime from '../shared/entities/triggering-time.js'
 import { CommandExecutionException } from '../shared/exceptions/CommandExecutionException.js'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
 import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
-import { SunriseSunsetCalculator } from '../shared/sunrise-sunset-calculator.js'
 import CoordinatesDto from './dto/coordinates.dto.js'
 import { SettingsPutDto, TriggeringTimeDto } from './dto/settings.dto.js'
+import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto.js'
 import {
   LightType,
   PatchableSettings,
@@ -42,6 +40,7 @@ import {
   SettingsFromJsonFile,
 } from './entities/settings.js'
 import { ShotTypes } from './entities/shot-types.js'
+import TriggeringTime from './entities/triggering-time.js'
 import { CoordinatesNotSetException } from './exceptions/CoordinatesNotSetException.js'
 import { TemperatureThresholdNotSet } from './exceptions/TemperatureThresholdNotSetException.js'
 import { UndefinedPathException } from './exceptions/UndefinedPathException.js'
@@ -55,6 +54,7 @@ import { MotionTextAssembler } from './motion-text-assembler.js'
 import { MotionVideoParametersWorker } from './motion-video-parameters-worker.js'
 import { SettingsFileProvider } from './settings-file-provider.js'
 import { ISettingsService } from './settings.service.interface.js'
+import { SunriseSunsetCalculator } from './sunrise-sunset-calculator.js'
 import { TriggeringTimeHelper } from './triggering-time-helper.js'
 
 const MOTION_FOCUS_DIFFERENCE_VISIBLE_INFRARED_LIGHTS = 150
@@ -1208,7 +1208,7 @@ export class SettingsService implements ISettingsService {
     }
   }
 
-  private async getNextSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
+  async getNextSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
     const { latitude, longitude } = await this.getLatitudeAndLongitude()
     return SunriseSunsetCalculator.calculateNextSunsetAndSunrise(
       latitude,

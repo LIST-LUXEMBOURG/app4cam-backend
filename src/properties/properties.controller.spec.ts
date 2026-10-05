@@ -16,7 +16,6 @@
  */
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
 import { VersionDto } from './dto/version.dto.js'
 import { PropertiesController } from './properties.controller.js'
 import { PropertiesService } from './properties.service.js'
@@ -28,17 +27,6 @@ const CAMERA_CONNECTED_FLAG = true
 const DEVICE_ID = 'a'
 
 const LIGHT_TYPE = 'visible'
-
-const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
-  sunrise: {
-    hour: 1,
-    minute: 2,
-  },
-  sunset: {
-    hour: 3,
-    minute: 4,
-  },
-}
 
 const VERSION: VersionDto = {
   commitHash: 'a',
@@ -59,7 +47,6 @@ describe(PropertiesController.name, () => {
             getAvailableTimeZones: () => AVAILABLE_TIME_ZONES,
             getDeviceId: () => DEVICE_ID,
             getLightType: () => LIGHT_TYPE,
-            getNextSunsetAndSunrise: () => SUNRISE_AND_SUNSET,
             getVersion: () => VERSION,
             isCameraConnected: () => CAMERA_CONNECTED_FLAG,
           },
@@ -87,11 +74,6 @@ describe(PropertiesController.name, () => {
   it('gets the light type', async () => {
     const response = await controller.getLightType()
     expect(response).toEqual({ lightType: LIGHT_TYPE })
-  })
-
-  it('gets the sunrise and sunset', async () => {
-    const response = await controller.getSunsetAndSunrise()
-    expect(response).toEqual(SUNRISE_AND_SUNSET)
   })
 
   it('gets the version', async () => {

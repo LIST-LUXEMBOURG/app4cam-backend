@@ -15,7 +15,6 @@
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Controller, Get } from '@nestjs/common'
-import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
 import { BatteryVoltageDto } from './dto/battery-voltage.dto.js'
 import { CameraConnectionStatusDto } from './dto/camera-connection-status.dto.js'
 import { DeviceIdDto } from './dto/device-id.dto.js'
@@ -66,11 +65,6 @@ export class PropertiesController {
     } else {
       throw Error(`Invalid light type value: ${lightType}`)
     }
-  }
-
-  @Get('sunsetAndSunrise')
-  getSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
-    return this.propertiesService.getNextSunsetAndSunrise()
   }
 
   @Get('timeZones')

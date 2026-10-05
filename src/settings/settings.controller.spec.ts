@@ -20,6 +20,7 @@ import { createResponse } from 'node-mocks-http'
 import { vi } from 'vitest'
 import { MotionClientService } from '../motion-client.service.js'
 import { PropertiesService } from '../properties/properties.service.js'
+import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto.js'
 import { Settings } from './entities/settings.js'
 import { ShotTypes } from './entities/shot-types.js'
 import { SettingsController } from './settings.controller.js'
@@ -76,6 +77,17 @@ describe('SettingsController', () => {
   const SHOT_TYPES = ['pictures', 'videos']
   const SHOTS_FOLDER = '/a'
 
+  const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
+    sunrise: {
+      hour: 1,
+      minute: 2,
+    },
+    sunset: {
+      hour: 3,
+      minute: 4,
+    },
+  }
+
   class MockSettingsService implements Partial<ISettingsService> {
     getAllSettings = async () => SETTINGS
     updateSettings = vi.fn()
@@ -88,6 +100,7 @@ describe('SettingsController', () => {
     setSystemTime = vi.fn()
     getTimeZone = async () => SETTINGS.general.timeZone
     setTimeZone = vi.fn()
+    getNextSunsetAndSunrise = async () => SUNRISE_AND_SUNSET
     getShotsFolder = async () => SHOTS_FOLDER
     setShotsFolder = vi.fn()
     getShotTypes = async () => new Set(SHOT_TYPES) as ShotTypes
@@ -210,6 +223,11 @@ describe('SettingsController', () => {
     const timeZone = 'a'
     await controller.setTimeZone({ timeZone })
     expect(service.setTimeZone).toHaveBeenCalledWith(timeZone)
+  })
+
+  it('gets the sunrise and sunset', async () => {
+    const response = await controller.getSunsetAndSunrise()
+    expect(response).toEqual(SUNRISE_AND_SUNSET)
   })
 
   it('gets the shots folder', async () => {

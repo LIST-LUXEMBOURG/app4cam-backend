@@ -42,6 +42,7 @@ import { TemperatureInteractor } from './interactors/temperature-interactor.js'
 import { VideoDeviceInteractor } from './interactors/video-device-interactor.js'
 import { SettingsFileProvider } from './settings-file-provider.js'
 import { SettingsService } from './settings.service.js'
+import { SunriseSunsetCalculator } from './sunrise-sunset-calculator.js'
 
 const SHOTS_FOLDER = '/a'
 
@@ -163,6 +164,17 @@ describe('SettingsService', () => {
         isTemperatureThresholdEnabled: false,
         threshold: TRIGGER_SENSITIVITY,
         thresholdMaximum: TRIGGER_SENSITIVITY_MAXIMUM,
+      },
+    }
+
+    const SUNRISE_AND_SUNSET = {
+      sunrise: {
+        hour: 1,
+        minute: 2,
+      },
+      sunset: {
+        hour: 3,
+        minute: 4,
       },
     }
 
@@ -483,6 +495,19 @@ describe('SettingsService', () => {
     it('returns the getIsAlternatingLightModeEnabled flag', async () => {
       const flag = await service.getIsAlternatingLightModeEnabled()
       expect(flag).toBe(GENERAL_JSON_SETTINGS.isAlternatingLightModeEnabled)
+    })
+
+    it('gets the sunrise and sunset', async () => {
+      const spyGetLatitudeAndLongitude = vi
+        .spyOn(SettingsService.prototype, 'getLatitudeAndLongitude')
+        .mockResolvedValue({ latitude: 1, longitude: 2 })
+      const spyCalculateSunriseAndSunset = vi
+        .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
+        .mockReturnValue(SUNRISE_AND_SUNSET)
+      const response = await service.getNextSunsetAndSunrise()
+      expect(response).toEqual(SUNRISE_AND_SUNSET)
+      spyCalculateSunriseAndSunset.mockRestore()
+      spyGetLatitudeAndLongitude.mockRestore()
     })
 
     it('returns the useSunriseAndSunsetTimes flag', async () => {

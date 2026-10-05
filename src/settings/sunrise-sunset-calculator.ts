@@ -16,7 +16,7 @@
  */
 
 import { DateTime } from 'luxon'
-import { SunriseAndSunsetDto } from './entities/sunrise-and-sunset.dto.js'
+import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto.js'
 import TriggeringTime from './entities/triggering-time.js'
 
 const DAYS_PER_ORDINARY_YEAR = 365

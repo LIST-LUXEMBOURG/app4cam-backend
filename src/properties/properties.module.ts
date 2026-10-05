@@ -17,14 +17,13 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { MotionClientService } from '../motion-client.service.js'
-import { SettingsModule } from '../settings/settings.module.js'
 import { PropertiesController } from './properties.controller.js'
 import { PropertiesService } from './properties.service.js'
 
 @Module({
   controllers: [PropertiesController],
   providers: [ConfigService, MotionClientService, PropertiesService],
-  imports: [ConfigModule, SettingsModule],
+  imports: [ConfigModule],
   exports: [],
 })
 export class PropertiesModule {}
