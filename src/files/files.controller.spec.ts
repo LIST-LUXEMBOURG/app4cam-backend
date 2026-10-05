@@ -16,8 +16,10 @@
  */
 import { ReadStream } from 'fs'
 import { PassThrough } from 'stream'
+import { ForbiddenException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import type { Response } from 'express'
 import { vi } from 'vitest'
 import { createMockConfigService } from '../../test/unit/config-service.mock.js'
 import { MotionClientService } from '../motion-client.service.js'
@@ -83,6 +85,12 @@ describe(FilesController.name, () => {
       await controller.deleteFile(filename)
       expect(service.removeFile).toHaveBeenCalledWith(filename)
     })
+
+    it('throws ForbiddenException when filename includes "../"', async () => {
+      await expect(controller.deleteFile('../secret')).rejects.toThrow(
+        ForbiddenException,
+      )
+    })
   })
 
   describe(FilesController.prototype.deleteFiles.name, () => {
@@ -99,10 +107,17 @@ describe(FilesController.name, () => {
       const filename = 'a'
       const mockResponse = {
         set: vi.fn(),
-      }
+      } as unknown as Response
       await controller.downloadFile(filename, mockResponse)
       expect(service.getStreamableFile).toHaveBeenCalledWith(filename)
       expect(mockResponse.set).toHaveBeenCalled()
+    })
+
+    it('throws ForbiddenException when filename includes "../"', async () => {
+      const mockResponse = { set: vi.fn() } as unknown as Response
+      await expect(
+        controller.downloadFile('../secret', mockResponse),
+      ).rejects.toThrow(ForbiddenException)
     })
   })
 
@@ -111,10 +126,20 @@ describe(FilesController.name, () => {
       const filenames = ['a']
       const mockResponse = {
         set: vi.fn(),
-      }
+      } as unknown as Response
       await controller.downloadFiles({ filenames: filenames }, mockResponse)
       expect(service.getStreamableFiles).toHaveBeenCalledWith(filenames)
       expect(mockResponse.set).toHaveBeenCalled()
+    })
+
+    it('throws ForbiddenException when a filename includes "../"', async () => {
+      const mockResponse = { set: vi.fn() } as unknown as Response
+      await expect(
+        controller.downloadFiles(
+          { filenames: ['ok.jpg', '../secret'] },
+          mockResponse,
+        ),
+      ).rejects.toThrow(ForbiddenException)
     })
   })
 })
