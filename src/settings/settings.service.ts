@@ -14,7 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { AxiosError } from 'axios'
@@ -24,6 +29,7 @@ import { InitialisationInteractor } from '../initialisation-interactor.js'
 import { MotionClientService } from '../motion-client.service.js'
 import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
 import TriggeringTime from '../shared/entities/triggering-time.js'
+import { CommandExecutionException } from '../shared/exceptions/CommandExecutionException.js'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
 import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
 import { SunriseSunsetCalculator } from '../shared/sunrise-sunset-calculator.js'
@@ -72,6 +78,74 @@ export class SettingsService implements ISettingsService {
     this.isFixedFocus = this.configService.getOrThrow<boolean>('isFixedFocus')
   }
 
+  private rethrowIfNotMotionConnectionError(error: unknown): void {
+    if (error instanceof AxiosError) {
+      if (error.config && error.config.url) {
+        this.logger.error(`Could not connect to ${error.config.url}`)
+      }
+      if (error.code !== 'ECONNREFUSED') {
+        throw error
+      }
+    } else {
+      throw error
+    }
+  }
+
+  private async runIgnoringMotionConnectionErrors(
+    operation: () => Promise<void>,
+  ): Promise<boolean> {
+    try {
+      await operation()
+      return false
+    } catch (error) {
+      this.rethrowIfNotMotionConnectionError(error)
+      return true
+    }
+  }
+
+  private rethrowIfNotCameraDriverError(error: unknown): void {
+    if (error instanceof CommandExecutionException) {
+      this.logger.error(`Camera focus driver unavailable: ${error.message}`)
+      return
+    }
+    throw error
+  }
+
+  private async runIgnoringCameraDriverErrors(
+    operation: () => Promise<void>,
+  ): Promise<boolean> {
+    try {
+      await operation()
+      return false
+    } catch (error) {
+      this.rethrowIfNotCameraDriverError(error)
+      return true
+    }
+  }
+
+  private throwIfAnyDependencyUnavailable(
+    isMotionUnavailable: boolean,
+    isCameraUnavailable: boolean,
+  ): void {
+    if (!isMotionUnavailable && !isCameraUnavailable) return
+    if (!isCameraUnavailable) {
+      throw new ServiceUnavailableException(
+        'Settings not depending on Motion were saved, but Motion is unreachable, ' +
+          'so the camera settings could not be applied.',
+      )
+    }
+    if (!isMotionUnavailable) {
+      throw new ServiceUnavailableException(
+        'Settings not depending on the camera were saved, but the camera is unreachable, ' +
+          'so the focus setting could not be applied.',
+      )
+    }
+    throw new ServiceUnavailableException(
+      'Settings were partially saved, but Motion and the camera are both unreachable, ' +
+        'so some settings could not be applied.',
+    )
+  }
+
   async getAllSettings(): Promise<Settings> {
     const settingsFromFile =
       await SettingsFileProvider.readSettingsFile(SETTINGS_FILE_PATH)
@@ -91,8 +165,8 @@ export class SettingsService implements ISettingsService {
     let thresholdMaximum = Number.MAX_SAFE_INTEGER
     let videoQuality = 0
 
-    try {
-      if (!this.isFixedFocus) {
+    if (!this.isFixedFocus) {
+      try {
         const focusValues = await this.getFocusFromDriver()
         focusMaximum = focusValues.max ?? Number.MAX_SAFE_INTEGER
         focusMinimum = focusValues.min ?? Number.MIN_SAFE_INTEGER
@@ -103,8 +177,16 @@ export class SettingsService implements ISettingsService {
             settingsFromFile.camera.light,
           )
         }
+      } catch (error) {
+        if (error instanceof CommandExecutionException) {
+          this.logger.error(`Camera focus driver unavailable: ${error.message}`)
+        } else {
+          this.rethrowIfNotMotionConnectionError(error)
+        }
       }
+    }
 
+    try {
       pictureQuality = await this.motionClientService.getPictureQuality()
       threshold = await this.motionClientService.getThreshold()
       videoQuality = await this.motionClientService.getMovieQuality()
@@ -115,16 +197,7 @@ export class SettingsService implements ISettingsService {
       const width = await this.motionClientService.getWidth()
       thresholdMaximum = height * width
     } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.config && error.config.url) {
-          this.logger.error(`Could not connect to ${error.config.url}`)
-        }
-        if (error.code !== 'ECONNREFUSED') {
-          throw error
-        }
-      } else {
-        throw error
-      }
+      this.rethrowIfNotMotionConnectionError(error)
     }
 
     return {
@@ -170,6 +243,9 @@ export class SettingsService implements ISettingsService {
   async updateSettings(
     settings: PatchableSettings,
   ): Promise<PatchableSettings> {
+    let isMotionUnavailable = false
+    let isCameraUnavailable = false
+
     if (
       'camera' in settings &&
       settings.camera !== undefined &&
@@ -283,12 +359,17 @@ export class SettingsService implements ISettingsService {
         'threshold' in settings.triggering &&
         settings.triggering.threshold !== undefined
       ) {
-        const height = await this.motionClientService.getHeight()
-        const width = await this.motionClientService.getWidth()
-        if (settings.triggering.threshold > height * width) {
-          throw new BadRequestException(
-            'The threshold must be smaller or equal to the resolution.',
-          )
+        try {
+          const height = await this.motionClientService.getHeight()
+          const width = await this.motionClientService.getWidth()
+          if (settings.triggering.threshold > height * width) {
+            throw new BadRequestException(
+              'The threshold must be smaller or equal to the resolution.',
+            )
+          }
+        } catch (error) {
+          this.rethrowIfNotMotionConnectionError(error)
+          isMotionUnavailable = true
         }
       }
     }
@@ -298,16 +379,28 @@ export class SettingsService implements ISettingsService {
     const cameraSettingsMerged = settingsReadFromFile.camera
     if ('camera' in settings && settings.camera !== undefined) {
       if ('focus' in settings.camera && settings.camera.focus !== undefined) {
-        const focusValues = await this.getFocusFromDriver()
-        if (
-          (focusValues.min !== undefined &&
-            settings.camera.focus < focusValues.min) ||
-          (focusValues.max !== undefined &&
-            settings.camera.focus > focusValues.max)
-        ) {
-          throw new BadRequestException(
-            `The focus value must be in the range ${focusValues.min} to ${focusValues.max}.`,
-          )
+        try {
+          const focusValues = await this.getFocusFromDriver()
+          if (
+            (focusValues.min !== undefined &&
+              settings.camera.focus < focusValues.min) ||
+            (focusValues.max !== undefined &&
+              settings.camera.focus > focusValues.max)
+          ) {
+            throw new BadRequestException(
+              `The focus value must be in the range ${focusValues.min} to ${focusValues.max}.`,
+            )
+          }
+        } catch (error) {
+          if (error instanceof CommandExecutionException) {
+            this.logger.error(
+              `Camera focus driver unavailable: ${error.message}`,
+            )
+            isCameraUnavailable = true
+          } else {
+            this.rethrowIfNotMotionConnectionError(error)
+            isMotionUnavailable = true
+          }
         }
       }
 
@@ -320,12 +413,18 @@ export class SettingsService implements ISettingsService {
       }
       if ('focus' in settings.camera && settings.camera.focus !== undefined) {
         if (this.deviceType === 'RaspberryPi') {
-          await this.setFocusInDriver(settings.camera.focus)
+          isCameraUnavailable =
+            (await this.runIgnoringCameraDriverErrors(() =>
+              this.setFocusInDriver(settings.camera!.focus!),
+            )) || isCameraUnavailable
         } else {
-          await this.setFocusInMotionAdaptedToCameraLight(
-            settings.camera.focus,
-            cameraSettingsMerged.light,
-          )
+          isMotionUnavailable =
+            (await this.runIgnoringMotionConnectionErrors(() =>
+              this.setFocusInMotionAdaptedToCameraLight(
+                settings.camera!.focus!,
+                cameraSettingsMerged.light,
+              ),
+            )) || isMotionUnavailable
         }
       }
 
@@ -333,46 +432,42 @@ export class SettingsService implements ISettingsService {
         'pictureQuality' in settings.camera &&
         settings.camera.pictureQuality !== undefined
       ) {
-        await this.motionClientService.setPictureQuality(
-          settings.camera.pictureQuality,
-        )
+        isMotionUnavailable =
+          (await this.runIgnoringMotionConnectionErrors(() =>
+            this.motionClientService.setPictureQuality(
+              settings.camera!.pictureQuality!,
+            ),
+          )) || isMotionUnavailable
       }
       if (
         'videoQuality' in settings.camera &&
         settings.camera.videoQuality !== undefined
       ) {
-        await this.motionClientService.setMovieQuality(
-          settings.camera.videoQuality,
-        )
+        isMotionUnavailable =
+          (await this.runIgnoringMotionConnectionErrors(() =>
+            this.motionClientService.setMovieQuality(
+              settings.camera!.videoQuality!,
+            ),
+          )) || isMotionUnavailable
       }
 
       if (
         'shotTypes' in settings.camera &&
         settings.camera.shotTypes !== undefined
       ) {
-        try {
-          if (settings.camera.shotTypes.includes('pictures')) {
-            await this.motionClientService.setPictureOutput('best')
-          } else {
-            await this.motionClientService.setPictureOutput('off')
-          }
-          if (settings.camera.shotTypes.includes('videos')) {
-            await this.motionClientService.setMovieOutput('on')
-          } else {
-            await this.motionClientService.setMovieOutput('off')
-          }
-        } catch (error) {
-          if (error instanceof AxiosError) {
-            if (error.config && error.config.url) {
-              this.logger.error(`Could not connect to ${error.config.url}`)
+        isMotionUnavailable =
+          (await this.runIgnoringMotionConnectionErrors(async () => {
+            if (settings.camera!.shotTypes!.includes('pictures')) {
+              await this.motionClientService.setPictureOutput('best')
+            } else {
+              await this.motionClientService.setPictureOutput('off')
             }
-            if (error.code !== 'ECONNREFUSED') {
-              throw error
+            if (settings.camera!.shotTypes!.includes('videos')) {
+              await this.motionClientService.setMovieOutput('on')
+            } else {
+              await this.motionClientService.setMovieOutput('off')
             }
-          } else {
-            throw error
-          }
-        }
+          })) || isMotionUnavailable
       }
     }
 
@@ -439,7 +534,10 @@ export class SettingsService implements ISettingsService {
           generalSettingsMerged.deviceName,
           timeZone,
         )
-        await this.motionClientService.setFilename(filename)
+        isMotionUnavailable =
+          (await this.runIgnoringMotionConnectionErrors(() =>
+            this.motionClientService.setFilename(filename),
+          )) || isMotionUnavailable
 
         if (
           'deviceName' in settings.general ||
@@ -449,7 +547,10 @@ export class SettingsService implements ISettingsService {
             generalSettingsMerged.siteName,
             generalSettingsMerged.deviceName,
           )
-          await this.motionClientService.setLeftTextOnImage(imageText)
+          isMotionUnavailable =
+            (await this.runIgnoringMotionConnectionErrors(() =>
+              this.motionClientService.setLeftTextOnImage(imageText),
+            )) || isMotionUnavailable
         }
       }
 
@@ -511,22 +612,12 @@ export class SettingsService implements ISettingsService {
         'threshold' in settings.triggering &&
         settings.triggering.threshold !== undefined
       ) {
-        try {
-          await this.motionClientService.setThreshold(
-            settings.triggering.threshold,
-          )
-        } catch (error) {
-          if (error instanceof AxiosError) {
-            if (error.config && error.config.url) {
-              this.logger.error(`Could not connect to ${error.config.url}`)
-            }
-            if (error.code !== 'ECONNREFUSED') {
-              throw error
-            }
-          } else {
-            throw error
-          }
-        }
+        isMotionUnavailable =
+          (await this.runIgnoringMotionConnectionErrors(() =>
+            this.motionClientService.setThreshold(
+              settings.triggering!.threshold!,
+            ),
+          )) || isMotionUnavailable
       }
     }
 
@@ -540,7 +631,10 @@ export class SettingsService implements ISettingsService {
         settingsToUpdate,
         SETTINGS_FILE_PATH,
       )
-      await this.storeSettingsFileToShotsFolder(settingsToUpdate)
+      isMotionUnavailable =
+        (await this.runIgnoringMotionConnectionErrors(() =>
+          this.storeSettingsFileToShotsFolder(settingsToUpdate),
+        )) || isMotionUnavailable
     }
 
     if (
@@ -590,10 +684,18 @@ export class SettingsService implements ISettingsService {
       }
     }
 
+    this.throwIfAnyDependencyUnavailable(
+      isMotionUnavailable,
+      isCameraUnavailable,
+    )
+
     return settings
   }
 
   async updateAllSettings(settings: SettingsPutDto): Promise<void> {
+    let isMotionUnavailable = false
+    let isCameraUnavailable = false
+
     if (
       settings.camera.light === 'infrared' &&
       settings.triggering.light === 'visible'
@@ -630,28 +732,43 @@ export class SettingsService implements ISettingsService {
     }
 
     if ('threshold' in settings.triggering) {
-      const height = await this.motionClientService.getHeight()
-      const width = await this.motionClientService.getWidth()
-      if (settings.triggering.threshold > height * width) {
-        throw new BadRequestException(
-          'The threshold must be smaller or equal to the resolution.',
-        )
+      try {
+        const height = await this.motionClientService.getHeight()
+        const width = await this.motionClientService.getWidth()
+        if (settings.triggering.threshold > height * width) {
+          throw new BadRequestException(
+            'The threshold must be smaller or equal to the resolution.',
+          )
+        }
+      } catch (error) {
+        this.rethrowIfNotMotionConnectionError(error)
+        isMotionUnavailable = true
       }
     }
 
     const isRaspberryPi = this.deviceType === 'RaspberryPi'
 
     if ('camera' in settings && 'focus' in settings.camera) {
-      const focusValues = await this.getFocusFromDriver()
-      if (
-        (focusValues.min !== undefined &&
-          settings.camera.focus < focusValues.min) ||
-        (focusValues.max !== undefined &&
-          settings.camera.focus > focusValues.max)
-      ) {
-        throw new BadRequestException(
-          `The focus value must be in the range ${focusValues.min} to ${focusValues.max}.`,
-        )
+      try {
+        const focusValues = await this.getFocusFromDriver()
+        if (
+          (focusValues.min !== undefined &&
+            settings.camera.focus < focusValues.min) ||
+          (focusValues.max !== undefined &&
+            settings.camera.focus > focusValues.max)
+        ) {
+          throw new BadRequestException(
+            `The focus value must be in the range ${focusValues.min} to ${focusValues.max}.`,
+          )
+        }
+      } catch (error) {
+        if (error instanceof CommandExecutionException) {
+          this.logger.error(`Camera focus driver unavailable: ${error.message}`)
+          isCameraUnavailable = true
+        } else {
+          this.rethrowIfNotMotionConnectionError(error)
+          isMotionUnavailable = true
+        }
       }
     }
 
@@ -660,41 +777,34 @@ export class SettingsService implements ISettingsService {
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
     if ('shotTypes' in settings.camera) {
-      try {
-        if (settings.camera.shotTypes.includes('pictures')) {
-          await this.motionClientService.setPictureOutput('best')
-        } else {
-          await this.motionClientService.setPictureOutput('off')
-        }
-        if (settings.camera.shotTypes.includes('videos')) {
-          await this.motionClientService.setMovieOutput('on')
-        } else {
-          await this.motionClientService.setMovieOutput('off')
-        }
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          if (error.config && error.config.url) {
-            this.logger.error(`Could not connect to ${error.config.url}`)
+      isMotionUnavailable =
+        (await this.runIgnoringMotionConnectionErrors(async () => {
+          if (settings.camera.shotTypes.includes('pictures')) {
+            await this.motionClientService.setPictureOutput('best')
+          } else {
+            await this.motionClientService.setPictureOutput('off')
           }
-          if (error.code !== 'ECONNREFUSED') {
-            throw error
+          if (settings.camera.shotTypes.includes('videos')) {
+            await this.motionClientService.setMovieOutput('on')
+          } else {
+            await this.motionClientService.setMovieOutput('off')
           }
-        } else {
-          throw error
-        }
-      }
+        })) || isMotionUnavailable
+    }
+
+    if (!this.isFixedFocus && isRaspberryPi) {
+      isCameraUnavailable =
+        (await this.runIgnoringCameraDriverErrors(() =>
+          this.setFocusInDriver(settings.camera.focus),
+        )) || isCameraUnavailable
     }
 
     try {
-      if (!this.isFixedFocus) {
-        if (isRaspberryPi) {
-          await this.setFocusInDriver(settings.camera.focus)
-        } else {
-          await this.setFocusInMotionAdaptedToCameraLight(
-            settings.camera.focus,
-            settings.camera.light,
-          )
-        }
+      if (!this.isFixedFocus && !isRaspberryPi) {
+        await this.setFocusInMotionAdaptedToCameraLight(
+          settings.camera.focus,
+          settings.camera.light,
+        )
       }
 
       await this.motionClientService.setPictureQuality(
@@ -705,16 +815,8 @@ export class SettingsService implements ISettingsService {
       )
       await this.motionClientService.setThreshold(settings.triggering.threshold)
     } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.config && error.config.url) {
-          this.logger.error(`Could not connect to ${error.config.url}`)
-        }
-        if (error.code !== 'ECONNREFUSED') {
-          throw error
-        }
-      } else {
-        throw error
-      }
+      this.rethrowIfNotMotionConnectionError(error)
+      isMotionUnavailable = true
     }
 
     if (this.deviceType === 'RaspberryPi') {
@@ -753,20 +855,29 @@ export class SettingsService implements ISettingsService {
       settingsToWriteToFile,
       SETTINGS_FILE_PATH,
     )
-    await this.storeSettingsFileToShotsFolder(settingsToWriteToFile)
+    isMotionUnavailable =
+      (await this.runIgnoringMotionConnectionErrors(() =>
+        this.storeSettingsFileToShotsFolder(settingsToWriteToFile),
+      )) || isMotionUnavailable
 
     const filename = MotionTextAssembler.createFilename(
       settings.general.siteName,
       settings.general.deviceName,
       settings.general.timeZone,
     )
-    await this.motionClientService.setFilename(filename)
+    isMotionUnavailable =
+      (await this.runIgnoringMotionConnectionErrors(() =>
+        this.motionClientService.setFilename(filename),
+      )) || isMotionUnavailable
 
     const imageText = MotionTextAssembler.createImageText(
       settings.general.siteName,
       settings.general.deviceName,
     )
-    await this.motionClientService.setLeftTextOnImage(imageText)
+    isMotionUnavailable =
+      (await this.runIgnoringMotionConnectionErrors(() =>
+        this.motionClientService.setLeftTextOnImage(imageText),
+      )) || isMotionUnavailable
 
     await SystemTimeInteractor.setTimeZone(settings.general.timeZone)
 
@@ -791,6 +902,11 @@ export class SettingsService implements ISettingsService {
         }
       }
     }
+
+    this.throwIfAnyDependencyUnavailable(
+      isMotionUnavailable,
+      isCameraUnavailable,
+    )
   }
 
   private async getAccessPointPassword(): Promise<string> {
@@ -958,12 +1074,23 @@ export class SettingsService implements ISettingsService {
       settings.general.deviceName,
       timeZone,
     )
-    await this.motionClientService.setFilename(filename)
+    let isMotionUnavailable = await this.runIgnoringMotionConnectionErrors(() =>
+      this.motionClientService.setFilename(filename),
+    )
     const imageText = MotionTextAssembler.createImageText(
       siteName,
       settings.general.deviceName,
     )
-    await this.motionClientService.setLeftTextOnImage(imageText)
+    isMotionUnavailable =
+      (await this.runIgnoringMotionConnectionErrors(() =>
+        this.motionClientService.setLeftTextOnImage(imageText),
+      )) || isMotionUnavailable
+    if (isMotionUnavailable) {
+      throw new ServiceUnavailableException(
+        'Settings not depending on Motion were saved, but Motion is unreachable, ' +
+          'so the camera settings could not be applied.',
+      )
+    }
   }
 
   async getDeviceName(): Promise<string> {
@@ -984,15 +1111,27 @@ export class SettingsService implements ISettingsService {
       deviceName,
       timeZone,
     )
-    await this.motionClientService.setFilename(filename)
+    let isMotionUnavailable = await this.runIgnoringMotionConnectionErrors(() =>
+      this.motionClientService.setFilename(filename),
+    )
 
     const imageText = MotionTextAssembler.createImageText(
       settings.general.siteName,
       deviceName,
     )
-    await this.motionClientService.setLeftTextOnImage(imageText)
+    isMotionUnavailable =
+      (await this.runIgnoringMotionConnectionErrors(() =>
+        this.motionClientService.setLeftTextOnImage(imageText),
+      )) || isMotionUnavailable
 
     await this.setAccessPointNameOrPassword(deviceName)
+
+    if (isMotionUnavailable) {
+      throw new ServiceUnavailableException(
+        'Settings not depending on Motion were saved, but Motion is unreachable, ' +
+          'so the camera settings could not be applied.',
+      )
+    }
   }
 
   async setAccessPointNameOrPassword(
@@ -1098,7 +1237,15 @@ export class SettingsService implements ISettingsService {
       settings.general.deviceName,
       timeZone,
     )
-    await this.motionClientService.setFilename(filename)
+    const isMotionUnavailable = await this.runIgnoringMotionConnectionErrors(
+      () => this.motionClientService.setFilename(filename),
+    )
+    if (isMotionUnavailable) {
+      throw new ServiceUnavailableException(
+        'Settings not depending on Motion were saved, but Motion is unreachable, ' +
+          'so the camera settings could not be applied.',
+      )
+    }
   }
 
   async getShotsFolder(): Promise<string> {

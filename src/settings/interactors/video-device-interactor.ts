@@ -30,12 +30,17 @@ export class VideoDeviceInteractor {
   static async getFocus(devicePath: string): Promise<FocusDetails> {
     CommandUnavailableOnWindowsException.throwIfOnWindows()
     const command = `sudo v4l2-ctl -d ${devicePath} -l | grep focus_absolute`
-    const { stdout, stderr } = await exec(command)
+    const { stdout, stderr } = await exec(command).catch((error: Error) => {
+      throw new CommandExecutionException(error.message)
+    })
     if (stderr) {
       throw new CommandExecutionException(stderr)
     }
     const line = stdout.trim()
     const controlMapping = line.split(': ')
+    if (controlMapping[1] === undefined) {
+      throw new CommandExecutionException('focus control not found')
+    }
     const focusMappings = controlMapping[1].split(' ')
     const focusMappingsAsObject: FocusDetails = {}
     for (const focusMapping of focusMappings) {

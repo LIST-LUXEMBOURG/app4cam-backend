@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { INestApplication, ValidationPipe } from '@nestjs/common'
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { AxiosError } from 'axios'
 import request from 'supertest'
 import { Mock, vi } from 'vitest'
 import { AppModule } from '../../src/app.module'
@@ -36,6 +37,7 @@ import { AccessPointInteractor } from '../../src/settings/interactors/access-poi
 import { SystemTimeInteractor } from '../../src/settings/interactors/system-time-interactor'
 import { VideoDeviceInteractor } from '../../src/settings/interactors/video-device-interactor'
 import { SettingsFileProvider } from '../../src/settings/settings-file-provider'
+import { CommandExecutionException } from '../../src/shared/exceptions/CommandExecutionException'
 import { SystemTimeZonesInteractor } from '../../src/shared/interactors/system-time-zones-interactor'
 
 const HEIGHT = 2
@@ -1330,6 +1332,234 @@ describe('SettingsController (e2e)', () => {
           .expect('Content-Type', /text\/plain/)
           .expect(200, TRIGGERING_LIGHT)
       })
+    })
+  })
+
+  describe('when Motion is unreachable', () => {
+    const MOTION_CONNECTION_ERROR = new AxiosError(
+      'connect ECONNREFUSED 127.0.0.1:8080',
+      'ECONNREFUSED',
+      { url: 'http://127.0.0.1:8080' } as never,
+    )
+
+    class MockMotionClientServiceDown implements Partial<IMotionClientService> {
+      getHeight = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getWidth = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setFilename = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setLeftTextOnImage = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getMovieQuality = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setMovieQuality = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getMovieOutput = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setMovieOutput = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getPictureQuality = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setPictureQuality = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getPictureOutput = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setPictureOutput = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setTargetDir = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getThreshold = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setThreshold = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getTargetDir = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getVideoDevice = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      getVideoParams = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+      setVideoParams = async () => {
+        throw MOTION_CONNECTION_ERROR
+      }
+    }
+
+    let motionDownApp: INestApplication
+    let spyLoggerError: Mock
+
+    beforeEach(async () => {
+      spyLoggerError = vi
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation(() => undefined)
+      spyWriteSettingsFile.mockClear()
+      spySetTimeZone.mockClear()
+
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [AppModule],
+      })
+        .overrideProvider(MotionClientService)
+        .useClass(MockMotionClientServiceDown)
+        .overrideProvider('SCHEDULE_MODULE_OPTIONS')
+        .useValue({ cronJobs: false, intervals: false, timeouts: false })
+        .compile()
+
+      motionDownApp = moduleFixture.createNestApplication()
+      motionDownApp.useGlobalPipes(new ValidationPipe())
+      await motionDownApp.init()
+    })
+
+    afterEach(async () => {
+      await motionDownApp.close()
+      spyLoggerError.mockRestore()
+    })
+
+    it('GET /settings returns 200 despite Motion being unreachable', () => {
+      return request(motionDownApp.getHttpServer()).get('/settings').expect(200)
+    })
+
+    it('PATCH /settings persists non-Motion settings and reports Motion unreachable', async () => {
+      const response = await request(motionDownApp.getHttpServer())
+        .patch('/settings')
+        .send({ general: { deviceName: 'new-name' } })
+
+      expect(response.status).toBe(503)
+      expect(response.body.message).toContain('Motion is unreachable')
+      expect(spyWriteSettingsFile).toHaveBeenCalled()
+    })
+
+    it('PUT /settings persists settings and reports Motion unreachable', async () => {
+      await request(motionDownApp.getHttpServer())
+        .put('/settings')
+        .send({
+          camera: {
+            focus: FOCUS,
+            light: 'visible',
+            pictureQuality: PICTURE_QUALITY,
+            shotTypes: SHOT_TYPES,
+            videoQuality: MOVIE_QUALITY,
+          },
+          general: {
+            deviceName: 'd',
+            isAlternatingLightModeEnabled: false,
+            latitude: 1,
+            locationAccuracy: 3,
+            longitude: 2,
+            password: '12345678',
+            siteName: 's',
+            systemTime: new Date().toISOString(),
+            timeZone: AVAILABLE_TIMEZONES[0],
+          },
+          triggering: {
+            light: 'infrared',
+            sleepingTime: { hour: 18, minute: 0 },
+            temperatureThreshold: 7,
+            threshold: TRIGGER_THRESHOLD,
+            useSunriseAndSunsetTimes: false,
+            wakingUpTime: { hour: 20, minute: 0 },
+          },
+        })
+        .expect(503)
+
+      expect(spyWriteSettingsFile).toHaveBeenCalled()
+    })
+
+    it('PUT /settings/siteName persists site name and reports Motion unreachable', async () => {
+      await request(motionDownApp.getHttpServer())
+        .put('/settings/siteName')
+        .send({ siteName: 'new-site' })
+        .expect(503)
+
+      expect(spyWriteSettingsFile).toHaveBeenCalled()
+    })
+
+    it('PUT /settings/deviceName persists device name and reports Motion unreachable', async () => {
+      await request(motionDownApp.getHttpServer())
+        .put('/settings/deviceName')
+        .send({ deviceName: 'new-device' })
+        .expect(503)
+
+      expect(spyWriteSettingsFile).toHaveBeenCalled()
+    })
+
+    it('PUT /settings/timeZone sets system timezone and reports Motion unreachable', async () => {
+      await request(motionDownApp.getHttpServer())
+        .put('/settings/timeZone')
+        .send({ timeZone: AVAILABLE_TIMEZONES[0] })
+        .expect(503)
+
+      expect(spySetTimeZone).toHaveBeenCalledWith(AVAILABLE_TIMEZONES[0])
+    })
+  })
+
+  describe('when the camera is unreachable', () => {
+    const CAMERA_ERROR = new CommandExecutionException('device missing')
+
+    let cameraDownApp: INestApplication
+    let spyLoggerError: Mock
+
+    beforeEach(async () => {
+      spyGetFocus.mockRejectedValue(CAMERA_ERROR)
+      spyLoggerError = vi
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation(() => undefined)
+      spyWriteSettingsFile.mockClear()
+
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [AppModule],
+      })
+        .overrideProvider(MotionClientService)
+        .useClass(MockMotionClientService)
+        .overrideProvider('SCHEDULE_MODULE_OPTIONS')
+        .useValue({ cronJobs: false, intervals: false, timeouts: false })
+        .compile()
+
+      cameraDownApp = moduleFixture.createNestApplication()
+      cameraDownApp.useGlobalPipes(new ValidationPipe())
+      await cameraDownApp.init()
+    })
+
+    afterEach(async () => {
+      await cameraDownApp.close()
+      spyLoggerError.mockRestore()
+    })
+
+    it('GET /settings returns 200 with default focus when camera is unreachable', () => {
+      return request(cameraDownApp.getHttpServer())
+        .get('/settings')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.camera.focus).toBe(0)
+          expect(res.body.camera.focusMaximum).toBe(Number.MAX_SAFE_INTEGER)
+          expect(res.body.camera.focusMinimum).toBe(Number.MIN_SAFE_INTEGER)
+        })
+    })
+
+    it('PATCH /settings with focus returns 503 naming the camera', async () => {
+      const response = await request(cameraDownApp.getHttpServer())
+        .patch('/settings')
+        .send({ camera: { focus: 100 } })
+
+      expect(response.status).toBe(503)
+      expect(response.body.message).toContain('camera')
+      expect(response.body.message).not.toContain('Motion')
     })
   })
 

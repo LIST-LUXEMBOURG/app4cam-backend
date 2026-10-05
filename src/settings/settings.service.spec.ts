@@ -14,8 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
+import {
+  BadRequestException,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { AxiosError } from 'axios'
 import { Mock, vi } from 'vitest'
 import { createMockConfigService } from '../../test/unit/config-service.mock.js'
 import { InitialisationInteractor } from '../initialisation-interactor.js'
@@ -25,10 +31,12 @@ import {
   PictureOutputValue,
 } from '../motion-client.service.interface.js'
 import { MotionClientService } from '../motion-client.service.js'
+import { CommandExecutionException } from '../shared/exceptions/CommandExecutionException.js'
 import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
 import { SettingsPutDto } from './dto/settings.dto.js'
 import { PatchableSettings, Settings } from './entities/settings.js'
 import { AccessPointInteractor } from './interactors/access-point-interactor.js'
+import { SleepInteractor } from './interactors/sleep-interactor.js'
 import { SystemTimeInteractor } from './interactors/system-time-interactor.js'
 import { TemperatureInteractor } from './interactors/temperature-interactor.js'
 import { VideoDeviceInteractor } from './interactors/video-device-interactor.js'
@@ -652,6 +660,534 @@ describe('SettingsService', () => {
         await serviceWithDisabledAp.updateAllSettings(settings)
         expect(spySetAccessPointNameOrPassword).not.toHaveBeenCalled()
       })
+    })
+  })
+
+  describe('when Motion is unreachable', () => {
+    const CONNECTION_ERROR = new AxiosError(
+      'connect ECONNREFUSED 127.0.0.1:8080',
+      'ECONNREFUSED',
+      { url: 'http://127.0.0.1:8080' } as never,
+    )
+
+    const JSON_SETTINGS_MOTION_DOWN = {
+      camera: { light: 'visible' as const },
+      general: {
+        deviceName: 'd',
+        isAlternatingLightModeEnabled: false,
+        latitude: 1,
+        locationAccuracy: 3,
+        longitude: 2,
+        siteName: 's',
+      },
+      triggering: {
+        light: 'infrared' as const,
+        sleepingTime: { hour: 10, minute: 12 },
+        temperatureThreshold: 10,
+        useSunriseAndSunsetTimes: false,
+        wakingUpTime: { hour: 10, minute: 17 },
+      },
+    }
+
+    let serviceUnderTest: SettingsService
+    let motionClient: MockMotionClientService
+    let spyReadSettingsFile: Mock
+    let spyWriteSettingsFile: Mock
+    let spyGetAvailableTimeZones: Mock
+    let spyGetSystemTime: Mock
+    let spySetSystemAndRtcTime: Mock
+    let spyGetTimeZone: Mock
+    let spySetTimeZone: Mock
+    let spyInitializeLights: Mock
+    let spySetAccessPointNameOrPassword: Mock
+    let spyGetAccessPointPassword: Mock
+    let spyGetFocus: Mock
+    let spyLoggerError: Mock
+
+    beforeAll(() => {
+      spyReadSettingsFile = vi
+        .spyOn(SettingsFileProvider, 'readSettingsFile')
+        .mockResolvedValue(JSON_SETTINGS_MOTION_DOWN)
+      spyWriteSettingsFile = vi
+        .spyOn(SettingsFileProvider, 'writeSettingsToFile')
+        .mockResolvedValue()
+      spyGetAvailableTimeZones = vi
+        .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
+        .mockResolvedValue(['t1', 't2'])
+      spyGetSystemTime = vi
+        .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
+        .mockResolvedValue('2022-01-18T14:48:37+01:00')
+      spySetSystemAndRtcTime = vi
+        .spyOn(SystemTimeInteractor, 'setSystemAndRtcTimeInIso8601Format')
+        .mockResolvedValue()
+      spyGetTimeZone = vi
+        .spyOn(SystemTimeInteractor, 'getTimeZone')
+        .mockResolvedValue('t1')
+      spySetTimeZone = vi
+        .spyOn(SystemTimeInteractor, 'setTimeZone')
+        .mockResolvedValue()
+      spyInitializeLights = vi
+        .spyOn(InitialisationInteractor, 'resetLights')
+        .mockResolvedValue()
+      spySetAccessPointNameOrPassword = vi
+        .spyOn(AccessPointInteractor, 'setAccessPointNameOrPassword')
+        .mockResolvedValue()
+      spyGetAccessPointPassword = vi
+        .spyOn(AccessPointInteractor, 'getAccessPointPassword')
+        .mockResolvedValue('p')
+      spyGetFocus = vi
+        .spyOn(VideoDeviceInteractor, 'getFocus')
+        .mockResolvedValue({ min: 0, max: 500 })
+      spyLoggerError = vi
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation(() => undefined)
+    })
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          { provide: ConfigService, useValue: createMockConfigService() },
+          { provide: MotionClientService, useClass: MockMotionClientService },
+          SettingsService,
+        ],
+      }).compile()
+
+      serviceUnderTest = module.get<SettingsService>(SettingsService)
+      motionClient = module.get<MockMotionClientService>(MotionClientService)
+    })
+
+    afterEach(() => {
+      spyReadSettingsFile.mockClear()
+      spyWriteSettingsFile.mockClear()
+      spySetSystemAndRtcTime.mockClear()
+      spySetTimeZone.mockClear()
+      spyInitializeLights.mockClear()
+      spySetAccessPointNameOrPassword.mockClear()
+      spyLoggerError.mockClear()
+    })
+
+    afterAll(() => {
+      spyReadSettingsFile.mockRestore()
+      spyWriteSettingsFile.mockRestore()
+      spyGetAvailableTimeZones.mockRestore()
+      spyGetSystemTime.mockRestore()
+      spySetSystemAndRtcTime.mockRestore()
+      spyGetTimeZone.mockRestore()
+      spySetTimeZone.mockRestore()
+      spyInitializeLights.mockRestore()
+      spySetAccessPointNameOrPassword.mockRestore()
+      spyGetAccessPointPassword.mockRestore()
+      spyGetFocus.mockRestore()
+      spyLoggerError.mockRestore()
+    })
+
+    it('getAllSettings returns partial data without throwing when Motion is unreachable', async () => {
+      const spy = vi
+        .spyOn(motionClient, 'getPictureQuality')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const result = await serviceUnderTest.getAllSettings()
+      spy.mockRestore()
+      expect(result).toBeDefined()
+      expect(result.camera.pictureQuality).toBe(0)
+    })
+
+    it('PATCH deviceName persists to JSON and reports Motion unreachable', async () => {
+      const spySetFilename = vi
+        .spyOn(motionClient, 'setFilename')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const spySetLeftText = vi
+        .spyOn(motionClient, 'setLeftTextOnImage')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const settingsToUpdate: PatchableSettings = {
+        general: { deviceName: 'new-name' },
+      }
+      await expect(
+        serviceUnderTest.updateSettings(settingsToUpdate),
+      ).rejects.toThrow(ServiceUnavailableException)
+      spySetFilename.mockRestore()
+      spySetLeftText.mockRestore()
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          general: expect.objectContaining({ deviceName: 'new-name' }),
+        }),
+        expect.any(String),
+      )
+    })
+
+    it('PATCH threshold validation is skipped and non-Motion settings persist when Motion is down', async () => {
+      const spyGetHeight = vi
+        .spyOn(motionClient, 'getHeight')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const spySetFilename = vi
+        .spyOn(motionClient, 'setFilename')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const settingsToUpdate: PatchableSettings = {
+        general: { deviceName: 'x' },
+        triggering: { threshold: 999999 },
+      }
+      await expect(
+        serviceUnderTest.updateSettings(settingsToUpdate),
+      ).rejects.toThrow(ServiceUnavailableException)
+      spyGetHeight.mockRestore()
+      spySetFilename.mockRestore()
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          general: expect.objectContaining({ deviceName: 'x' }),
+        }),
+        expect.any(String),
+      )
+    })
+
+    it('PATCH pictureQuality and videoQuality are skipped gracefully and reports Motion unreachable', async () => {
+      const spySetPQ = vi
+        .spyOn(motionClient, 'setPictureQuality')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const spySetVQ = vi
+        .spyOn(motionClient, 'setMovieQuality')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const settingsToUpdate: PatchableSettings = {
+        camera: { pictureQuality: 75, videoQuality: 50 },
+      }
+      await expect(
+        serviceUnderTest.updateSettings(settingsToUpdate),
+      ).rejects.toThrow(ServiceUnavailableException)
+      spySetPQ.mockRestore()
+      spySetVQ.mockRestore()
+    })
+
+    it('PATCH shotTypes are skipped gracefully and reports Motion unreachable', async () => {
+      const spySetPO = vi
+        .spyOn(motionClient, 'setPictureOutput')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const settingsToUpdate: PatchableSettings = {
+        camera: { shotTypes: ['pictures'] },
+      }
+      await expect(
+        serviceUnderTest.updateSettings(settingsToUpdate),
+      ).rejects.toThrow(ServiceUnavailableException)
+      spySetPO.mockRestore()
+    })
+
+    it('PUT all settings persists JSON and runs non-Motion steps when Motion is down', async () => {
+      const spySetFilename = vi
+        .spyOn(motionClient, 'setFilename')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const spySetPQ = vi
+        .spyOn(motionClient, 'setPictureQuality')
+        .mockRejectedValue(CONNECTION_ERROR)
+      const settings: SettingsPutDto = {
+        camera: {
+          focus: 200,
+          light: 'visible',
+          pictureQuality: 90,
+          shotTypes: ['pictures', 'videos'],
+          videoQuality: 60,
+        },
+        general: {
+          deviceName: 'dd',
+          isAlternatingLightModeEnabled: false,
+          latitude: 1,
+          locationAccuracy: 3,
+          longitude: 2,
+          password: 'pa',
+          siteName: 'ss',
+          systemTime: '2022-01-18T14:48:37+01:00',
+          timeZone: 't1',
+        },
+        triggering: {
+          light: 'infrared',
+          sleepingTime: { hour: 9, minute: 0 },
+          temperatureThreshold: 1,
+          threshold: 5,
+          useSunriseAndSunsetTimes: false,
+          wakingUpTime: { hour: 8, minute: 30 },
+        },
+      }
+      await expect(
+        serviceUnderTest.updateAllSettings(settings),
+      ).rejects.toThrow(ServiceUnavailableException)
+      spySetFilename.mockRestore()
+      spySetPQ.mockRestore()
+      expect(spyWriteSettingsFile).toHaveBeenCalled()
+      expect(spySetTimeZone).toHaveBeenCalled()
+    })
+
+    it('setSiteName persists to JSON and reports Motion unreachable', async () => {
+      const spySetFilename = vi
+        .spyOn(motionClient, 'setFilename')
+        .mockRejectedValue(CONNECTION_ERROR)
+      await expect(serviceUnderTest.setSiteName('new-site')).rejects.toThrow(
+        ServiceUnavailableException,
+      )
+      spySetFilename.mockRestore()
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          general: expect.objectContaining({ siteName: 'new-site' }),
+        }),
+        expect.any(String),
+      )
+    })
+
+    it('setDeviceName persists to JSON and reports Motion unreachable', async () => {
+      const spySetFilename = vi
+        .spyOn(motionClient, 'setFilename')
+        .mockRejectedValue(CONNECTION_ERROR)
+      await expect(
+        serviceUnderTest.setDeviceName('new-device'),
+      ).rejects.toThrow(ServiceUnavailableException)
+      spySetFilename.mockRestore()
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          general: expect.objectContaining({ deviceName: 'new-device' }),
+        }),
+        expect.any(String),
+      )
+    })
+
+    it('setTimeZone commits the timezone and reports Motion unreachable', async () => {
+      const spySetFilename = vi
+        .spyOn(motionClient, 'setFilename')
+        .mockRejectedValue(CONNECTION_ERROR)
+      await expect(serviceUnderTest.setTimeZone('t1')).rejects.toThrow(
+        ServiceUnavailableException,
+      )
+      spySetFilename.mockRestore()
+      expect(spySetTimeZone).toHaveBeenCalledWith('t1')
+    })
+
+    it('non-ECONNREFUSED Axios error still propagates from PATCH', async () => {
+      const otherError = new AxiosError('bad response', 'ERR_BAD_RESPONSE', {
+        url: 'http://127.0.0.1:8080',
+      } as never)
+      const spySetFilename = vi
+        .spyOn(motionClient, 'setFilename')
+        .mockRejectedValue(otherError)
+      const settingsToUpdate: PatchableSettings = {
+        general: { deviceName: 'x' },
+      }
+      await expect(
+        serviceUnderTest.updateSettings(settingsToUpdate),
+      ).rejects.toThrow(otherError)
+      spySetFilename.mockRestore()
+    })
+
+    it('non-Axios error still propagates from PATCH', async () => {
+      const plainError = new Error('unexpected error')
+      const spySetFilename = vi
+        .spyOn(motionClient, 'setFilename')
+        .mockRejectedValue(plainError)
+      const settingsToUpdate: PatchableSettings = {
+        general: { deviceName: 'x' },
+      }
+      await expect(
+        serviceUnderTest.updateSettings(settingsToUpdate),
+      ).rejects.toThrow(plainError)
+      spySetFilename.mockRestore()
+    })
+  })
+
+  describe('when the camera is unreachable', () => {
+    const CAMERA_ERROR = new CommandExecutionException('device missing')
+
+    const JSON_SETTINGS_CAMERA_DOWN = {
+      camera: { light: 'visible' as const },
+      general: {
+        deviceName: 'd',
+        isAlternatingLightModeEnabled: false,
+        latitude: 1,
+        locationAccuracy: 3,
+        longitude: 2,
+        siteName: 's',
+      },
+      triggering: {
+        light: 'infrared' as const,
+        sleepingTime: { hour: 10, minute: 12 },
+        temperatureThreshold: 10,
+        useSunriseAndSunsetTimes: false,
+        wakingUpTime: { hour: 10, minute: 17 },
+      },
+    }
+
+    let serviceUnderTest: SettingsService
+    let spyReadSettingsFile: Mock
+    let spyWriteSettingsFile: Mock
+    let spyGetAvailableTimeZones: Mock
+    let spyGetSystemTime: Mock
+    let spySetSystemAndRtcTime: Mock
+    let spyGetTimeZone: Mock
+    let spySetTimeZone: Mock
+    let spyInitializeLights: Mock
+    let spySetAccessPointNameOrPassword: Mock
+    let spyGetAccessPointPassword: Mock
+    let spyGetFocus: Mock
+    let spySetFocus: Mock
+    let spyLoggerError: Mock
+
+    beforeAll(() => {
+      spyReadSettingsFile = vi
+        .spyOn(SettingsFileProvider, 'readSettingsFile')
+        .mockResolvedValue(JSON_SETTINGS_CAMERA_DOWN)
+      spyWriteSettingsFile = vi
+        .spyOn(SettingsFileProvider, 'writeSettingsToFile')
+        .mockResolvedValue()
+      spyGetAvailableTimeZones = vi
+        .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
+        .mockResolvedValue(['t1', 't2'])
+      spyGetSystemTime = vi
+        .spyOn(SystemTimeInteractor, 'getSystemTimeInIso8601Format')
+        .mockResolvedValue('2022-01-18T14:48:37+01:00')
+      spySetSystemAndRtcTime = vi
+        .spyOn(SystemTimeInteractor, 'setSystemAndRtcTimeInIso8601Format')
+        .mockResolvedValue()
+      spyGetTimeZone = vi
+        .spyOn(SystemTimeInteractor, 'getTimeZone')
+        .mockResolvedValue('t1')
+      spySetTimeZone = vi
+        .spyOn(SystemTimeInteractor, 'setTimeZone')
+        .mockResolvedValue()
+      spyInitializeLights = vi
+        .spyOn(InitialisationInteractor, 'resetLights')
+        .mockResolvedValue()
+      spySetAccessPointNameOrPassword = vi
+        .spyOn(AccessPointInteractor, 'setAccessPointNameOrPassword')
+        .mockResolvedValue()
+      spyGetAccessPointPassword = vi
+        .spyOn(AccessPointInteractor, 'getAccessPointPassword')
+        .mockResolvedValue('p')
+      spyGetFocus = vi
+        .spyOn(VideoDeviceInteractor, 'getFocus')
+        .mockRejectedValue(CAMERA_ERROR)
+      spySetFocus = vi
+        .spyOn(VideoDeviceInteractor, 'setFocus')
+        .mockRejectedValue(CAMERA_ERROR)
+      spyLoggerError = vi
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation(() => undefined)
+    })
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          {
+            provide: ConfigService,
+            useValue: createMockConfigService({ deviceType: 'RaspberryPi' }),
+          },
+          { provide: MotionClientService, useClass: MockMotionClientService },
+          SettingsService,
+        ],
+      }).compile()
+      serviceUnderTest = module.get<SettingsService>(SettingsService)
+    })
+
+    afterEach(() => {
+      spyReadSettingsFile.mockClear()
+      spyWriteSettingsFile.mockClear()
+      spySetSystemAndRtcTime.mockClear()
+      spySetTimeZone.mockClear()
+      spyInitializeLights.mockClear()
+      spySetAccessPointNameOrPassword.mockClear()
+      spyLoggerError.mockClear()
+      spyGetFocus.mockClear()
+      spySetFocus.mockClear()
+    })
+
+    afterAll(() => {
+      spyReadSettingsFile.mockRestore()
+      spyWriteSettingsFile.mockRestore()
+      spyGetAvailableTimeZones.mockRestore()
+      spyGetSystemTime.mockRestore()
+      spySetSystemAndRtcTime.mockRestore()
+      spyGetTimeZone.mockRestore()
+      spySetTimeZone.mockRestore()
+      spyInitializeLights.mockRestore()
+      spySetAccessPointNameOrPassword.mockRestore()
+      spyGetAccessPointPassword.mockRestore()
+      spyGetFocus.mockRestore()
+      spySetFocus.mockRestore()
+      spyLoggerError.mockRestore()
+    })
+
+    it('getAllSettings returns default focus without throwing when camera is unreachable', async () => {
+      const settings = await serviceUnderTest.getAllSettings()
+      expect(settings.camera.focus).toBe(0)
+      expect(settings.camera.focusMinimum).toBe(Number.MIN_SAFE_INTEGER)
+      expect(settings.camera.focusMaximum).toBe(Number.MAX_SAFE_INTEGER)
+    })
+
+    it('PATCH persists non-focus settings and reports camera unreachable', async () => {
+      await expect(
+        serviceUnderTest.updateSettings({
+          general: { deviceName: 'new' },
+          camera: { focus: 100 },
+        }),
+      ).rejects.toThrow(ServiceUnavailableException)
+      expect(spyWriteSettingsFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          general: expect.objectContaining({ deviceName: 'new' }),
+        }),
+        expect.any(String),
+      )
+    })
+
+    it('PATCH camera-only 503 message names the camera, not Motion', async () => {
+      await expect(
+        serviceUnderTest.updateSettings({ camera: { focus: 100 } }),
+      ).rejects.toThrow('camera is unreachable')
+    })
+
+    it('PUT all settings persists JSON and runs setTimeZone when camera is unreachable', async () => {
+      const spyConfigureWittyPiSchedule = vi
+        .spyOn(SleepInteractor, 'configureWittyPiSchedule')
+        .mockResolvedValue()
+      const settings: SettingsPutDto = {
+        camera: {
+          focus: 100,
+          light: 'visible',
+          pictureQuality: 80,
+          shotTypes: ['pictures'],
+          videoQuality: 60,
+        },
+        general: {
+          deviceName: 'd',
+          isAlternatingLightModeEnabled: false,
+          latitude: 1,
+          locationAccuracy: 3,
+          longitude: 2,
+          password: '12345678',
+          siteName: 's',
+          systemTime: '2022-01-18T14:48:37+01:00',
+          timeZone: 't1',
+        },
+        triggering: {
+          light: 'infrared',
+          sleepingTime: { hour: 10, minute: 12 },
+          temperatureThreshold: 10,
+          threshold: 1,
+          useSunriseAndSunsetTimes: false,
+          wakingUpTime: { hour: 10, minute: 17 },
+        },
+      }
+      await expect(
+        serviceUnderTest.updateAllSettings(settings),
+      ).rejects.toThrow(ServiceUnavailableException)
+      expect(spyWriteSettingsFile).toHaveBeenCalled()
+      expect(spySetTimeZone).toHaveBeenCalledWith('t1')
+      spyConfigureWittyPiSchedule.mockRestore()
+    })
+
+    it('out-of-range focus still throws BadRequestException when camera is responsive', async () => {
+      spyGetFocus.mockResolvedValueOnce({ min: 0, max: 100 })
+      await expect(
+        serviceUnderTest.updateSettings({ camera: { focus: 999 } }),
+      ).rejects.toThrow(BadRequestException)
+    })
+
+    it('non-CommandExecutionException from getFocus still propagates', async () => {
+      const unexpectedError = new Error('unexpected driver error')
+      spyGetFocus.mockRejectedValueOnce(unexpectedError)
+      await expect(
+        serviceUnderTest.updateSettings({ camera: { focus: 100 } }),
+      ).rejects.toThrow(unexpectedError)
     })
   })
 })
