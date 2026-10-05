@@ -1,4 +1,5 @@
-import TriggeringTime from '../shared/entities/triggering-time.js'
+import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto.js'
+import TriggeringTime from './entities/triggering-time.js'
 import CoordinatesDto from './dto/coordinates.dto.js'
 import { SettingsPutDto } from './dto/settings.dto.js'
 import {
@@ -40,6 +41,7 @@ export interface ISettingsService {
   }>
   getIsAlternatingLightModeEnabled: () => Promise<boolean>
   getUseSunriseAndSunsetTimes: () => Promise<boolean>
+  getNextSunsetAndSunrise: () => Promise<SunriseAndSunsetDto>
   setNextSunsetForSleepingAndSunriseForWakingUpOnRaspberryPi: () => Promise<void>
   sleepWhenItIsTime: () => Promise<void>
   doAlternatingLightModeChange: () => Promise<void>

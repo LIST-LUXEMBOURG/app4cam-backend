@@ -32,11 +32,13 @@ import {
   GeneralSettingsPutDto,
   TriggeringSettingsPutDto,
 } from '../../src/settings/dto/settings.dto'
+import { SunriseAndSunsetDto } from '../../src/settings/dto/sunrise-and-sunset.dto'
 import { Settings } from '../../src/settings/entities/settings'
 import { AccessPointInteractor } from '../../src/settings/interactors/access-point-interactor'
 import { SystemTimeInteractor } from '../../src/settings/interactors/system-time-interactor'
 import { VideoDeviceInteractor } from '../../src/settings/interactors/video-device-interactor'
 import { SettingsFileProvider } from '../../src/settings/settings-file-provider'
+import { SunriseSunsetCalculator } from '../../src/settings/sunrise-sunset-calculator'
 import { CommandExecutionException } from '../../src/shared/exceptions/CommandExecutionException'
 import { SystemTimeZonesInteractor } from '../../src/shared/interactors/system-time-zones-interactor'
 
@@ -143,8 +145,19 @@ describe('SettingsController (e2e)', () => {
       thresholdMaximum: TRIGGER_SENSITIVITY_MAXIMUM,
     },
   }
+  const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
+    sunrise: {
+      hour: 1,
+      minute: 2,
+    },
+    sunset: {
+      hour: 3,
+      minute: 4,
+    },
+  }
 
   let app: INestApplication
+  let spyCalculateSunriseAndSunset: Mock
   let spyReadSettingsFile: Mock
   let spyWriteSettingsFile: Mock
   let spyGetSystemTime: Mock
@@ -158,6 +171,9 @@ describe('SettingsController (e2e)', () => {
   let spyGetFocus: Mock
 
   beforeEach(() => {
+    spyCalculateSunriseAndSunset = vi
+      .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
+      .mockReturnValue(SUNRISE_AND_SUNSET)
     spyReadSettingsFile = vi
       .spyOn(SettingsFileProvider, 'readSettingsFile')
       .mockResolvedValue(JSON_SETTINGS)
@@ -1220,6 +1236,15 @@ describe('SettingsController (e2e)', () => {
       })
     })
 
+    describe('/sunsetAndSunrise (GET)', () => {
+      it('returns sunset and sunrise', () => {
+        return request(app.getHttpServer())
+          .get('/settings/sunsetAndSunrise')
+          .expect('Content-Type', /json/)
+          .expect(200, SUNRISE_AND_SUNSET)
+      })
+    })
+
     describe('/shotsFolder (GET)', () => {
       it('returns shot folder', async () => {
         return request(app.getHttpServer())
@@ -1568,6 +1593,7 @@ describe('SettingsController (e2e)', () => {
   })
 
   afterAll(() => {
+    spyCalculateSunriseAndSunset.mockRestore()
     spyReadSettingsFile.mockRestore()
     spyWriteSettingsFile.mockRestore()
     spyGetSystemTime.mockRestore()

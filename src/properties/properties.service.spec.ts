@@ -24,7 +24,6 @@ import { MotionClientService } from '../motion-client.service.js'
 import { SettingsService } from '../settings/settings.service.js'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
 import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
-import { SunriseSunsetCalculator } from '../shared/sunrise-sunset-calculator.js'
 import { VersionDto } from './dto/version.dto.js'
 import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException.js'
 import { LightTypeInteractor } from './interactors/light-type-interactor.js'
@@ -37,17 +36,6 @@ const AVAILABLE_TIME_ZONES = ['t1', 't2']
 const DEVICE_ID = 'a'
 
 const LIGHT_TYPE = 'visible'
-
-const SUNRISE_AND_SUNSET = {
-  sunrise: {
-    hour: 1,
-    minute: 2,
-  },
-  sunset: {
-    hour: 3,
-    minute: 4,
-  },
-}
 
 const VERSION: VersionDto = {
   commitHash: 'a',
@@ -130,19 +118,6 @@ describe(PropertiesService.name, () => {
     const response = await service.getLightType()
     expect(response).toBe('unsupported')
     spy.mockRestore()
-  })
-
-  it('gets the sunrise and sunset', async () => {
-    const spyGetLatitudeAndLongitude = vi
-      .spyOn(SettingsService.prototype, 'getLatitudeAndLongitude')
-      .mockResolvedValue({ latitude: 1, longitude: 2 })
-    const spyCalculateSunriseAndSunset = vi
-      .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
-      .mockReturnValue(SUNRISE_AND_SUNSET)
-    const response = await service.getNextSunsetAndSunrise()
-    expect(response).toEqual(SUNRISE_AND_SUNSET)
-    spyCalculateSunriseAndSunset.mockRestore()
-    spyGetLatitudeAndLongitude.mockRestore()
   })
 
   it('gets the version', async () => {

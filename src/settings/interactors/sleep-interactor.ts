@@ -18,7 +18,7 @@ import { exec as execSync } from 'child_process'
 import { promisify } from 'util'
 import { Logger } from '@nestjs/common'
 import { DateTime } from 'luxon'
-import TriggeringTime from '../../shared/entities/triggering-time.js'
+import TriggeringTime from '../entities/triggering-time.js'
 import { CommandExecutionException } from '../../shared/exceptions/CommandExecutionException.js'
 import { CommandUnavailableOnWindowsException } from '../../shared/exceptions/CommandUnavailableOnWindowsException.js'
 

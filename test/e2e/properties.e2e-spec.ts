@@ -26,25 +26,13 @@ import { MacAddressInteractor } from '../../src/properties/interactors/mac-addre
 import { VersionInteractor } from '../../src/properties/interactors/version-interactor'
 import { SettingsService } from '../../src/settings/settings.service'
 import { ISettingsService } from '../../src/settings/settings.service.interface'
-import { SunriseAndSunsetDto } from '../../src/shared/entities/sunrise-and-sunset.dto'
 import { SystemTimeZonesInteractor } from '../../src/shared/interactors/system-time-zones-interactor'
-import { SunriseSunsetCalculator } from '../../src/shared/sunrise-sunset-calculator'
 
 describe('PropertiesController (e2e)', () => {
   const AVAILABLE_TIME_ZONES = ['Europe/Luxembourg', 'Europe/Paris']
   const BATTERY_VOLTAGE = 1.2
   const DEVICE_ID = 'a'
   const LIGHT_TYPE = 'visible'
-  const SUNRISE_AND_SUNSET: SunriseAndSunsetDto = {
-    sunrise: {
-      hour: 1,
-      minute: 2,
-    },
-    sunset: {
-      hour: 3,
-      minute: 4,
-    },
-  }
   const USAGE: VersionDto = {
     commitHash: 'abcd',
     version: '1.0.0',
@@ -55,7 +43,6 @@ describe('PropertiesController (e2e)', () => {
   }
 
   let app: INestApplication
-  let spyCalculateSunriseAndSunset: Mock
   let spyGetAvailableTimeZones: Mock
   let spyGetBatteryVoltage: Mock
   let spyGetFirstMacAddress: Mock
@@ -63,9 +50,6 @@ describe('PropertiesController (e2e)', () => {
   let spyGetVersion: Mock
 
   beforeAll(() => {
-    spyCalculateSunriseAndSunset = vi
-      .spyOn(SunriseSunsetCalculator, 'calculateSunriseAndSunset')
-      .mockReturnValue(SUNRISE_AND_SUNSET)
     spyGetAvailableTimeZones = vi
       .spyOn(SystemTimeZonesInteractor, 'getAvailableTimeZones')
       .mockResolvedValue(AVAILABLE_TIME_ZONES)
@@ -117,13 +101,6 @@ describe('PropertiesController (e2e)', () => {
         .expect(200, { lightType: LIGHT_TYPE })
     })
 
-    it('/sunsetAndSunrise (GET)', () => {
-      return request(app.getHttpServer())
-        .get('/properties/sunsetAndSunrise')
-        .expect('Content-Type', /json/)
-        .expect(200, SUNRISE_AND_SUNSET)
-    })
-
     it('/timeZones (GET)', () => {
       return request(app.getHttpServer())
         .get('/properties/timeZones')
@@ -149,7 +126,6 @@ describe('PropertiesController (e2e)', () => {
   })
 
   afterAll(() => {
-    spyCalculateSunriseAndSunset.mockRestore()
     spyGetAvailableTimeZones.mockRestore()
     spyGetBatteryVoltage.mockRestore()
     spyGetFirstMacAddress.mockRestore()

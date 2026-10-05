@@ -30,6 +30,7 @@ import { SettingsPatchDto, SettingsPutDto } from './dto/settings.dto.js'
 import { ShotTypesDto } from './dto/shot-types.dto.js'
 import { ShotsFolderDto } from './dto/shots-folder.dto.js'
 import { SiteNameDto } from './dto/site-name.dto.js'
+import { SunriseAndSunsetDto } from './dto/sunrise-and-sunset.dto.js'
 import { SystemTimeDto } from './dto/system-time.dto.js'
 import { TimeZoneDto } from './dto/time-zone.dto.js'
 import { Settings } from './entities/settings.js'
@@ -93,6 +94,11 @@ export class SettingsController {
   @Put('deviceName')
   setDeviceName(@Body() body: DeviceNameDto): Promise<void> {
     return this.settingsService.setDeviceName(body.deviceName)
+  }
+
+  @Get('sunsetAndSunrise')
+  getSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
+    return this.settingsService.getNextSunsetAndSunrise()
   }
 
   @Get('shotsFolder')

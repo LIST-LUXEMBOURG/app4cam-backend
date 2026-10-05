@@ -19,11 +19,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 import { MotionClientService } from '../motion-client.service.js'
-import { SettingsService } from '../settings/settings.service.js'
-import { SunriseAndSunsetDto } from '../shared/entities/sunrise-and-sunset.dto.js'
 import { CommandUnavailableOnWindowsException } from '../shared/exceptions/CommandUnavailableOnWindowsException.js'
 import { SystemTimeZonesInteractor } from '../shared/interactors/system-time-zones-interactor.js'
-import { SunriseSunsetCalculator } from '../shared/sunrise-sunset-calculator.js'
 import { VersionDto } from './dto/version.dto.js'
 import { UnsupportedDeviceTypeException } from './exceptions/UnsupportedDeviceTypeException.js'
 import { BatteryInteractor } from './interactors/battery-interactor.js'
@@ -42,7 +39,6 @@ export class PropertiesService implements IPropertiesService {
   constructor(
     private readonly configService: ConfigService,
     private readonly motionClientService: MotionClientService,
-    private readonly settingsService: SettingsService,
   ) {}
 
   async getBatteryVoltage(): Promise<number> {
@@ -97,15 +93,6 @@ export class PropertiesService implements IPropertiesService {
       }
       throw error
     }
-  }
-
-  async getNextSunsetAndSunrise(): Promise<SunriseAndSunsetDto> {
-    const { latitude, longitude } =
-      await this.settingsService.getLatitudeAndLongitude()
-    return SunriseSunsetCalculator.calculateNextSunsetAndSunrise(
-      latitude,
-      longitude,
-    )
   }
 
   async getVersion(): Promise<VersionDto> {
