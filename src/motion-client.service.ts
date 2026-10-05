@@ -90,9 +90,10 @@ export class MotionClientService implements IMotionClientService {
   }
 
   async setFilename(filename: string): Promise<void> {
-    const moveFilename = filename
-    const pictureFilename = filename + POST_PICTURE_FILENAME
-    const snapshotFilename = filename + POST_SNAPSHOT_FILENAME
+    const encodedFilename = encodeURIComponent(filename)
+    const moveFilename = encodedFilename
+    const pictureFilename = encodedFilename + POST_PICTURE_FILENAME
+    const snapshotFilename = encodedFilename + POST_SNAPSHOT_FILENAME
     await axios.get(CONFIG_SET_URL + '?movie_filename=' + moveFilename)
     await axios.get(CONFIG_SET_URL + '?picture_filename=' + pictureFilename)
     await axios.get(CONFIG_SET_URL + '?snapshot_filename=' + snapshotFilename)
