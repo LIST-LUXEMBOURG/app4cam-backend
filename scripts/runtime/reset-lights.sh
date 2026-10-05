@@ -16,14 +16,14 @@
 
 base_dir="$(dirname "$0")"
 
-device_type="$1"
-light_type="$2"
-is_alternating_light_mode_enabled="$3"
+light_type="$1"
+is_alternating_light_mode_enabled="$2"
 
 # If alternating light mode is enabled, set it and nothing else.
 if [ "$is_alternating_light_mode_enabled" = "true" ]; then
+  device_type=$(sed -n 's/.*DEVICE_TYPE=\([^ ]*\).*/\1/p' /home/app4cam/app4cam-backend/config/production.env)
   "$base_dir"/set-alternating-lights.sh "$device_type"
   exit 0
 fi
 
-"$base_dir"/use-triggering-leds.sh "$device_type" "$light_type" "$is_alternating_light_mode_enabled"
+"$base_dir"/use-triggering-leds.sh "$light_type" "$is_alternating_light_mode_enabled"

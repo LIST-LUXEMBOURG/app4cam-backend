@@ -20,9 +20,10 @@ if [ "$is_alternating_light_mode_enabled" = "true" ]; then
   exit 0
 fi
 
-if [ "$1" = "Variscite" ]; then
+device_type=$(sed -n 's/.*DEVICE_TYPE=\([^ ]*\).*/\1/p' /home/app4cam/app4cam-backend/config/production.env)
+if [ "$device_type" = "Variscite" ]; then
   base_dir="$(dirname "$0")/variscite"
-elif [ "$1" = "RaspberryPi" ]; then
+elif [ "$device_type" = "RaspberryPi" ]; then
   base_dir="$(dirname "$0")/raspberry-pi"
 fi
 

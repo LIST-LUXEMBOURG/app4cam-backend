@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
 
-if [ "$3" ]; then
-  is_alternating_light_mode_enabled="$3"
+if [ "$2" ]; then
+  is_alternating_light_mode_enabled="$2"
 else
   is_alternating_light_mode_enabled=$(curl "http://127.0.0.1:3000/settings/isAlternatingLightModeEnabled")
   echo "response: $is_alternating_light_mode_enabled"
@@ -26,14 +26,15 @@ if [ "$is_alternating_light_mode_enabled" = "true" ]; then
   exit 0
 fi
 
-if [ "$1" = "Variscite" ]; then
+device_type=$(sed -n 's/.*DEVICE_TYPE=\([^ ]*\).*/\1/p' /home/app4cam/app4cam-backend/config/production.env)
+if [ "$device_type" = "Variscite" ]; then
   base_dir="$(dirname "$0")/variscite"
-elif [ "$1" = "RaspberryPi" ]; then
+elif [ "$device_type" = "RaspberryPi" ]; then
   base_dir="$(dirname "$0")/raspberry-pi"
 fi
 
-if [ "$2" ]; then
-  light_type="$2"
+if [ "$1" ]; then
+  light_type="$1"
 else
   light_type=$(curl "http://127.0.0.1:3000/settings/triggeringLight")
   echo "response: $light_type"
@@ -42,7 +43,7 @@ fi
 # Pause motion to prevent triggering another event by the light switch
 # when the light type is not passed, i.e. it is called by Motion.
 url=http://127.0.0.1:8080/0/detection
-if [ ! "$2" ]; then
+if [ ! "$1" ]; then
   echo "Pausing motion..."
   curl $url/pause
 fi
@@ -51,7 +52,7 @@ fi
 
 # Wait until the image is not changing anymore and resume motion
 # when the light type is not passed.
-if [ ! "$2" ]; then
+if [ ! "$1" ]; then
   sleep 15
   echo "Resuming motion..."
   curl $url/start
