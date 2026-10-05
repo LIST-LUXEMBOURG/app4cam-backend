@@ -79,6 +79,9 @@ export class FilesController {
     @Param('id') filename: string,
     @Res({ passthrough: true }) res: Response,
   ) {
+    if (filename.includes('../')) {
+      throw new ForbiddenException()
+    }
     const file = await this.filesService.getStreamableFile(filename)
     res.set({
       'Content-Type': file.contentType,
@@ -89,6 +92,9 @@ export class FilesController {
 
   @Delete(':id')
   async deleteFile(@Param('id') filename: string): Promise<void> {
+    if (filename.includes('../')) {
+      throw new ForbiddenException()
+    }
     try {
       await this.filesService.removeFile(filename)
     } catch (error) {
