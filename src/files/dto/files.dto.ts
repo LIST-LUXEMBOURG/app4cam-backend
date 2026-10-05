@@ -14,10 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with App4Cam.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { ArrayNotEmpty, IsArray } from 'class-validator'
+import { ArrayNotEmpty, IsArray, IsString } from 'class-validator'
 
 export class FilesDto {
   @IsArray()
   @ArrayNotEmpty()
+  @IsString({ each: true })
   filenames: string[]
 }
