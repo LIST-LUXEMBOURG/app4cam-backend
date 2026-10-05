@@ -76,7 +76,6 @@ async function bootstrap() {
   const lightType = await settingsService.getTriggeringLight()
   try {
     await InitialisationInteractor.resetLights(
-      deviceType,
       isAlternatingLightModeEnabled,
       lightType,
     )

@@ -554,7 +554,6 @@ export class SettingsService implements ISettingsService {
         'light' in settings.triggering &&
         settings.triggering.light != settingsReadFromFile.triggering.light)
     ) {
-      const deviceType = this.configService.getOrThrow<string>('deviceType')
       let isAlternatingLightModeEnabled: boolean
       if (
         'general' in settings &&
@@ -581,7 +580,6 @@ export class SettingsService implements ISettingsService {
       }
       try {
         await InitialisationInteractor.resetLights(
-          deviceType,
           isAlternatingLightModeEnabled,
           lightType,
         )
@@ -782,10 +780,8 @@ export class SettingsService implements ISettingsService {
         settings.general.isAlternatingLightModeEnabled ||
       currentSettings.triggering.light != settings.triggering.light
     ) {
-      const deviceType = this.configService.getOrThrow<string>('deviceType')
       try {
         await InitialisationInteractor.resetLights(
-          deviceType,
           settings.general.isAlternatingLightModeEnabled,
           settings.triggering.light,
         )
