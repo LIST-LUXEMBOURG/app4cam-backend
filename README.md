@@ -317,7 +317,7 @@ sudo sh install.sh
 A more extensive tutorial can be found at https://www.uugear.com/product/witty-pi-4/.
 
 **If using the Witty pi 3, after the above commands, run this script to make the device compatible with the HW:**  
-`sudo /home/app4cam/app4cam-backend/scripts/setup/raspberry-pi/witty-pi/select-wittypi.sh`
+`sudo /home/app4cam/app4cam-backend/scripts/setup/raspberry-pi/select-witty-pi.sh`
 
 ### 8. Adding FTP access (Optional for Raspberry Pi only)
 

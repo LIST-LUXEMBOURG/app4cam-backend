@@ -43,5 +43,4 @@ fi
 
 mkdir -p "$WITTYPI_DIR"
 
-# The archives of both versions are available in the home folder.
-unzip wittyPi"$VERSION".zip -d "$WITTYPI_DIR" || ((ERR++))
+unzip "$USER_HOME"/wittyPi"$VERSION".zip -d "$WITTYPI_DIR" || ((ERR++))
