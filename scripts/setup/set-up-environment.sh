@@ -43,6 +43,9 @@ fi
 
 # Install more packages needed.
 apt install ffmpeg gpiod jq unzip -y
+if [ "$device_type" = '2' ]; then
+  apt install fake-hwclock -y
+fi
 
 # Create the new user if it does not exist already.
 if id "$USERNAME" > /dev/null 2>&1; then
