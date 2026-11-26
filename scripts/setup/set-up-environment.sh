@@ -57,13 +57,13 @@ fi
 # Allow the new user and the motion user to execute some commands as sudo.
 JOURNALCTL_PATH="$(type -p journalctl)"
 echo "$USERNAME ALL=(ALL) NOPASSWD: $JOURNALCTL_PATH" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/sbin/reboot" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
-echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/sbin/shutdown" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/timedatectl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /usr/bin/v4l2-ctl" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/reset-lights.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/set-alternating-lights.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "$USERNAME ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/upgrade.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+echo "$USERNAME ALL=(ALL) NOPASSWD: /sbin/reboot" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
+echo "$USERNAME ALL=(ALL) NOPASSWD: /sbin/shutdown" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-recording-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 echo "motion ALL=(ALL) NOPASSWD: /home/$USERNAME/app4cam-backend/scripts/runtime/use-triggering-leds.sh" | su -c 'EDITOR="tee -a" visudo -f /etc/sudoers.d/app4cam'
 
